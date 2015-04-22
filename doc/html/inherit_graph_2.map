@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title="STL class. " alt="" coords="5,42,109,69"/>
+<area shape="rect" id="node2" href="$classApplicationUtilities_1_1Failure.html" title="The exception that is thrown by an ArgumentParser when a parsing error occurs. " alt="" coords="157,5,288,47"/>
+<area shape="rect" id="node3" title="STL class. " alt="" coords="161,71,285,98"/>
+<area shape="rect" id="node4" href="$classConversionUtilities_1_1ConversionException.html" title="The exception that is thrown when an conversion error occurs. " alt="" coords="336,64,491,105"/>
+</map>
