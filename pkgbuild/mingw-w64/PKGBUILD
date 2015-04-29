@@ -17,7 +17,7 @@ _architectures="i686-w64-mingw32 x86_64-w64-mingw32"
 # head end
 
 build() {
-    cd $srcdir/$_name
+    cd "$srcdir/${PROJECT_DIR_NAME:-$_reponame-$pkgver}"
     # build for each architecture
     for _arch in ${_architectures}; do
         mkdir -p build-${_arch} && pushd build-${_arch}
@@ -28,7 +28,7 @@ build() {
 }
 
 package() {
-    cd $srcdir/$_name
+    cd "$srcdir/${PROJECT_DIR_NAME:-$_reponame-$pkgver}"
     for _arch in ${_architectures}; do
         # bin stuff
         pushd build-${_arch}
