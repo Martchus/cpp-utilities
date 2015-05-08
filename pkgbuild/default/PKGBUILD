@@ -1,6 +1,6 @@
 # Maintainer: Martchus <martchus@gmx.net>
 pkgname=c++utilities
-pkgver=1.0.4
+pkgver=1.0.5
 pkgrel=1
 arch=('i686' 'x86_64')
 pkgdesc="Common C++ classes and routines used by my applications such
