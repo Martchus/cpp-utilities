@@ -63,6 +63,8 @@ public:
     void setCombinable(bool value);
     bool isImplicit() const;
     void setImplicit(bool value);
+    bool denotesOperation() const;
+    void setDenotesOperation(bool denotesOperation);
     void setCallback(CallbackFunction callback);
     void printInfo(std::ostream &os, unsigned char indentionLevel = 0) const;
     const ArgumentVector &secondaryArguments() const;
@@ -81,6 +83,7 @@ private:
     bool m_required;
     bool m_combinable;
     bool m_implicit;
+    bool m_denotesOperation;
     int m_requiredValueCount;
     StringList m_valueNames;
     bool m_default;
@@ -415,6 +418,8 @@ inline void Argument::setCombinable(bool value)
 /*!
  * \brief Returns an indication whether the argument can be specified implicitely.
  *
+ * An implicit main argument is assumed to be present even if only its value is present.
+ *
  * \sa setImplicit()
  */
 inline bool Argument::isImplicit() const
@@ -430,6 +435,30 @@ inline bool Argument::isImplicit() const
 inline void Argument::setImplicit(bool value)
 {
     m_implicit = value;
+}
+
+/*!
+ * \brief Returns whether the argument denotes the operation.
+ *
+ * An argument which denotes the operation might be specified
+ * withouth "--" or "-" prefix as first main argument.
+ *
+ * The default value is false.
+ *
+ * \sa setDenotesOperation()
+ */
+inline bool Argument::denotesOperation() const
+{
+    return m_denotesOperation;
+}
+
+/*!
+ * \brief Sets whether the argument denotes the operation.
+ * \sa denotesOperation()
+ */
+inline void Argument::setDenotesOperation(bool denotesOperation)
+{
+    m_denotesOperation = denotesOperation;
 }
 
 /*!

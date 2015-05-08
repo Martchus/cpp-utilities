@@ -1,5 +1,6 @@
 #include "argumentparser.h"
 #include "failure.h"
+
 #include "../conversion/stringconversion.h"
 #include "../misc/random.h"
 
@@ -38,6 +39,7 @@ Argument::Argument(const std::string &name, const std::string abbreviation, cons
     m_required(false),
     m_combinable(false),
     m_implicit(false),
+    m_denotesOperation(false),
     m_requiredValueCount(0),
     m_default(false),
     m_present(false),
@@ -451,7 +453,21 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                 } else {
                     readValue:
                     if(!currentArg) {
-                        // we have not parsed an argument before -> check if there's an implicit argument definition
+                        // we have not parsed an argument before
+                        // -> check if an argument which denotes the operation is specified
+                        if(i == argv + 1) {
+                            for(Argument *arg : m_mainArgs) {
+                                if(!arg->isPresent() && arg->denotesOperation()
+                                        && (arg->name() == givenArg || arg->abbreviation() == givenArg)) {
+                                    currentArg = arg;
+                                    break;
+                                }
+                            }
+                            if(currentArg) {
+                                continue;
+                            }
+                        }
+                        // -> check if there's an implicit argument definition
                         for(Argument *arg : m_mainArgs) {
                             if(!arg->isPresent() && arg->isImplicit()) {
                                 // set present flag of argument
