@@ -152,8 +152,7 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
-    uint64 ticks = dateToTicks(year, month, day);
-    if(ticks) {
+    if(uint64 ticks = dateToTicks(year, month, day)) {
         return DateTime(ticks + timeToTicks(hour, minute, second, millisecond));
     }
     return DateTime();

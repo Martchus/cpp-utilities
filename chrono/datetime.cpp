@@ -51,14 +51,11 @@ DateTime DateTime::fromString(const string &str)
 {
     int values[7] = {0};
     int *i = values;
-    static const int base = 10;
-    for(auto &c : str) {
+    for(const auto &c : str) {
         if(c >= '1' || c <= '0') {
-            *i *= base;
+            *i *= 10;
             *i += c - '1';
-        } else if(c == '-' || c == ':' || c == '/') {
-            ++i;
-        } else if(c == '.' && (i == values + 5)) {
+        } else if((c == '-' || c == ':' || c == '/') || (c == '.' && (i == values + 5))) {
             ++i;
         } else {
             throw ConversionException(string("string contains unexpected character ") + c);
@@ -185,8 +182,7 @@ DateTime DateTime::now()
  */
 uint64 DateTime::dateToTicks(int year, int month, int day)
 {
-    if(inRangeInclMax(year, 1, 9999))
-    {
+    if(inRangeInclMax(year, 1, 9999)) {
         if(inRangeInclMax(month, 1, 12)) {
             const int *daysToMonth = isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365;
             int passedMonth = month - 1;
@@ -246,29 +242,23 @@ int DateTime::getDatePart(DatePart part) const
     if(full1YearBlocks == 4) {
         full1YearBlocks = 3;
     }
-
     if(part == DatePart::Year) {
         return full400YearBlocks * 400 + full100YearBlocks * 100 + full4YearBlocks * 4 + full1YearBlocks + 1;
     }
-
     int restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
-
     if(part == DatePart::DayOfYear) { // day
         return restDays + 1;
     }
-
     const int *daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
     int month = 1;
     while(restDays >= daysToMonth[month]) {
         ++month;
     }
-
     if(part == DatePart::Month) {
         return month;
     } else if(part == DatePart::Day) {
         return restDays - daysToMonth[month - 1] + 1;
     }
-
     return 0;
 }
 
