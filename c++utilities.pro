@@ -26,7 +26,8 @@ SOURCES += \
     math/math.cpp \
     application/fakeqtconfigarguments.cpp \
     io/ansiescapecodes.cpp \
-    misc/random.cpp
+    misc/random.cpp \
+    io/bitreader.cpp
 
 HEADERS += \
     application/global.h \
@@ -49,9 +50,12 @@ HEADERS += \
     application/fakeqtconfigarguments.h \
     io/ansiescapecodes.h \
     misc/memory.h \
-    misc/random.h
+    misc/random.h \
+    io/bitreader.h
 
 OTHER_FILES += \
+    README.md \
+    LICENSE \
     pkgbuild/default/PKGBUILD \
     pkgbuild/mingw-w64/PKGBUILD
 
