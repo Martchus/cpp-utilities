@@ -127,8 +127,7 @@ string BinaryReader::readString(size_t length)
 {
     unique_ptr<char []> buff = make_unique<char []>(length);
     m_stream->read(buff.get(), length);
-    string res(buff.get(), length);
-    return res;
+    return string(buff.get(), length);
 }
 
 /*!
