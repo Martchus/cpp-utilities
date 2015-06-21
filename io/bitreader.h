@@ -26,7 +26,7 @@ private:
 
 /*!
  * \brief Constructs a new BitReader.
- * \remarks Does not destroy the specified \a buffer.
+ * \remarks Does not take ownership over the specified \a buffer.
  */
 inline BitReader::BitReader(const char *buffer, std::size_t bufferSize) :
     m_buffer(reinterpret_cast<const byte *>(buffer)),
@@ -36,7 +36,7 @@ inline BitReader::BitReader(const char *buffer, std::size_t bufferSize) :
 
 /*!
  * \brief Constructs a new BitReader.
- * \remarks Does not destroy the specified \a buffer.
+ * \remarks Does not take ownership over the specified \a buffer.
  */
 inline BitReader::BitReader(const char *buffer, const char *end) :
     m_buffer(reinterpret_cast<const byte *>(buffer)),
