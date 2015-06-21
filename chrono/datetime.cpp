@@ -45,6 +45,16 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
  */
 
 /*!
+ * \brief Constructs a new DateTime object from the specified \a timeStamp.
+ */
+DateTime DateTime::fromTimeStamp(time_t timeStamp)
+{
+    struct tm *timeinfo = localtime(&timeStamp);
+    return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+                    timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
+}
+
+/*!
  * Parses the given std::string \a str as DateTime.
  */
 DateTime DateTime::fromString(const string &str)
@@ -164,17 +174,7 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
  */
 DateTime DateTime::now()
 {
-    time_t rawtime;
-    struct tm *timeinfo;
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    return DateTime::fromDateAndTime(
-                timeinfo->tm_year + 1900,
-                timeinfo->tm_mon + 1,
-                timeinfo->tm_mday,
-                timeinfo->tm_hour,
-                timeinfo->tm_min,
-                timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59);
+    return DateTime(time(nullptr));
 }
 
 /*!

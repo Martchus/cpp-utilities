@@ -62,6 +62,7 @@ public:
     static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromString(const std::string &str);
+    static DateTime fromTimeStamp(time_t timestamp);
 
     constexpr uint64 totalTicks() const;
     int year() const;
