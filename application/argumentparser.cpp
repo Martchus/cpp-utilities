@@ -464,6 +464,10 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                                 }
                             }
                             if(currentArg) {
+                                currentArg->m_present = true;
+                                ++actualArgc; // we actually found an argument
+                                // now we might need to read values tied to that argument
+                                valuesToRead = currentArg->requiredValueCount();
                                 continue;
                             }
                         }
