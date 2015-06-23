@@ -1,4 +1,5 @@
 projectname = c++utilities
+VERSION = 1.0.6
 
 # include ../../common.pri when building as part of a subdirs project; otherwise include general.pri
 !include(../../common.pri) {
@@ -27,7 +28,8 @@ SOURCES += \
     application/fakeqtconfigarguments.cpp \
     io/ansiescapecodes.cpp \
     misc/random.cpp \
-    io/bitreader.cpp
+    io/bitreader.cpp \
+    application/commandlineutils.cpp
 
 HEADERS += \
     application/global.h \
@@ -51,7 +53,8 @@ HEADERS += \
     io/ansiescapecodes.h \
     misc/memory.h \
     misc/random.h \
-    io/bitreader.h
+    io/bitreader.h \
+    application/commandlineutils.h
 
 OTHER_FILES += \
     README.md \
