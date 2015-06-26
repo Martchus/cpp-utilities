@@ -58,9 +58,7 @@ HEADERS += \
 
 OTHER_FILES += \
     README.md \
-    LICENSE \
-    pkgbuild/default/PKGBUILD \
-    pkgbuild/mingw-w64/PKGBUILD
+    LICENSE
 
 # installs
 target.path = $$(INSTALL_ROOT)/lib

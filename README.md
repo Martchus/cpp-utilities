@@ -9,4 +9,4 @@ make && make install
 ```
 As you can see, the qmake build system is used. However the library itself does *not* depend on Qt.
 
-The repository also contains PKGBUILD files for building Arch Linux packages. A PKGBUILD file to build for Windows using the Mingw-w64 compiler is also included.
+The repository PKGBUILDs (also on GitHub) contains files for building Arch Linux packages. A PKGBUILD file to build for Windows using the Mingw-w64 compiler is also included.
