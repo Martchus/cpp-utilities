@@ -29,7 +29,8 @@ SOURCES += \
     io/ansiescapecodes.cpp \
     misc/random.cpp \
     io/bitreader.cpp \
-    application/commandlineutils.cpp
+    application/commandlineutils.cpp \
+    io/inifile.cpp
 
 HEADERS += \
     application/global.h \
@@ -54,7 +55,8 @@ HEADERS += \
     misc/memory.h \
     misc/random.h \
     io/bitreader.h \
-    application/commandlineutils.h
+    application/commandlineutils.h \
+    io/inifile.h
 
 OTHER_FILES += \
     README.md \
