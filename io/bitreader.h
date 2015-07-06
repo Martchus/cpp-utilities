@@ -17,6 +17,8 @@ public:
     template<typename intType> intType readBits(byte bitCount);
     void skipBits(std::size_t bitCount);
     std::size_t bitsAvailable();
+    void reset(const char *buffer, std::size_t bufferSize);
+    void reset(const char *buffer, const char *end);
 
 private:
     const byte *m_buffer;
@@ -75,6 +77,26 @@ intType BitReader::readBits(byte bitCount)
 inline std::size_t BitReader::bitsAvailable()
 {
     return ((m_end - m_buffer) * 8) + m_bitsAvail;
+}
+
+/*!
+ * \brief Resets the reader.
+ */
+inline void BitReader::reset(const char *buffer, size_t bufferSize)
+{
+    m_buffer = reinterpret_cast<const byte *>(buffer);
+    m_end = reinterpret_cast<const byte *>(buffer + bufferSize);
+    m_bitsAvail = 8;
+}
+
+/*!
+ * \brief Resets the reader.
+ */
+inline void BitReader::reset(const char *buffer, const char *end)
+{
+    m_buffer = reinterpret_cast<const byte *>(buffer);
+    m_end = reinterpret_cast<const byte *>(end);
+    m_bitsAvail = 8;
 }
 
 } // namespace IoUtilities
