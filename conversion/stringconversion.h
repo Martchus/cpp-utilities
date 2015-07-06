@@ -138,6 +138,16 @@ template <typename StringType> LIB_EXPORT bool startsWith(const StringType &str,
 }
 
 /*!
+ * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ */
+template <typename StringType> LIB_EXPORT void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
+{
+    for(typename StringType::size_type i = 0; (i = str.find(find, i)) != StringType::npos; i += replace.size()) {
+        str.replace(i, find.size(), replace);
+    }
+}
+
+/*!
  * \brief Converts the given \a number to its equivalent std::string representation using the specified \a base.
  *
  * \tparam NumberType The data type of the given number.
@@ -182,8 +192,8 @@ template <typename NumberType, typename StringType> LIB_EXPORT NumberType string
  * \brief Interprets the given \a integer at the specified position as std::string using the specified byte order.
  *
  * Example: Interpretation of ID3v2 frame IDs (stored as 32-bit integer) as string
- *  - 0x54495432/1414091826 will be interpreted as "TIT2" using big endian byte order.
- *  - 0x00545432/5526578 will be interpreted as "TT2" using big endian byte order and start offset 1 to "exclude" the first byte.
+ *  - 0x54495432/1414091826 will be interpreted as "TIT2".
+ *  - 0x00545432/5526578 will be interpreted as "TT2" using start offset 1 to "exclude" the first byte.
  *
  * \tparam T The data type of the integer to be interpreted.
  */
@@ -191,7 +201,7 @@ template <typename T> LIB_EXPORT std::string interpretIntegerAsString(T integer,
 {
     char buffer[sizeof(T)];
     ConversionUtilities::BE::getBytes(integer, buffer);
-    return std::string(buffer + startOffset, sizeof(T));
+    return std::string(buffer + startOffset, sizeof(T) - startOffset);
 }
 
 LIB_EXPORT std::string dataSizeToString(int64 sizeInByte);
