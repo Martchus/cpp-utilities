@@ -6,6 +6,8 @@
 
 #include <ios>
 
+#include <iostream>
+
 namespace IoUtilities {
 
 class LIB_EXPORT BitReader
@@ -28,17 +30,19 @@ private:
 
 /*!
  * \brief Constructs a new BitReader.
- * \remarks Does not take ownership over the specified \a buffer.
+ * \remarks
+ *  - Does not take ownership over the specified \a buffer.
+ *  - bufferSize must be equal or greather than 1.
  */
 inline BitReader::BitReader(const char *buffer, std::size_t bufferSize) :
-    m_buffer(reinterpret_cast<const byte *>(buffer)),
-    m_end(reinterpret_cast<const byte *>(buffer + bufferSize)),
-    m_bitsAvail(8)
+    BitReader(buffer, buffer + bufferSize)
 {}
 
 /*!
  * \brief Constructs a new BitReader.
- * \remarks Does not take ownership over the specified \a buffer.
+ * \remarks
+ *  - Does not take ownership over the specified \a buffer.
+ *  - \a end must be greather than \a buffer.
  */
 inline BitReader::BitReader(const char *buffer, const char *end) :
     m_buffer(reinterpret_cast<const byte *>(buffer)),
@@ -59,14 +63,14 @@ intType BitReader::readBits(byte bitCount)
 {
     intType val = 0;
     for(byte readAtOnce; bitCount; bitCount -= readAtOnce) {
-        readAtOnce = std::min(bitCount, m_bitsAvail);
-        val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
         if(!m_bitsAvail) {
             m_bitsAvail = 8;
             if(++m_buffer >= m_end) {
                 throw std::ios_base::failure("end of buffer exceeded");
             }
         }
+        readAtOnce = std::min(bitCount, m_bitsAvail);
+        val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
     }
     return val;
 }
