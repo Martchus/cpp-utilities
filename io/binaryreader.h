@@ -39,6 +39,8 @@ public:
     uint32 readUInt24BE();
     int32 readInt32BE();
     uint32 readUInt32BE();
+    uint64 readUInt40BE();
+    uint64 readUInt56BE();
     int64 readInt64BE();
     uint64 readUInt64BE();
     float32 readFloat32BE();
@@ -49,6 +51,8 @@ public:
     uint32 readUInt24LE();
     int32 readInt32LE();
     uint32 readUInt32LE();
+    uint64 readUInt40LE();
+    uint64 readUInt56LE();
     int64 readInt64LE();
     uint64 readUInt64LE();
     float32 readFloat32LE();
@@ -211,7 +215,7 @@ inline uint16 BinaryReader::readUInt16BE()
  */
 inline int32 BinaryReader::readInt24BE()
 {
-    m_buffer[0] = 0;
+    *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
     int32 val = ConversionUtilities::BE::toInt32(m_buffer);
     if(val >= 0x800000) {
@@ -225,7 +229,7 @@ inline int32 BinaryReader::readInt24BE()
  */
 inline uint32 BinaryReader::readUInt24BE()
 {
-    m_buffer[0] = 0;
+    *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
     return ConversionUtilities::BE::toUInt32(m_buffer);
 }
@@ -246,6 +250,26 @@ inline uint32 BinaryReader::readUInt32BE()
 {
     m_stream->read(m_buffer, sizeof(uint32));
     return ConversionUtilities::BE::toUInt32(m_buffer);
+}
+
+/*!
+ * \brief Reads a 40-bit big endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
+ */
+inline uint64 BinaryReader::readUInt40BE()
+{
+    *reinterpret_cast<uint32 *>(m_buffer) = 0;
+    m_stream->read(m_buffer + 3, 5);
+    return ConversionUtilities::BE::toUInt64(m_buffer);
+}
+
+/*!
+ * \brief Reads a 56-bit big endian unsigned integer from the current stream and advances the current position of the stream by seven bytes.
+ */
+inline uint64 BinaryReader::readUInt56BE()
+{
+    *m_buffer = 0;
+    m_stream->read(m_buffer + 1, 5);
+    return ConversionUtilities::BE::toUInt64(m_buffer);
 }
 
 /*!
@@ -307,7 +331,7 @@ inline uint16 BinaryReader::readUInt16LE()
  */
 inline int32 BinaryReader::readInt24LE()
 {
-    m_buffer[3] = 0;
+    *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
     int32 val = ConversionUtilities::LE::toInt32(m_buffer);
     if(val >= 0x800000) {
@@ -321,7 +345,7 @@ inline int32 BinaryReader::readInt24LE()
  */
 inline uint32 BinaryReader::readUInt24LE()
 {
-    m_buffer[3] = 0;
+    *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
     return ConversionUtilities::LE::toUInt32(m_buffer);
 }
@@ -342,6 +366,26 @@ inline uint32 BinaryReader::readUInt32LE()
 {
     m_stream->read(m_buffer, sizeof(uint32));
     return ConversionUtilities::LE::toUInt32(m_buffer);
+}
+
+/*!
+ * \brief Reads a 40-bit little endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
+ */
+inline uint64 BinaryReader::readUInt40LE()
+{
+    *reinterpret_cast<uint32 *>(m_buffer + 3) = 0;
+    m_stream->read(m_buffer, 5);
+    return ConversionUtilities::LE::toUInt64(m_buffer);
+}
+
+/*!
+ * \brief Reads a 56-bit little endian unsigned integer from the current stream and advances the current position of the stream by seven bytes.
+ */
+inline uint64 BinaryReader::readUInt56LE()
+{
+    *(m_buffer + 7) = 0;
+    m_stream->read(m_buffer, 7);
+    return ConversionUtilities::LE::toUInt64(m_buffer);
 }
 
 /*!
@@ -400,6 +444,7 @@ inline byte BinaryReader::readByte()
 
 /*!
  * \brief Reads a boolean value from the current stream and advances the current position of the stream by one byte.
+ * \sa IoUtilities::BitReader
  */
 inline bool BinaryReader::readBool()
 {
@@ -408,9 +453,7 @@ inline bool BinaryReader::readBool()
 
 /*!
  * \brief Reads a 32-bit big endian synchsafe integer from the current stream and advances the current position of the stream by four bytes.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 inline uint32 BinaryReader::readSynchsafeUInt32BE()
@@ -436,9 +479,7 @@ inline float32 BinaryReader::readFixed16BE()
 
 /*!
  * \brief Reads a 32-bit little endian synchsafe integer from the current stream and advances the current position of the stream by four bytes.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 inline uint32 BinaryReader::readSynchsafeUInt32LE()

@@ -210,7 +210,6 @@ inline void BinaryWriter::writeUInt16BE(uint16 value)
  */
 inline void BinaryWriter::writeInt24BE(int32 value)
 {
-    // discard most significant byte
     ConversionUtilities::BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 1, 3);
 }
@@ -392,9 +391,7 @@ inline void BinaryWriter::writeTerminatedString(const std::string &value)
 
 /*!
  * \brief Writes a 32-bit big endian synchsafe integer to the current stream and advances the current position of the stream by four bytes.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 inline void BinaryWriter::writeSynchsafeUInt32BE(uint32 valueToConvertAndWrite)
@@ -420,9 +417,7 @@ inline void BinaryWriter::writeFixed16BE(float32 valueToConvertAndWrite)
 
 /*!
  * \brief Writes a 32-bit little endian synchsafe integer to the current stream and advances the current position of the stream by four bytes.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 inline void BinaryWriter::writeSynchsafeUInt32LE(uint32 valueToConvertAndWrite)

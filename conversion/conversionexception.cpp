@@ -4,7 +4,8 @@ namespace ConversionUtilities {
 
 /*!
  * \class ConversionUtilities::ConversionException
- * \brief The exception that is thrown when an conversion error occurs.
+ * \brief The ConversionException class is thrown by the various conversion
+ *        functions of this library when a conversion error occurs.
  */
 
 /*!

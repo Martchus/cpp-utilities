@@ -23,9 +23,9 @@ void truncateString(string &str, char terminationChar)
 /*!
  * \brief Converts the specified data size in byte to its equivalent std::string representation.
  *
- * An unit with appropriate binary prefix will be appended.
+ * The unit with appropriate binary prefix will be appended.
  */
-string dataSizeToString(int64 sizeInByte)
+string dataSizeToString(uint64 sizeInByte)
 {
     stringstream res(stringstream::in | stringstream::out);
     res.setf(ios::fixed, ios::floatfield);
@@ -33,13 +33,13 @@ string dataSizeToString(int64 sizeInByte)
     if (sizeInByte < 1024LL) {
         res << sizeInByte << " bytes";
     } else if (sizeInByte < 1048576LL) {
-        res << ((double)sizeInByte / 1024.0) << " KiB";
+        res << (static_cast<double>(sizeInByte) / 1024.0) << " KiB";
     } else if (sizeInByte < 1073741824LL) {
-        res << ((double)sizeInByte / 1048576.0) << " MiB";
+        res << (static_cast<double>(sizeInByte) / 1048576.0) << " MiB";
     } else if (sizeInByte < 1099511627776LL) {
-        res << ((double)sizeInByte / 1073741824.0) << " GiB";
+        res << (static_cast<double>(sizeInByte) / 1073741824.0) << " GiB";
     } else {
-        res << ((double)sizeInByte / 1099511627776.0) << " TiB";
+        res << (static_cast<double>(sizeInByte) / 1099511627776.0) << " TiB";
     }
     return res.str();
 }
@@ -47,10 +47,10 @@ string dataSizeToString(int64 sizeInByte)
 /*!
  * \brief Converts the specified bitrate in kbit/s to its equivalent std::string representation.
  *
- * An unit with appropriate binary prefix will be appended.
+ * The unit with appropriate binary prefix will be appended.
  *
- * \param bitrateInKbitsPerSecond Specifies The bitrate to be converted in kbit/s.
- * \param useIecBinaryPrefixes Indicates whether IEC binary prefixes should be used (eg. Kib/s).
+ * \param bitrateInKbitsPerSecond Specifies the bitrate in kbit/s.
+ * \param useIecBinaryPrefixes Indicates whether IEC binary prefixes should be used (eg. KiB/s).
  *
  * \sa <a href="http://en.wikipedia.org/wiki/Binary_prefix">Binary prefix - Wikipedia</a>
  */
@@ -82,8 +82,8 @@ string bitrateToString(double bitrateInKbitsPerSecond, bool useIecBinaryPrefixes
     return res.str();
 }
 
-static const char *base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const char base64Pad = '=';
+const char *base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const char base64Pad = '=';
 
 /*!
  * \brief Encodes the specified data to a base64 string.

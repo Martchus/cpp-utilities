@@ -125,6 +125,12 @@ string BinaryReader::readLengthPrefixedString()
  */
 string BinaryReader::readString(size_t length)
 {
+    //string res;
+    //res.reserve(length);
+    //for(; length; --length) {
+    //    res.push_back(static_cast<string::value_type>(m_stream->get()));
+    //}
+    //return res;
     unique_ptr<char []> buff = make_unique<char []>(length);
     m_stream->read(buff.get(), length);
     return string(buff.get(), length);

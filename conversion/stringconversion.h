@@ -36,8 +36,7 @@ typename Container::value_type joinStrings(const Container &strings, const typen
 {
     typename Container::value_type res;
     if(strings.size()) {
-        size_t entries = 0;
-        size_t size = 0;
+        size_t entries = 0, size = 0;
         for(const auto &str : strings) {
             if(!omitEmpty || !str.empty()) {
                 size += str.size();
@@ -149,13 +148,9 @@ template <typename StringType> LIB_EXPORT void findAndReplace(StringType &str, c
 
 /*!
  * \brief Converts the given \a number to its equivalent std::string representation using the specified \a base.
- *
  * \tparam NumberType The data type of the given number.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
- *
- * \sa numberToWString()
  * \sa stringToNumber()
- * \sa wstringToNumber()
  */
 template <typename NumberType, typename StringType = std::string> LIB_EXPORT StringType numberToString(NumberType number, int base = 10)
 {
@@ -166,15 +161,10 @@ template <typename NumberType, typename StringType = std::string> LIB_EXPORT Str
 
 /*!
  * \brief Converts the given \a string to a numeric value using the specified \a base.
- *
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
- *
  * \throws A ConversionException will be thrown if the provided string is not a valid number.
- *
  * \sa numberToString()
- * \sa numberToWString()
- * \sa wstringToNumber()
  */
 template <typename NumberType, typename StringType> LIB_EXPORT NumberType stringToNumber(const StringType &string, int base = 10)
 {
@@ -204,7 +194,7 @@ template <typename T> LIB_EXPORT std::string interpretIntegerAsString(T integer,
     return std::string(buffer + startOffset, sizeof(T) - startOffset);
 }
 
-LIB_EXPORT std::string dataSizeToString(int64 sizeInByte);
+LIB_EXPORT std::string dataSizeToString(uint64 sizeInByte);
 LIB_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
 LIB_EXPORT std::string encodeBase64(const std::vector<char> &bytes);
 LIB_EXPORT std::vector<char> decodeBase64(const std::string &encoded);

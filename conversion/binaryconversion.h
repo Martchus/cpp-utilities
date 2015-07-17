@@ -41,11 +41,8 @@
  * \namespace ConversionUtilities
  * \brief Contains several functions providing conversions between different data types.
  *
- * binaryconversion.h declares functions which convert base data types to an array of bytes,
- * and an array of bytes to base data types.
- *
- * stringconversion.h declares different functions around string conversion such as converting a
- * number to a string and vice versa.
+ * binaryconversion.h declares functions which convert base data types to an array of bytes and vice versa.
+ * stringconversion.h declares different functions around string conversion such as converting a number to a string and vice versa.
  */
 namespace ConversionUtilities
 {
@@ -116,9 +113,7 @@ LIB_EXPORT inline float32 toFloat32(uint32 fixed16value)
 
 /*!
  * \brief Returns a 32-bit synchsafe integer converted from a normal 32-bit integer.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 LIB_EXPORT inline uint32 toSynchsafeInt(uint32 normalInt)
@@ -131,9 +126,7 @@ LIB_EXPORT inline uint32 toSynchsafeInt(uint32 normalInt)
 
 /*!
  * \brief Returns a normal 32-bit integer converted from a 32-bit synchsafe integer.
- *
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
- *
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
 LIB_EXPORT inline uint32 toNormalInt(uint32 synchsafeInt)
@@ -145,6 +138,5 @@ LIB_EXPORT inline uint32 toNormalInt(uint32 synchsafeInt)
 }
 
 }
-
 
 #endif // CONVERSION_UTILITIES_CONVERT_H

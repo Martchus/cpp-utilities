@@ -1,5 +1,9 @@
 #ifdef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
 
+#ifndef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
+#error "Do not include binaryconversionprivate.h directly."
+#endif
+
 #include "types.h"
 
 #include "../application/global.h"
@@ -143,12 +147,12 @@ LIB_EXPORT inline float32 toFloat32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     int32 val = toInt64(value);
-    char *c = reinterpret_cast<char*>(&val);
-    return *reinterpret_cast<float32*>(c);
+    char *c = reinterpret_cast<char *>(&val);
+    return *reinterpret_cast<float32 *>(c);
 #else
     int32 val = toInt64(value);
-    char *c = reinterpret_cast<char*>(&val);
-    return *reinterpret_cast<float32*>(c);
+    char *c = reinterpret_cast<char *>(&val);
+    return *reinterpret_cast<float32 *>(c);
 #endif
 }
 
@@ -159,12 +163,12 @@ LIB_EXPORT inline float64 toFloat64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     int64 val = toInt64(value);
-    char *c = reinterpret_cast<char*>(&val);
+    char *c = reinterpret_cast<char *>(&val);
     return *reinterpret_cast<float64*>(c);
 #else
     int64 val = toInt64(value);
-    char *c = reinterpret_cast<char*>(&val);
-    return *reinterpret_cast<float64*>(c);
+    char *c = reinterpret_cast<char *>(&val);
+    return *reinterpret_cast<float64 *>(c);
 #endif
 }
 
@@ -289,8 +293,8 @@ LIB_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
  */
 LIB_EXPORT inline void getBytes(float32 value, char *outputbuffer)
 {
-    char *c = reinterpret_cast<char*>(&value);
-    int32 i = *reinterpret_cast<int32*>(c);
+    char *c = reinterpret_cast<char *>(&value);
+    int32 i = *reinterpret_cast<int32 *>(c);
     getBytes(i, outputbuffer);
 }
 
@@ -299,8 +303,8 @@ LIB_EXPORT inline void getBytes(float32 value, char *outputbuffer)
  */
 LIB_EXPORT inline void getBytes(float64 value, char *outputbuffer)
 {
-    char *c = reinterpret_cast<char*>(&value);
-    int64 i = *reinterpret_cast<int64*>(c);
+    char *c = reinterpret_cast<char *>(&value);
+    int64 i = *reinterpret_cast<int64 *>(c);
     getBytes(i, outputbuffer);
 }
 
