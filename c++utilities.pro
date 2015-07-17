@@ -63,8 +63,17 @@ OTHER_FILES += \
     LICENSE
 
 # installs
-target.path = $$(INSTALL_ROOT)/lib
-INSTALLS += target
+mingw-w64-install {
+    target.path = $$(INSTALL_ROOT)
+    target.extra = install -m755 -D $${OUT_PWD}/release/lib$(TARGET).a $$(INSTALL_ROOT)/lib/lib$(TARGET).a
+    INSTALLS += target
+    dlltarget.path = $$(INSTALL_ROOT)
+    dlltarget.extra = install -m755 -D $${OUT_PWD}/release/$(TARGET) $$(INSTALL_ROOT)/bin/$(TARGET)
+    INSTALLS += dlltarget
+} else {
+    target.path = $$(INSTALL_ROOT)/lib
+    INSTALLS += target
+}
 for(dir, $$list(application io conversion chrono math misc)) {
     eval(inc_$${dir} = $${dir})
     inc_$${dir}.path = $$(INSTALL_ROOT)/include/$$projectname/$${dir}
