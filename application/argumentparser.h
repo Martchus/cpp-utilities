@@ -69,6 +69,7 @@ public:
     void printInfo(std::ostream &os, unsigned char indentionLevel = 0) const;
     const ArgumentVector &secondaryArguments() const;
     void setSecondaryArguments(const ArgumentInitializerList &secondaryArguments);
+    void addSecondaryArgument(Argument *arg);
     bool hasSecondaryArguments() const;
     const ArgumentVector parents() const;
     bool isMainArgument() const;
@@ -174,7 +175,7 @@ inline void Argument::setDescription(const std::string &description)
 /*!
  * \brief Returns the additional values for the argument.
  *
- * These values set by the parser when the command line arguments.
+ * These values set by the parser when parsing the command line arguments.
  */
 inline const StringVector &Argument::values() const
 {
@@ -184,7 +185,7 @@ inline const StringVector &Argument::values() const
 /*!
  * \brief Returns the value with the give \a index.
  *
- * These values set by the parser when the command line arguments.
+ * These values set by the parser when parsing the command line arguments.
  */
 inline const std::string &Argument::value(StringVector::size_type index) const
 {
@@ -262,7 +263,7 @@ inline const StringList &Argument::valueNames() const
  */
 inline void Argument::setValueNames(std::initializer_list<std::string> valueNames)
 {
-    m_valueNames = std::list<std::string>(valueNames);
+    m_valueNames.assign(valueNames);
 }
 
 /*!
@@ -302,9 +303,9 @@ inline bool Argument::allRequiredValuesPresent() const
 /*!
  * \brief Returns an indication whether the argument is a default argument.
  *
- * A default argument will be flagged as present when parsing arguments event
- * if it is not actually present if there is no uncombinable argument present
- * and it is a main argument or the parent is present.
+ * A default argument will be flagged as present when parsing arguments even
+ * if it is not actually present and there is no uncombinable argument present
+ * and the it is a main argument or the parent is present.
  *
  * The callback function will be invoked in this case as the argument where
  * actually present.
@@ -418,7 +419,8 @@ inline void Argument::setCombinable(bool value)
 /*!
  * \brief Returns an indication whether the argument can be specified implicitely.
  *
- * An implicit main argument is assumed to be present even if only its value is present.
+ * An implicit argument is assumed to be present even if only its value is present.
+ * Only one argument can be implicit.
  *
  * \sa setImplicit()
  */

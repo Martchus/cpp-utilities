@@ -59,6 +59,7 @@ Argument::Argument(const char *name, const char *abbreviation, const char *descr
     m_required(false),
     m_combinable(false),
     m_implicit(false),
+    m_denotesOperation(false),
     m_requiredValueCount(0),
     m_default(false),
     m_present(false),
@@ -168,14 +169,15 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
 
 /*!
  * Sets the secondary arguments for this arguments. The given arguments will be considered as
- * secondary arguments of this argument by the ArgumentParser. This means that the parser
- * will complain if these arguments are given, but not their parent. If secondary arguments are
+ * secondary arguments of this argument by the argument parser. This means that the parser
+ * will complain if these arguments are given, but not this argument. If secondary arguments are
  * labeled as mandatory their parent is also mandatory.
  *
  * The Argument does not take ownership. Do not destroy the given arguments as long as they are
  * used as secondary arguments.
  *
  * \sa secondaryArguments()
+ * \sa addSecondaryArgument()
  * \sa hasSecondaryArguments()
  */
 void Argument::setSecondaryArguments(const ArgumentInitializerList &secondaryArguments)
@@ -189,6 +191,23 @@ void Argument::setSecondaryArguments(const ArgumentInitializerList &secondaryArg
     // add this argument to the parents list of the assigned secondary arguments
     // and set the parser
     for(Argument *arg : m_secondaryArgs) {
+        if(find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
+            arg->m_parents.push_back(this);
+        }
+    }
+}
+
+/*!
+ * Adds \a arg as a secondary argument for this argument.
+ *
+ * \sa secondaryArguments()
+ * \sa setSecondaryArguments()
+ * \sa hasSecondaryArguments()
+ */
+void Argument::addSecondaryArgument(Argument *arg)
+{
+    if(find(m_secondaryArgs.cbegin(), m_secondaryArgs.cend(), arg) == m_secondaryArgs.cend()) {
+        m_secondaryArgs.push_back(arg);
         if(find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
             arg->m_parents.push_back(this);
         }
@@ -338,19 +357,32 @@ void ArgumentParser::verifySetup() const
     vector<Argument *> verifiedArgs;
     vector<string> abbreviations;
     vector<string> names;
+    const Argument *implicitArg = nullptr;
     function<void (const ArgumentVector &args)> checkArguments;
-    checkArguments = [&verifiedArgs, &abbreviations, &names, &checkArguments, this] (const ArgumentVector &args) {
+    checkArguments = [&verifiedArgs, &abbreviations, &names, &checkArguments, &implicitArg, this] (const ArgumentVector &args) {
         for(Argument *arg : args) {
-            if(find(verifiedArgs.cbegin(), verifiedArgs.cend(), arg) != verifiedArgs.cend())
+            if(find(verifiedArgs.cbegin(), verifiedArgs.cend(), arg) != verifiedArgs.cend()) {
                 continue; // do not verify the same argument twice
-            if(arg->isMainArgument() && arg->parents().size())
+            }
+            if(arg->isMainArgument() && arg->parents().size()) {
                 throw invalid_argument("Argument \"" + arg->name() + "\" can not be used as main argument and sub argument at the same time.");
-            if(!arg->abbreviation().empty() && find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) != abbreviations.cend())
+            }
+            if(!arg->abbreviation().empty() && find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) != abbreviations.cend()) {
                 throw invalid_argument("Abbreviation \"" + arg->abbreviation() + "\" has been used more then once.");
-            if(find(names.cbegin(), names.cend(), arg->name()) != names.cend())
+            }
+            if(find(names.cbegin(), names.cend(), arg->name()) != names.cend()) {
                 throw invalid_argument("Name \"" + arg->name() + "\" has been used more then once.");
-            if(arg->isDefault() && arg->requiredValueCount() > 0 && arg->defaultValues().size() < static_cast<size_t>(arg->requiredValueCount()))
+            }
+            if(arg->isDefault() && arg->requiredValueCount() > 0 && arg->defaultValues().size() < static_cast<size_t>(arg->requiredValueCount())) {
                 throw invalid_argument("Default argument \"" + arg->name() + "\" doesn't provide the required number of default values.");
+            }
+            if(arg->isImplicit()) {
+                if(implicitArg) {
+                    throw invalid_argument("The arguments \"" + implicitArg->name() + "\" and \"" + arg->name() + "\" can not be both implicit.");
+                } else {
+                    implicitArg = arg;
+                }
+            }
             abbreviations.push_back(arg->abbreviation());
             names.push_back(arg->name());
             verifiedArgs.push_back(arg);
@@ -386,11 +418,19 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
     } else {
         m_currentDirectory.clear();
     }
+    // function for iterating through all arguments
+    function<void(Argument *, const ArgumentVector &, const function<void (Argument *, Argument *)> &)> foreachArg;
+    foreachArg = [&foreachArg] (Argument *parent, const ArgumentVector &args, const function<void (Argument *, Argument *)> &proc) {
+        for(Argument *arg : args) {
+            proc(parent, arg);
+            foreachArg(arg, arg->secondaryArguments(), proc);
+        }
+    };
     // parse given arguments
     if(argc >= 2) {
         Argument *currentArg = nullptr;
         // iterate through given arguments
-        for(char **i = argv + 1, ** end = argv + argc; i != end; ++i) {
+        for(char **i = argv + 1, **end = argv + argc; i != end; ++i) {
             string givenArg(*i); // convert argument to string
             if(!givenArg.empty()) { // skip empty entries
                 if(valuesToRead <= 0 && givenArg.size() > 1 && givenArg.front() == '-') {
@@ -414,13 +454,13 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                             return arg->abbreviation() == givenId;
                         };
                     }
-                    // find the corresponding instande of the Argument class
+                    // find the corresponding instance of the Argument class
                     currentArg = findArg(pred);
                     if(currentArg) {
                         // the corresponding instance of Argument class has been found
                         if(currentArg->m_present) {
                             // the argument has been provided more then once
-                            throw Failure("The argument \"" + currentArg->name() + "\" has been given more then one time.");
+                            throw Failure("The argument \"" + currentArg->name() + "\" has been specified more than one time.");
                         } else {
                             // set present flag of argument
                             currentArg->m_present = true;
@@ -464,6 +504,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                                 }
                             }
                             if(currentArg) {
+                                cout << "first arg found" << endl;
                                 currentArg->m_present = true;
                                 ++actualArgc; // we actually found an argument
                                 // now we might need to read values tied to that argument
@@ -472,16 +513,19 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                             }
                         }
                         // -> check if there's an implicit argument definition
-                        for(Argument *arg : m_mainArgs) {
-                            if(!arg->isPresent() && arg->isImplicit()) {
-                                // set present flag of argument
-                                arg->m_present = true;
-                                ++actualArgc; // we actually found an argument
-                                // now we might need to read values tied to that argument
-                                valuesToRead = arg->requiredValueCount();
-                                currentArg = arg;
-                                break;
-                            }
+                        try {
+                            foreachArg(nullptr, m_mainArgs, [&actualArgc, &valuesToRead, &currentArg, this] (Argument *, Argument *arg) {
+                                if(!arg->isPresent() && arg->isImplicit()) {
+                                    throw arg;
+                                }
+                            });
+                        } catch(Argument *arg) {
+                            // set present flag of argument
+                            arg->m_present = true;
+                            ++actualArgc; // we actually found an argument
+                            // now we might need to read values tied to that argument
+                            valuesToRead = arg->requiredValueCount();
+                            currentArg = arg;
                         }
                     }
                     if(currentArg) {
@@ -509,16 +553,23 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
             }
         }
     }
-    // function for iterating through all arguments
-    function<void(Argument *, const ArgumentVector &, const function<void (Argument *, Argument *)> &)> foreachArg;
-    foreachArg = [&foreachArg] (Argument *parent, const ArgumentVector &args, const function<void (Argument *, Argument *)> &proc) {
-        for(Argument *arg : args) {
-            proc(parent, arg);
-            foreachArg(arg, arg->secondaryArguments(), proc);
-        }
-    };
     // iterate actually through all arguments using previously defined function to check gathered arguments
     foreachArg(nullptr, m_mainArgs, [this] (Argument *parent, Argument *arg) {
+        if(!arg->isPresent()) {
+            // the argument might be flagged as present if its a default argument
+            if(arg->isDefault() && (arg->isMainArgument() || (parent && parent->isPresent()))) {
+                arg->m_present = true;
+                if(firstPresentUncombinableArg(arg->isMainArgument() ? m_mainArgs : parent->secondaryArguments(), arg)) {
+                    arg->m_present = false;
+                }
+            }
+            // throw an error if mandatory argument is not present
+            if(!arg->isPresent() && (arg->isRequired() && (arg->isMainArgument() || (parent && parent->isPresent())))) {
+                throw Failure("The argument \"" + arg->name() + "\" is required but not given.");
+            }
+        }
+    });
+    foreachArg(nullptr, m_mainArgs, [this] (Argument *, Argument *arg) {
         if(arg->isPresent()) {
             if(!arg->isMainArgument() && arg->parents().size() && !arg->isParentPresent()) {
                 if(arg->parents().size() > 1) {
@@ -550,18 +601,6 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                     ss << "\nvalue " << (++valueNamesPrint);
                 }
                 throw Failure(ss.str());
-            }
-        } else { // argument not present
-            // the argument might be flagged as present if its a default argument
-            if(arg->isDefault() && (arg->isMainArgument() || (parent && parent->isPresent()))) {
-                arg->m_present = true;
-                if(firstPresentUncombinableArg(arg->isMainArgument() ? m_mainArgs : parent->secondaryArguments(), arg)) {
-                    arg->m_present = false;
-                }
-            }
-            // throw an error if mandatory argument is not present
-            if(!arg->isPresent() && (arg->isRequired() && (arg->isMainArgument() || (parent && parent->isPresent())))) {
-                throw Failure("The argument \"" + arg->name() + "\" is required but not given.");
             }
         }
     });
