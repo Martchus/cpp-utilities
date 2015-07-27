@@ -53,7 +53,7 @@ inline BitReader::BitReader(const char *buffer, const char *end) :
 /*!
  * \brief Reads the specified number of bits from the buffer.
  * \param bitCount Specifies the number of bits read.
- * \tparam intType Specifies the return value type.
+ * \tparam intType Specifies the type of the returned value.
  * \remarks Does not check whether intType is big enough to hold result.
  * \throws Throws ios_base::failure if the end of the buffer is exceeded.
  *         The reader becomes invalid in that case.
@@ -64,10 +64,10 @@ intType BitReader::readBits(byte bitCount)
     intType val = 0;
     for(byte readAtOnce; bitCount; bitCount -= readAtOnce) {
         if(!m_bitsAvail) {
-            m_bitsAvail = 8;
             if(++m_buffer >= m_end) {
                 throw std::ios_base::failure("end of buffer exceeded");
             }
+            m_bitsAvail = 8;
         }
         readAtOnce = std::min(bitCount, m_bitsAvail);
         val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
@@ -85,6 +85,8 @@ inline std::size_t BitReader::bitsAvailable()
 
 /*!
  * \brief Resets the reader.
+ *  - Does not take ownership over the specified \a buffer.
+ *  - bufferSize must be equal or greather than 1.
  */
 inline void BitReader::reset(const char *buffer, size_t bufferSize)
 {
@@ -95,6 +97,8 @@ inline void BitReader::reset(const char *buffer, size_t bufferSize)
 
 /*!
  * \brief Resets the reader.
+ *  - Does not take ownership over the specified \a buffer.
+ *  - \a end must be greather than \a buffer.
  */
 inline void BitReader::reset(const char *buffer, const char *end)
 {

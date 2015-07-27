@@ -17,16 +17,10 @@ namespace IoUtilities {
  */
 void BitReader::skipBits(std::size_t bitCount)
 {
-    if(bitCount < m_bitsAvail) {
+    if(bitCount <= m_bitsAvail) {
         m_bitsAvail -= bitCount;
-        if(!m_bitsAvail) {
-            m_bitsAvail = 8;
-            if(++m_buffer >= m_end) {
-                throw ios_base::failure("end of buffer exceeded");
-            }
-        }
     } else {
-        if((m_buffer += (bitCount -= m_bitsAvail) / 8) >= m_end) {
+        if((m_buffer += 1 + (bitCount -= m_bitsAvail) / 8) >= m_end) {
             throw ios_base::failure("end of buffer exceeded");
         }
         m_bitsAvail = 8 - (bitCount % 8);
