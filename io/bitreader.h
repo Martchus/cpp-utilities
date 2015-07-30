@@ -17,7 +17,9 @@ public:
     BitReader(const char *buffer, const char *end);
 
     template<typename intType> intType readBits(byte bitCount);
+    template<typename intType> intType showBits(byte bitCount);
     void skipBits(std::size_t bitCount);
+    void align();
     std::size_t bitsAvailable();
     void reset(const char *buffer, std::size_t bufferSize);
     void reset(const char *buffer, const char *end);
@@ -51,7 +53,7 @@ inline BitReader::BitReader(const char *buffer, const char *end) :
 {}
 
 /*!
- * \brief Reads the specified number of bits from the buffer.
+ * \brief Reads the specified number of bits from the buffer advancing the current position by \a bitCount bits.
  * \param bitCount Specifies the number of bits read.
  * \tparam intType Specifies the type of the returned value.
  * \remarks Does not check whether intType is big enough to hold result.
@@ -73,6 +75,16 @@ intType BitReader::readBits(byte bitCount)
         val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
     }
     return val;
+}
+
+/*!
+ * \brief Reads the specified number of bits from the buffer without advancing the current position.
+ */
+template<typename intType>
+intType BitReader::showBits(byte bitCount)
+{
+    auto tmp = this;
+    return tmp->readBits<intType>(bitCount);
 }
 
 /*!
@@ -105,6 +117,14 @@ inline void BitReader::reset(const char *buffer, const char *end)
     m_buffer = reinterpret_cast<const byte *>(buffer);
     m_end = reinterpret_cast<const byte *>(end);
     m_bitsAvail = 8;
+}
+
+/*!
+ * \brief Re-establishes alignment.
+ */
+inline void BitReader::align()
+{
+    skipBits(m_bitsAvail);
 }
 
 } // namespace IoUtilities
