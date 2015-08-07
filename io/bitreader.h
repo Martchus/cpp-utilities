@@ -17,6 +17,7 @@ public:
     BitReader(const char *buffer, const char *end);
 
     template<typename intType> intType readBits(byte bitCount);
+    byte readBit();
     template<typename intType> intType showBits(byte bitCount);
     void skipBits(std::size_t bitCount);
     void align();
@@ -75,6 +76,16 @@ intType BitReader::readBits(byte bitCount)
         val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
     }
     return val;
+}
+
+/*!
+ * \brief Reads the one bit from the buffer advancing the current position by one bit.
+ * \throws Throws ios_base::failure if the end of the buffer is exceeded.
+ *         The reader becomes invalid in that case.
+ */
+inline byte BitReader::readBit()
+{
+    return readBits<byte>(1) == 1;
 }
 
 /*!
