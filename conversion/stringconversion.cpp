@@ -25,7 +25,7 @@ void truncateString(string &str, char terminationChar)
  *
  * The unit with appropriate binary prefix will be appended.
  */
-string dataSizeToString(uint64 sizeInByte)
+string dataSizeToString(uint64 sizeInByte, bool includeByte)
 {
     stringstream res(stringstream::in | stringstream::out);
     res.setf(ios::fixed, ios::floatfield);
@@ -40,6 +40,9 @@ string dataSizeToString(uint64 sizeInByte)
         res << (static_cast<double>(sizeInByte) / 1073741824.0) << " GiB";
     } else {
         res << (static_cast<double>(sizeInByte) / 1099511627776.0) << " TiB";
+    }
+    if(includeByte && sizeInByte > 1024LL) {
+        res << ' ' << '(' << sizeInByte << " byte)";
     }
     return res.str();
 }

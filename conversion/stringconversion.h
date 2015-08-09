@@ -194,7 +194,7 @@ template <typename T> LIB_EXPORT std::string interpretIntegerAsString(T integer,
     return std::string(buffer + startOffset, sizeof(T) - startOffset);
 }
 
-LIB_EXPORT std::string dataSizeToString(uint64 sizeInByte);
+LIB_EXPORT std::string dataSizeToString(uint64 sizeInByte, bool includeByte = false);
 LIB_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
 LIB_EXPORT std::string encodeBase64(const std::vector<char> &bytes);
 LIB_EXPORT std::vector<char> decodeBase64(const std::string &encoded);
