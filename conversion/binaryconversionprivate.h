@@ -146,11 +146,11 @@ LIB_EXPORT inline uint64 toUInt64(const char *value)
 LIB_EXPORT inline float32 toFloat32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    int32 val = toInt64(value);
+    int32 val = toInt32(value);
     char *c = reinterpret_cast<char *>(&val);
     return *reinterpret_cast<float32 *>(c);
 #else
-    int32 val = toInt64(value);
+    int32 val = toInt32(value);
     char *c = reinterpret_cast<char *>(&val);
     return *reinterpret_cast<float32 *>(c);
 #endif
