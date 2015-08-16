@@ -196,8 +196,8 @@ template <typename T> LIB_EXPORT std::string interpretIntegerAsString(T integer,
 
 LIB_EXPORT std::string dataSizeToString(uint64 sizeInByte, bool includeByte = false);
 LIB_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
-LIB_EXPORT std::string encodeBase64(const std::vector<char> &bytes);
-LIB_EXPORT std::vector<char> decodeBase64(const std::string &encoded);
+LIB_EXPORT std::string encodeBase64(const byte *data, uint32 dataSize);
+LIB_EXPORT std::pair<std::unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize);
 
 }
 
