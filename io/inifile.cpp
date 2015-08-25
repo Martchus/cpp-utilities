@@ -24,14 +24,14 @@ void IniFile::parse(std::istream &inputStream)
     value.reserve(256);
     // define actions for state machine
     // called when key/value pair is complete
-    auto finishKeyValue = [&scope, &key, &value, &whitespace, this] {
+    const auto finishKeyValue = [&scope, &key, &value, &whitespace, this] {
         m_data[scope].insert(make_pair(key, value));
         key.clear();
         value.clear();
         whitespace = 0;
     };
     // called to add current character to current key or value
-    auto addChar = [&whitespace, &c] (string &to) {
+    const auto addChar = [&whitespace, &c] (string &to) {
         if(c == ' ') {
             ++whitespace;
         } else {
