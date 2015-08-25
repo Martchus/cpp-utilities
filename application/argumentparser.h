@@ -12,8 +12,18 @@
 
 namespace ApplicationUtilities {
 
-class Argument;
+extern const char *applicationName;
+extern const char *applicationAuthor;
+extern const char *applicationVersion;
+extern const char *applicationUrl;
 
+#define SET_APPLICATION_INFO \
+    ::ApplicationUtilities::applicationName = APP_NAME; \
+    ::ApplicationUtilities::applicationAuthor = APP_AUTHOR; \
+    ::ApplicationUtilities::applicationVersion = APP_VERSION; \
+    ::ApplicationUtilities::applicationUrl = APP_URL
+
+class Argument;
 class ArgumentParser;
 
 typedef std::initializer_list<Argument *> ArgumentInitializerList;

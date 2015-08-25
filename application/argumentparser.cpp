@@ -19,6 +19,11 @@ using namespace std::placeholders;
 */
 namespace ApplicationUtilities {
 
+const char *applicationName = nullptr;
+const char *applicationAuthor = nullptr;
+const char *applicationVersion = nullptr;
+const char *applicationUrl = nullptr;
+
 /*!
  * \class ApplicationUtilities::Argument
  * \brief The Argument class is a wrapper for command line argument information.
@@ -306,12 +311,26 @@ void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArgumen
  */
 void ArgumentParser::printHelp(ostream &os) const
 {
-    if(!m_mainArgs.size()) {
-        return;
+    if(applicationName && *applicationName) {
+        os << applicationName;
+        if(applicationVersion && *applicationVersion) {
+            os << ',' << ' ';
+        }
     }
-    os << "Available arguments:\n";
-    for(const Argument *arg : m_mainArgs) {
-        arg->printInfo(os);
+    if(applicationVersion && *applicationVersion) {
+        os << "version " << applicationVersion;
+    }
+    if((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
+        os << '\n' << '\n';
+    }
+    if(!m_mainArgs.empty()) {
+        os << "Available arguments:\n";
+        for(const Argument *arg : m_mainArgs) {
+            arg->printInfo(os);
+        }
+    }
+    if(applicationUrl && *applicationUrl) {
+        os << "\nProject website: " << applicationUrl << endl;
     }
 }
 
