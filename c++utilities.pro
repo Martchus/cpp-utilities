@@ -1,5 +1,5 @@
 projectname = c++utilities
-VERSION = 1.0.6
+VERSION = 2.0.0
 
 # include ../../common.pri when building as part of a subdirs project; otherwise include general.pri
 !include(../../common.pri) {
@@ -9,9 +9,7 @@ VERSION = 1.0.6
 }
 
 CONFIG -= qt
-win32 {
-    CONFIG += dll
-}
+CONFIG += shared
 
 SOURCES += \
     application/argumentparser.cpp \
