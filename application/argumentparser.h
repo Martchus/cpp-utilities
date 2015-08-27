@@ -12,10 +12,10 @@
 
 namespace ApplicationUtilities {
 
-extern const char *applicationName;
-extern const char *applicationAuthor;
-extern const char *applicationVersion;
-extern const char *applicationUrl;
+LIB_EXPORT extern const char *applicationName;
+LIB_EXPORT extern const char *applicationAuthor;
+LIB_EXPORT extern const char *applicationVersion;
+LIB_EXPORT extern const char *applicationUrl;
 
 #define SET_APPLICATION_INFO \
     ::ApplicationUtilities::applicationName = APP_NAME; \
