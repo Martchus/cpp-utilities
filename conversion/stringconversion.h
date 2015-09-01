@@ -10,6 +10,7 @@
 #include <initializer_list>
 #include <list>
 #include <vector>
+#include <memory>
 
 #include <bits/codecvt.h>
 

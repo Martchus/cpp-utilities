@@ -4,6 +4,7 @@
 #include "../application/global.h"
 
 #include <map>
+#include <string>
 
 namespace IoUtilities {
 
