@@ -3,10 +3,18 @@
 #include <string>
 #include <iostream>
 
+#ifdef PLATFORM_WINDOWS
+#include <windows.h>
+#include <fcntl.h>
+#endif
+
 using namespace std;
 
 namespace ApplicationUtilities {
 
+/*!
+ * \brief Prompts for confirmation displaying the specified \a message.
+ */
 bool confirmPrompt(const char *message, Response defaultResponse)
 {
     cout << message;
@@ -28,5 +36,39 @@ bool confirmPrompt(const char *message, Response defaultResponse)
     }
 }
 
-} // namespace ApplicationUtilities
+/*!
+ * \brief Starts the console.
+ * \remarks This method is only available on Windows and used to start
+ *          a console from a GUI application.
+ */
+void startConsole()
+{
+    AttachConsole(ATTACH_PARENT_PROCESS);
+    CONSOLE_SCREEN_BUFFER_INFO coninfo;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
+    coninfo.dwSize.X = 200;
+    coninfo.dwSize.Y = 500;
+    SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+    // redirect stdout
+    auto stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
+    auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+    auto fp = _fdopen(conHandle, "w");
+    *stdout = *fp;
+    setvbuf(stdout, NULL, _IONBF, 0);
+    // redirect stdin
+    stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
+    conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+    fp = _fdopen(conHandle, "r");
+    *stdin = *fp;
+    setvbuf(stdin, NULL, _IONBF, 0);
+    // redirect stderr
+    stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
+    conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+    fp = _fdopen(conHandle, "w");
+    *stderr = *fp;
+    setvbuf(stderr, NULL, _IONBF, 0);
+    // sync
+    ios::sync_with_stdio(true);
+}
 
+} // namespace ApplicationUtilities

@@ -1,4 +1,5 @@
 #include "argumentparser.h"
+#include "commandlineutils.h"
 #include "failure.h"
 
 #include "../conversion/stringconversion.h"
@@ -652,7 +653,10 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
 HelpArgument::HelpArgument(ArgumentParser &parser) :
     Argument("help", "h", "shows this information")
 {
-    setCallback([&parser] (const StringVector &) {parser.printHelp(cout);});
+    setCallback([&parser] (const StringVector &) {
+        CMD_UTILS_START_CONSOLE;
+        parser.printHelp(cout);
+    });
 }
 
 }

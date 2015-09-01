@@ -14,6 +14,13 @@ enum class Response
 
 bool LIB_EXPORT confirmPrompt(const char *message, Response defaultResponse = Response::None);
 
+#ifdef PLATFORM_WINDOWS
+void LIB_EXPORT startConsole();
+#define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
+#else
+#define CMD_UTILS_START_CONSOLE
+#endif
+
 } // namespace ApplicationUtilities
 
 #endif // APPLICATIONUTILITIES_COMMANDLINEUTILS_H
