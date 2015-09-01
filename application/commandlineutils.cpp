@@ -36,6 +36,7 @@ bool confirmPrompt(const char *message, Response defaultResponse)
     }
 }
 
+#ifdef PLATFORM_WINDOWS
 /*!
  * \brief Starts the console.
  * \remarks This method is only available on Windows and used to start
@@ -70,5 +71,6 @@ void startConsole()
     // sync
     ios::sync_with_stdio(true);
 }
+#endif
 
 } // namespace ApplicationUtilities
