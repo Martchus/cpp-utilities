@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-#include "../application/global.h"
+#include "c++utilities/application/global.h"
 
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.

@@ -2,8 +2,8 @@
 #include "commandlineutils.h"
 #include "failure.h"
 
-#include "../conversion/stringconversion.h"
-#include "../misc/random.h"
+#include "c++utilities/conversion/stringconversion.h"
+#include "c++utilities/misc/random.h"
 
 #include <algorithm>
 #include <vector>

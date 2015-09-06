@@ -1,7 +1,7 @@
 #ifndef CONVERSIONEXCEPTION_H
 #define CONVERSIONEXCEPTION_H
 
-#include "../application/global.h"
+#include "c++utilities/application/global.h"
 
 #include <stdexcept>
 #include <string>

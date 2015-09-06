@@ -1,7 +1,7 @@
 #ifndef IOUTILITIES_INIFILE_H
 #define IOUTILITIES_INIFILE_H
 
-#include "../application/global.h"
+#include "c++utilities/application/global.h"
 
 #include <map>
 #include <string>

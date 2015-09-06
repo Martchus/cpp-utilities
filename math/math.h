@@ -1,10 +1,9 @@
 #ifndef MATHUTILITIES_H
 #define MATHUTILITIES_H
 
-#include "application/global.h"
+#include "c++utilities/application/global.h"
 
-namespace MathUtilities
-{
+namespace MathUtilities {
 
 LIB_EXPORT int random(int lowerbounds, int upperbounds);
 

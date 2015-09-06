@@ -4,12 +4,11 @@
 #include "binarywriter.h"
 #include "binaryreader.h"
 
-#include "../application/global.h"
+#include "c++utilities/application/global.h"
 
 #include <string>
 
-namespace IoUtilities
-{
+namespace IoUtilities {
 
 LIB_EXPORT std::string fileName(const std::string &path);
 LIB_EXPORT void removeInvalidChars(std::string &path);

@@ -1,8 +1,8 @@
 #ifndef IOUTILITIES_BITREADER_H
 #define IOUTILITIES_BITREADER_H
 
-#include "../conversion/types.h"
-#include "../application/global.h"
+#include "c++utilities/conversion/types.h"
+#include "c++utilities/application/global.h"
 
 #include <ios>
 

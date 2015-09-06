@@ -1,6 +1,6 @@
 #include "binarywriter.h"
 
-#include "../conversion/conversionexception.h"
+#include "c++utilities/conversion/conversionexception.h"
 
 #include <cstring>
 #include <memory>

@@ -1,6 +1,6 @@
 #include "datetime.h"
 
-#include "../conversion/stringconversion.h"
+#include "c++utilities/conversion/stringconversion.h"
 
 #include <sstream>
 #include <iomanip>
@@ -49,9 +49,13 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
  */
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
 {
-    struct tm *timeinfo = localtime(&timeStamp);
-    return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
-                    timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
+    if(timeStamp) {
+        struct tm *timeinfo = localtime(&timeStamp);
+        return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+                        timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
+    } else {
+        return DateTime();
+    }
 }
 
 /*!
