@@ -1,9 +1,9 @@
 #ifndef CONVERSION_UTILITIES_CONVERT_H
 #define CONVERSION_UTILITIES_CONVERT_H
 
-#include "types.h"
+#include "./types.h"
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 #if defined(__BYTE_ORDER__) && defined(__FLOAT_WORD_ORDER__)
 #   if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -58,7 +58,7 @@ namespace BE {
 #elif defined(CONVERSION_UTILITIES_BYTE_ORDER_BIG_ENDIAN)
 #   define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 1
 #endif
-#include "binaryconversionprivate.h"
+#include "./binaryconversionprivate.h"
 #undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
 
 }
@@ -74,7 +74,7 @@ namespace LE {
 #elif defined(CONVERSION_UTILITIES_BYTE_ORDER_BIG_ENDIAN)
 #   define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 0
 #endif
-#include "binaryconversionprivate.h"
+#include "./binaryconversionprivate.h"
 #undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
 
 }

@@ -1,8 +1,8 @@
 #ifndef STRINGCONVERSION_H
 #define STRINGCONVERSION_H
 
-#include "conversionexception.h"
-#include "binaryconversion.h"
+#include "./conversionexception.h"
+#include "./binaryconversion.h"
 
 #include <string>
 #include <sstream>

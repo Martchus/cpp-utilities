@@ -1,7 +1,7 @@
 #ifndef APPLICATIONUTILITIES_FAKEQTCONFIGARGUMENTS_H
 #define APPLICATIONUTILITIES_FAKEQTCONFIGARGUMENTS_H
 
-#include "argumentparser.h"
+#include "./argumentparser.h"
 
 namespace ApplicationUtilities {
 

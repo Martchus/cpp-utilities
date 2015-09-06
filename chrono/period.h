@@ -1,9 +1,9 @@
 #ifndef PERIOD_H
 #define PERIOD_H
 
-#include "datetime.h"
+#include "./datetime.h"
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 namespace ChronoUtilities {
 

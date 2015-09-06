@@ -1,9 +1,9 @@
 #ifndef BINARYWRITER_H
 #define BINARYWRITER_H
 
-#include "c++utilities/application/global.h"
-#include "c++utilities/conversion/types.h"
-#include "c++utilities/conversion/binaryconversion.h"
+#include "../application/global.h"
+#include "../conversion/types.h"
+#include "../conversion/binaryconversion.h"
 
 #include <vector>
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef FAILURE_H
 #define FAILURE_H
 
-#include "global.h"
+#include "./global.h"
 
 #include <exception>
 #include <string>

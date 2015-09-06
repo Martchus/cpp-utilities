@@ -1,4 +1,4 @@
-#include "fakeqtconfigarguments.h"
+#include "./fakeqtconfigarguments.h"
 
 namespace ApplicationUtilities {
 

@@ -1,7 +1,7 @@
 #ifndef WIDEN_H
 #define WIDEN_H
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 #include <string>
 #include <vector>

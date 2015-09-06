@@ -1,7 +1,7 @@
 #ifndef ARGUMENTPARSER_H
 #define ARGUMENTPARSER_H
 
-#include "global.h"
+#include "./global.h"
 
 #include <string>
 #include <vector>

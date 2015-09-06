@@ -1,7 +1,7 @@
 #ifndef APPLICATIONUTILITIES_COMMANDLINEUTILS_H
 #define APPLICATIONUTILITIES_COMMANDLINEUTILS_H
 
-#include "global.h"
+#include "./global.h"
 
 namespace ApplicationUtilities {
 

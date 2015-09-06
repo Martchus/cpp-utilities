@@ -1,6 +1,6 @@
-#include "timespan.h"
+#include "./timespan.h"
 
-#include "c++utilities/conversion/stringconversion.h"
+#include "../conversion/stringconversion.h"
 
 #include <sstream>
 #include <cmath>

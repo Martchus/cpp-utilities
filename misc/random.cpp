@@ -1,4 +1,4 @@
-#include "random.h"
+#include "./random.h"
 
 #include <iomanip>
 #include <string>

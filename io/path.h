@@ -1,10 +1,10 @@
 #ifndef PATHHELPER_H
 #define PATHHELPER_H
 
-#include "binarywriter.h"
-#include "binaryreader.h"
+#include "./binarywriter.h"
+#include "./binaryreader.h"
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 #include <string>
 

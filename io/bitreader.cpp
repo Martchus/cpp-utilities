@@ -1,4 +1,4 @@
-#include "bitreader.h"
+#include "./bitreader.h"
 
 using namespace std;
 

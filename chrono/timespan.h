@@ -1,8 +1,8 @@
 #ifndef TIMESPAN_H
 #define TIMESPAN_H
 
-#include "c++utilities/application/global.h"
-#include "c++utilities/conversion/types.h"
+#include "../application/global.h"
+#include "../conversion/types.h"
 
 #include <string>
 

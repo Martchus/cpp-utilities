@@ -1,9 +1,9 @@
 #ifndef DATETIME_H
 #define DATETIME_H
 
-#include "timespan.h"
+#include "./timespan.h"
 
-#include "c++utilities/conversion/types.h"
+#include "../conversion/types.h"
 
 #include <string>
 

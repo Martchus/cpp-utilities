@@ -1,7 +1,7 @@
-#include "path.h"
+#include "./path.h"
 
-#include "c++utilities/application/global.h"
-#include "c++utilities/conversion/widen.h"
+#include "../application/global.h"
+#include "../conversion/widen.h"
 
 #include <string>
 #include <sstream>

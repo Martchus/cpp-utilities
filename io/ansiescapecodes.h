@@ -1,7 +1,7 @@
 #ifndef ANSIESCAPECODES
 #define ANSIESCAPECODES
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 #include <ostream>
 

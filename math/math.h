@@ -1,7 +1,7 @@
 #ifndef MATHUTILITIES_H
 #define MATHUTILITIES_H
 
-#include "c++utilities/application/global.h"
+#include "../application/global.h"
 
 namespace MathUtilities {
 
