@@ -56,8 +56,8 @@ enum class DatePart
 class LIB_EXPORT DateTime
 {
 public:
-    constexpr DateTime();
-    constexpr DateTime(uint64 ticks);
+    explicit constexpr DateTime();
+    explicit constexpr DateTime(uint64 ticks);
     static DateTime fromDate(int year = 1, int month = 1, int day = 1);
     static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
@@ -160,7 +160,7 @@ inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour
 }
 
 /*!
- * Gets the number of ticks that represent the value of the current DateTime class.
+ * Gets the number of ticks which represent the value of the current instance.
  */
 constexpr inline uint64 DateTime::totalTicks() const
 {
@@ -168,7 +168,7 @@ constexpr inline uint64 DateTime::totalTicks() const
 }
 
 /*!
- *Gets the year component of the date represented by this instance.
+ * Gets the year component of the date represented by this instance.
  */
 inline int DateTime::year() const
 {

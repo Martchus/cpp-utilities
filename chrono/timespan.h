@@ -28,8 +28,8 @@ class LIB_EXPORT TimeSpan
 {
     friend class DateTime;
 public:
-    constexpr TimeSpan();
-    constexpr TimeSpan(int64 ticks);
+    explicit constexpr TimeSpan();
+    explicit constexpr TimeSpan(int64 ticks);
 
     static constexpr TimeSpan fromMilliseconds(double milliseconds);
     static constexpr TimeSpan fromSeconds(double seconds);
