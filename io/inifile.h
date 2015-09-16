@@ -3,6 +3,7 @@
 
 #include "../application/global.h"
 
+#include <vector>
 #include <map>
 #include <string>
 
@@ -13,13 +14,13 @@ class LIB_EXPORT IniFile
 public:
     IniFile();
 
-    std::map<std::string, std::multimap<std::string, std::string> > &data();
-    const std::map<std::string, std::multimap<std::string, std::string> > &data() const;
+    std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > &data();
+    const std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > &data() const;
     void parse(std::istream &inputStream);
     void make(std::ostream &outputStream);
 
 private:
-    std::map<std::string, std::multimap<std::string, std::string> > m_data;
+    std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > m_data;
 };
 
 /*!
@@ -35,7 +36,7 @@ inline IniFile::IniFile()
  *  - The values in the returned map are maps representing "key = value"-pairs within the scope.
  *  - The data might be modified an saved using the make() method.
  */
-inline std::map<std::string, std::multimap<std::string, std::string> > &IniFile::data()
+inline std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > &IniFile::data()
 {
     return m_data;
 }
@@ -46,7 +47,7 @@ inline std::map<std::string, std::multimap<std::string, std::string> > &IniFile:
  *  - The keys in the returned map represent the [scope name]s.
  *  - The values in the returned map are maps representing "key = value"-pairs within the scope.
  */
-inline const std::map<std::string, std::multimap<std::string, std::string> > &IniFile::data() const
+inline const std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > &IniFile::data() const
 {
     return m_data;
 }
