@@ -257,7 +257,7 @@ inline uint32 BinaryReader::readUInt32BE()
  */
 inline uint64 BinaryReader::readUInt40BE()
 {
-    *reinterpret_cast<uint32 *>(m_buffer) = 0;
+    *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
     return ConversionUtilities::BE::toUInt64(m_buffer);
 }
@@ -373,7 +373,7 @@ inline uint32 BinaryReader::readUInt32LE()
  */
 inline uint64 BinaryReader::readUInt40LE()
 {
-    *reinterpret_cast<uint32 *>(m_buffer + 3) = 0;
+    *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
     return ConversionUtilities::LE::toUInt64(m_buffer);
 }
