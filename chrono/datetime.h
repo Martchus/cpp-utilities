@@ -126,7 +126,7 @@ constexpr inline DateTime::DateTime() :
 {}
 
 /*!
- * Constructs a DateTime to a specified number of \a ticks.
+ * Constructs a DateTime with the specified number of \a ticks.
  */
 constexpr inline DateTime::DateTime(uint64 ticks) :
     m_ticks(ticks)

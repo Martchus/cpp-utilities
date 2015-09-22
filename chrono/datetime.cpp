@@ -178,7 +178,7 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
  */
 DateTime DateTime::now()
 {
-    return DateTime(time(nullptr));
+    return DateTime::fromTimeStamp(time(nullptr));
 }
 
 /*!
