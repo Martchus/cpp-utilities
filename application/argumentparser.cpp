@@ -71,9 +71,17 @@ Argument::Argument(const char *name, const char *abbreviation, const char *descr
     m_present(false),
     m_isMainArg(false)
 {
-    setName(name);
-    setAbbreviation(abbreviation);
-    setDescription(description);
+    if(name) {
+        setName(name);
+    } else {
+        setName(string());
+    }
+    if(abbreviation) {
+        setAbbreviation(abbreviation);
+    }
+    if(description) {
+        setDescription(description);
+    }
 }
 
 /*!
@@ -153,8 +161,12 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
         for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
         os << "This argument is required.";
     }
+    if(!example().empty()) {
+        for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
+        os << endl << "Usage: " << example();
+    }
     os << endl;
-    for(const Argument *arg : secondaryArguments()) {
+    for(const auto *arg : secondaryArguments()) {
         arg->printInfo(os, indentionLevel + 1);
     }
 }
@@ -326,7 +338,7 @@ void ArgumentParser::printHelp(ostream &os) const
     }
     if(!m_mainArgs.empty()) {
         os << "Available arguments:\n";
-        for(const Argument *arg : m_mainArgs) {
+        for(const auto *arg : m_mainArgs) {
             arg->printInfo(os);
         }
     }

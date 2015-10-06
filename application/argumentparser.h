@@ -52,6 +52,8 @@ public:
     //unsigned char isAmbiguous(const ArgumentParser &parser) const;
     const std::string &description() const;
     void setDescription(const std::string &description);
+    const std::string &example() const;
+    void setExample(const std::string &example);
     const StringVector &values() const;
     const std::string &value(StringVector::size_type index) const;
     StringVector::size_type valueCount() const;
@@ -91,6 +93,7 @@ private:
     std::string m_name;
     std::string m_abbreviation;
     std::string m_description;
+    std::string m_example;
     bool m_required;
     bool m_combinable;
     bool m_implicit;
@@ -180,6 +183,26 @@ inline const std::string &Argument::description() const
 inline void Argument::setDescription(const std::string &description)
 {
     m_description = description;
+}
+
+/*!
+ * \brief Returns the usage example of the argument.
+ *
+ * The parser uses the description when printing help information.
+ */
+inline const std::string &Argument::example() const
+{
+    return m_example;
+}
+
+/*!
+ * \brief Sets the a usage example for the argument.
+ *
+ * The parser uses the description when printing help information.
+ */
+inline void Argument::setExample(const std::string &example)
+{
+    m_example = example;
 }
 
 /*!
