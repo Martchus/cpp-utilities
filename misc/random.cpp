@@ -27,13 +27,12 @@ const char symbols[24] = "!\"$%&/()=?'#*+~-_><.:,;";
 /*!
  * Generates a random character sequence using the given \a randomizer.
  */
-void generateRandomCharacterSequence(char *result, int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
+void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
-    if(length <= 0) {
+    if(length) {
         return;
     }
-    int categoryCount = 0;
-    int neededCharacters;
+    signed char categoryCount = 0;
     bool needSmallLetter = false;
     bool needCapitalLetter = false;
     bool needNumber = false;
@@ -54,14 +53,14 @@ void generateRandomCharacterSequence(char *result, int length, std::function<int
         needSymbol = useAtLeastOneOfEachCategory;
         ++categoryCount;
     }
-    neededCharacters = useAtLeastOneOfEachCategory ? categoryCount : 0;
-    if(categoryCount <= 0) {
-        result[0] = '\0';
+    signed char neededCharacters = useAtLeastOneOfEachCategory ? categoryCount : 0;
+    if(!categoryCount) {
+        *result = '\0';
         return;
     }
-    for(int i = 0; i < length; ++i) {
+    for(char *i = result, *end = result + length; i < end; ++i) {
         int category = -1;
-        if((neededCharacters > 0 && (randomizer() < (highestRandomNumber / 2.0))) || (neededCharacters + i >= length)) {
+        if((neededCharacters > 0 && (randomizer() < (highestRandomNumber / 2.0))) || ((end - i) >= neededCharacters)) {
             if(needSmallLetter)
                 category = 0;
             if(needCapitalLetter && ((category == -1) || (randomizer() < (highestRandomNumber / 2.0))))
@@ -82,28 +81,28 @@ void generateRandomCharacterSequence(char *result, int length, std::function<int
         }
         switch(category) {
         case 0:
-            result[i] = letters[rand() % 26];
+            *i = letters[rand() % 26];
             if(needSmallLetter) {
                 needSmallLetter = false;
                 --neededCharacters;
             }
             break;
         case 1:
-            result[i] = capitalLetters[rand() % 26];
+            *i = capitalLetters[rand() % 26];
             if(needCapitalLetter) {
                 needCapitalLetter = false;
                 --neededCharacters;
             }
             break;
         case 2:
-            result[i] = numbers[rand() % 9];
+            *i = numbers[rand() % 9];
             if(needNumber) {
                 needNumber = false;
                 --neededCharacters;
             }
             break;
         case 3:
-            result[i] = symbols[rand() % 22];
+            *i = symbols[rand() % 22];
             if(needSymbol) {
                 needSymbol = false;
                 --neededCharacters;
@@ -116,7 +115,7 @@ void generateRandomCharacterSequence(char *result, int length, std::function<int
 /*!
  * Generates a random character sequence using std::rand().
  */
-void generateRandomCharacterSequence(char *result, int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
+void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
     generateRandomCharacterSequence(result, length, rand, RAND_MAX, useSmallLetters, useCapitalLetters, useNumbers, useSymbols, useAtLeastOneOfEachCategory);
 }
