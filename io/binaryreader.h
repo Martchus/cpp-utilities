@@ -75,8 +75,8 @@ public:
     float32 readFixed8LE();
     float32 readFixed16LE();
     uint32 readCrc32(std::size_t length);
-    static uint32 *crc32Table();
     static uint32 computeCrc32(const char *buffer, std::size_t length);
+    static const uint32 crc32Table[];
 
 private:
     std::istream *m_stream;
