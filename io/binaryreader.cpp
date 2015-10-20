@@ -265,7 +265,7 @@ string BinaryReader::readMultibyteTerminatedStringLE(size_t maxBytesToRead, uint
 }
 
 /*!
- * \brief Reads \a length bytes from the stream an computes the CRC-32 for that block of data.
+ * \brief Reads \a length bytes from the stream and computes the CRC-32 for that block of data.
  *
  * \remarks A cyclic redundancy check (CRC) is an error-detecting code commonly used in
  *          digital networks and storage devices to detect accidental changes to raw data.
@@ -278,6 +278,24 @@ uint32 BinaryReader::readCrc32(size_t length)
     uint32 crc = 0x00;
     for(uint32 i = 0; i < length; ++i) {
         crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<byte>(m_stream->get())];
+    }
+    return crc;
+}
+
+/*!
+ * \brief Reads \a length bytes from the buffer and computes the CRC-32 for that block of data.
+ *
+ * \remarks A cyclic redundancy check (CRC) is an error-detecting code commonly used in
+ *          digital networks and storage devices to detect accidental changes to raw data.
+ * \remarks NOT TESTED YET
+ *
+ * \sa <a href="http://en.wikipedia.org/wiki/Cyclic_redundancy_check">Cyclic redundancy check - Wikipedia</a>
+ */
+uint32 BinaryReader::computeCrc32(const char *buffer, size_t length)
+{
+    uint32 crc = 0x00;
+    for(const char *i = buffer, *end = buffer + length; i < end; ++i) {
+        crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<byte>(*i)];
     }
     return crc;
 }
