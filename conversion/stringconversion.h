@@ -172,7 +172,7 @@ template <typename NumberType, typename StringType> LIB_EXPORT NumberType string
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << string;
     NumberType result;
-    if(ss >> result) {
+    if((ss >> result) && ss.eof()) {
         return result;
     } else {
         throw ConversionException("The specified string is no valid number.");
