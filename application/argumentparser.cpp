@@ -564,9 +564,9 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                         if(valuesToRead == 0) {
                             throw Failure("Invalid extra information \"" + givenArg + "\" for the argument \"" + currentArg->name() + "\" given.");
                         } else if(valuesToRead < 0) {
-                            currentArg->m_values.push_back(givenArg);
+                            currentArg->m_values.emplace_back(givenArg);
                         } else {
-                            currentArg->m_values.push_back(givenArg);
+                            currentArg->m_values.emplace_back(givenArg);
                             --valuesToRead; // one value less to be read
                         }
                     } else {
