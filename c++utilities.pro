@@ -1,3 +1,4 @@
+# meta data
 projectname = c++utilities
 appname = "C++ Utilities"
 appauthor = Martchus
@@ -11,58 +12,64 @@ VERSION = 3.0.0
     }
 }
 
+# basic configuration: shared library, no Qt
 TEMPLATE = lib
 CONFIG -= qt
 CONFIG += shared
 
-SOURCES += \
-    application/argumentparser.cpp \
-    application/failure.cpp \
-    io/binarywriter.cpp \
-    io/binaryreader.cpp \
-    io/path.cpp \
-    conversion/stringconversion.cpp \
-    conversion/conversionexception.cpp \
-    chrono/timespan.cpp \
-    chrono/datetime.cpp \
-    chrono/period.cpp \
-    math/math.cpp \
-    application/fakeqtconfigarguments.cpp \
-    io/ansiescapecodes.cpp \
-    misc/random.cpp \
-    io/bitreader.cpp \
-    application/commandlineutils.cpp \
-    io/inifile.cpp
-
+# add project files
 HEADERS += \
-    application/global.h \
     application/argumentparser.h \
+    application/commandlineutils.h \
     application/failure.h \
-    io/binarywriter.h \
-    io/binaryreader.h \
-    io/path.h \
-    conversion/types.h \
-    conversion/widen.h \
-    conversion/binaryconversion.h \
-    conversion/stringconversion.h \
-    conversion/conversionexception.h \
-    chrono/timespan.h \
+    application/fakeqtconfigarguments.h \
+    application/global.h \
     chrono/datetime.h \
     chrono/period.h \
-    math/math.h \
-    io/copy.h \
+    chrono/timespan.h \
+    conversion/binaryconversion.h \
     conversion/binaryconversionprivate.h \
-    application/fakeqtconfigarguments.h \
+    conversion/conversionexception.h \
+    conversion/stringconversion.h \
+    conversion/types.h \
+    conversion/widen.h \
     io/ansiescapecodes.h \
-    misc/memory.h \
-    misc/random.h \
+    io/binaryreader.h \
+    io/binarywriter.h \
     io/bitreader.h \
-    application/commandlineutils.h \
-    io/inifile.h
+    io/copy.h \
+    io/inifile.h \
+    io/path.h \
+    math/math.h \
+    misc/memory.h \
+    misc/random.h
+
+SOURCES += \
+    application/argumentparser.cpp \
+    application/commandlineutils.cpp \
+    application/failure.cpp \
+    application/fakeqtconfigarguments.cpp \
+    chrono/datetime.cpp \
+    chrono/period.cpp \
+    chrono/timespan.cpp \
+    conversion/binaryconversion.cpp \
+    conversion/conversionexception.cpp \
+    conversion/stringconversion.cpp \
+    io/ansiescapecodes.cpp \
+    io/binaryreader.cpp \
+    io/binarywriter.cpp \
+    io/bitreader.cpp \
+    io/inifile.cpp \
+    io/path.cpp \
+    math/math.cpp \
+    misc/random.cpp
 
 OTHER_FILES += \
     README.md \
-    LICENSE
+    LICENSE \
+    CMakeLists.txt \
+    resources/config.h.in \
+    resources/windows.rc.in
 
 # installs
 mingw-w64-install {
