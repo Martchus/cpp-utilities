@@ -111,6 +111,11 @@ if(MINGW)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif(MINGW)
 
+# disable new ABI (can't catch ios_base::failure with new ABI)
+add_definitions(
+    -D_GLIBCXX_USE_CXX11_ABI=0
+)
+
 # executable and linking
 add_library(${META_PROJECT_NAME} SHARED ${HEADER_FILES} ${SRC_FILES} ${RES_FILES} ${WINDOWS_ICON_PATH})
 set_target_properties(${META_PROJECT_NAME} PROPERTIES
