@@ -52,7 +52,7 @@ void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std
 /*!
  * \brief Copies \a count bytes from \a input to \a output. The procedure might be abortet. Progress updates will be reportet.
  *
- * Copying is aborted when \a isAbortet returns true. The current progress is reportet by calling the specified \a callback function.
+ * Copying is aborted when \a isAborted returns true. The current progress is reportet by calling the specified \a callback function.
  *
  * \remarks Set an exception mask using std::ios::exceptions() to get
  *          a std::ios_base::failure exception when an IO error occurs.
