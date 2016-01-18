@@ -12,7 +12,7 @@ namespace ConversionUtilities
 
 /*!
  * \brief Truncates all characters after the first occurrence of the
- * specified \a terminationChar and the termination character as well.
+ *        specified \a terminationChar and the termination character as well.
  */
 void truncateString(string &str, char terminationChar)
 {

@@ -18,7 +18,7 @@ using namespace ConversionUtilities;
  */
 
 /*!
- * Parses the given std::string \a str as TimeSpan.
+ * \brief Parses the given std::string \a str as TimeSpan.
  */
 TimeSpan TimeSpan::fromString(const string &str)
 {
@@ -26,7 +26,7 @@ TimeSpan TimeSpan::fromString(const string &str)
 }
 
 /*!
- * Parses the given std::string \a str as TimeSpan.
+ * \brief Parses the given std::string \a str as TimeSpan.
  */
 TimeSpan TimeSpan::fromString(const string &str, char separator)
 {
@@ -57,8 +57,8 @@ TimeSpan TimeSpan::fromString(const string &str, char separator)
 }
 
 /*!
- * Converts the value of the current TimeSpan object to its equivalent std::string representation
- * according the given \a format.
+ * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
+ *        according the given \a format.
  *
  * If \a noMilliseconds is true the time interval will be rounded to full seconds.
  */
@@ -70,8 +70,8 @@ string TimeSpan::toString(TimeSpanOutputFormat format, bool noMilliseconds) cons
 }
 
 /*!
- * Converts the value of the current TimeSpan object to its equivalent std::string representation
- * according the given \a format.
+ * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
+ *        according the given \a format.
  *
  * If \a noMilliseconds is true the time interval will be rounded to full seconds.
  *

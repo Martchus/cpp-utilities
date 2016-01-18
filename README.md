@@ -18,3 +18,8 @@ make && make install
 In any case, the make option *-j* might be used to compile multiple files in parallel.
 
 The repository PKGBUILDs (also on GitHub) contains files for building Arch Linux packages. A PKGBUILD file to build for Windows using the Mingw-w64 compiler is also included.
+
+## TODO
+- provide unit tests
+- rewrite argument parser
+- remove unused features

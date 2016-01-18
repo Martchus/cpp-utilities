@@ -6,13 +6,14 @@
 #include "../conversion/types.h"
 
 #include <string>
+#include <ctime>
+#include <limits>
 
 namespace ChronoUtilities
 {
 
 /*!
  * \brief Specifies the output format.
- *
  * \sa DateTime::toString()
  */
 enum class DateTimeOutputFormat
@@ -26,7 +27,6 @@ enum class DateTimeOutputFormat
 
 /*!
  * \brief Specifies the day of the week.
- *
  * \sa DateTime::dayOfWeek()
  */
 enum class DayOfWeek
@@ -42,7 +42,6 @@ enum class DayOfWeek
 
 /*!
  * \brief Specifies the date part.
- *
  * \sa DateTime::getDatePart()
  */
 enum class DatePart
@@ -77,11 +76,13 @@ public:
     constexpr bool isNull() const;
     constexpr TimeSpan timeOfDay() const;
     bool isLeapYear() const;
+    constexpr bool isEternity() const;
     constexpr bool isSameDay(const DateTime &other) const;
     std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
 
+    static constexpr DateTime eternity();
     static DateTime now();
     constexpr static bool isLeapYear(int year);
     static int daysInMonth(int year, int month);
@@ -119,21 +120,21 @@ private:
 };
 
 /*!
- * Constructs a DateTime.
+ * \brief Constructs a DateTime.
  */
 constexpr inline DateTime::DateTime() :
     m_ticks(0)
 {}
 
 /*!
- * Constructs a DateTime with the specified number of \a ticks.
+ * \brief Constructs a DateTime with the specified number of \a ticks.
  */
 constexpr inline DateTime::DateTime(uint64 ticks) :
     m_ticks(ticks)
 {}
 
 /*!
- * Constructs a DateTime to the specified \a year, \a month, and \a day.
+ * \brief Constructs a DateTime to the specified \a year, \a month, and \a day.
  */
 inline DateTime DateTime::fromDate(int year, int month, int day)
 {
@@ -141,7 +142,7 @@ inline DateTime DateTime::fromDate(int year, int month, int day)
 }
 
 /*!
- * Constructs a DateTime to the specified \a hour, \a minute, \a second and \a millisecond.
+ * \brief Constructs a DateTime to the specified \a hour, \a minute, \a second and \a millisecond.
  */
 inline DateTime DateTime::fromTime(int hour, int minute, int second, double millisecond)
 {
@@ -149,7 +150,7 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
 }
 
 /*!
- * Constructs a DateTime to the specified \a year, \a month, \a day, \a hour, \a minute, \a second and \a millisecond.
+ * \brief Constructs a DateTime to the specified \a year, \a month, \a day, \a hour, \a minute, \a second and \a millisecond.
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
@@ -160,7 +161,7 @@ inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour
 }
 
 /*!
- * Gets the number of ticks which represent the value of the current instance.
+ * \brief Gets the number of ticks which represent the value of the current instance.
  */
 constexpr inline uint64 DateTime::totalTicks() const
 {
@@ -168,7 +169,7 @@ constexpr inline uint64 DateTime::totalTicks() const
 }
 
 /*!
- * Gets the year component of the date represented by this instance.
+ * \brief Gets the year component of the date represented by this instance.
  */
 inline int DateTime::year() const
 {
@@ -176,7 +177,7 @@ inline int DateTime::year() const
 }
 
 /*!
- * Gets the month component of the date represented by this instance.
+ * \brief Gets the month component of the date represented by this instance.
  */
 inline int DateTime::month() const
 {
@@ -184,7 +185,7 @@ inline int DateTime::month() const
 }
 
 /*!
- * Gets the day component of the date represented by this instance.
+ * \brief Gets the day component of the date represented by this instance.
  */
 inline int DateTime::day() const
 {
@@ -192,7 +193,7 @@ inline int DateTime::day() const
 }
 
 /*!
- * Gets the day of the year represented by this instance.
+ * \brief Gets the day of the year represented by this instance.
  */
 inline int DateTime::dayOfYear() const
 {
@@ -200,7 +201,7 @@ inline int DateTime::dayOfYear() const
 }
 
 /*!
- * Gets the day of the week represented by this instance.
+ * \brief Gets the day of the week represented by this instance.
  * \sa DayOfWeek
  */
 constexpr inline DayOfWeek DateTime::dayOfWeek() const
@@ -209,7 +210,7 @@ constexpr inline DayOfWeek DateTime::dayOfWeek() const
 }
 
 /*!
- * Gets the hour component of the date represented by this instance.
+ * \brief Gets the hour component of the date represented by this instance.
  */
 constexpr inline int DateTime::hour() const
 {
@@ -217,7 +218,7 @@ constexpr inline int DateTime::hour() const
 }
 
 /*!
- * Gets the minute component of the date represented by this instance.
+ *\brief  Gets the minute component of the date represented by this instance.
  */
 constexpr inline int DateTime::minute() const
 {
@@ -225,7 +226,7 @@ constexpr inline int DateTime::minute() const
 }
 
 /*!
- * Gets the second component of the date represented by this instance.
+ * \brief Gets the second component of the date represented by this instance.
  */
 constexpr inline int DateTime::second() const
 {
@@ -233,7 +234,7 @@ constexpr inline int DateTime::second() const
 }
 
 /*!
- * Gets the millisecond component of the date represented by this instance.
+ * \brief Gets the millisecond component of the date represented by this instance.
  */
 constexpr inline int DateTime::millisecond() const
 {
@@ -241,7 +242,7 @@ constexpr inline int DateTime::millisecond() const
 }
 
 /*!
- * Returns ture if the date represented by the current DateTime class is null.
+ * \brief Returns ture if the date represented by the current DateTime class is null.
  * \sa DateTime
  */
 constexpr inline bool DateTime::isNull() const
@@ -250,7 +251,7 @@ constexpr inline bool DateTime::isNull() const
 }
 
 /*!
- * Gets the time of day as TimeSpan for this instance.
+ * \brief Gets the time of day as TimeSpan for this instance.
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
@@ -258,7 +259,7 @@ constexpr inline TimeSpan DateTime::timeOfDay() const
 }
 
 /*!
- * Returns an indication whether the year of the dae represented by this instance is a leap year.
+ * \brief Returns an indication whether the year of the dae represented by this instance is a leap year.
  */
 inline bool DateTime::isLeapYear() const
 {
@@ -266,7 +267,15 @@ inline bool DateTime::isLeapYear() const
 }
 
 /*!
- * Returns an indication whether the specified \a year is a leap year.
+ * \brief Returns whether the instance has the maximal number of ticks.
+ */
+constexpr inline bool DateTime::isEternity() const
+{
+    return m_ticks == std::numeric_limits<decltype(m_ticks)>::max();
+}
+
+/*!
+ * \brief Returns an indication whether the specified \a year is a leap year.
  */
 constexpr inline bool DateTime::isLeapYear(int year)
 {
@@ -278,7 +287,7 @@ constexpr inline bool DateTime::isLeapYear(int year)
 }
 
 /*!
- * Returns the number of days in the specified \a month and \a year.
+ * \brief Returns the number of days in the specified \a month and \a year.
  */
 inline int DateTime::daysInMonth(int year, int month)
 {
@@ -290,7 +299,7 @@ inline int DateTime::daysInMonth(int year, int month)
 }
 
 /*!
- * Returns and indication whether two DateTime instances represent the same day.
+ * \brief Returns and indication whether two DateTime instances represent the same day.
  */
 constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 {
@@ -298,7 +307,23 @@ constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 }
 
 /*!
- * Indicates whether two DateTime instances are equal.
+ * \brief Constructs a new instance of the DateTime class with the maximal number of ticks.
+ */
+constexpr inline DateTime DateTime::eternity()
+{
+    return DateTime(std::numeric_limits<decltype(m_ticks)>::max());
+}
+
+/*!
+ * \brief Gets a DateTime object that is set to the current date and time on this computer, expressed as the local time.
+ */
+inline DateTime DateTime::now()
+{
+    return DateTime::fromTimeStamp(time(nullptr));
+}
+
+/*!
+ * \brief Indicates whether two DateTime instances are equal.
  */
 constexpr inline bool DateTime::operator ==(const DateTime &other) const
 {
@@ -306,7 +331,7 @@ constexpr inline bool DateTime::operator ==(const DateTime &other) const
 }
 
 /*!
- * Indicates whether two DateTime instances are not equal.
+ * \brief Indicates whether two DateTime instances are not equal.
  */
 constexpr inline bool DateTime::operator !=(const DateTime &other) const
 {
@@ -314,7 +339,7 @@ constexpr inline bool DateTime::operator !=(const DateTime &other) const
 }
 
 /*!
- * Indicates whether a specified DateTime is less than another specified DateTime.
+ * \brief Indicates whether a specified DateTime is less than another specified DateTime.
  */
 constexpr inline bool DateTime::operator <(const DateTime &other) const
 {
@@ -322,7 +347,7 @@ constexpr inline bool DateTime::operator <(const DateTime &other) const
 }
 
 /*!
- * Indicates whether a specified DateTime is greater than another specified DateTime.
+ * \brief Indicates whether a specified DateTime is greater than another specified DateTime.
  */
 constexpr inline bool DateTime::operator >(const DateTime &other) const
 {
@@ -330,7 +355,7 @@ constexpr inline bool DateTime::operator >(const DateTime &other) const
 }
 
 /*!
- * Indicates whether a specified DateTime is less or equal than another specified DateTime.
+ * \brief Indicates whether a specified DateTime is less or equal than another specified DateTime.
  */
 constexpr inline bool DateTime::operator <=(const DateTime &other) const
 {
@@ -338,7 +363,7 @@ constexpr inline bool DateTime::operator <=(const DateTime &other) const
 }
 
 /*!
- * Indicates whether a specified DateTime is greater or equal than another specified DateTime.
+ * \brief Indicates whether a specified DateTime is greater or equal than another specified DateTime.
  */
 constexpr inline bool DateTime::operator >=(const DateTime &other) const
 {
@@ -346,7 +371,7 @@ constexpr inline bool DateTime::operator >=(const DateTime &other) const
 }
 
 /*!
- * Adds a TimeSpan.
+ * \brief Adds another instance.
  * \returns The result is another DateTime.
  */
 constexpr inline DateTime DateTime::operator +(const TimeSpan &timeSpan) const
@@ -355,7 +380,7 @@ constexpr inline DateTime DateTime::operator +(const TimeSpan &timeSpan) const
 }
 
 /*!
- * Substracts a TimeSpan.
+ * \brief Substracts another instance.
  * \returns The result is another DateTime.
  */
 constexpr inline DateTime DateTime::operator -(const TimeSpan &timeSpan) const
@@ -364,7 +389,7 @@ constexpr inline DateTime DateTime::operator -(const TimeSpan &timeSpan) const
 }
 
 /*!
- * Adds two DateTime instances.
+ * \brief Adds two instances.
  * \returns The result is a TimeSpan.
  */
 constexpr inline TimeSpan DateTime::operator +(const DateTime &other) const
@@ -373,7 +398,7 @@ constexpr inline TimeSpan DateTime::operator +(const DateTime &other) const
 }
 
 /*!
- * Substracts two DateTime instances.
+ * \brief Substracts two DateTime instances.
  * \returns The result is a TimeSpan.
  */
 constexpr inline TimeSpan DateTime::operator -(const DateTime &other) const
@@ -382,7 +407,7 @@ constexpr inline TimeSpan DateTime::operator -(const DateTime &other) const
 }
 
 /*!
- * Adds a TimeSpan to the current instance.
+ * \brief Adds a TimeSpan to the current instance.
  */
 inline DateTime &DateTime::operator +=(const TimeSpan &timeSpan)
 {
@@ -391,7 +416,7 @@ inline DateTime &DateTime::operator +=(const TimeSpan &timeSpan)
 }
 
 /*!
- * Substracts a TimeSpan from the current instance.
+ * \brief Substracts a TimeSpan from the current instance.
  */
 inline DateTime &DateTime::operator -=(const TimeSpan &timeSpan)
 {

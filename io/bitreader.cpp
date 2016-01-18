@@ -6,7 +6,7 @@ namespace IoUtilities {
 
 /*!
  * \class IoUtilities::BitReader
- * \brief The BitReader class allows bitwise reading of buffered data.
+ * \brief The BitReader class provides bitwise reading of buffered data.
  */
 
 /*!

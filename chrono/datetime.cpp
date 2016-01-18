@@ -4,7 +4,6 @@
 
 #include <sstream>
 #include <iomanip>
-#include <ctime>
 #include <stdexcept>
 
 using namespace std;
@@ -59,7 +58,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
 }
 
 /*!
- * Parses the given std::string \a str as DateTime.
+ * \brief Parses the given std::string \a str as DateTime.
  */
 DateTime DateTime::fromString(const string &str)
 {
@@ -79,8 +78,8 @@ DateTime DateTime::fromString(const string &str)
 }
 
 /*!
- * Converts the value of the current DateTime object to its equivalent std::string representation
- * according the given \a format.
+ * \brief Converts the value of the current DateTime object to its equivalent std::string representation
+ *        according the given \a format.
  *
  * If \a noMilliseconds is true the date will be rounded to full seconds.
  */
@@ -92,8 +91,8 @@ string DateTime::toString(DateTimeOutputFormat format, bool noMilliseconds) cons
 }
 
 /*!
- * Converts the value of the current DateTime object to its equivalent std::string representation
- * according the given \a format.
+ * \brief Converts the value of the current DateTime object to its equivalent std::string representation
+ *        according the given \a format.
  *
  * If \a noMilliseconds is true the date will be rounded to full seconds.
  */
@@ -127,7 +126,7 @@ void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMill
 }
 
 /*!
- * Returns the string representation as C-style string for the given day of week.
+ * \brief Returns the string representation as C-style string for the given day of week.
  *
  * If \a abbreviation is true, only the first three letters of the string will
  * be returned.
@@ -174,15 +173,7 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
 }
 
 /*!
- * Gets a DateTime object that is set to the current date and time on this computer, expressed as the local time.
- */
-DateTime DateTime::now()
-{
-    return DateTime::fromTimeStamp(time(nullptr));
-}
-
-/*!
- * Converts the given date expressed in \a year, \a month and \a day to ticks.
+ * \brief Converts the given date expressed in \a year, \a month and \a day to ticks.
  */
 uint64 DateTime::dateToTicks(int year, int month, int day)
 {
@@ -207,7 +198,7 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
 }
 
 /*!
- * Converts the given time expressed in \a hour, \a minute, \a second and \a millisecond to ticks.
+ * \brief Converts the given time expressed in \a hour, \a minute, \a second and \a millisecond to ticks.
  */
 uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
 {
@@ -227,7 +218,7 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
 }
 
 /*!
- * Returns the specified date part.
+ * \brief Returns the specified date part.
  * \sa DatePart
  */
 int DateTime::getDatePart(DatePart part) const

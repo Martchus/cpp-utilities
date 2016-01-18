@@ -9,22 +9,22 @@ namespace ConversionUtilities {
  */
 
 /*!
- * Constructs a new ConversionException.
+ * \brief Constructs a new ConversionException.
  */
 ConversionException::ConversionException() USE_NOTHROW :
     runtime_error("unable to convert")
 {}
 
 /*!
- * Constructs a new ConversionException. \a what is a std::string
- * describing the cause of the ConversionException.
+ * \brief Constructs a new ConversionException. \a what is a std::string
+ *        describing the cause of the ConversionException.
  */
 ConversionException::ConversionException(const std::string &what) USE_NOTHROW :
     runtime_error(what)
 {}
 
 /*!
- * Destroys the ConversionException.
+ * \brief Destroys the ConversionException.
  */
 ConversionException::~ConversionException() USE_NOTHROW
 {}

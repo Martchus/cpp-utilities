@@ -29,7 +29,7 @@ using namespace IoUtilities;
 using namespace ConversionUtilities;
 
 /*!
- * Returns the file name and extension of the specified \a path string.
+ * \brief Returns the file name and extension of the specified \a path string.
  */
 string IoUtilities::fileName(const string &path)
 {
@@ -48,7 +48,7 @@ string IoUtilities::fileName(const string &path)
 }
 
 /*!
- * Removes invalid characters from the specified \a path string.
+ * \brief Removes invalid characters from the specified \a path string.
  *
  * The characters <, >, ?, !, *, |, /, :, \ and new lines are considered as invalid.
  */
@@ -66,7 +66,7 @@ void IoUtilities::removeInvalidChars(string &path)
 }
 
 /*!
- * Locates a directory meant to store application settings.
+ * \brief Locates a directory meant to store application settings.
  * \param result Specifies a string to store the path in.
  * \param applicationDirectoryName Specifies the name for the application subdirectory.
  * \param createApplicationDirectory Indicates wheter the application subdirectory should be created if not present.

@@ -20,6 +20,7 @@ public:
     CopyHelper();
     void copy(std::istream &input, std::ostream &output, std::size_t count);
     void callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool (void)> &isAborted, const std::function<void (double)> &callback);
+    char *buffer();
 private:
     char m_buffer[bufferSize];
 };
@@ -52,10 +53,9 @@ void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std
 /*!
  * \brief Copies \a count bytes from \a input to \a output. The procedure might be abortet. Progress updates will be reportet.
  *
- * Copying is aborted when \a isAborted returns true. The current progress is reportet by calling the specified \a callback function.
+ * Copying is aborted when \a isAborted returns true. The current progress is reported by calling the specified \a callback function.
  *
- * \remarks Set an exception mask using std::ios::exceptions() to get
- *          a std::ios_base::failure exception when an IO error occurs.
+ * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception when an IO error occurs.
  */
 template<std::size_t bufferSize>
 void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool (void)> &isAborted, const std::function<void (double)> &callback)
@@ -73,6 +73,15 @@ void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &out
     input.read(m_buffer, count);
     output.write(m_buffer, count);
     callback(1.0);
+}
+
+/*!
+ * \brief Returns the internal buffer.
+ */
+template<std::size_t bufferSize>
+char *CopyHelper<bufferSize>::buffer()
+{
+    return m_buffer;
 }
 
 }

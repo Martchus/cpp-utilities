@@ -13,34 +13,27 @@ namespace ConversionUtilities
 {
 
 /*!
- * Converts a std::string to std::wstring.
+ * \brief Converts a std::string to a wide string using the specified locale.
  */
 template<class E, class T = std::char_traits<E>, class A = std::allocator<E> >
-class LIB_EXPORT Widen : public std::unary_function<
-        const std::string&, std::basic_string<E, T, A> >
+class LIB_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> >
 {
 public:
     /*!
-     * Constructs a new instance.
+     * \brief Constructs a new instance with the specified \a locale.
      */
-    Widen(const std::locale& loc = std::locale()) :
-        m_loc(loc)
-    {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6.0...
-        using namespace std;
-        m_pctype = &_USE(loc, ctype<E> );
-#else
-        m_pctype = &std::use_facet<std::ctype<E> >(loc);
-#endif
-    }
+    Widen(const std::locale &locale = std::locale()) :
+        m_loc(locale),
+        m_pctype(&std::use_facet<std::ctype<E> >(locale))
+    {}
 
     Widen(const Widen &) = delete;
     Widen& operator= (const Widen &) = delete;
 
     /*!
-     * Performs the conversation for the provided \a string.
+     * \brief Performs the conversation for the provided \a string.
      */
-    std::basic_string<E, T, A> operator() (const std::string& string) const
+    std::basic_string<E, T, A> operator() (const std::string &string) const
     {
         typename std::basic_string<E, T, A>::size_type srcLen = string.length();
         const char *srcBeg = string.c_str();

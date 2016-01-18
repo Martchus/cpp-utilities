@@ -35,7 +35,6 @@ set(SRC_FILES
     chrono/datetime.cpp
     chrono/period.cpp
     chrono/timespan.cpp
-    conversion/binaryconversion.cpp
     conversion/conversionexception.cpp
     conversion/stringconversion.cpp
     io/ansiescapecodes.cpp

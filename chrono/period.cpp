@@ -8,8 +8,7 @@ namespace ChronoUtilities {
  */
 
 /*!
- * Constructs a new Period defined by a start DateTime and
- * an end DateTime.
+ * \brief Constructs a new Period defined by a start DateTime and an end DateTime.
  */
 Period::Period(const DateTime &beg, const DateTime &end)
 {

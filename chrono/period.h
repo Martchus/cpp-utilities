@@ -21,7 +21,7 @@ private:
 };
 
 /*!
- * Gets the years component of the period represented by the current instance.
+ * \brief Gets the years component of the period represented by the current instance.
  */
 inline int Period::years() const
 {
@@ -29,7 +29,7 @@ inline int Period::years() const
 }
 
 /*!
- * Gets the months component of the period represented by the current instance.
+ * \brief Gets the months component of the period represented by the current instance.
  */
 inline int Period::months() const
 {
@@ -37,7 +37,7 @@ inline int Period::months() const
 }
 
 /*!
- * Gets the days component of the period represented by the current instance.
+ * \brief Gets the days component of the period represented by the current instance.
  */
 inline int Period::days() const
 {

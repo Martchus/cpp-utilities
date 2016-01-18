@@ -25,7 +25,7 @@ const char symbols[24] = "!\"$%&/()=?'#*+~-_><.:,;";
 //! @endcond
 
 /*!
- * Generates a random character sequence using the given \a randomizer.
+ * \brief Generates a random character sequence using the given \a randomizer.
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
@@ -113,7 +113,7 @@ void generateRandomCharacterSequence(char *result, unsigned int length, std::fun
 }
 
 /*!
- * Generates a random character sequence using std::rand().
+ * \brief Generates a random character sequence using std::rand().
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {

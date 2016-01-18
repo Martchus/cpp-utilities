@@ -1,7 +1,7 @@
 #ifdef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
 
 #ifndef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-#error "Do not include binaryconversionprivate.h directly."
+# error "Do not include binaryconversionprivate.h directly."
 #endif
 
 #include "./types.h"
