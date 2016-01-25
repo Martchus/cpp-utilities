@@ -201,6 +201,23 @@ LIB_EXPORT inline void getBytes(uint16 value, char *outputbuffer)
 }
 
 /*!
+ * \brief Stores the specified 24-bit unsigned integer value at a specified position in a char array.
+ * \remarks Ignores the most significant byte.
+ */
+LIB_EXPORT inline void getBytes24(uint32 value, char *outputbuffer)
+{
+#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
+    outputbuffer[0] = static_cast<char>((value >> 16) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
+    outputbuffer[2] = static_cast<char>((value      ) & 0xFF);
+#else
+    outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+#endif
+}
+
+/*!
  * \brief Stores the specified 32-bit signed integer value at a specified position in a char array.
  */
 LIB_EXPORT inline void getBytes(int32 value, char *outputbuffer)
