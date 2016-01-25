@@ -46,6 +46,14 @@ set(SRC_FILES
     math/math.cpp
     misc/random.cpp
 )
+set(TEST_HEADER_FILES
+
+)
+set(TEST_SRC_FILES
+    tests/cppunit.cpp
+    tests/conversiontests.cpp
+    tests/iotests.cpp
+)
 
 # meta data
 set(META_PROJECT_NAME c++utilities)
@@ -109,6 +117,16 @@ set_target_properties(${META_PROJECT_NAME} PROPERTIES
     SOVERSION ${META_VERSION_MAJOR}
     CXX_STANDARD 11
 )
+
+# add check target
+if(NOT TARGET check)
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+endif()
+add_executable(${META_PROJECT_NAME}_tests EXCLUDE_FROM_ALL ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
+target_link_libraries(${META_PROJECT_NAME}_tests c++utilities cppunit)
+set_target_properties(${META_PROJECT_NAME}_tests PROPERTIES CXX_STANDARD 11)
+add_test(NAME ${META_PROJECT_NAME}_tests COMMAND ${META_PROJECT_NAME}_tests)
+add_dependencies(check ${META_PROJECT_NAME}_tests)
 
 # add install target
 install(TARGETS ${META_PROJECT_NAME}
