@@ -39,7 +39,9 @@ public:
     uint32 readUInt24BE();
     int32 readInt32BE();
     uint32 readUInt32BE();
+    int64 readInt40BE();
     uint64 readUInt40BE();
+    int64 readInt56BE();
     uint64 readUInt56BE();
     int64 readInt64BE();
     uint64 readUInt64BE();
@@ -51,7 +53,9 @@ public:
     uint32 readUInt24LE();
     int32 readInt32LE();
     uint32 readUInt32LE();
+    int64 readInt40LE();
     uint64 readUInt40LE();
+    int64 readInt56LE();
     uint64 readUInt56LE();
     int64 readInt64LE();
     uint64 readUInt64LE();
@@ -217,7 +221,7 @@ inline int32 BinaryReader::readInt24BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
-    int32 val = ConversionUtilities::BE::toInt32(m_buffer);
+    auto val = ConversionUtilities::BE::toInt32(m_buffer);
     if(val >= 0x800000) {
         val = -(0x1000000 - val);
     }
@@ -253,6 +257,20 @@ inline uint32 BinaryReader::readUInt32BE()
 }
 
 /*!
+ * \brief Reads a 40-bit big endian signed integer from the current stream and advances the current position of the stream by five bytes.
+ */
+inline int64 BinaryReader::readInt40BE()
+{
+    *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
+    m_stream->read(m_buffer + 3, 5);
+    auto val = ConversionUtilities::BE::toInt64(m_buffer);
+    if(val >= 0x8000000000) {
+        val = -(0x10000000000 - val);
+    }
+    return val;
+}
+
+/*!
  * \brief Reads a 40-bit big endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
  */
 inline uint64 BinaryReader::readUInt40BE()
@@ -263,12 +281,26 @@ inline uint64 BinaryReader::readUInt40BE()
 }
 
 /*!
+ * \brief Reads a 56-bit big endian signed integer from the current stream and advances the current position of the stream by seven bytes.
+ */
+inline int64 BinaryReader::readInt56BE()
+{
+    *m_buffer = 0;
+    m_stream->read(m_buffer + 1, 7);
+    auto val = ConversionUtilities::BE::toInt64(m_buffer);
+    if(val >= 0x80000000000000) {
+        val = -(0x100000000000000 - val);
+    }
+    return val;
+}
+
+/*!
  * \brief Reads a 56-bit big endian unsigned integer from the current stream and advances the current position of the stream by seven bytes.
  */
 inline uint64 BinaryReader::readUInt56BE()
 {
     *m_buffer = 0;
-    m_stream->read(m_buffer + 1, 5);
+    m_stream->read(m_buffer + 1, 7);
     return ConversionUtilities::BE::toUInt64(m_buffer);
 }
 
@@ -333,7 +365,7 @@ inline int32 BinaryReader::readInt24LE()
 {
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
-    int32 val = ConversionUtilities::LE::toInt32(m_buffer);
+    auto val = ConversionUtilities::LE::toInt32(m_buffer);
     if(val >= 0x800000) {
         val = -(0x1000000 - val);
     }
@@ -369,6 +401,20 @@ inline uint32 BinaryReader::readUInt32LE()
 }
 
 /*!
+ * \brief Reads a 40-bit little endian signed integer from the current stream and advances the current position of the stream by five bytes.
+ */
+inline int64 BinaryReader::readInt40LE()
+{
+    *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
+    m_stream->read(m_buffer, 5);
+    auto val = ConversionUtilities::LE::toInt64(m_buffer);
+    if(val >= 0x8000000000) {
+        val = -(0x10000000000 - val);
+    }
+    return val;
+}
+
+/*!
  * \brief Reads a 40-bit little endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
  */
 inline uint64 BinaryReader::readUInt40LE()
@@ -376,6 +422,20 @@ inline uint64 BinaryReader::readUInt40LE()
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
     return ConversionUtilities::LE::toUInt64(m_buffer);
+}
+
+/*!
+ * \brief Reads a 56-bit little endian signed integer from the current stream and advances the current position of the stream by seven bytes.
+ */
+inline int64 BinaryReader::readInt56LE()
+{
+    *(m_buffer + 7) = 0;
+    m_stream->read(m_buffer, 7);
+    auto val = ConversionUtilities::LE::toInt64(m_buffer);
+    if(val >= 0x80000000000000) {
+        val = -(0x100000000000000 - val);
+    }
+    return val;
 }
 
 /*!

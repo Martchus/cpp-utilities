@@ -38,6 +38,10 @@ public:
     void writeUInt24BE(uint32 value);
     void writeInt32BE(int32 value);
     void writeUInt32BE(uint32 value);
+    void writeInt40BE(int64 value);
+    void writeUInt40BE(uint64 value);
+    void writeInt56BE(int64 value);
+    void writeUInt56BE(uint64 value);
     void writeInt64BE(int64 value);
     void writeUInt64BE(uint64 value);
     void writeFloat32BE(float32 value);
@@ -48,6 +52,10 @@ public:
     void writeUInt24LE(uint32 value);
     void writeInt32LE(int32 value);
     void writeUInt32LE(uint32 value);
+    void writeInt40LE(int64 value);
+    void writeUInt40LE(uint64 value);
+    void writeInt56LE(int64 value);
+    void writeUInt56LE(uint64 value);
     void writeInt64LE(int64 value);
     void writeUInt64LE(uint64 value);
     void writeFloat32LE(float32 value);
@@ -244,6 +252,46 @@ inline void BinaryWriter::writeUInt32BE(uint32 value)
 }
 
 /*!
+ * \brief Writes a 40-bit big endian signed integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant bytes of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeInt40BE(int64 value)
+{
+    ConversionUtilities::BE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer + 3, 5);
+}
+
+/*!
+ * \brief Writes a 40-bit big endian unsigned integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant bytes of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeUInt40BE(uint64 value)
+{
+    ConversionUtilities::BE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer + 3, 5);
+}
+
+/*!
+ * \brief Writes a 56-bit big endian signed integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant byte of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeInt56BE(int64 value)
+{
+    ConversionUtilities::BE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer + 1, 7);
+}
+
+/*!
+ * \brief Writes a 56-bit big endian unsigned integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant byte of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeUInt56BE(uint64 value)
+{
+    ConversionUtilities::BE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer + 1, 7);
+}
+
+/*!
  * \brief Writes a 64-bit big endian signed integer to the current stream and advances the current position of the stream by eight bytes.
  */
 inline void BinaryWriter::writeInt64BE(int64 value)
@@ -335,6 +383,46 @@ inline void BinaryWriter::writeUInt32LE(uint32 value)
 {
     ConversionUtilities::LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(uint32));
+}
+
+/*!
+ * \brief Writes a 40-bit big endian signed integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant bytes of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeInt40LE(int64 value)
+{
+    ConversionUtilities::LE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer, 5);
+}
+
+/*!
+ * \brief Writes a 40-bit big endian unsigned integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant bytes of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeUInt40LE(uint64 value)
+{
+    ConversionUtilities::LE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer, 5);
+}
+
+/*!
+ * \brief Writes a 56-bit big endian signed integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant byte of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeInt56LE(int64 value)
+{
+    ConversionUtilities::LE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer, 7);
+}
+
+/*!
+ * \brief Writes a 56-bit big endian unsigned integer to the current stream and advances the current position of the stream by four bytes.
+ * \remarks The most significant byte of the specified 64-bit unsigned integer \a value will be discarded.
+ */
+inline void BinaryWriter::writeUInt56LE(uint64 value)
+{
+    ConversionUtilities::LE::getBytes(value, m_buffer);
+    m_stream->write(m_buffer, 7);
 }
 
 /*!
