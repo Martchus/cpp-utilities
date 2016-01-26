@@ -44,12 +44,26 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
  */
 
 /*!
- * \brief Constructs a new DateTime object from the specified \a timeStamp.
+ * \brief Constructs a new DateTime object with the local time from the specified \a timeStamp.
  */
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
 {
     if(timeStamp) {
         struct tm *timeinfo = localtime(&timeStamp);
+        return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+                        timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
+    } else {
+        return DateTime();
+    }
+}
+
+/*!
+ * \brief Constructs a new DateTime object with the GMT time from the specified \a timeStamp.
+ */
+DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
+{
+    if(timeStamp) {
+        struct tm *timeinfo = gmtime(&timeStamp);
         return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
                         timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
     } else {
