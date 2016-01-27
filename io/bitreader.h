@@ -94,8 +94,8 @@ inline byte BitReader::readBit()
 template<typename intType>
 intType BitReader::showBits(byte bitCount)
 {
-    auto tmp = this;
-    return tmp->readBits<intType>(bitCount);
+    auto tmp = *this;
+    return tmp.readBits<intType>(bitCount);
 }
 
 /*!
