@@ -24,7 +24,10 @@ void IniFile::parse(std::istream &inputStream)
     value.reserve(256);
     // define actions for state machine
     // called when key/value pair is complete
-    const auto finishKeyValue = [&scope, &key, &value, &whitespace, this] {
+    const auto finishKeyValue = [&state, &scope, &key, &value, &whitespace, this] {
+        if(key.empty() && value.empty() && state != Value) {
+            return;
+        }
         if(m_data.empty() || m_data.back().first != scope) {
             m_data.emplace_back(make_pair(scope, decltype(m_data)::value_type::second_type()));
         }

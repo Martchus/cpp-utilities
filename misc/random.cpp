@@ -14,8 +14,7 @@ using namespace std;
  * \brief Contains miscellaneous utility functions.
  */
 
-namespace Utilities
-{
+namespace RandomUtilities {
 
 //! @cond
 const char letters[28] = "qwertzuiopasdfghjklyxcvbnm";
@@ -26,6 +25,7 @@ const char symbols[24] = "!\"$%&/()=?'#*+~-_><.:,;";
 
 /*!
  * \brief Generates a random character sequence using the given \a randomizer.
+ * \remarks Might be removed because not used anymore.
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
@@ -114,6 +114,7 @@ void generateRandomCharacterSequence(char *result, unsigned int length, std::fun
 
 /*!
  * \brief Generates a random character sequence using std::rand().
+ * \remarks Might be removed because not used anymore.
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {

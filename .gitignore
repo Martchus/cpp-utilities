@@ -39,3 +39,6 @@ Makefile*
 
 # documentation
 /doc
+
+# tests
+testfiles/output.*

@@ -1,6 +1,9 @@
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
+#include "../io/path.h"
+#include "../io/inifile.h"
+#include "../io/copy.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
@@ -24,6 +27,9 @@ class IoTests : public TestFixture
     CPPUNIT_TEST(testBinaryReader);
     CPPUNIT_TEST(testBinaryWriter);
     CPPUNIT_TEST(testBitReader);
+    CPPUNIT_TEST(testPathUtilities);
+    CPPUNIT_TEST(testIniFile);
+    CPPUNIT_TEST(testCopy);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -34,6 +40,9 @@ public:
     void testBinaryReader();
     void testBinaryWriter();
     void testBitReader();
+    void testPathUtilities();
+    void testIniFile();
+    void testCopy();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
@@ -184,4 +193,79 @@ void IoTests::testBitReader()
     reader.align();
     CPPUNIT_ASSERT(reader.readBits<byte>(8) == 0x44);
     CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
+}
+
+/*!
+ * \brief Tests fileName() and removeInvalidChars().
+ */
+void IoTests::testPathUtilities()
+{
+    CPPUNIT_ASSERT(fileName("/usr/lib/libc++utilities.so") == "libc++utilities.so");
+    string invalidPath("lib/c++uti*lities.so?");
+    removeInvalidChars(invalidPath);
+    CPPUNIT_ASSERT(invalidPath == "libc++utilities.so");
+}
+
+/*!
+ * \brief Tests IniFile.
+ */
+void IoTests::testIniFile()
+{
+    // prepare reading test file
+    fstream inputFile;
+    inputFile.exceptions(ios_base::failbit | ios_base::badbit);
+    inputFile.open(UnitTests::testFilesPath + "/test.ini", ios_base::in);
+
+    IniFile ini;
+    ini.parse(inputFile);
+    const auto globalScope = ini.data().at(0);
+    const auto scope1 = ini.data().at(1);
+    const auto scope2 = ini.data().at(2);
+    CPPUNIT_ASSERT(globalScope.first.empty());
+    CPPUNIT_ASSERT(globalScope.second.find("key0") != globalScope.second.cend());
+    CPPUNIT_ASSERT(globalScope.second.find("key0")->second == "value 0");
+    CPPUNIT_ASSERT(globalScope.second.find("key1") == globalScope.second.cend());
+    CPPUNIT_ASSERT(scope1.first == "scope 1");
+    CPPUNIT_ASSERT(scope1.second.find("key1") != scope1.second.cend());
+    CPPUNIT_ASSERT(scope1.second.find("key1")->second == "value 1");
+    CPPUNIT_ASSERT(scope1.second.find("key2") != scope1.second.cend());
+    CPPUNIT_ASSERT(scope1.second.find("key2")->second == "value=2");
+    CPPUNIT_ASSERT(scope2.first == "scope 2");
+    CPPUNIT_ASSERT(scope2.second.find("key5") == scope2.second.cend());
+
+    // write values to another file
+    fstream outputFile;
+    outputFile.exceptions(ios_base::failbit | ios_base::badbit);
+    outputFile.open(UnitTests::testFilesPath + "/output.ini", ios_base::out | ios_base::trunc);
+    ini.make(outputFile);
+
+    // parse written values (again)
+    outputFile.close();
+    outputFile.open(UnitTests::testFilesPath + "/output.ini", ios_base::in);
+    IniFile ini2;
+    ini2.parse(outputFile);
+    CPPUNIT_ASSERT(ini.data() == ini2.data());
+}
+
+/*!
+ * \brief Tests CopyHelper.
+ */
+void IoTests::testCopy()
+{
+    // prepare streams
+    fstream testFile;
+    testFile.open(UnitTests::testFilesPath + "/some_data", ios_base::in | ios_base::binary);
+    testFile.exceptions(ios_base::failbit | ios_base::badbit);
+    stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
+    outputStream.exceptions(ios_base::failbit | ios_base::badbit);
+
+    // copy
+    CopyHelper<13> copyHelper;
+    copyHelper.copy(testFile, outputStream, 50);
+
+    // test
+    testFile.seekg(0);
+    for(byte i = 0; i < 50; ++i) {
+        CPPUNIT_ASSERT(testFile.get() == outputStream.get());
+    }
 }

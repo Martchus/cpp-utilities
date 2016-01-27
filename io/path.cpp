@@ -25,13 +25,14 @@
 #endif
 
 using namespace std;
-using namespace IoUtilities;
 using namespace ConversionUtilities;
+
+namespace IoUtilities {
 
 /*!
  * \brief Returns the file name and extension of the specified \a path string.
  */
-string IoUtilities::fileName(const string &path)
+string fileName(const string &path)
 {
     size_t lastSlash = path.rfind('/');
     size_t lastBackSlash = path.rfind('\\');
@@ -48,19 +49,19 @@ string IoUtilities::fileName(const string &path)
 }
 
 /*!
- * \brief Removes invalid characters from the specified \a path string.
+ * \brief Removes invalid characters from the specified \a fileName.
  *
  * The characters <, >, ?, !, *, |, /, :, \ and new lines are considered as invalid.
  */
-void IoUtilities::removeInvalidChars(string &path)
+void removeInvalidChars(string &fileName)
 {
     size_t startPos = 0;
     static const char invalidPathChars[] = {'\"', '<', '>', '?', '!', '*', '|', '/', ':', '\\', '\n'};
     for(const char *i = invalidPathChars, *end = invalidPathChars + sizeof(invalidPathChars); i != end; ++i) {
-        startPos = path.find(*i);
+        startPos = fileName.find(*i);
         while(startPos != string::npos) {
-            path.replace(startPos, 1, "");
-            startPos = path.find(*i, startPos);
+            fileName.replace(startPos, 1, string());
+            startPos = fileName.find(*i, startPos);
         }
     }
 }
@@ -72,7 +73,7 @@ void IoUtilities::removeInvalidChars(string &path)
  * \param createApplicationDirectory Indicates wheter the application subdirectory should be created if not present.
  * \returns Returns if a settings directory could be located.
  */
-bool IoUtilities::settingsDirectory(string &result, string applicationDirectoryName, bool createApplicationDirectory)
+bool settingsDirectory(string &result, string applicationDirectoryName, bool createApplicationDirectory)
 {
     result.clear();
     fstream pathConfigFile("path.config", ios_base::in);
@@ -92,12 +93,12 @@ bool IoUtilities::settingsDirectory(string &result, string applicationDirectoryN
         struct stat sb;
         return (stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
 #else
-#ifdef PLATFORM_WINDOWS
+# ifdef PLATFORM_WINDOWS
         DWORD ftyp = GetFileAttributesA(result.c_str());
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
-#else
-#error Platform not supported.
-#endif
+# else
+#  error Platform not supported.
+# endif
 #endif
     } else {
         if(!applicationDirectoryName.empty()) {
@@ -126,7 +127,7 @@ bool IoUtilities::settingsDirectory(string &result, string applicationDirectoryN
             }
         }
 #else
-#ifdef PLATFORM_WINDOWS
+# ifdef PLATFORM_WINDOWS
         if(char *appData = getenv("appdata")) {
             result = appData;
             if(!applicationDirectoryName.empty()) {
@@ -149,10 +150,12 @@ bool IoUtilities::settingsDirectory(string &result, string applicationDirectoryN
         } else {
             return false;
         }
-    #else
-    #error Platform not supported.
-    #endif
-    #endif
+# else
+#  error Platform not supported.
+# endif
+#endif
     }
     return true;
+}
+
 }

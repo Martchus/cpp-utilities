@@ -16,9 +16,9 @@ bool LIB_EXPORT confirmPrompt(const char *message, Response defaultResponse = Re
 
 #ifdef PLATFORM_WINDOWS
 void LIB_EXPORT startConsole();
-#define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
+# define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
 #else
-#define CMD_UTILS_START_CONSOLE
+# define CMD_UTILS_START_CONSOLE
 #endif
 
 } // namespace ApplicationUtilities
