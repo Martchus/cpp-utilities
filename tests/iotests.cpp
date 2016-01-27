@@ -1,5 +1,6 @@
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
+#include "../io/bitreader.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
@@ -22,6 +23,7 @@ class IoTests : public TestFixture
     CPPUNIT_TEST(testFailure);
     CPPUNIT_TEST(testBinaryReader);
     CPPUNIT_TEST(testBinaryWriter);
+    CPPUNIT_TEST(testBitReader);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -31,6 +33,7 @@ public:
     void testFailure();
     void testBinaryReader();
     void testBinaryWriter();
+    void testBitReader();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
@@ -164,4 +167,21 @@ void IoTests::testBinaryWriter()
     for(char c : testData) {
         CPPUNIT_ASSERT(c == static_cast<char>(testFile.get()));
     }
+}
+
+/*!
+ * \brief Tests the BitReader.
+ */
+void IoTests::testBitReader()
+{
+    byte testData[] = {0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44};
+    BitReader reader(reinterpret_cast<char *>(testData), sizeof(testData));
+    CPPUNIT_ASSERT(reader.readBit() == 1);
+    reader.skipBits(6);
+    CPPUNIT_ASSERT(reader.showBits<byte>(2) == 3);
+    CPPUNIT_ASSERT(reader.readBits<byte>(2) == 3);
+    CPPUNIT_ASSERT(reader.readBits<uint32>(32) == (0x103C4428 << 1));
+    reader.align();
+    CPPUNIT_ASSERT(reader.readBits<byte>(8) == 0x44);
+    CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
 }
