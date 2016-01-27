@@ -1,4 +1,5 @@
 #include "../conversion/binaryconversion.h"
+#include "../conversion/stringconversion.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
@@ -6,6 +7,7 @@
 #include <random>
 #include <sstream>
 #include <functional>
+#include <initializer_list>
 
 using namespace std;
 using namespace ConversionUtilities;
@@ -17,6 +19,7 @@ class ConversionTests : public TestFixture
     CPPUNIT_TEST_SUITE(ConversionTests);
     CPPUNIT_TEST(testEndianness);
     CPPUNIT_TEST(testBinaryConversions);
+    CPPUNIT_TEST(testStringConversions);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -27,6 +30,7 @@ public:
 
     void testEndianness();
     void testBinaryConversions();
+    void testStringConversions();
 
 private:
     template<typename intType>
@@ -69,8 +73,7 @@ void ConversionTests::testConversion(const char *message, function<void (intType
     stringstream msg;
     msg << message << '(' << hex << '0' << 'x' << random << ')';
     vice(random, m_buff);
-    const intType result = versa(m_buff);
-    CPPUNIT_ASSERT_MESSAGE(msg.str(), result == random);
+    CPPUNIT_ASSERT_MESSAGE(msg.str(), versa(m_buff) == random);
 }
 
 #define TEST_TYPE(endianness, function) \
@@ -104,20 +107,19 @@ void ConversionTests::testConversion(const char *message, function<void (intType
     )
 
 /*!
- * \brief Tests some binary conversions.
+ * \brief Tests most important binary conversions.
  *
  * Tests toUInt16(), ... toUInt64(), toInt16(), ... toInt64() and
- * the inverse getBytes() functions.
+ * the inverse getBytes() functions with random numbers.
  */
 void ConversionTests::testBinaryConversions()
 {
-    for(byte b = 0; b < 100; ++b) {
+    // test to...() / getBytes() with random numbers
+    for(byte b = 1; b < 100; ++b) {
         TEST_BE_CONVERSION(toUInt16);
-        TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, BE, 0, 0xFFFFFF);
         TEST_BE_CONVERSION(toUInt32);
         TEST_BE_CONVERSION(toUInt64);
         TEST_LE_CONVERSION(toUInt16);
-        TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, LE, 0, 0xFFFFFF);
         TEST_LE_CONVERSION(toUInt32);
         TEST_LE_CONVERSION(toUInt64);
         TEST_BE_CONVERSION(toInt16);
@@ -126,6 +128,68 @@ void ConversionTests::testBinaryConversions()
         TEST_LE_CONVERSION(toInt16);
         TEST_LE_CONVERSION(toInt32);
         TEST_LE_CONVERSION(toInt64);
+        TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, BE, 0, 0xFFFFFF);
+        TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, LE, 0, 0xFFFFFF);
+    }
+}
+
+/*!
+ * \brief Tests most important string conversions.
+ */
+void ConversionTests::testStringConversions()
+{
+    // test stringToNumber() / numberToString() with random numbers
+    uniform_int_distribution<int64> randomDistSigned(numeric_limits<int64>::min());
+    uniform_int_distribution<uint64> randomDistUnsigned(0);
+    for(byte b = 1; b < 100; ++b) {
+        auto signedRandom = randomDistSigned(m_randomEngine);
+        auto unsignedRandom = randomDistUnsigned(m_randomEngine);
+        for(const auto base : initializer_list<byte>{2, 8, 10, 16}) {
+            auto resultString = stringToNumber<uint64, string>(numberToString<uint64, string>(unsignedRandom, base), base);
+            auto resultWideString = stringToNumber<uint64, wstring>(numberToString<uint64, wstring>(unsignedRandom, base), base);
+            CPPUNIT_ASSERT(resultString == unsignedRandom);
+            CPPUNIT_ASSERT(resultWideString == unsignedRandom);
+        }
+        for(const auto base : initializer_list<byte>{10}) {
+            auto resultString = stringToNumber<int64, string>(numberToString<int64, string>(signedRandom, base), base);
+            auto resultWideString = stringToNumber<int64, wstring>(numberToString<int64, wstring>(signedRandom, base), base);
+            CPPUNIT_ASSERT(resultString == signedRandom);
+            CPPUNIT_ASSERT(resultWideString == signedRandom);
+        }
     }
 
+    // test interpretIntegerAsString()
+    CPPUNIT_ASSERT(interpretIntegerAsString<uint32>(0x54455354) == "TEST");
+
+    // test splitString() / joinStrings()
+    auto splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", false, "(", ")");
+    CPPUNIT_ASSERT(splitJoinTest == "() (a) () (ab) (ABC) (s)");
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", true, "(", ")");
+    CPPUNIT_ASSERT(splitJoinTest == "(a) (ab) (ABC) (s)");
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Omit), " ", false, "(", ")");
+    CPPUNIT_ASSERT(splitJoinTest == "(a) (ab) (ABC) (s)");
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Merge), " ", false, "(", ")");
+    CPPUNIT_ASSERT(splitJoinTest == "(a,ab) (ABC) (s)");
+
+    // test findAndReplace()
+    string findReplaceTest("findAndReplace()");
+    findAndReplace<string>(findReplaceTest, "And", "Or");
+    CPPUNIT_ASSERT(findReplaceTest == "findOrReplace()");
+
+    // test startsWith()
+    CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"));
+    CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"));
+
+    // test encodeBase64() / decodeBase64() with random data
+    uniform_int_distribution<byte> randomDistChar;
+    byte originalBase64Data[4047];
+    for(byte &c : originalBase64Data) {
+        c = randomDistChar(m_randomEngine);
+    }
+    const auto encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data));
+    auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), encodedBase64Data.size());
+    CPPUNIT_ASSERT(decodedBase64Data.second == sizeof(originalBase64Data));
+    for(unsigned int i = 0; i < sizeof(originalBase64Data); ++i) {
+        CPPUNIT_ASSERT(decodedBase64Data.first[i] == originalBase64Data[i]);
+    }
 }
