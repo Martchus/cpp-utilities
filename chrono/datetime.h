@@ -6,7 +6,6 @@
 #include "../conversion/types.h"
 
 #include <string>
-#include <ctime>
 #include <limits>
 
 namespace ChronoUtilities
@@ -313,14 +312,6 @@ constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 constexpr inline DateTime DateTime::eternity()
 {
     return DateTime(std::numeric_limits<decltype(m_ticks)>::max());
-}
-
-/*!
- * \brief Gets a DateTime object that is set to the current date and time on this computer, expressed as the local time.
- */
-inline DateTime DateTime::now()
-{
-    return DateTime::fromTimeStamp(time(nullptr));
 }
 
 /*!
