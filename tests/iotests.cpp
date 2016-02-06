@@ -1,3 +1,5 @@
+#include "./testutils.h"
+
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
@@ -71,7 +73,7 @@ void IoTests::testBinaryReader()
 {
     // read test file
     fstream testFile;
-    testFile.open(UnitTests::testFilesPath + "/some_data", ios_base::in | ios_base::binary);
+    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt16BE() == 0x0102u);
@@ -116,7 +118,7 @@ void IoTests::testBinaryWriter()
 {
     // prepare reading expected data
     fstream testFile;
-    testFile.open(UnitTests::testFilesPath + "/some_data", ios_base::in | ios_base::binary);
+    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
 
     // prepare output stream
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
@@ -214,7 +216,7 @@ void IoTests::testIniFile()
     // prepare reading test file
     fstream inputFile;
     inputFile.exceptions(ios_base::failbit | ios_base::badbit);
-    inputFile.open(UnitTests::testFilesPath + "/test.ini", ios_base::in);
+    inputFile.open(TestUtilities::testFilePath("test.ini"), ios_base::in);
 
     IniFile ini;
     ini.parse(inputFile);
@@ -236,12 +238,12 @@ void IoTests::testIniFile()
     // write values to another file
     fstream outputFile;
     outputFile.exceptions(ios_base::failbit | ios_base::badbit);
-    outputFile.open(UnitTests::testFilesPath + "/output.ini", ios_base::out | ios_base::trunc);
+    outputFile.open(TestUtilities::testFilePath("output.ini"), ios_base::out | ios_base::trunc);
     ini.make(outputFile);
 
     // parse written values (again)
     outputFile.close();
-    outputFile.open(UnitTests::testFilesPath + "/output.ini", ios_base::in);
+    outputFile.open(TestUtilities::testFilePath("output.ini"), ios_base::in);
     IniFile ini2;
     ini2.parse(outputFile);
     CPPUNIT_ASSERT(ini.data() == ini2.data());
@@ -254,7 +256,7 @@ void IoTests::testCopy()
 {
     // prepare streams
     fstream testFile;
-    testFile.open(UnitTests::testFilesPath + "/some_data", ios_base::in | ios_base::binary);
+    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);

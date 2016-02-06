@@ -42,7 +42,9 @@ HEADERS += \
     io/path.h \
     math/math.h \
     misc/memory.h \
-    misc/random.h
+    misc/random.h \
+    tests/testutils.h \
+    tests/cppunit.h \
 
 SOURCES += \
     application/argumentparser.cpp \
@@ -61,7 +63,8 @@ SOURCES += \
     io/inifile.cpp \
     io/path.cpp \
     math/math.cpp \
-    misc/random.cpp
+    misc/random.cpp \
+    tests/testutils.cpp
 
 OTHER_FILES += \
     README.md \
@@ -82,7 +85,7 @@ mingw-w64-install {
     target.path = $$(INSTALL_ROOT)/lib
     INSTALLS += target
 }
-for(dir, $$list(application io conversion chrono math misc)) {
+for(dir, $$list(application io conversion chrono math misc tests)) {
     eval(inc_$${dir} = $${dir})
     inc_$${dir}.path = $$(INSTALL_ROOT)/include/$$projectname/$${dir}
     inc_$${dir}.files = $${dir}/*.h

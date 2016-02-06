@@ -26,6 +26,8 @@ set(HEADER_FILES
     math/math.h
     misc/memory.h
     misc/random.h
+    tests/testutils.h
+    tests/cppunit.h
 )
 set(SRC_FILES
     application/argumentparser.cpp
@@ -45,6 +47,7 @@ set(SRC_FILES
     io/path.cpp
     math/math.cpp
     misc/random.cpp
+    tests/testutils.cpp
 )
 set(TEST_HEADER_FILES
 
@@ -126,7 +129,7 @@ if(NOT TARGET check)
     enable_testing()
 endif()
 add_executable(${META_PROJECT_NAME}_tests EXCLUDE_FROM_ALL ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
-target_link_libraries(${META_PROJECT_NAME}_tests c++utilities cppunit)
+target_link_libraries(${META_PROJECT_NAME}_tests ${META_PROJECT_NAME} cppunit)
 set_target_properties(${META_PROJECT_NAME}_tests PROPERTIES CXX_STANDARD 11)
 add_test(NAME ${META_PROJECT_NAME}_cppunit COMMAND ${META_PROJECT_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles")
 add_dependencies(check ${META_PROJECT_NAME}_tests)
