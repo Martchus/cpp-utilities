@@ -18,10 +18,6 @@ using namespace IoUtilities;
 
 using namespace CPPUNIT_NS;
 
-namespace UnitTests {
-extern string testFilesPath;
-}
-
 class IoTests : public TestFixture
 {
     CPPUNIT_TEST_SUITE(IoTests);
