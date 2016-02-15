@@ -84,6 +84,7 @@ public:
 
     static constexpr DateTime eternity();
     static DateTime now();
+    static DateTime gmtNow();
     constexpr static bool isLeapYear(int year);
     static int daysInMonth(int year, int month);
 

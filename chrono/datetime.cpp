@@ -36,7 +36,7 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
 }
 
 /*!
- * \brief Gets a DateTime object that is set to the current date and time on this computer, expressed as the local time.
+ * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the local time.
  */
 DateTime DateTime::now()
 {
@@ -44,12 +44,24 @@ DateTime DateTime::now()
 }
 
 /*!
+ * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
+ */
+DateTime DateTime::gmtNow()
+{
+    return DateTime::fromTimeStampGmt(time(nullptr));
+}
+
+/*!
  * \class ChronoUtilities::DateTime
  * \brief Represents an instant in time, typically expressed as a date and time of day.
- * \remarks Time values are measured in 100-nanosecond units called ticks,
- *  and a particular date is the number of ticks since 12:00 midnight, January 1,
- *  0001 A.D. (C.E.) in the GregorianCalendar calendar (excluding ticks that would
- *  be added by leap seconds).
+ * \remarks
+ *  - Time values are measured in 100-nanosecond units called ticks,
+ *    and a particular date is the number of ticks since 12:00 midnight, January 1,
+ *    0001 A.D. (C.E.) in the GregorianCalendar calendar (excluding ticks that would
+ *    be added by leap seconds).
+ *  - There is no time zone information associated. Hence different time zones are
+ *    not taken into account when comparing two instances. For instance the
+ *    expression (DateTime::now() - DateTime::gmtNow()) returns one hour in Germany (instead of zero).
  */
 
 /*!
