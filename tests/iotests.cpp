@@ -181,8 +181,8 @@ void IoTests::testBinaryWriter()
  */
 void IoTests::testBitReader()
 {
-    byte testData[] = {0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44};
-    BitReader reader(reinterpret_cast<char *>(testData), sizeof(testData));
+    const byte testData[] = {0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20};
+    BitReader reader(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT(reader.readBit() == 1);
     reader.skipBits(6);
     CPPUNIT_ASSERT(reader.showBits<byte>(2) == 3);
@@ -190,6 +190,10 @@ void IoTests::testBitReader()
     CPPUNIT_ASSERT(reader.readBits<uint32>(32) == (0x103C4428 << 1));
     reader.align();
     CPPUNIT_ASSERT(reader.readBits<byte>(8) == 0x44);
+    CPPUNIT_ASSERT(reader.readUnsignedExpGolombCodedBits<byte>() == 7);
+    CPPUNIT_ASSERT(reader.readSignedExpGolombCodedBits<sbyte>() == 4);
+    CPPUNIT_ASSERT(reader.readBit() == 0);
+    CPPUNIT_ASSERT(reader.readBit() == 0);
     CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
 }
 

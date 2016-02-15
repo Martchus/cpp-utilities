@@ -5,8 +5,8 @@
 #include "../application/global.h"
 
 #include <ios>
-
 #include <iostream>
+#include <type_traits>
 
 namespace IoUtilities {
 
@@ -18,6 +18,8 @@ public:
 
     template<typename intType> intType readBits(byte bitCount);
     byte readBit();
+    template<typename intType> intType readUnsignedExpGolombCodedBits();
+    template<typename intType> intType readSignedExpGolombCodedBits();
     template<typename intType> intType showBits(byte bitCount);
     void skipBits(std::size_t bitCount);
     void align();
@@ -86,6 +88,39 @@ intType BitReader::readBits(byte bitCount)
 inline byte BitReader::readBit()
 {
     return readBits<byte>(1) == 1;
+}
+
+/*!
+ * \brief Reads "Exp-Golomb coded" bits (unsigned).
+ * \tparam intType Specifies the type of the returned value.
+ * \remarks Does not check whether intType is big enough to hold result.
+ * \throws Throws ios_base::failure if the end of the buffer is exceeded.
+ *         The reader becomes invalid in that case.
+ * \sa https://en.wikipedia.org/wiki/Exponential-Golomb_coding
+ */
+template<typename intType>
+intType BitReader::readUnsignedExpGolombCodedBits()
+{
+    byte count = 0;
+    while(!readBit()) {
+        ++count;
+    }
+    return count ? (((1 << count) | readBits<intType>(count)) - 1) : 0;
+}
+
+/*!
+ * \brief Reads "Exp-Golomb coded" bits (signed).
+ * \tparam intType Specifies the type of the returned value which should be signed (obviously).
+ * \remarks Does not check whether intType is big enough to hold result.
+ * \throws Throws ios_base::failure if the end of the buffer is exceeded.
+ *         The reader becomes invalid in that case.
+ * \sa https://en.wikipedia.org/wiki/Exponential-Golomb_coding
+ */
+template<typename intType>
+intType BitReader::readSignedExpGolombCodedBits()
+{
+    auto value = readUnsignedExpGolombCodedBits<typename std::make_unsigned<intType>::type>();
+    return (value % 2) ? static_cast<intType>((value + 1) / 2) : (-static_cast<intType>(value / 2));
 }
 
 /*!

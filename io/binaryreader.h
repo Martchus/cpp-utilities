@@ -160,7 +160,7 @@ inline bool BinaryReader::fail() const
  */
 inline bool BinaryReader::eof() const
 {
-    return m_stream ? m_stream->eof() : false;
+    return m_stream && m_stream->eof();
 }
 
 /*!
@@ -168,7 +168,7 @@ inline bool BinaryReader::eof() const
  */
 inline bool BinaryReader::canRead() const
 {
-    return m_stream ? !(m_stream->fail() || m_stream->eof()) : false;
+    return m_stream && m_stream->good();
 }
 
 /*!
