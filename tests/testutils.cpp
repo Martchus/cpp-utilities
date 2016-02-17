@@ -1,6 +1,7 @@
 #include "./testutils.h"
 
 #include "../application/failure.h"
+#include "../conversion/stringconversion.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -11,6 +12,7 @@
 
 using namespace std;
 using namespace ApplicationUtilities;
+using namespace ConversionUtilities;
 
 namespace TestUtilities {
 
@@ -155,6 +157,25 @@ string TestApplication::workingCopyPath(const string &name) const
         if(mkdir(m_workingDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
             cerr << "Unable to create working copy for \"" << name << "\": can't create working directory." << endl;
             return string();
+        }
+    }
+
+    // ensure subdirectory exists
+    const auto parts = splitString<vector<string> >(name, string("/"), EmptyPartsTreat::Omit);
+    if(!parts.empty()) {
+        string currentLevel = m_workingDir;
+        for(auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
+            if(stat((currentLevel += *i).c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
+
+                if(mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+                    cerr << "Unable to create working copy for \"" << name << "\": can't create working directory." << endl;
+                    return string();
+                }
+                if(currentLevel.back() != '/') {
+                    currentLevel += '/';
+                }
+                currentLevel += *i;
+            }
         }
     }
 
