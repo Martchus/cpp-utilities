@@ -1,6 +1,21 @@
 # c++utilities
 Common C++ classes and routines used by my applications such as argument parser, IO and conversion utilities.
 
+## Features
+The library utilizes:
+* parsing command-line arguments
+* chronology (DateTime and TimeSpan classes)
+* conversion of primitive data types to byte-buffers (litte-endian, big-endian) and vice versa
+* common string conversions/operations, eg.
+ - split, join, findAndReplace
+ - numberToString, stringToNumber
+ - encodeBase64, decodeBase64
+* IO
+ - reading/writing primitive data types of various sizes (little-endian, big-endian)
+ - reading/writing terminated strings and size-prefixed strings
+ - bitwise reading
+ - parsing INI files
+
 ## Build instructions
 ### Requirements
 * C++ compiler supporting C++11 (I've tested GNU g++, Clang and mingw-w64 yet.)
