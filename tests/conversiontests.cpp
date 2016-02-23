@@ -19,6 +19,7 @@ class ConversionTests : public TestFixture
     CPPUNIT_TEST_SUITE(ConversionTests);
     CPPUNIT_TEST(testEndianness);
     CPPUNIT_TEST(testBinaryConversions);
+    CPPUNIT_TEST(testSwapOrderFunctions);
     CPPUNIT_TEST(testStringConversions);
     CPPUNIT_TEST_SUITE_END();
 
@@ -30,6 +31,7 @@ public:
 
     void testEndianness();
     void testBinaryConversions();
+    void testSwapOrderFunctions();
     void testStringConversions();
 
 private:
@@ -58,8 +60,16 @@ void ConversionTests::testEndianness()
         char characters[4];
     } test = {0x01020304};
 #if defined(CONVERSION_UTILITIES_BYTE_ORDER_BIG_ENDIAN)
+    // test whether macro definitions are consistent
+    CPPUNIT_ASSERT(CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN == true);
+    CPPUNIT_ASSERT(CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN == false);
+    // test whether byte order assumption is correct
     CPPUNIT_ASSERT_MESSAGE("Byte order assumption (big-endian) is wrong", test.characters[0] == 0x01);
 #elif defined(CONVERSION_UTILITIES_BYTE_ORDER_LITTLE_ENDIAN)
+    // test whether macro definitions are consistent
+    CPPUNIT_ASSERT(CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN == false);
+    CPPUNIT_ASSERT(CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN == true);
+    // test whether byte order assumption is correct
     CPPUNIT_ASSERT_MESSAGE("Byte order assumption (little-endian) is wrong", test.characters[0] == 0x04);
 #else
     CPPUNIT_FAIL("There is not valid byte order assumption");
@@ -131,6 +141,16 @@ void ConversionTests::testBinaryConversions()
         TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, BE, 0, 0xFFFFFF);
         TEST_CUSTOM_CONVERSION(getBytes24, toUInt24, LE, 0, 0xFFFFFF);
     }
+}
+
+/*!
+ * \brief Tests swap order functions.
+ */
+void ConversionTests::testSwapOrderFunctions()
+{
+    CPPUNIT_ASSERT(swapOrder(static_cast<uint16>(0x7825)) == 0x2578);
+    CPPUNIT_ASSERT(swapOrder(static_cast<uint32>(0x12345678)) == 0x78563412);
+    CPPUNIT_ASSERT(swapOrder(static_cast<uint64>(0x1122334455667788)) == 0x8877665544332211);
 }
 
 /*!
