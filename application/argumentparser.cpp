@@ -36,7 +36,7 @@ const char *applicationUrl = nullptr;
  */
 
 /*!
- * Constructs an Argument with the given \a name, \a abbreviation and \a description.
+ * \brief Constructs an Argument with the given \a name, \a abbreviation and \a description.
  *
  * The \a name and the abbreviation mustn't contain any whitespaces.
  * The \a name mustn't be empty. The \a abbreviation and the \a description might be empty.
@@ -57,7 +57,8 @@ Argument::Argument(const std::string &name, const std::string abbreviation, cons
 }
 
 /*!
- * Constructs an Argument with the given \a name, \a abbreviation and \a description.
+ * \brief Constructs an Argument with the given \a name, \a abbreviation and \a description.
+ *
  * The \a name and the abbreviation mustn't contain any whitespaces.
  * The \a name mustn't be empty. The \a abbreviation and the \a description might be empty.
  */
@@ -85,7 +86,7 @@ Argument::Argument(const char *name, const char *abbreviation, const char *descr
 }
 
 /*!
- * Destroys the Argument.
+ * \brief Destroys the Argument.
  */
 Argument::~Argument()
 {}
@@ -120,8 +121,7 @@ Argument::~Argument()
 //}
 
 /*!
- * Appends the name, the abbreviation and the description of the Argument
- * to the give ostream.
+ * \brief Appends the name, the abbreviation and the description of the Argument to the give ostream.
  */
 void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
 {
@@ -172,7 +172,8 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
 }
 
 /*!
- * This function return the first present and uncombinable argument of the given list of arguments.
+ * \brief This function return the first present and uncombinable argument of the given list of arguments.
+ *
  * The Argument \a except will be ignored.
  */
 Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except)
@@ -186,10 +187,11 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
 }
 
 /*!
- * Sets the secondary arguments for this arguments. The given arguments will be considered as
- * secondary arguments of this argument by the argument parser. This means that the parser
- * will complain if these arguments are given, but not this argument. If secondary arguments are
- * labeled as mandatory their parent is also mandatory.
+ * \brief Sets the secondary arguments for this arguments.
+ *
+ * The given arguments will be considered as secondary arguments of this argument by the argument parser.
+ * This means that the parser will complain if these arguments are given, but not this argument.
+ * If secondary arguments are labeled as mandatory their parent is also mandatory.
  *
  * The Argument does not take ownership. Do not destroy the given arguments as long as they are
  * used as secondary arguments.
@@ -216,7 +218,7 @@ void Argument::setSecondaryArguments(const ArgumentInitializerList &secondaryArg
 }
 
 /*!
- * Adds \a arg as a secondary argument for this argument.
+ * \brief Adds \a arg as a secondary argument for this argument.
  *
  * \sa secondaryArguments()
  * \sa setSecondaryArguments()
@@ -233,8 +235,8 @@ void Argument::addSecondaryArgument(Argument *arg)
 }
 
 /*!
- * Returns the names of the parents in the form "parent1", "parent2, "parent3", ...
- * Returns an empty string if this Argument has no parents.
+ * \brief Returns the names of the parents in the form "parent1", "parent2, "parent3", ...
+ *        Returns an empty string if this Argument has no parents.
  * \sa parents()
  */
 string Argument::parentNames() const
@@ -252,8 +254,8 @@ string Argument::parentNames() const
 }
 
 /*!
- * Returns true if at least one of the parents is present.
- * Returns false if this argument has no parents or none of its parents is present.
+ * \brief Returns true if at least one of the parents is present.
+ *        Returns false if this argument has no parents or none of its parents is present.
  */
 bool Argument::isParentPresent() const
 {
@@ -266,8 +268,10 @@ bool Argument::isParentPresent() const
 }
 
 /*!
- * Checks if this arguments conflicts with other arguments. If the argument is in conflict
- * with an other argument this argument will be returned. Otherwise nullptr will be returned.
+ * \brief Checks if this arguments conflicts with other arguments.
+ *
+ * If the argument is in conflict with an other argument this argument will be returned.
+ * Otherwise nullptr will be returned.
  */
 Argument *Argument::conflictsWithArgument() const
 {
@@ -297,7 +301,7 @@ Argument *Argument::conflictsWithArgument() const
  */
 
 /*!
- * Constructs a new ArgumentParser.
+ * \brief Constructs a new ArgumentParser.
  */
 ArgumentParser::ArgumentParser() :
     m_actualArgc(0),
@@ -305,9 +309,10 @@ ArgumentParser::ArgumentParser() :
 {}
 
 /*!
- * Sets the main arguments for the parser. The parser will use these argument definitions
- * to when parsing the command line arguments and when printing help information.
+ * \brief Sets the main arguments for the parser. The parser will use these argument definitions
+ *        to when parsing the command line arguments and when printing help information.
  *
+ * \remarks
  * The parser does not take ownership. Do not destroy the arguments as long as they are used as
  * main arguments.
  */
@@ -320,7 +325,19 @@ void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArgumen
 }
 
 /*!
- * Prints help information for all main arguments which have been set using setMainArguments().
+ * \brief Adds the specified \a argument to the main argument.
+ * \remarks
+ * The parser does not take ownership. Do not destroy the argument as long as it is used as
+ * main argument.
+ */
+void ArgumentParser::addMainArgument(Argument *argument)
+{
+    argument->m_isMainArg = true;
+    m_mainArgs.push_back(argument);
+}
+
+/*!
+ * \brief Prints help information for all main arguments which have been set using setMainArguments().
  */
 void ArgumentParser::printHelp(ostream &os) const
 {
@@ -348,7 +365,8 @@ void ArgumentParser::printHelp(ostream &os) const
 }
 
 /*!
- * Returns the first argument definition which matches the predicate.
+ * \brief Returns the first argument definition which matches the predicate.
+ *
  * The search includes all assigned main argument definitions and their sub arguments.
  */
 Argument *ArgumentParser::findArg(const ArgumentPredicate &predicate) const
@@ -357,7 +375,8 @@ Argument *ArgumentParser::findArg(const ArgumentPredicate &predicate) const
 }
 
 /*!
- * Returns the first argument definition which matches the predicate.
+ * \brief Returns the first argument definition which matches the predicate.
+ *
  * The search includes all provided \a arguments and their sub arguments.
  */
 Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate)
@@ -373,7 +392,7 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
 }
 
 /*!
- * This method is used to verify the setup of the command line parser before parsing.
+ * \brief This method is used to verify the setup of the command line parser before parsing.
  *
  * This function will throw std::invalid_argument when a mismatch is detected:
  *  - An argument is used as main argument and as sub argument at the same time.
@@ -425,8 +444,8 @@ void ArgumentParser::verifySetup() const
 }
 
 /*!
- * This method invokes verifySetup() before parsing. See its do documentation for more
- * information about execptions that might be thrown to indicate an invalid setup of the parser.
+ * \brief This method invokes verifySetup() before parsing. See its do documentation for more
+ *        information about execptions that might be thrown to indicate an invalid setup of the parser.
  *
  * If the parser is setup properly this method will parse the given command line arguments using
  * the previsously set argument definitions.

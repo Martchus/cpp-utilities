@@ -560,6 +560,7 @@ public:
 
     const ArgumentVector &mainArguments() const;
     void setMainArguments(const ArgumentInitializerList &mainArguments);
+    void addMainArgument(Argument *argument);
     void printHelp(std::ostream &os) const;
     Argument *findArg(const ArgumentPredicate &predicate) const;
     static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
