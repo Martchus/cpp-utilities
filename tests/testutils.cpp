@@ -141,6 +141,7 @@ string TestApplication::testFilePath(const string &name) const
     return "./testfiles/" + name;
 }
 
+#ifdef PLATFORM_UNIX
 /*!
  * \brief Returns the full path to a working copy of the test file with the specified \a name.
  */
@@ -191,5 +192,6 @@ string TestApplication::workingCopyPath(const string &name) const
     }
     return string();
 }
+#endif
 
 }

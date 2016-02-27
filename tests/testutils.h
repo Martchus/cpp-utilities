@@ -15,7 +15,9 @@ public:
 
     operator bool() const;
     std::string testFilePath(const std::string &name) const;
+#ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
+#endif
     static const TestApplication *instance();
 
 private:
@@ -58,6 +60,7 @@ inline LIB_EXPORT std::string testFilePath(const std::string &name)
     return TestApplication::instance()->testFilePath(name);
 }
 
+#ifdef PLATFORM_UNIX
 /*!
  * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
  * \remarks A TestApplication must be present.
@@ -66,6 +69,7 @@ inline LIB_EXPORT std::string workingCopyPath(const std::string &name)
 {
     return TestApplication::instance()->workingCopyPath(name);
 }
+#endif
 
 }
 
