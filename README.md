@@ -20,9 +20,9 @@ The library utilizes:
 ### Requirements
 * C++ compiler supporting C++11 (I've tested GNU g++, Clang and mingw-w64 yet.)
 * CMake to build
-* cppunit to build and run unit tests after building
-* The c++utilities library only depends on the C++ standard library. For Dependencies of my other projects
-  see the README.md of these projects.
+* cppunit to build and run unit tests
+* The c++utilities library only depends on the C++ standard library. For dependencies of my other projects
+  check the README.md of these projects.
 
 ### How to build
 Just run:
@@ -50,7 +50,7 @@ To create *.ico files for application icons ffmpeg is required.
 In any case, the make option *-j* can be used for concurrent compilation.
 
 ### Creating Arch Linux package
-The repository PKGBUILDs (also on GitHub) contains files for building Arch Linux packages.
+The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages.
 PKGBUILD files to build for Windows using the Mingw-w64 compiler are also included.
 
 ### Notes

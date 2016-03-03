@@ -17,12 +17,18 @@
  */
 
 #ifdef _WIN32
-# define PLATFORM_WINDOWS
+# ifndef PLATFORM_WINDOWS
+#  define PLATFORM_WINDOWS
+# endif
 #elif __unix__
-# define PLATFORM_UNIX
+# ifndef PLATFORM_UNIX
+#  define PLATFORM_UNIX
+# endif
 #endif
 #ifdef __linux__
-# define PLATFORM_LINUX
+# ifndef PLATFORM_LINUX
+#  define PLATFORM_LINUX
+# endif
 #endif
 
 /*!
@@ -58,10 +64,12 @@
  * If the function does nevertheless throw, the behaviour is undefined.
  */
 
-#if __cplusplus >= 201103L
-#   define USE_NOTHROW noexcept
-#else
-#   define USE_NOTHROW throw()
+#ifndef USE_NOTHROW
+# if __cplusplus >= 201103L
+#  define USE_NOTHROW noexcept
+# else
+#  define USE_NOTHROW throw()
+# endif
 #endif
 
 /*!
