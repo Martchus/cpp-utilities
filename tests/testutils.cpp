@@ -166,16 +166,15 @@ string TestApplication::workingCopyPath(const string &name) const
     if(!parts.empty()) {
         string currentLevel = m_workingDir;
         for(auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
-            if(stat((currentLevel += *i).c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
-
+            if(currentLevel.back() != '/') {
+                currentLevel += '/';
+            }
+            currentLevel += *i;
+            if(stat(currentLevel.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
                 if(mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
                     cerr << "Unable to create working copy for \"" << name << "\": can't create working directory." << endl;
                     return string();
                 }
-                if(currentLevel.back() != '/') {
-                    currentLevel += '/';
-                }
-                currentLevel += *i;
             }
         }
     }

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=@DESKTOP_FILE_APP_NAME@
+Comment=@DESKTOP_FILE_DESCRIPTION@
+Exec=@DESKTOP_FILE_CMD@
+Icon=@DESKTOP_FILE_ICON@
+Terminal=false
+Type=Application
+Categories=@DESKTOP_FILE_CATEGORIES@

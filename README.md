@@ -33,12 +33,6 @@ make check # build and run unit tests (optional)
 make install
 ```
 
-Building with qmake is also possible:
-```
-INSTALL_ROOT="/where/you/want/to/install" qmake-qt5 "path/to/projectfile"
-make && make install
-```
-
 Building for Windows with Mingw-w64 cross compiler can be utilized using a small
 [cmake wrapper from Fedora](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
 ```
@@ -58,5 +52,5 @@ PKGBUILD files to build for Windows using the Mingw-w64 compiler are also includ
   is currently disabled. Linking against cppunit built using new libstdc++ ABI isn't possible.
 
 ## TODO
-- rewrite argument parser
+- rewrite argument parser (the API might change slightly)
 - remove unused features

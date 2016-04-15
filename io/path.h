@@ -8,6 +8,18 @@
 
 #include <string>
 
+#ifdef PLATFORM_WINDOWS
+# define PATH_SEP_CHAR '\\'
+# define SEARCH_PATH_SEP_CHAR ';'
+# define PATH_SEP_STR "\\"
+# define SEARCH_PATH_SEP_STR ";"
+#else
+# define PATH_SEP_CHAR '/'
+# define SEARCH_PATH_SEP_CHAR ':'
+# define PATH_SEP_STR "/"
+# define SEARCH_PATH_SEP_STR ":"
+#endif
+
 namespace IoUtilities {
 
 LIB_EXPORT std::string fileName(const std::string &path);
