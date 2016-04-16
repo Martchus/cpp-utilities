@@ -3,11 +3,14 @@
 # set project name (displayed in Qt Creator)
 project(${META_PROJECT_NAME})
 
-# might be useful so other projects built as part of the same subdirs project
-# can access files from this project
-set(${META_PROJECT_VARNAME}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-set(${META_PROJECT_VARNAME}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-set(${META_PROJECT_NAME}_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+# provide variables for other projects built as part of the same subdirs project
+# to access files from this project
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+if(HAS_PARENT)
+    set(${META_PROJECT_VARNAME}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
+    set(${META_PROJECT_VARNAME}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+    set(${META_PROJECT_NAME}_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+endif()
 
 # stringify the meta data
 set(META_PROJECT_NAME_STR "\"${META_PROJECT_NAME}\"")
