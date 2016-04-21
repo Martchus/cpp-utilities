@@ -21,6 +21,14 @@ set(META_APP_URL_STR "\"${META_APP_URL}\"")
 set(META_APP_DESCRIPTION_STR "\"${META_APP_DESCRIPTION}\"")
 set(META_APP_VERSION_STR "\"${META_APP_VERSION}\"")
 
+# set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
+if(NOT META_PROJECT_VARNAME)
+    set(META_PROJECT_VARNAME ${META_PROJECT_NAME})
+endif()
+if(NOT META_PROJECT_VARNAME_UPPER)
+    string(TOUPPER ${META_PROJECT_VARNAME} META_PROJECT_VARNAME_UPPER)
+endif()
+
 # find config.h template
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/config.h.in")
     # check own source directory
