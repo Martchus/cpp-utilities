@@ -5,6 +5,7 @@
 
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestPath.h>
 
 #include <iostream>
 
@@ -22,7 +23,21 @@ int main(int argc, char **argv)
         // run tests
         TextUi::TestRunner runner;
         TestFactoryRegistry &registry = TestFactoryRegistry::getRegistry();
-        runner.addTest(registry.makeTest());
+        const auto &units = testApp.units();
+        if(units.empty()) {
+            // no units specified -> test all
+            runner.addTest(registry.makeTest());
+        } else {
+            // pick specified units from overall test
+            Test *overallTest = registry.makeTest();
+            for(const string &unit : units) {
+                try {
+                    runner.addTest(overallTest->findTest(unit));
+                } catch(const invalid_argument &) {
+                    cerr << "The specified test unit \"" << unit << "\" is not available and will be ignored." << endl;
+                }
+            }
+        }
         return !runner.run(string(), false);
     } else {
         return -1;

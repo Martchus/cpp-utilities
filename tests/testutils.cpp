@@ -31,7 +31,8 @@ TestApplication *TestApplication::m_instance = nullptr;
 TestApplication::TestApplication(int argc, char **argv) :
     m_helpArg(m_parser),
     m_testFilesPathArg("test-files-path", "p", "specifies the path of the directory with test files"),
-    m_workingDirArg("working-dir", "w", "specifies the directory to store working copies of test files")
+    m_workingDirArg("working-dir", "w", "specifies the directory to store working copies of test files"),
+    m_unitsArg("units", "u", "specifies the units to test; omit to test all units")
 {
     // check whether there is already an instance
     if(m_instance) {
@@ -55,7 +56,10 @@ TestApplication::TestApplication(int argc, char **argv) :
     m_workingDirArg.setRequiredValueCount(1);
     m_workingDirArg.setValueNames({"path"});
     m_workingDirArg.setCombinable(true);
-    m_parser.setMainArguments({&m_testFilesPathArg, &m_workingDirArg, &m_helpArg});
+    m_unitsArg.setRequiredValueCount(-1);
+    m_unitsArg.setValueNames({"unit1", "unit2", "unit3"});
+    m_unitsArg.setCombinable(true);
+    m_parser.setMainArguments({&m_testFilesPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg});
 
     // parse arguments
     try {

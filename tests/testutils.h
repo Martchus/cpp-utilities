@@ -18,6 +18,7 @@ public:
 #ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
 #endif
+    const ApplicationUtilities::StringVector &units() const;
     static const TestApplication *instance();
 
 private:
@@ -25,6 +26,7 @@ private:
     ApplicationUtilities::HelpArgument m_helpArg;
     ApplicationUtilities::Argument m_testFilesPathArg;
     ApplicationUtilities::Argument m_workingDirArg;
+    ApplicationUtilities::Argument m_unitsArg;
     std::string m_testFilesPathArgValue;
     std::string m_testFilesPathEnvValue;
     std::string m_workingDir;
@@ -49,6 +51,14 @@ inline TestApplication::operator bool() const
 inline const TestApplication *TestApplication::instance()
 {
     return TestApplication::m_instance;
+}
+
+/*!
+ * \brief Returns the specified test units.
+ */
+inline const ApplicationUtilities::StringVector &TestApplication::units() const
+{
+    return m_unitsArg.values();
 }
 
 /*!
