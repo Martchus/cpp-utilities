@@ -5,7 +5,6 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
-#include <ctime>
 
 using namespace std;
 using namespace ChronoUtilities;
@@ -33,22 +32,6 @@ template<typename num1, typename num2, typename num3>
 inline bool inRangeExclMax(num1 val, num2 min, num3 max)
 {
     return (val) >= (min) && (val) <  (max);
-}
-
-/*!
- * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the local time.
- */
-DateTime DateTime::now()
-{
-    return DateTime::fromTimeStamp(time(nullptr));
-}
-
-/*!
- * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
- */
-DateTime DateTime::gmtNow()
-{
-    return DateTime::fromTimeStampGmt(time(nullptr));
 }
 
 /*!

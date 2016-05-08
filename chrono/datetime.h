@@ -7,6 +7,7 @@
 
 #include <string>
 #include <limits>
+#include <ctime>
 
 namespace ChronoUtilities
 {
@@ -313,6 +314,22 @@ constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 constexpr inline DateTime DateTime::eternity()
 {
     return DateTime(std::numeric_limits<decltype(m_ticks)>::max());
+}
+
+/*!
+ * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the local time.
+ */
+inline DateTime DateTime::now()
+{
+    return DateTime::fromTimeStamp(time(nullptr));
+}
+
+/*!
+ * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
+ */
+inline DateTime DateTime::gmtNow()
+{
+    return DateTime::fromTimeStampGmt(time(nullptr));
 }
 
 /*!
