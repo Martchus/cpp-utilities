@@ -38,9 +38,9 @@ elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/config.h.in")
     # check sources of c++utilities
     set(CONFIG_H_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/config.h.in")
     message(STATUS "Using template for config.h from c++utilities source directory.")
-elseif(EXISTS "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/config.h.in")
+elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/config.h.in")
     # check installed version of c++utilities
-    set(CONFIG_H_TEMPLATE_FILE "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/config.h.in")
+    set(CONFIG_H_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/config.h.in")
     message(STATUS "Using template for config.h from c++utilities installation.")
 else()
     message(FATAL_ERROR "Template for config.h file can not be located.")
