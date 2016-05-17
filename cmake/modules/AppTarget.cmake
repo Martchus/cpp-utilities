@@ -80,9 +80,9 @@ elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/desktop.in")
     # check sources of c++utilities
     set(APP_DESKTOP_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/desktop.in")
     message(STATUS "Using template for *.desktop file from c++utilities source directory.")
-elseif(EXISTS "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/desktop.in")
+elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/desktop.in")
     # check installed version of c++utilities
-    set(APP_DESKTOP_TEMPLATE_FILE "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/desktop.in")
+    set(APP_DESKTOP_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/desktop.in")
     message(STATUS "Using template for *.desktop file from c++utilities installation.")
 else()
     message(FATAL_ERROR "Template for *.desktop file can not be located.")

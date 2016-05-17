@@ -12,9 +12,9 @@ if(MINGW)
     elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/windows.rc.in")
         # check sources of c++utilities
         set(RC_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/windows.rc.in")
-    elseif(EXISTS "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/windows.rc.in")
+    elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/windows.rc.in")
         # check installed version of c++utilities
-        set(RC_TEMPLATE_FILE "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/windows.rc.in")
+        set(RC_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/windows.rc.in")
     else()
         message(FATAL_ERROR "Template for Windows *.rc file can not be located.")
     endif()

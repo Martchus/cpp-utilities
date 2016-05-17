@@ -10,9 +10,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/Config.cmake.in")
 elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/Config.cmake.in")
     # check sources of c++utilities
     set(CONFIG_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/Config.cmake.in")
-elseif(EXISTS "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/Config.cmake.in")
+elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/Config.cmake.in")
     # check installed version of c++utilities
-    set(CONFIG_TEMPLATE_FILE "${CMAKE_INSTALL_PREFIX}/share/c++utilities/cmake/templates/Config.cmake.in")
+    set(CONFIG_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/Config.cmake.in")
 else()
     message(FATAL_ERROR "Template for configuration file can not be located.")
 endif()
