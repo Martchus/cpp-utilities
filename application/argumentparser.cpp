@@ -25,6 +25,11 @@ const char *applicationAuthor = nullptr;
 const char *applicationVersion = nullptr;
 const char *applicationUrl = nullptr;
 
+inline bool notEmpty(const char *str)
+{
+    return str && *str;
+}
+
 /*!
  * \class ApplicationUtilities::Argument
  * \brief The Argument class is a wrapper for command line argument information.
@@ -41,7 +46,11 @@ const char *applicationUrl = nullptr;
  * The \a name and the abbreviation mustn't contain any whitespaces.
  * The \a name mustn't be empty. The \a abbreviation and the \a description might be empty.
  */
-Argument::Argument(const std::string &name, const std::string abbreviation, const std::string &description) :
+Argument::Argument(const char *name, const char *abbreviation, const char *description, const char *example) :
+    m_name(name),
+    m_abbreviation(abbreviation),
+    m_description(description),
+    m_example(example),
     m_required(false),
     m_combinable(false),
     m_implicit(false),
@@ -50,40 +59,7 @@ Argument::Argument(const std::string &name, const std::string abbreviation, cons
     m_default(false),
     m_present(false),
     m_isMainArg(false)
-{
-    setName(name);
-    setAbbreviation(abbreviation);
-    setDescription(description);
-}
-
-/*!
- * \brief Constructs an Argument with the given \a name, \a abbreviation and \a description.
- *
- * The \a name and the abbreviation mustn't contain any whitespaces.
- * The \a name mustn't be empty. The \a abbreviation and the \a description might be empty.
- */
-Argument::Argument(const char *name, const char *abbreviation, const char *description) :
-    m_required(false),
-    m_combinable(false),
-    m_implicit(false),
-    m_denotesOperation(false),
-    m_requiredValueCount(0),
-    m_default(false),
-    m_present(false),
-    m_isMainArg(false)
-{
-    if(name) {
-        setName(name);
-    } else {
-        setName(string());
-    }
-    if(abbreviation) {
-        setAbbreviation(abbreviation);
-    }
-    if(description) {
-        setDescription(description);
-    }
-}
+{}
 
 /*!
  * \brief Destroys the Argument.
@@ -126,13 +102,13 @@ Argument::~Argument()
 void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
 {
     for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
-    if(!name().empty()) {
+    if(notEmpty(name())) {
         os << "--" << name();
     }
-    if(!name().empty() && !abbreviation().empty()) {
+    if(notEmpty(name()) && notEmpty(abbreviation())) {
         os << ", ";
     }
-    if(!abbreviation().empty()) {
+    if(notEmpty(abbreviation())) {
         os << "-" << abbreviation();
     }
     if(requiredValueCount() > 0) {
@@ -151,7 +127,7 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
         os << " ...";
     }
     ++indentionLevel;
-    if(!description().empty()) {
+    if(notEmpty(description())) {
         os << endl;
         for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
         os << description();
@@ -161,7 +137,7 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
         for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
         os << "This argument is required.";
     }
-    if(!example().empty()) {
+    if(notEmpty(example())) {
         for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
         os << endl << "Usage: " << example();
     }
@@ -391,6 +367,7 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
     return nullptr; // no argument matches
 }
 
+#ifdef DEBUG_BUILD
 /*!
  * \brief This method is used to verify the setup of the command line parser before parsing.
  *
@@ -416,32 +393,37 @@ void ArgumentParser::verifySetup() const
                 continue; // do not verify the same argument twice
             }
             if(arg->isMainArgument() && arg->parents().size()) {
-                throw invalid_argument("Argument \"" + arg->name() + "\" can not be used as main argument and sub argument at the same time.");
+                throw invalid_argument("Argument \"" + string(arg->name()) + "\" can not be used as main argument and sub argument at the same time.");
             }
-            if(!arg->abbreviation().empty() && find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) != abbreviations.cend()) {
-                throw invalid_argument("Abbreviation \"" + arg->abbreviation() + "\" has been used more then once.");
+            if(notEmpty(arg->abbreviation()) && find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) != abbreviations.cend()) {
+                throw invalid_argument("Abbreviation \"" + string(arg->abbreviation()) + "\" has been used more then once.");
             }
             if(find(names.cbegin(), names.cend(), arg->name()) != names.cend()) {
-                throw invalid_argument("Name \"" + arg->name() + "\" has been used more then once.");
+                throw invalid_argument("Name \"" + string(arg->name()) + "\" has been used more then once.");
             }
             if(arg->isDefault() && arg->requiredValueCount() > 0 && arg->defaultValues().size() < static_cast<size_t>(arg->requiredValueCount())) {
-                throw invalid_argument("Default argument \"" + arg->name() + "\" doesn't provide the required number of default values.");
+                throw invalid_argument("Default argument \"" + string(arg->name()) + "\" doesn't provide the required number of default values.");
             }
             if(arg->isImplicit()) {
                 if(implicitArg) {
-                    throw invalid_argument("The arguments \"" + implicitArg->name() + "\" and \"" + arg->name() + "\" can not be both implicit.");
+                    throw invalid_argument("The arguments \"" + string(implicitArg->name()) + "\" and \"" + string(arg->name()) + "\" can not be both implicit.");
                 } else {
                     implicitArg = arg;
                 }
             }
-            abbreviations.push_back(arg->abbreviation());
-            names.push_back(arg->name());
+            if(arg->abbreviation()) {
+                abbreviations.push_back(arg->abbreviation());
+            }
+            if(arg->name()) {
+                names.push_back(arg->name());
+            }
             verifiedArgs.push_back(arg);
             checkArguments(arg->secondaryArguments());
         }
     };
     checkArguments(m_mainArgs);
 }
+#endif
 
 /*!
  * \brief This method invokes verifySetup() before parsing. See its do documentation for more
@@ -459,7 +441,9 @@ void ArgumentParser::verifySetup() const
 void ArgumentParser::parseArgs(int argc, char *argv[])
 {
     // initiate parser
+#ifdef DEBUG_BUILD
     verifySetup();
+#endif
     m_actualArgc = 0; // reset actual agument count
     unsigned int actualArgc = 0;
     int valuesToRead = 0;
@@ -511,7 +495,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                         // the corresponding instance of Argument class has been found
                         if(currentArg->m_present) {
                             // the argument has been provided more then once
-                            throw Failure("The argument \"" + currentArg->name() + "\" has been specified more than one time.");
+                            throw Failure("The argument \"" + string(currentArg->name()) + "\" has been specified more than one time.");
                         } else {
                             // set present flag of argument
                             currentArg->m_present = true;
@@ -615,7 +599,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
             }
             // throw an error if mandatory argument is not present
             if(!arg->isPresent() && (arg->isRequired() && (arg->isMainArgument() || (parent && parent->isPresent())))) {
-                throw Failure("The argument \"" + arg->name() + "\" is required but not given.");
+                throw Failure("The argument \"" + string(arg->name()) + "\" is required but not given.");
             }
         }
     });
@@ -623,9 +607,9 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
         if(arg->isPresent()) {
             if(!arg->isMainArgument() && arg->parents().size() && !arg->isParentPresent()) {
                 if(arg->parents().size() > 1) {
-                    throw Failure("The argument \"" + arg->name() + "\" needs to be used together with one the following arguments: " + arg->parentNames());
+                    throw Failure("The argument \"" + string(arg->name()) + "\" needs to be used together with one the following arguments: " + arg->parentNames());
                 } else {
-                    throw Failure("The argument \"" + arg->name() + "\" needs to be used together with the argument \"" + arg->parents().front()->name() + "\".");
+                    throw Failure("The argument \"" + string(arg->name()) + "\" needs to be used together with the argument \"" + arg->parents().front()->name() + "\".");
                 }
             }
             Argument *conflictingArgument = nullptr;
@@ -637,11 +621,11 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                 conflictingArgument = arg->conflictsWithArgument();
             }
             if(conflictingArgument) {
-                throw Failure("The argument \"" + conflictingArgument->name() + "\" can not be combined with \"" + arg->name() + "\".");
+                throw Failure("The argument \"" + string(conflictingArgument->name()) + "\" can not be combined with \"" + arg->name() + "\".");
             }
             if(!arg->allRequiredValuesPresent()) {
                 stringstream ss(stringstream::in | stringstream::out);
-                ss << "Not all required information for the given argument \"" << arg->name() << "\" provided. You have to give the following information:";
+                ss << "Not all required information for the given argument \"" << string(arg->name()) << "\" provided. You have to give the following information:";
                 int valueNamesPrint = 0;
                 for(const auto &name : arg->m_valueNames) {
                     ss << "\n" << name;

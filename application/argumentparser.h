@@ -41,19 +41,18 @@ class LIB_EXPORT Argument
 public:
     typedef std::function <void (const StringVector &)> CallbackFunction;
 
-    Argument(const std::string &name, const std::string abbreviation = std::string(), const std::string &description = std::string());
-    Argument(const char *name, const char *abbreviation = nullptr, const char *description = nullptr);
+    Argument(const char *name, const char *abbreviation = nullptr, const char *description = nullptr, const char *example = nullptr);
     ~Argument();
 
-    const std::string &name() const;
-    void setName(const std::string &name);
-    const std::string &abbreviation() const;
-    void setAbbreviation(const std::string &abbreviation);
+    const char *name() const;
+    void setName(const char *name);
+    const char *abbreviation() const;
+    void setAbbreviation(const char *abbreviation);
     //unsigned char isAmbiguous(const ArgumentParser &parser) const;
-    const std::string &description() const;
-    void setDescription(const std::string &description);
-    const std::string &example() const;
-    void setExample(const std::string &example);
+    const char *description() const;
+    void setDescription(const char *description);
+    const char *example() const;
+    void setExample(const char *example);
     const StringVector &values() const;
     const std::string &value(StringVector::size_type index) const;
     StringVector::size_type valueCount() const;
@@ -90,10 +89,10 @@ public:
     Argument *conflictsWithArgument() const;
 
 private:
-    std::string m_name;
-    std::string m_abbreviation;
-    std::string m_description;
-    std::string m_example;
+    const char *m_name;
+    const char *m_abbreviation;
+    const char *m_description;
+    const char *m_example;
     bool m_required;
     bool m_combinable;
     bool m_implicit;
@@ -116,7 +115,7 @@ private:
  * The parser compares the name with the characters following a "--" prefix to
  * identify arguments.
  */
-inline const std::string &Argument::name() const
+inline const char *Argument::name() const
 {
     return m_name;
 }
@@ -129,11 +128,20 @@ inline const std::string &Argument::name() const
  * The parser compares the name with the characters following a "--" prefix to
  * identify arguments.
  */
-inline void Argument::setName(const std::string &name)
+inline void Argument::setName(const char *name)
 {
-    if(name.empty() || name.find(' ') != std::string::npos || name.find('=') != std::string::npos) {
-        throw std::invalid_argument("name mustn't be empty or contain white spaces or equation chars");
+#ifdef DEBUG_BUILD
+    if(name && *name) {
+        for(const char *c = name; *c; ++c) {
+            switch(*c) {
+            case ' ': case '=':
+                throw std::invalid_argument("name mustn't contain white spaces or equation chars");
+            default:
+                ;
+            }
+        }
     }
+#endif
     m_name = name;
 }
 
@@ -143,7 +151,7 @@ inline void Argument::setName(const std::string &name)
  * The parser compares the abbreviation with the characters following a "-" prefix to
  * identify arguments.
  */
-inline const std::string &Argument::abbreviation() const
+inline const char *Argument::abbreviation() const
 {
     return m_abbreviation;
 }
@@ -157,11 +165,20 @@ inline const std::string &Argument::abbreviation() const
  * The parser compares the abbreviation with the characters following a "-" prefix to
  * identify arguments.
  */
-inline void Argument::setAbbreviation(const std::string &abbreviation)
+inline void Argument::setAbbreviation(const char *abbreviation)
 {
-    if(!abbreviation.empty() && (abbreviation.find(' ') != std::string::npos || abbreviation.find('=') != std::string::npos)) {
-        throw std::invalid_argument("abbreviation mustn't contain white spaces or equation chars");
+#ifdef DEBUG_BUILD
+    if(abbreviation && *abbreviation) {
+        for(const char *c = abbreviation; *c; ++c) {
+            switch(*c) {
+            case ' ': case '=':
+                throw std::invalid_argument("abbreviation mustn't contain white spaces or equation chars");
+            default:
+                ;
+            }
+        }
     }
+#endif
     m_abbreviation = abbreviation;
 }
 
@@ -170,7 +187,7 @@ inline void Argument::setAbbreviation(const std::string &abbreviation)
  *
  * The parser uses the description when printing help information.
  */
-inline const std::string &Argument::description() const
+inline const char *Argument::description() const
 {
     return m_description;
 }
@@ -180,7 +197,7 @@ inline const std::string &Argument::description() const
  *
  * The parser uses the description when printing help information.
  */
-inline void Argument::setDescription(const std::string &description)
+inline void Argument::setDescription(const char *description)
 {
     m_description = description;
 }
@@ -190,7 +207,7 @@ inline void Argument::setDescription(const std::string &description)
  *
  * The parser uses the description when printing help information.
  */
-inline const std::string &Argument::example() const
+inline const char *Argument::example() const
 {
     return m_example;
 }
@@ -200,7 +217,7 @@ inline const std::string &Argument::example() const
  *
  * The parser uses the description when printing help information.
  */
-inline void Argument::setExample(const std::string &example)
+inline void Argument::setExample(const char *example)
 {
     m_example = example;
 }
@@ -564,7 +581,9 @@ public:
     void printHelp(std::ostream &os) const;
     Argument *findArg(const ArgumentPredicate &predicate) const;
     static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
+#ifdef DEBUG_BUILD
     void verifySetup() const;
+#endif
     void parseArgs(int argc, char *argv[]);
     unsigned int actualArgumentCount() const;
     const std::string &currentDirectory() const;
