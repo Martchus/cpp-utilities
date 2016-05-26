@@ -441,9 +441,7 @@ void ArgumentParser::verifySetup() const
 void ArgumentParser::parseArgs(int argc, char *argv[])
 {
     // initiate parser
-#ifdef DEBUG_BUILD
-    verifySetup();
-#endif
+    IF_DEBUG_BUILD(verifySetup();)
     m_actualArgc = 0; // reset actual agument count
     unsigned int actualArgc = 0;
     int valuesToRead = 0;
