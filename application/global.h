@@ -82,4 +82,15 @@
 
 #define VAR_UNUSED(x) (void)x;
 
+/*!
+ * \def IF_DEBUG_BUILD
+ * \brief Wraps debug-only lines conveniently.
+ */
+
+#ifdef DEBUG_BUILD
+# define IF_DEBUG_BUILD(x) x
+#else
+# define IF_DEBUG_BUILD(x)
+#endif
+
 #endif // MARTCHUSUTILITY_LIBRARY_GLOBAL_H
