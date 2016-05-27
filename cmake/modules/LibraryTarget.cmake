@@ -62,8 +62,13 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPE
     CXX_STANDARD 11
 )
 
-# add target for building a static version of the library when building with mingw-w64
+# add target for building a static version of the library
 if(MINGW)
+    set(BUILD_STATIC_LIBS "yes" CACHE STRING "specifies whether to build static libraries (enabled by default on mingw-w64 platform)")
+else()
+    set(BUILD_STATIC_LIBS "no" CACHE STRING "specifies whether to build static libraries (disabled by default on none-mingw-w64- platform)")
+endif()
+if(${BUILD_STATIC_LIBS} STREQUAL "yes")
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     # add target link libraries for the static lib also because otherwise Qt header files can not be located
     target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${LIBRARIES})
@@ -73,7 +78,10 @@ if(MINGW)
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
     )
-endif(MINGW)
+elseif(${BUILD_STATIC_LIBS} STREQUAL "no")
+else()
+    message(FATAL_ERROR "The specification whether to build static libs or not is invalid.")
+endif(${BUILD_STATIC_LIBS} STREQUAL "yes")
 
 # add install target for the CMake config files
 install(
@@ -112,7 +120,7 @@ if(NOT TARGET install-binary)
 endif()
 
 # add install for static libs when building with mingw-w64
-if(MINGW)
+if(${BUILD_STATIC_LIBS} STREQUAL "yes")
     install(
         TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
         RUNTIME DESTINATION bin
@@ -122,7 +130,7 @@ if(MINGW)
         ARCHIVE DESTINATION lib
         COMPONENT binary
     )
-endif(MINGW)
+endif(${BUILD_STATIC_LIBS} STREQUAL "yes")
 
 # add install target for stripped libs
 if(NOT TARGET install-binary-strip)
