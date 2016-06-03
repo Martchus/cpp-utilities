@@ -477,14 +477,14 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                         // -> the full argument name has been provided
                         givenId = givenArg.substr(2, equationPos - 2);
                         pred = [&givenId, equationPos] (Argument *arg) {
-                            return arg->name() == givenId;
+                            return arg->name() && arg->name() == givenId;
                         };
                     } else {
                         // the argument starts with a single '-'
                         // -> the abbreviation has been provided
                         givenId = givenArg.substr(1, equationPos - 1);
                         pred = [&givenId, equationPos] (Argument *arg) {
-                            return arg->abbreviation() == givenId;
+                            return arg->abbreviation() && arg->abbreviation() == givenId;
                         };
                     }
                     // find the corresponding instance of the Argument class
@@ -531,7 +531,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                         if(i == argv + 1) {
                             for(Argument *arg : m_mainArgs) {
                                 if(!arg->isPresent() && arg->denotesOperation()
-                                        && (arg->name() == givenArg || arg->abbreviation() == givenArg)) {
+                                        && ((arg->name() && arg->name() == givenArg) || (arg->abbreviation() && arg->abbreviation() == givenArg))) {
                                     currentArg = arg;
                                     break;
                                 }
