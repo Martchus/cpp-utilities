@@ -74,6 +74,7 @@ void IoTests::testBinaryReader()
 {
     // read test file
     fstream testFile;
+    testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
@@ -119,6 +120,7 @@ void IoTests::testBinaryWriter()
 {
     // prepare reading expected data
     fstream testFile;
+    testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
 
     // prepare output stream
@@ -261,8 +263,8 @@ void IoTests::testCopy()
 {
     // prepare streams
     fstream testFile;
-    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
+    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);
 
