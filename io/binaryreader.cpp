@@ -17,14 +17,13 @@ using namespace ConversionUtilities;
 
 /*!
  * \class IoUtilities::BinaryReader
- * \brief Reads primitive data types from a std::istream using a specified ConversionUtilities::ByteOrder.
+ * \brief Reads primitive data types from a std::istream.
+ * \remarks Supports both, little endian and big endian.
  */
 
 /*!
  * \brief Constructs a new BinaryReader.
- * \param stream Specifies the stream the reader will read from when calling one of the read-methods.
- * \param byteOrder Specifies the byte order used to convert the raw bytes read from the stream
- *                  to the primitive base data type.
+ * \param stream Specifies the stream to read from.
  */
 BinaryReader::BinaryReader(istream *stream) :
     m_stream(stream),
@@ -33,9 +32,8 @@ BinaryReader::BinaryReader(istream *stream) :
 {}
 
 /*!
- * \brief Constructs a copies of the specified BinaryReader.
- *
- * The copy will not take ownership over the stream.
+ * \brief Copies the specified BinaryReader.
+ * \remarks The copy will not take ownership over the stream.
  */
 BinaryReader::BinaryReader(const BinaryReader &other) :
     m_stream(other.m_stream),
@@ -48,7 +46,7 @@ BinaryReader::BinaryReader(const BinaryReader &other) :
  */
 BinaryReader::~BinaryReader()
 {
-    if(m_stream && m_ownership) {
+    if(m_ownership) {
         delete m_stream;
     }
 }
@@ -66,7 +64,7 @@ BinaryReader::~BinaryReader()
  */
 void BinaryReader::setStream(istream *stream, bool giveOwnership)
 {
-    if(m_stream && m_ownership) {
+    if(m_ownership) {
         delete m_stream;
     }
     if(stream) {
@@ -83,7 +81,8 @@ void BinaryReader::setStream(istream *stream, bool giveOwnership)
  * \brief Returns the size of the assigned stream.
  *
  * The size is determined by seeking to the end of the stream and returning this offset.
- * The method will seek back to the previous offset before returning.
+ *
+ * \remarks The method will seek back to the previous offset before returning.
  */
 istream::pos_type BinaryReader::readStreamsize()
 {
