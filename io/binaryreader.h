@@ -85,7 +85,6 @@ public:
 private:
     std::istream *m_stream;
     bool m_ownership;
-    std::istream::pos_type m_streamsize;
     char m_buffer[8];
 };
 

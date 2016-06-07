@@ -27,8 +27,7 @@ using namespace ConversionUtilities;
  */
 BinaryReader::BinaryReader(istream *stream) :
     m_stream(stream),
-    m_ownership(false),
-    m_streamsize(0)
+    m_ownership(false)
 {}
 
 /*!
@@ -37,8 +36,7 @@ BinaryReader::BinaryReader(istream *stream) :
  */
 BinaryReader::BinaryReader(const BinaryReader &other) :
     m_stream(other.m_stream),
-    m_ownership(false),
-    m_streamsize(other.m_streamsize)
+    m_ownership(false)
 {}
 
 /*!
@@ -74,7 +72,6 @@ void BinaryReader::setStream(istream *stream, bool giveOwnership)
         m_stream = nullptr;
         m_ownership = false;
     }
-    m_streamsize = 0;
 }
 
 /*!
@@ -88,9 +85,9 @@ istream::pos_type BinaryReader::readStreamsize()
 {
     istream::pos_type cp = m_stream->tellg();
     m_stream->seekg(0, ios_base::end);
-    m_streamsize = m_stream->tellg();
+    const auto streamsize = m_stream->tellg();
     m_stream->seekg(cp);
-    return m_streamsize;
+    return streamsize;
 }
 
 /*!
