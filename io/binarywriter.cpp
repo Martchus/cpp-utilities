@@ -11,14 +11,13 @@ using namespace ConversionUtilities;
 
 /*!
  * \class IoUtilities::BinaryWriter
- * \brief Writes primitive data types to a std::ostream using a specified ConversionUtilities::ByteOrder.
+ * \brief Writes primitive data types to a std::ostream.
+ * \remarks Supports both, little endian and big endian.
  */
 
 /*!
- * Constructs a new BinaryWriter.
- * \param stream Specifies the stream the writer will write to when calling one of the write-methods.
- * \param byteOrder Specifies the byte order used to convert the provided values to the raw bytes
- *                  written to the stream.
+ * \brief Constructs a new BinaryWriter.
+ * \param stream Specifies the stream to write to.
  */
 BinaryWriter::BinaryWriter(ostream *stream) :
     m_stream(stream),
@@ -26,9 +25,8 @@ BinaryWriter::BinaryWriter(ostream *stream) :
 {}
 
 /*!
- * \brief Constructs a copies of the specified BinaryWriter.
- *
- * The copy will not take ownership over the stream.
+ * \brief Copies the specified BinaryWriter.
+ * \remarks The copy will not take ownership over the stream.
  */
 BinaryWriter::BinaryWriter(const BinaryWriter &other) :
     m_stream(other.m_stream),
@@ -40,7 +38,7 @@ BinaryWriter::BinaryWriter(const BinaryWriter &other) :
  */
 BinaryWriter::~BinaryWriter()
 {
-    if(m_stream && m_ownership) {
+    if(m_ownership) {
         delete m_stream;
     }
 }
@@ -58,8 +56,9 @@ BinaryWriter::~BinaryWriter()
  */
 void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
 {
-    if(m_stream && m_ownership)
+    if(m_ownership) {
         delete m_stream;
+    }
     if(stream) {
         m_stream = stream;
         m_ownership = giveOwnership;
