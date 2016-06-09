@@ -4,18 +4,8 @@
 include(CMakePackageConfigHelpers)
 
 # find template for CMake config file
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/Config.cmake.in")
-    # check own source directory
-    set(CONFIG_TEMPLATE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/Config.cmake.in")
-elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/Config.cmake.in")
-    # check sources of c++utilities
-    set(CONFIG_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/Config.cmake.in")
-elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/Config.cmake.in")
-    # check installed version of c++utilities
-    set(CONFIG_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/Config.cmake.in")
-else()
-    message(FATAL_ERROR "Template for configuration file can not be located.")
-endif()
+include(TemplateFinder)
+find_template_file("Config.cmake" CPP_UTILITIES CONFIG_TEMPLATE_FILE)
 
 # set install destination for the CMake modules, config files and header files
 set(HEADER_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
