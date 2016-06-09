@@ -30,21 +30,8 @@ if(NOT META_PROJECT_VARNAME_UPPER)
 endif()
 
 # find config.h template
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/config.h.in")
-    # check own source directory
-    set(CONFIG_H_TEMPLATE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/config.h.in")
-    message(STATUS "Using template for config.h from own source directory.")
-elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/config.h.in")
-    # check sources of c++utilities
-    set(CONFIG_H_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/config.h.in")
-    message(STATUS "Using template for config.h from c++utilities source directory.")
-elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/config.h.in")
-    # check installed version of c++utilities
-    set(CONFIG_H_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/config.h.in")
-    message(STATUS "Using template for config.h from c++utilities installation.")
-else()
-    message(FATAL_ERROR "Template for config.h file can not be located.")
-endif()
+include(TemplateFinder)
+find_template_file("config.h" CPP_UTILITIES CONFIG_H_TEMPLATE_FILE)
 
 # add configuration header
 configure_file(

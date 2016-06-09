@@ -6,18 +6,8 @@
 
 if(MINGW)
     # find rc template
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/windows.rc.in")
-        # check own source directory
-        set(RC_TEMPLATE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/windows.rc.in")
-    elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/windows.rc.in")
-        # check sources of c++utilities
-        set(RC_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/windows.rc.in")
-    elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/windows.rc.in")
-        # check installed version of c++utilities
-        set(RC_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/windows.rc.in")
-    else()
-        message(FATAL_ERROR "Template for Windows *.rc file can not be located.")
-    endif()
+    include(TemplateFinder)
+    find_template_file("windows.rc" CPP_UTILITIES RC_TEMPLATE_FILE)
 
     # create Windows icon from png with ffmpeg if available
     set(WINDOWS_ICON_PATH "")

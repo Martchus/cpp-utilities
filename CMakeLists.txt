@@ -66,11 +66,15 @@ set(CMAKE_MODULE_FILES
     cmake/modules/TestTarget.cmake
     cmake/modules/AppTarget.cmake
     cmake/modules/WindowsResources.cmake
+    cmake/modules/TemplateFinder.cmake
+    cmake/modules/Doxygen.cmake
+    cmake/modules/ListToString.cmake
 )
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/Config.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
+    cmake/templates/doxygen.in
 )
 if(MINGW)
     list(APPEND CMAKE_TEMPLATE_FILES
@@ -97,3 +101,4 @@ include(BasicConfig)
 include(WindowsResources)
 include(LibraryTarget)
 include(TestTarget)
+include(Doxygen)

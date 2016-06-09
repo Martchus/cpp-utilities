@@ -72,21 +72,8 @@ if(NOT TARGET install-mingw-w64-strip)
 endif()
 
 # find template for *.desktop files
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/desktop.in")
-    # check own source directory
-    set(APP_DESKTOP_TEMPLATE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/desktop.in")
-    message(STATUS "Using template for *.desktop file from own source directory.")
-elseif(EXISTS "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/desktop.in")
-    # check sources of c++utilities
-    set(APP_DESKTOP_TEMPLATE_FILE "${CPP_UTILITIES_SOURCE_DIR}/cmake/templates/desktop.in")
-    message(STATUS "Using template for *.desktop file from c++utilities source directory.")
-elseif(EXISTS "${CPP_UTILITIES_CONFIG_DIRS}/templates/desktop.in")
-    # check installed version of c++utilities
-    set(APP_DESKTOP_TEMPLATE_FILE "${CPP_UTILITIES_CONFIG_DIRS}/templates/desktop.in")
-    message(STATUS "Using template for *.desktop file from c++utilities installation.")
-else()
-    message(FATAL_ERROR "Template for *.desktop file can not be located.")
-endif()
+include(TemplateFinder)
+find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
 
 # function to add *.desktop files
 function(add_custom_desktop_file
