@@ -14,6 +14,9 @@ using namespace ChronoUtilities;
 
 using namespace CPPUNIT_NS;
 
+/*!
+ * \brief The ChronoTests class tests classes and methods of the ChronoUtilities namespace.
+ */
 class ChronoTests : public TestFixture
 {
     CPPUNIT_TEST_SUITE(ChronoTests);

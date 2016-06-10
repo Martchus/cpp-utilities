@@ -18,6 +18,9 @@ using namespace IoUtilities;
 
 using namespace CPPUNIT_NS;
 
+/*!
+ * \brief The IoTests class tests classes and methods of the IoUtilities namespace.
+ */
 class IoTests : public TestFixture
 {
     CPPUNIT_TEST_SUITE(IoTests);

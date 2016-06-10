@@ -14,6 +14,9 @@ using namespace ConversionUtilities;
 
 using namespace CPPUNIT_NS;
 
+/*!
+ * \brief The ConversionTests class tests classes and methods of the ConversionUtilities namespace.
+ */
 class ConversionTests : public TestFixture
 {
     CPPUNIT_TEST_SUITE(ConversionTests);

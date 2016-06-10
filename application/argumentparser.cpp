@@ -656,6 +656,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
 }
 
 /*!
+ * \class HelpArgument
  * \brief The HelpArgument class prints help information for an argument parser
  *        when present (--help, -h).
  */
