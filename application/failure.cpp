@@ -4,7 +4,7 @@ namespace ApplicationUtilities {
 
 /*!
  * \class ApplicationUtilities::Failure
- * \brief The exception that is thrown by an ArgumentParser when a parsing error occurs.
+ * \brief The Failure class is thrown by an ArgumentParser when a parsing error occurs.
  *
  * \sa ApplicationUtilities::ArgumentParser
  */

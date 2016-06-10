@@ -14,6 +14,9 @@ using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
 
+/*!
+ * \brief Contains classes and functions utilizing creating of test applications.
+ */
 namespace TestUtilities {
 
 TestApplication *TestApplication::m_instance = nullptr;

@@ -10,8 +10,8 @@
 using namespace std;
 
 /*!
- * \namespace MiscUtilities
- * \brief Contains miscellaneous utility functions.
+ * \namespace RandomUtilities
+ * \brief Contains utility functions for generating random character sequences.
  */
 
 namespace RandomUtilities {

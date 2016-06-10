@@ -31,7 +31,7 @@ inline IniFile::IniFile()
 
 /*!
  * \brief Returns the data of the file.
- *
+ * \remarks
  *  - The returned pairs represent the [scope names] and the contained "key = value"-pairs.
  *  - The data might be modified and then saved using the make() method.
  */
@@ -42,8 +42,7 @@ inline std::vector<std::pair<std::string, std::multimap<std::string, std::string
 
 /*!
  * \brief Returns the data of the file.
- *
- *  - The returned pairs represent the [scope names] and the contained "key = value"-pairs.
+ * \remarks The returned pairs represent the [scope names] and the contained "key = value"-pairs.
  */
 inline const std::vector<std::pair<std::string, std::multimap<std::string, std::string> > > &IniFile::data() const
 {

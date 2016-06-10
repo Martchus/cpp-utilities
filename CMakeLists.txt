@@ -82,6 +82,10 @@ if(MINGW)
     )
 endif()
 
+set(DOC_FILES
+    README.md
+)
+
 # required to include CMake modules from own project directory
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" "${CMAKE_MODULE_PATH}")
 

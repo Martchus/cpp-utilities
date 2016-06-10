@@ -7,6 +7,11 @@ using namespace std;
 namespace IoUtilities {
 
 /*!
+ * \class IniFile
+ * \brief The IniFile class parses and makes INI files.
+ */
+
+/*!
  * \brief Parses all data from the specified \a inputStream.
  */
 void IniFile::parse(std::istream &inputStream)
