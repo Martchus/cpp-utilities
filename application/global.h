@@ -1,44 +1,38 @@
 #ifndef MARTCHUSUTILITY_LIBRARY_GLOBAL_H
 #define MARTCHUSUTILITY_LIBRARY_GLOBAL_H
 
-/*!
- * \def PLATFORM_WINDOWS
- * \brief Defined on Windows.
- */
-
-/*!
- * \def PLATFORM_UNIX
- * \brief Defined on any UNIX system.
- */
-
-/*!
- * \def PLATFORM_LINUX
- * \brief Defined on Linux.
- */
-
 #ifdef _WIN32
 # ifndef PLATFORM_WINDOWS
+/*!
+ * \brief Defined on Windows.
+ */
 #  define PLATFORM_WINDOWS
 # endif
 #elif __unix__
 # ifndef PLATFORM_UNIX
+/*!
+ * \brief Defined on any UNIX system.
+ */
 #  define PLATFORM_UNIX
 # endif
 #endif
 #ifdef __linux__
 # ifndef PLATFORM_LINUX
+/*!
+ * \brief Defined on Linux.
+ */
 #  define PLATFORM_LINUX
 # endif
 #endif
 
 /*!
  * \def LIB_EXPORT
- * \brief This macro marks a symbol for shared library export.
+ * \brief Marks a symbol for shared library export.
  */
 
 /*!
  * \def LIB_IMPORT
- * \brief This macro declares a symbol to be an import from a shared library.
+ * \brief Declares a symbol to be an import from a shared library.
  */
 
 /*!
@@ -60,8 +54,8 @@
 
 /*!
  * \def USE_NOTHROW
- * \brief This macro marks a function as never throwing, under no circumstances.
- * If the function does nevertheless throw, the behaviour is undefined.
+ * \brief Marks a function as never throwing, under no circumstances.
+ * \remarks If the function does nevertheless throw, the behaviour is undefined.
  */
 
 #ifndef USE_NOTHROW
@@ -74,8 +68,7 @@
 
 /*!
  * \def DECLARE_ENUM
- * \brief This macro can be used to forward declare enums without
- *        preventing lupdate to parse the file correctly.
+ * \brief Forward-declares enums without preventing lupdate to parse the file correctly.
  */
 
 #define DECLARE_ENUM(name, base) enum class name : base;

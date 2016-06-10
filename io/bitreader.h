@@ -143,10 +143,11 @@ inline std::size_t BitReader::bitsAvailable()
 
 /*!
  * \brief Resets the reader.
+ * \remarks
  *  - Does not take ownership over the specified \a buffer.
  *  - bufferSize must be equal or greather than 1.
  */
-inline void BitReader::reset(const char *buffer, size_t bufferSize)
+inline void BitReader::reset(const char *buffer, std::size_t bufferSize)
 {
     m_buffer = reinterpret_cast<const byte *>(buffer);
     m_end = reinterpret_cast<const byte *>(buffer + bufferSize);
@@ -155,6 +156,7 @@ inline void BitReader::reset(const char *buffer, size_t bufferSize)
 
 /*!
  * \brief Resets the reader.
+ * \remarks
  *  - Does not take ownership over the specified \a buffer.
  *  - \a end must be greather than \a buffer.
  */

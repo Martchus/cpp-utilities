@@ -53,7 +53,7 @@ string fileName(const string &path)
  *
  * The characters <, >, ?, !, *, |, /, :, \ and new lines are considered as invalid.
  */
-void removeInvalidChars(string &fileName)
+void removeInvalidChars(std::string &fileName)
 {
     size_t startPos = 0;
     static const char invalidPathChars[] = {'\"', '<', '>', '?', '!', '*', '|', '/', ':', '\\', '\n'};
@@ -73,7 +73,7 @@ void removeInvalidChars(string &fileName)
  * \param createApplicationDirectory Indicates wheter the application subdirectory should be created if not present.
  * \returns Returns if a settings directory could be located.
  */
-bool settingsDirectory(string &result, string applicationDirectoryName, bool createApplicationDirectory)
+bool settingsDirectory(std::string &result, std::string applicationDirectoryName, bool createApplicationDirectory)
 {
     result.clear();
     fstream pathConfigFile("path.config", ios_base::in);
