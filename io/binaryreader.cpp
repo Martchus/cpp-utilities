@@ -219,7 +219,7 @@ string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The two byte sized big endian value to be recognized as termination.
  */
-string BinaryReader::readMultibyteTerminatedStringBE(size_t maxBytesToRead, uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, uint16 termination)
 {
     unique_ptr<char []> buff = make_unique<char []>(maxBytesToRead);
     char *delimChars = m_buffer;
@@ -243,7 +243,7 @@ string BinaryReader::readMultibyteTerminatedStringBE(size_t maxBytesToRead, uint
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The two byte sized little endian value to be recognized as termination.
  */
-string BinaryReader::readMultibyteTerminatedStringLE(size_t maxBytesToRead, uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, uint16 termination)
 {
     unique_ptr<char []> buff = make_unique<char []>(maxBytesToRead);
     char *delimChars = m_buffer;

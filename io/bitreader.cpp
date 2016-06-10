@@ -11,8 +11,8 @@ namespace IoUtilities {
 
 /*!
  * \brief Skips the specified number of bits without reading it.
- * \param Specifies the number of bits to skip.
- * \throws Throws ios_base::failure if the end of the buffer is exceeded.
+ * \param bitCount Specifies the number of bits to skip.
+ * \throws Throws std::ios_base::failure if the end of the buffer is exceeded.
  *         The reader becomes invalid in that case.
  */
 void BitReader::skipBits(std::size_t bitCount)
