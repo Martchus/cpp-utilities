@@ -1,5 +1,5 @@
-#ifndef ANSIESCAPECODES
-#define ANSIESCAPECODES
+#ifndef IOUTILITIES_ANSIESCAPECODES
+#define IOUTILITIES_ANSIESCAPECODES
 
 #include "../application/global.h"
 
@@ -101,5 +101,5 @@ inline void eraseLine(std::ostream &stream)
 
 }
 
-#endif // ANSIESCAPECODES
+#endif // IOUTILITIES_ANSIESCAPECODES
 

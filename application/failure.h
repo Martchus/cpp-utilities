@@ -1,5 +1,5 @@
-#ifndef FAILURE_H
-#define FAILURE_H
+#ifndef APPLICATION_UTILITIES_FAILURE_H
+#define APPLICATION_UTILITIES_FAILURE_H
 
 #include "./global.h"
 
@@ -23,4 +23,4 @@ private:
 
 }
 
-#endif // FAILURE_H
+#endif // APPLICATION_UTILITIES_FAILURE_H

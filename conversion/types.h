@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef CONVERSION_UTILITIES_TYPES_H
+#define CONVERSION_UTILITIES_TYPES_H
 
 #include <cstdint>
 
@@ -71,4 +71,4 @@ typedef double float64;
 #error "Unable to define float64!"
 #endif
 
-#endif // TYPES_H
+#endif // CONVERSION_UTILITIES_TYPES_H

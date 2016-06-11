@@ -1,5 +1,5 @@
-#ifndef PATHHELPER_H
-#define PATHHELPER_H
+#ifndef IOUTILITIES_PATHHELPER_H
+#define IOUTILITIES_PATHHELPER_H
 
 #include "./binarywriter.h"
 #include "./binaryreader.h"
@@ -28,4 +28,4 @@ LIB_EXPORT bool settingsDirectory(std::string &result, std::string applicationDi
 
 }
 
-#endif // PATHHELPER_H
+#endif // IOUTILITIES_PATHHELPER_H

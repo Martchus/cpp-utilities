@@ -1,5 +1,5 @@
-#ifndef DATETIME_H
-#define DATETIME_H
+#ifndef CHRONO_UTILITIES_DATETIME_H
+#define CHRONO_UTILITIES_DATETIME_H
 
 #include "./timespan.h"
 
@@ -436,4 +436,4 @@ inline DateTime &DateTime::operator -=(const TimeSpan &timeSpan)
 
 }
 
-#endif // DATETIME_H
+#endif // CHRONO_UTILITIES_DATETIME_H

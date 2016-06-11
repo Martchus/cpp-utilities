@@ -1,5 +1,5 @@
-#ifndef WIDEN_H
-#define WIDEN_H
+#ifndef CONVERSION_UTILITIES_WIDEN_H
+#define CONVERSION_UTILITIES_WIDEN_H
 
 #include "../application/global.h"
 
@@ -49,4 +49,4 @@ private:
 
 }
 
-#endif // WIDEN_H
+#endif // CONVERSION_UTILITIES_WIDEN_H
