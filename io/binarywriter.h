@@ -1,5 +1,5 @@
-#ifndef BINARYWRITER_H
-#define BINARYWRITER_H
+#ifndef IOUTILITIES_BINARYWRITER_H
+#define IOUTILITIES_BINARYWRITER_H
 
 #include "../application/global.h"
 #include "../conversion/types.h"
@@ -531,4 +531,4 @@ inline void BinaryWriter::writeFixed16LE(float32 valueToConvertAndWrite)
 
 }
 
-#endif // BINARYWRITER_H
+#endif // IO_UTILITIES_BINARYWRITER_H

@@ -1,5 +1,5 @@
-#ifndef TIMESPAN_H
-#define TIMESPAN_H
+#ifndef CHRONO_UTILITIES_TIMESPAN_H
+#define CHRONO_UTILITIES_TIMESPAN_H
 
 #include "../application/global.h"
 #include "../conversion/types.h"
@@ -354,4 +354,4 @@ constexpr inline bool TimeSpan::isInfinity() const
 
 }
 
-#endif // TIMESPAN_H
+#endif // CHRONO_UTILITIES_TIMESPAN_H

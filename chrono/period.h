@@ -1,5 +1,5 @@
-#ifndef PERIOD_H
-#define PERIOD_H
+#ifndef CHRONO_UTILITIES_PERIOD_H
+#define CHRONO_UTILITIES_PERIOD_H
 
 #include "./datetime.h"
 
@@ -46,4 +46,4 @@ inline int Period::days() const
 
 }
 
-#endif // PERIOD_H
+#endif // CHRONO_UTILITIES_PERIOD_H

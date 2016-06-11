@@ -1,5 +1,5 @@
-#ifndef STRINGCONVERSION_H
-#define STRINGCONVERSION_H
+#ifndef CONVERSION_UTILITIES_STRINGCONVERSION_H
+#define CONVERSION_UTILITIES_STRINGCONVERSION_H
 
 #include "./conversionexception.h"
 #include "./binaryconversion.h"
@@ -201,4 +201,4 @@ LIB_EXPORT std::pair<std::unique_ptr<byte[]>, uint32> decodeBase64(const char *e
 
 }
 
-#endif // STRINGCONVERSION_H
+#endif // CONVERSION_UTILITIES_STRINGCONVERSION_H

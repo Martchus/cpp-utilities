@@ -1,5 +1,5 @@
-#ifndef BINERYREADER_H
-#define BINERYREADER_H
+#ifndef IOUTILITIES_BINERYREADER_H
+#define IOUTILITIES_BINERYREADER_H
 
 #include "../application/global.h"
 #include "../conversion/types.h"
@@ -565,4 +565,4 @@ inline float32 BinaryReader::readFixed16LE()
 
 }
 
-#endif // BINERYREADER_H
+#endif // IOUTILITIES_BINERYREADER_H
