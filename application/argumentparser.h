@@ -28,8 +28,6 @@ class ArgumentParser;
 
 typedef std::initializer_list<Argument *> ArgumentInitializerList;
 typedef std::vector<Argument *> ArgumentVector;
-typedef std::vector<std::string> StringVector;
-typedef std::list<std::string> StringList;
 typedef std::function<bool (Argument *)> ArgumentPredicate;
 
 Argument LIB_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
@@ -39,7 +37,7 @@ class LIB_EXPORT Argument
     friend class ArgumentParser;
 
 public:
-    typedef std::function <void (const StringVector &)> CallbackFunction;
+    typedef std::function <void (const std::vector<std::string> &)> CallbackFunction;
 
     Argument(const char *name, const char *abbreviation = nullptr, const char *description = nullptr, const char *example = nullptr);
     ~Argument();
@@ -48,25 +46,23 @@ public:
     void setName(const char *name);
     const char *abbreviation() const;
     void setAbbreviation(const char *abbreviation);
-    //unsigned char isAmbiguous(const ArgumentParser &parser) const;
     const char *description() const;
     void setDescription(const char *description);
     const char *example() const;
     void setExample(const char *example);
-    const StringVector &values() const;
-    const std::string &value(StringVector::size_type index) const;
-    StringVector::size_type valueCount() const;
+    const std::vector<std::string> &values() const;
+    const std::string &value(std::size_t index) const;
+    std::size_t valueCount() const;
     int requiredValueCount() const;
     void setRequiredValueCount(int requiredValueCount);
-    const StringList &valueNames() const;
-    void setValueNames(std::initializer_list<std::string> valueNames);
+    const std::list<const char *> &valueNames() const;
+    void setValueNames(std::initializer_list<const char *> valueNames);
     void appendValueName(const char *valueName);
-    void appendValueName(const std::string &valueName);
     bool allRequiredValuesPresent() const;
     bool isDefault() const;
     void setDefault(bool value);
-    const StringVector &defaultValues() const;
-    void setDefaultValues(const StringVector &defaultValues);
+    const std::list<const char *> &defaultValues() const;
+    void setDefaultValues(const std::list<const char *> &defaultValues);
     bool isPresent() const;
     bool isRequired() const;
     void setRequired(bool value);
@@ -78,10 +74,10 @@ public:
     void setDenotesOperation(bool denotesOperation);
     void setCallback(CallbackFunction callback);
     void printInfo(std::ostream &os, unsigned char indentionLevel = 0) const;
-    const ArgumentVector &secondaryArguments() const;
-    void setSecondaryArguments(const ArgumentInitializerList &secondaryArguments);
-    void addSecondaryArgument(Argument *arg);
-    bool hasSecondaryArguments() const;
+    const ArgumentVector &subArguments() const;
+    void setSubArguments(const ArgumentInitializerList &subArguments);
+    void addSubArgument(Argument *arg);
+    bool hasSubArguments() const;
     const ArgumentVector parents() const;
     bool isMainArgument() const;
     std::string parentNames() const;
@@ -98,12 +94,12 @@ private:
     bool m_implicit;
     bool m_denotesOperation;
     int m_requiredValueCount;
-    StringList m_valueNames;
+    std::list<const char *> m_valueNames;
     bool m_default;
-    StringVector m_defaultValues;
+    std::list<const char *> m_defaultValues;
     bool m_present;
-    StringVector m_values;
-    ArgumentVector m_secondaryArgs;
+    std::vector<std::string> m_values;
+    ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
     bool m_isMainArg;
@@ -227,7 +223,7 @@ inline void Argument::setExample(const char *example)
  *
  * These values set by the parser when parsing the command line arguments.
  */
-inline const StringVector &Argument::values() const
+inline const std::vector<std::string> &Argument::values() const
 {
     return m_values;
 }
@@ -237,7 +233,7 @@ inline const StringVector &Argument::values() const
  *
  * These values set by the parser when parsing the command line arguments.
  */
-inline const std::string &Argument::value(StringVector::size_type index) const
+inline const std::string &Argument::value(std::size_t index) const
 {
     return m_values[index];
 }
@@ -246,7 +242,7 @@ inline const std::string &Argument::value(StringVector::size_type index) const
  * Returns the number of values which could be found when parsing
  * the command line arguments.
  */
-inline StringVector::size_type Argument::valueCount() const
+inline std::size_t Argument::valueCount() const
 {
     return m_values.size();
 }
@@ -293,7 +289,7 @@ inline void Argument::setRequiredValueCount(int requiredValueCount)
  * \sa setValueNames()
  * \sa appendValueNames()
  */
-inline const StringList &Argument::valueNames() const
+inline const std::list<const char *> &Argument::valueNames() const
 {
     return m_valueNames;
 }
@@ -311,7 +307,7 @@ inline const StringList &Argument::valueNames() const
  * \sa valueNames()
  * \sa requiredValueCount()
  */
-inline void Argument::setValueNames(std::initializer_list<std::string> valueNames)
+inline void Argument::setValueNames(std::initializer_list<const char *> valueNames)
 {
     m_valueNames.assign(valueNames);
 }
@@ -319,22 +315,12 @@ inline void Argument::setValueNames(std::initializer_list<std::string> valueName
 /*!
  * \brief Appends a value name. The value names names will be shown
  *        when printing information about the argument.
+ * \sa setValueNames()
+ * \sa valueNames()
  */
 inline void Argument::appendValueName(const char *valueName)
 {
     m_valueNames.emplace_back(valueName);
-}
-
-/*!
- * \brief Appends a value name. The value names names will be shown
- *        when printing information about the argument.
- *
- * \sa setValueNames()
- * \sa valueNames()
- */
-inline void Argument::appendValueName(const std::string &valueName)
-{
-    m_valueNames.push_back(valueName);
 }
 
 /*!
@@ -384,7 +370,7 @@ inline void Argument::setDefault(bool value)
  * \sa setDefault()
  * \sa setDefaultValues()
  */
-inline const StringVector &Argument::defaultValues() const
+inline const std::list<const char *> &Argument::defaultValues() const
 {
     return m_defaultValues;
 }
@@ -399,7 +385,7 @@ inline const StringVector &Argument::defaultValues() const
  * \sa setDefault()
  * \sa defaultValues()
  */
-inline void Argument::setDefaultValues(const StringVector &defaultValues)
+inline void Argument::setDefaultValues(const std::list<const char *> &defaultValues)
 {
     m_defaultValues = defaultValues;
 }
@@ -528,9 +514,9 @@ inline void Argument::setCallback(Argument::CallbackFunction callback)
  * \sa setSecondaryArguments()
  * \sa hasSecondaryArguments()
  */
-inline const ArgumentVector &Argument::secondaryArguments() const
+inline const ArgumentVector &Argument::subArguments() const
 {
-    return m_secondaryArgs;
+    return m_subArgs;
 }
 
 /*!
@@ -539,9 +525,9 @@ inline const ArgumentVector &Argument::secondaryArguments() const
  * \sa secondaryArguments()
  * \sa setSecondaryArguments()
  */
-inline bool Argument::hasSecondaryArguments() const
+inline bool Argument::hasSubArguments() const
 {
-    return !m_secondaryArgs.empty();
+    return !m_subArgs.empty();
 }
 
 /*!

@@ -67,35 +67,6 @@ Argument::Argument(const char *name, const char *abbreviation, const char *descr
 Argument::~Argument()
 {}
 
-///*!
-// * \brief Checks whether the argument is ambigious.
-// * \returns Returns zero if the argument is not ambigious. Returns 1 if the name
-// *          is ambiguous and 2 if the abbreviation is ambiguous.
-// */
-//unsigned char Argument::isAmbiguous(const ArgumentParser &parser) const
-//{
-//    function<unsigned char (const ArgumentVector &args, const Argument *toCheck)> check;
-//    check = [&check] (const ArgumentVector &args, const Argument *toCheck) -> unsigned char {
-//        for(const auto *arg : args) {
-//            if(arg != toCheck) {
-//                if(!toCheck->name().empty() && arg->name() == toCheck->name()) {
-//                    return 1;
-//                } else if(!toCheck->abbreviation().empty() && arg->abbreviation() == toCheck->abbreviation()) {
-//                    return 2;
-//                }
-//            }
-//            if(auto res = check(arg->parents(), toCheck)) {
-//                return res;
-//            }
-//        }
-//        return 0;
-//    };
-//    if(auto res = check(parser.mainArguments(), this)) {
-//        return res;
-//    }
-//    return check(parents(), this);
-//}
-
 /*!
  * \brief Appends the name, the abbreviation and the description of the Argument to the give ostream.
  */
@@ -142,7 +113,7 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
         os << endl << "Usage: " << example();
     }
     os << endl;
-    for(const auto *arg : secondaryArguments()) {
+    for(const auto *arg : subArguments()) {
         arg->printInfo(os, indentionLevel + 1);
     }
 }
@@ -176,17 +147,17 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
  * \sa addSecondaryArgument()
  * \sa hasSecondaryArguments()
  */
-void Argument::setSecondaryArguments(const ArgumentInitializerList &secondaryArguments)
+void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments)
 {
     // remove this argument from the parents list of the previous secondary arguments
-    for(Argument *arg : m_secondaryArgs) {
+    for(Argument *arg : m_subArgs) {
         arg->m_parents.erase(remove(arg->m_parents.begin(), arg->m_parents.end(), this), arg->m_parents.end());
     }
     // assign secondary arguments
-    m_secondaryArgs.assign(secondaryArguments);
+    m_subArgs.assign(secondaryArguments);
     // add this argument to the parents list of the assigned secondary arguments
     // and set the parser
-    for(Argument *arg : m_secondaryArgs) {
+    for(Argument *arg : m_subArgs) {
         if(find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
             arg->m_parents.push_back(this);
         }
@@ -200,10 +171,10 @@ void Argument::setSecondaryArguments(const ArgumentInitializerList &secondaryArg
  * \sa setSecondaryArguments()
  * \sa hasSecondaryArguments()
  */
-void Argument::addSecondaryArgument(Argument *arg)
+void Argument::addSubArgument(Argument *arg)
 {
-    if(find(m_secondaryArgs.cbegin(), m_secondaryArgs.cend(), arg) == m_secondaryArgs.cend()) {
-        m_secondaryArgs.push_back(arg);
+    if(find(m_subArgs.cbegin(), m_subArgs.cend(), arg) == m_subArgs.cend()) {
+        m_subArgs.push_back(arg);
         if(find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
             arg->m_parents.push_back(this);
         }
@@ -253,7 +224,7 @@ Argument *Argument::conflictsWithArgument() const
 {
     if(!isCombinable() && isPresent()) {
         for(Argument *parent : m_parents) {
-            for(Argument *sibling : parent->secondaryArguments()) {
+            for(Argument *sibling : parent->subArguments()) {
                 if(sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
                     return sibling;
                 }
@@ -360,7 +331,7 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
     for(Argument *arg : arguments) {
         if(predicate(arg)) {
             return arg; // argument matches
-        } else if(Argument *subarg = findArg(arg->secondaryArguments(), predicate)) {
+        } else if(Argument *subarg = findArg(arg->subArguments(), predicate)) {
             return subarg; // a secondary argument matches
         }
     }
@@ -418,7 +389,7 @@ void ArgumentParser::verifySetup() const
                 names.push_back(arg->name());
             }
             verifiedArgs.push_back(arg);
-            checkArguments(arg->secondaryArguments());
+            checkArguments(arg->subArguments());
         }
     };
     checkArguments(m_mainArgs);
@@ -456,7 +427,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
     foreachArg = [&foreachArg] (Argument *parent, const ArgumentVector &args, const function<void (Argument *, Argument *)> &proc) {
         for(Argument *arg : args) {
             proc(parent, arg);
-            foreachArg(arg, arg->secondaryArguments(), proc);
+            foreachArg(arg, arg->subArguments(), proc);
         }
     };
     // parse given arguments
@@ -591,7 +562,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
             // the argument might be flagged as present if its a default argument
             if(arg->isDefault() && (arg->isMainArgument() || (parent && parent->isPresent()))) {
                 arg->m_present = true;
-                if(firstPresentUncombinableArg(arg->isMainArgument() ? m_mainArgs : parent->secondaryArguments(), arg)) {
+                if(firstPresentUncombinableArg(arg->isMainArgument() ? m_mainArgs : parent->subArguments(), arg)) {
                     arg->m_present = false;
                 }
             }
@@ -645,7 +616,8 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
                 // only invoke if its a main argument or the parent is present
                 if(arg->isPresent()) {
                     if(arg->isDefault() && !arg->values().size()) {
-                        arg->m_callbackFunction(arg->defaultValues());
+                        vector<string> defaultValues(arg->defaultValues().cbegin(), arg->defaultValues().cend());
+                        arg->m_callbackFunction(defaultValues);
                     } else {
                         arg->m_callbackFunction(arg->values());
                     }
@@ -667,7 +639,7 @@ void ArgumentParser::parseArgs(int argc, char *argv[])
 HelpArgument::HelpArgument(ArgumentParser &parser) :
     Argument("help", "h", "shows this information")
 {
-    setCallback([&parser] (const StringVector &) {
+    setCallback([&parser] (const std::vector<std::string> &) {
         CMD_UTILS_START_CONSOLE;
         parser.printHelp(cout);
     });

@@ -18,7 +18,7 @@ public:
 #ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
 #endif
-    const ApplicationUtilities::StringVector &units() const;
+    const std::vector<std::string> &units() const;
     static const TestApplication *instance();
 
 private:
@@ -56,7 +56,7 @@ inline const TestApplication *TestApplication::instance()
 /*!
  * \brief Returns the specified test units.
  */
-inline const ApplicationUtilities::StringVector &TestApplication::units() const
+inline const std::vector<std::string> &TestApplication::units() const
 {
     return m_unitsArg.values();
 }
