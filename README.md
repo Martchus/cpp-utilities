@@ -1,21 +1,20 @@
-# c++utilities
+# C++ utilities
 Common C++ classes and routines used by my applications such as argument parser, IO and conversion utilities.
 
 ## Features
 The library utilizes:
 * parsing command-line arguments
-* dealing with chronology (DateTime, TimeSpan)
-* conversion of primitive data types to byte-buffers and vice versa, supporting
-  litte-endian and big-endian
+* dealing with dates and times
+* conversion of primitive data types to byte-buffers and vice versa (litte-endian and big-endian)
 * common string conversions/operations, eg.
- - split, join, findAndReplace
- - numberToString, stringToNumber
- - encodeBase64, decodeBase64
+ - split, join, find and replace
+ - conversion from number to string and vice verca
+ - encoding/decoding base-64
 * IO
  - reading/writing primitive data types of various sizes (little-endian and big-endian)
  - reading/writing terminated strings and size-prefixed strings
- - bitwise reading
- - parsing INI files
+ - reading/writing INI files
+ - reading bitwise
 * building with CMake by providing some modules and templates
 
 ## Build instructions
@@ -24,6 +23,7 @@ The library utilizes:
 * C++ compiler supporting C++11 (I've tested GNU g++, Clang and mingw-w64 yet.)
 * CMake (I've only tested 3.5.1 so far.)
 * cppunit for unit tests (optional)
+* Doxygen for API documentation (optional)
 
 #### Runtime dependencies
 * The c++utilities library itself only needs the C/C++ standard library.
@@ -36,6 +36,7 @@ cd "path/to/build/directory"
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/projectdirectory"
 make
 make check # build and run unit tests (optional)
+make c++utilities_apidoc # build API documentation (optional)
 make DESTDIR="/temporary/install/location" install
 ```
 
