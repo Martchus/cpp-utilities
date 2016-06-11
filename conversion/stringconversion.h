@@ -179,6 +179,25 @@ template <typename NumberType, typename StringType> LIB_EXPORT NumberType string
 }
 
 /*!
+ * \brief Converts the given \a string to a numeric value using the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided string is not a valid number.
+ * \sa numberToString()
+ */
+template <typename NumberType, typename CharType> LIB_EXPORT NumberType stringToNumber(const CharType *string, int base = 10)
+{
+    std::basic_stringstream<CharType> ss;
+    ss << std::setbase(base) << string;
+    NumberType result;
+    if((ss >> result) && ss.eof()) {
+        return result;
+    } else {
+        throw ConversionException("The specified string is no valid number.");
+    }
+}
+
+/*!
  * \brief Interprets the given \a integer at the specified position as std::string using the specified byte order.
  *
  * Example: Interpretation of ID3v2 frame IDs (stored as 32-bit integer) as string

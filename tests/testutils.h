@@ -18,7 +18,8 @@ public:
 #ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
 #endif
-    const std::vector<std::string> &units() const;
+    bool unitsSpecified() const;
+    const std::vector<const char *> &units() const;
     static const TestApplication *instance();
 
 private:
@@ -54,9 +55,18 @@ inline const TestApplication *TestApplication::instance()
 }
 
 /*!
- * \brief Returns the specified test units.
+ * \brief Returns whether particular units have been specified.
  */
-inline const std::vector<std::string> &TestApplication::units() const
+inline bool TestApplication::unitsSpecified() const
+{
+    return m_unitsArg.isPresent();
+}
+
+/*!
+ * \brief Returns the specified test units.
+ * \remarks The units argument must be present.
+ */
+inline const std::vector<const char *> &TestApplication::units() const
 {
     return m_unitsArg.values();
 }

@@ -3,12 +3,12 @@
 
 #include "./global.h"
 
-#include <string>
 #include <vector>
-#include <list>
 #include <initializer_list>
 #include <functional>
-#include <stdexcept>
+#ifdef DEBUG_BUILD
+# include <cassert>
+#endif
 
 namespace ApplicationUtilities {
 
@@ -37,35 +37,38 @@ class LIB_EXPORT Argument
     friend class ArgumentParser;
 
 public:
-    typedef std::function <void (const std::vector<std::string> &)> CallbackFunction;
+    typedef std::function <void (const std::vector<const char *> &)> CallbackFunction;
 
-    Argument(const char *name, const char *abbreviation = nullptr, const char *description = nullptr, const char *example = nullptr);
+    Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
 
     const char *name() const;
     void setName(const char *name);
-    const char *abbreviation() const;
-    void setAbbreviation(const char *abbreviation);
+    char abbreviation() const;
+    void setAbbreviation(char abbreviation);
     const char *description() const;
     void setDescription(const char *description);
     const char *example() const;
     void setExample(const char *example);
-    const std::vector<std::string> &values() const;
-    const std::string &value(std::size_t index) const;
-    std::size_t valueCount() const;
-    int requiredValueCount() const;
-    void setRequiredValueCount(int requiredValueCount);
-    const std::list<const char *> &valueNames() const;
+    const std::vector<const char *> &values(std::size_t occurrance = 0) const;
+    std::size_t requiredValueCount() const;
+    void setRequiredValueCount(std::size_t requiredValueCount);
+    const std::vector<const char *> &valueNames() const;
     void setValueNames(std::initializer_list<const char *> valueNames);
     void appendValueName(const char *valueName);
-    bool allRequiredValuesPresent() const;
+    bool allRequiredValuesPresent(std::size_t occurrance = 0) const;
     bool isDefault() const;
-    void setDefault(bool value);
-    const std::list<const char *> &defaultValues() const;
-    void setDefaultValues(const std::list<const char *> &defaultValues);
+    void setDefault(bool isDefault);
+    const std::vector<const char *> &defaultValues() const;
+    void setDefaultValues(const std::initializer_list<const char *> &defaultValues);
     bool isPresent() const;
+    std::size_t occurrences() const;
+    const std::vector<std::size_t> &indices() const;
+    std::size_t minOccurrences() const;
+    std::size_t maxOccurrences() const;
+    void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
     bool isRequired() const;
-    void setRequired(bool value);
+    void setRequired(bool required);
     bool isCombinable() const;
     void setCombinable(bool value);
     bool isImplicit() const;
@@ -80,25 +83,25 @@ public:
     bool hasSubArguments() const;
     const ArgumentVector parents() const;
     bool isMainArgument() const;
-    std::string parentNames() const;
     bool isParentPresent() const;
     Argument *conflictsWithArgument() const;
+    void reset();
 
 private:
     const char *m_name;
-    const char *m_abbreviation;
+    char m_abbreviation;
     const char *m_description;
     const char *m_example;
-    bool m_required;
+    std::size_t m_minOccurrences;
+    std::size_t m_maxOccurrences;
     bool m_combinable;
-    bool m_implicit;
     bool m_denotesOperation;
-    int m_requiredValueCount;
-    std::list<const char *> m_valueNames;
+    std::size_t m_requiredValueCount;
+    std::vector<const char *> m_valueNames;
     bool m_default;
-    std::list<const char *> m_defaultValues;
-    bool m_present;
-    std::vector<std::string> m_values;
+    std::vector<const char *> m_defaultValues;
+    std::vector<std::size_t> m_indices;
+    std::vector<std::vector<const char *> > m_values;
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
@@ -129,12 +132,7 @@ inline void Argument::setName(const char *name)
 #ifdef DEBUG_BUILD
     if(name && *name) {
         for(const char *c = name; *c; ++c) {
-            switch(*c) {
-            case ' ': case '=':
-                throw std::invalid_argument("name mustn't contain white spaces or equation chars");
-            default:
-                ;
-            }
+            assert(*c != ' ' && *c != '=');
         }
     }
 #endif
@@ -147,7 +145,7 @@ inline void Argument::setName(const char *name)
  * The parser compares the abbreviation with the characters following a "-" prefix to
  * identify arguments.
  */
-inline const char *Argument::abbreviation() const
+inline char Argument::abbreviation() const
 {
     return m_abbreviation;
 }
@@ -161,20 +159,9 @@ inline const char *Argument::abbreviation() const
  * The parser compares the abbreviation with the characters following a "-" prefix to
  * identify arguments.
  */
-inline void Argument::setAbbreviation(const char *abbreviation)
+inline void Argument::setAbbreviation(char abbreviation)
 {
-#ifdef DEBUG_BUILD
-    if(abbreviation && *abbreviation) {
-        for(const char *c = abbreviation; *c; ++c) {
-            switch(*c) {
-            case ' ': case '=':
-                throw std::invalid_argument("abbreviation mustn't contain white spaces or equation chars");
-            default:
-                ;
-            }
-        }
-    }
-#endif
+    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '='));
     m_abbreviation = abbreviation;
 }
 
@@ -223,28 +210,9 @@ inline void Argument::setExample(const char *example)
  *
  * These values set by the parser when parsing the command line arguments.
  */
-inline const std::vector<std::string> &Argument::values() const
+inline const std::vector<const char *> &Argument::values(std::size_t occurrance) const
 {
-    return m_values;
-}
-
-/*!
- * \brief Returns the value with the give \a index.
- *
- * These values set by the parser when parsing the command line arguments.
- */
-inline const std::string &Argument::value(std::size_t index) const
-{
-    return m_values[index];
-}
-
-/*!
- * Returns the number of values which could be found when parsing
- * the command line arguments.
- */
-inline std::size_t Argument::valueCount() const
-{
-    return m_values.size();
+    return m_values[occurrance];
 }
 
 /*!
@@ -260,7 +228,7 @@ inline std::size_t Argument::valueCount() const
  * \sa valueNames()
  * \sa setValueNames()
  */
-inline int Argument::requiredValueCount() const
+inline std::size_t Argument::requiredValueCount() const
 {
     return m_requiredValueCount;
 }
@@ -276,7 +244,7 @@ inline int Argument::requiredValueCount() const
  * \sa valueNames()
  * \sa setValueNames()
  */
-inline void Argument::setRequiredValueCount(int requiredValueCount)
+inline void Argument::setRequiredValueCount(std::size_t requiredValueCount)
 {
     m_requiredValueCount = requiredValueCount;
 }
@@ -289,7 +257,7 @@ inline void Argument::setRequiredValueCount(int requiredValueCount)
  * \sa setValueNames()
  * \sa appendValueNames()
  */
-inline const std::list<const char *> &Argument::valueNames() const
+inline const std::vector<const char *> &Argument::valueNames() const
 {
     return m_valueNames;
 }
@@ -326,14 +294,11 @@ inline void Argument::appendValueName(const char *valueName)
 /*!
  * \brief Returns an indication whether all required values are present.
  */
-inline bool Argument::allRequiredValuesPresent() const
+inline bool Argument::allRequiredValuesPresent(std::size_t occurrance) const
 {
-    if(m_requiredValueCount > 0) {
-        return (m_values.size() >= static_cast<size_t>(m_requiredValueCount))
-                || (m_default && m_defaultValues.size() >= static_cast<size_t>(m_requiredValueCount));
-    } else {
-        return true;
-    }
+    return m_requiredValueCount == static_cast<std::size_t>(-1)
+            || (m_values[occurrance].size() >= static_cast<std::size_t>(m_requiredValueCount))
+            || (m_default && m_defaultValues.size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
 /*!
@@ -359,9 +324,9 @@ inline bool Argument::isDefault() const
  * \brief Sets whether the argument is a default argument.
  * \sa isDefault()
  */
-inline void Argument::setDefault(bool value)
+inline void Argument::setDefault(bool isDefault)
 {
-    m_default = value;
+    m_default = isDefault;
 }
 
 /*!
@@ -370,7 +335,7 @@ inline void Argument::setDefault(bool value)
  * \sa setDefault()
  * \sa setDefaultValues()
  */
-inline const std::list<const char *> &Argument::defaultValues() const
+inline const std::vector<const char *> &Argument::defaultValues() const
 {
     return m_defaultValues;
 }
@@ -385,18 +350,64 @@ inline const std::list<const char *> &Argument::defaultValues() const
  * \sa setDefault()
  * \sa defaultValues()
  */
-inline void Argument::setDefaultValues(const std::list<const char *> &defaultValues)
+inline void Argument::setDefaultValues(const std::initializer_list<const char *> &defaultValues)
 {
     m_defaultValues = defaultValues;
 }
 
 /*!
- * \brief Returns an indication whether the argument could be detected
- *        when parsing.
+ * \brief Returns an indication whether the argument could be detected when parsing.
  */
 inline bool Argument::isPresent() const
 {
-    return m_present;
+    return !m_indices.empty();
+}
+
+/*!
+ * \brief Returns how often the argument could be detected when parsing.
+ */
+inline std::size_t Argument::occurrences() const
+{
+    return m_indices.size();
+}
+
+/*!
+ * \brief Returns the indices of the argument's occurences which could be detected when parsing.
+ */
+inline const std::vector<std::size_t> &Argument::indices() const
+{
+    return m_indices;
+}
+
+/*!
+ * \brief Returns the minimum number of occurrences.
+ *
+ * If the argument occurs not that many times, the parser will complain.
+ */
+inline std::size_t Argument::minOccurrences() const
+{
+    return m_minOccurrences;
+}
+
+/*!
+ * \brief Returns the maximum number of occurrences.
+ *
+ * If the argument occurs more often, the parser will complain.
+ */
+inline std::size_t Argument::maxOccurrences() const
+{
+    return m_maxOccurrences;
+}
+
+/*!
+ * \brief Sets the allowed number of occurrences.
+ * \sa minOccurrences()
+ * \sa maxOccurrences()
+ */
+inline void Argument::setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences)
+{
+    m_minOccurrences = minOccurrences;
+    m_maxOccurrences = maxOccurrences;
 }
 
 /*!
@@ -410,19 +421,25 @@ inline bool Argument::isPresent() const
  */
 inline bool Argument::isRequired() const
 {
-    return m_required;
+    return m_minOccurrences;
 }
 
 /*!
- * \brief Sets if this argument is mandatory or not.
+ * \brief Sets whether this argument is mandatory or not.
  *
  * The parser will complain if a mandatory argument is not present.
  *
  * * \sa isRequired()
  */
-inline void Argument::setRequired(bool value)
+inline void Argument::setRequired(bool required)
 {
-    m_required = value;
+    if(required) {
+        if(!m_minOccurrences) {
+            m_minOccurrences = 1;
+        }
+    } else {
+        m_minOccurrences = 0;
+    }
 }
 
 /*!
@@ -449,30 +466,6 @@ inline bool Argument::isCombinable() const
 inline void Argument::setCombinable(bool value)
 {
     m_combinable = value;
-}
-
-
-/*!
- * \brief Returns an indication whether the argument can be specified implicitely.
- *
- * An implicit argument is assumed to be present even if only its value is present.
- * Only one argument can be implicit.
- *
- * \sa setImplicit()
- */
-inline bool Argument::isImplicit() const
-{
-    return m_implicit;
-}
-
-/*!
- * \brief Sets if this argument can be specified implicitely.
- *
- * \sa isImplicit()
- */
-inline void Argument::setImplicit(bool value)
-{
-    m_implicit = value;
 }
 
 /*!
@@ -502,6 +495,7 @@ inline void Argument::setDenotesOperation(bool denotesOperation)
 /*!
  * \brief Sets a \a callback function which will be called by the parser if
  *        the argument could be found and no parsing errors occured.
+ * \remarks The \a callback will be called for each occurrance of the argument.
  */
 inline void Argument::setCallback(Argument::CallbackFunction callback)
 {
@@ -567,19 +561,22 @@ public:
     void printHelp(std::ostream &os) const;
     Argument *findArg(const ArgumentPredicate &predicate) const;
     static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
-#ifdef DEBUG_BUILD
-    void verifySetup() const;
-#endif
     void parseArgs(int argc, char *argv[]);
+    void parseArgs(int argc, const char *argv[]);
     unsigned int actualArgumentCount() const;
-    const std::string &currentDirectory() const;
+    const char *currentDirectory() const;
     bool areUnknownArgumentsIgnored() const;
     void setIgnoreUnknownArguments(bool ignore);
 
 private:
+    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
+    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end);
+    void checkConstraints(const ArgumentVector &args);
+    void invokeCallbacks(const ArgumentVector &args);
+
     ArgumentVector m_mainArgs;
     unsigned int m_actualArgc;
-    std::string m_currentDirectory;
+    const char *m_currentDirectory;
     bool m_ignoreUnknownArgs;
 };
 
@@ -593,6 +590,14 @@ inline const ArgumentVector &ArgumentParser::mainArguments() const
 }
 
 /*!
+ * \brief Parses the specified command line arguments.
+ */
+inline void ArgumentParser::parseArgs(int argc, char *argv[])
+{
+    parseArgs(argc, const_cast<const char **>(argv));
+}
+
+/*!
  * \brief Returns the actual number of arguments that could be found when parsing.
  */
 inline unsigned int ArgumentParser::actualArgumentCount() const
@@ -603,7 +608,7 @@ inline unsigned int ArgumentParser::actualArgumentCount() const
 /*!
  * \brief Returns the current directory.
  */
-inline const std::string &ArgumentParser::currentDirectory() const
+inline const char *ArgumentParser::currentDirectory() const
 {
     return m_currentDirectory;
 }

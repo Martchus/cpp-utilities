@@ -48,7 +48,7 @@ make DESTDIR="/temporary/install/location" install
 Building for Windows with Mingw-w64 cross compiler can be utilized using a small
 [cmake wrapper from Fedora](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
 ```
-${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/projectdirectory"
+${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
 make DESTDIR="/temporary/install/location" install-mingw-w64-strip
 ```
 * To create the \*.ico file for the application icon ffmpeg/avconv is required.
@@ -72,5 +72,4 @@ PKGBUILD files to build for Windows using the Mingw-w64 compiler are also includ
   is currently disabled. Linking against cppunit built using new libstdc++ ABI isn't possible.
 
 ## TODO
-- rewrite argument parser (the API might change slightly)
 - remove unused features

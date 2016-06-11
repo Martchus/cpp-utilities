@@ -58,6 +58,7 @@ set(TEST_SRC_FILES
     tests/conversiontests.cpp
     tests/iotests.cpp
     tests/chronotests.cpp
+    tests/argumentparsertests.cpp
 )
 
 set(CMAKE_MODULE_FILES

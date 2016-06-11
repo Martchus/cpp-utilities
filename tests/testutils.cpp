@@ -33,9 +33,9 @@ TestApplication *TestApplication::m_instance = nullptr;
  */
 TestApplication::TestApplication(int argc, char **argv) :
     m_helpArg(m_parser),
-    m_testFilesPathArg("test-files-path", "p", "specifies the path of the directory with test files"),
-    m_workingDirArg("working-dir", "w", "specifies the directory to store working copies of test files"),
-    m_unitsArg("units", "u", "specifies the units to test; omit to test all units")
+    m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files"),
+    m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files"),
+    m_unitsArg("units", 'u', "specifies the units to test; omit to test all units")
 {
     // check whether there is already an instance
     if(m_instance) {
@@ -69,8 +69,8 @@ TestApplication::TestApplication(int argc, char **argv) :
         m_parser.parseArgs(argc, argv);
         cerr << "Directories used to search for testfiles:" << endl;
         if(m_testFilesPathArg.isPresent()) {
-            if(!m_testFilesPathArg.values().front().empty()) {
-                cerr << (m_testFilesPathArgValue = m_testFilesPathArg.values().front() + '/') << endl;
+            if(*m_testFilesPathArg.values().front()) {
+                cerr << ((m_testFilesPathArgValue = m_testFilesPathArg.values().front()) += '/') << endl;
             } else {
                 cerr << (m_testFilesPathArgValue = "./") << endl;
             }
@@ -81,8 +81,8 @@ TestApplication::TestApplication(int argc, char **argv) :
         cerr << "./testfiles/" << endl << endl;
         cerr << "Directory used to store working copies:" << endl;
         if(m_workingDirArg.isPresent()) {
-            if(!m_workingDirArg.values().front().empty()) {
-                m_workingDir = m_workingDirArg.values().front() + '/';
+            if(*m_workingDirArg.values().front()) {
+                (m_workingDir = m_workingDirArg.values().front()) += '/';
             } else {
                 m_workingDir = "./";
             }

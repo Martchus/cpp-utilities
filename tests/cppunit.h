@@ -23,14 +23,13 @@ int main(int argc, char **argv)
         // run tests
         TextUi::TestRunner runner;
         TestFactoryRegistry &registry = TestFactoryRegistry::getRegistry();
-        const auto &units = testApp.units();
-        if(units.empty()) {
+        if(!testApp.unitsSpecified() || testApp.units().empty()) {
             // no units specified -> test all
             runner.addTest(registry.makeTest());
         } else {
             // pick specified units from overall test
             Test *overallTest = registry.makeTest();
-            for(const string &unit : units) {
+            for(const char *unit : testApp.units()) {
                 try {
                     runner.addTest(overallTest->findTest(unit));
                 } catch(const invalid_argument &) {
