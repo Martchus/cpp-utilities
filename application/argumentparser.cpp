@@ -61,7 +61,7 @@ Argument::Argument(const char *name, char abbreviation, const char *description,
     m_combinable(false),
     m_denotesOperation(false),
     m_requiredValueCount(0),
-    m_default(false),
+    m_implicit(false),
     m_isMainArg(false)
 {}
 
@@ -248,24 +248,44 @@ void Argument::reset()
  */
 ArgumentParser::ArgumentParser() :
     m_actualArgc(0),
-    m_currentDirectory(nullptr),
-    m_ignoreUnknownArgs(false)
+    m_executable(nullptr),
+    m_ignoreUnknownArgs(false),
+    m_defaultArg(nullptr)
 {}
 
 /*!
  * \brief Sets the main arguments for the parser. The parser will use these argument definitions
  *        to when parsing the command line arguments and when printing help information.
- *
  * \remarks
- * The parser does not take ownership. Do not destroy the arguments as long as they are used as
- * main arguments.
+ *  - The parser does not take ownership. Do not destroy the arguments as long as they are used as
+ *    main arguments.
+ *  - Sets the first specified argument as default argument if none is assigned yet and the
+ *    first argument has no mandatory sub arguments.
  */
 void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArguments)
 {
-    for(Argument *arg : mainArguments) {
-        arg->m_isMainArg = true;
+    if(mainArguments.size()) {
+        for(Argument *arg : mainArguments) {
+            arg->m_isMainArg = true;
+        }
+        m_mainArgs.assign(mainArguments);
+        if(!m_defaultArg) {
+            if(!(*mainArguments.begin())->requiredValueCount()) {
+                bool subArgsRequired = false;
+                for(Argument *subArg : (*mainArguments.begin())->subArguments()) {
+                    if(subArg->isRequired()) {
+                        subArgsRequired = true;
+                        break;
+                    }
+                }
+                if(!subArgsRequired) {
+                    m_defaultArg = *mainArguments.begin();
+                }
+            }
+        }
+    } else {
+        m_mainArgs.clear();
     }
-    m_mainArgs.assign(mainArguments);
 }
 
 /*!
@@ -347,15 +367,23 @@ void ArgumentParser::parseArgs(int argc, const char *argv[])
 {
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
     m_actualArgc = 0;
-    if(argc > 0) {
-        m_currentDirectory = *argv;
-        size_t index = 0;
-        ++argv;
-        readSpecifiedArgs(m_mainArgs, index, argv, argv + argc - 1);
+    if(argc) {
+        m_executable = *argv;
+        if(--argc) {
+            size_t index = 0;
+            ++argv;
+            readSpecifiedArgs(m_mainArgs, index, argv, argv + argc);
+        } else {
+            // no arguments specified -> set default argument as present
+            if(m_defaultArg) {
+                m_defaultArg->m_indices.push_back(0);
+                m_defaultArg->m_values.emplace_back();
+            }
+        }
         checkConstraints(m_mainArgs);
         invokeCallbacks(m_mainArgs);
     } else {
-        m_currentDirectory = nullptr;
+        m_executable = nullptr;
     }
 }
 
@@ -382,13 +410,13 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
     abbreviations.reserve(args.size());
     vector<string> names;
     names.reserve(args.size());
-    bool hasDefault = false;
+    bool hasImplicit = false;
     for(const Argument *arg : args) {
         assert(find(verifiedArgs.cbegin(), verifiedArgs.cend(), arg) == verifiedArgs.cend());
         verifiedArgs.push_back(arg);
         assert(arg->isMainArgument() || !arg->denotesOperation());
-        assert(!arg->isDefault() || !hasDefault);
-        hasDefault |= arg->isDefault();
+        assert(!arg->isImplicit() || !hasImplicit);
+        hasImplicit |= arg->isImplicit();
         assert(!arg->abbreviation() || find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) == abbreviations.cend());
         abbreviations.push_back(arg->abbreviation());
         assert(!arg->name() || find(names.cbegin(), names.cend(), arg->name()) == names.cend());
@@ -403,7 +431,7 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
  * \brief Reads the specified commands line arguments.
  * \remarks Results are stored in Argument instances added as main arguments and sub arguments.
  */
-void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end)
+void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end, unsigned int level)
 {
     enum ArgumentDenotationType : unsigned char {
         Value = 0, // parameter value
@@ -411,7 +439,6 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
         FullName = 2 // full argument name
     };
 
-    bool isTopLevel = index == 0;
     Argument *lastArg = nullptr;
     vector<const char *> *values = nullptr;
     while(argv != end) {
@@ -464,7 +491,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                         // read sub arguments if no abbreviated argument follows
                         ++index, ++m_actualArgc, lastArg = matchingArg;
                         if(argDenotationType != Abbreviation || (!*++argDenotation && argDenotation != equationPos)) {
-                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end);
+                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, level + 1);
                             break;
                         } // else: another abbreviated argument follows
                     } else {
@@ -481,7 +508,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     continue;
                 } else {
                     // first value might denote "operation"
-                    if(isTopLevel) {
+                    if(!level) {
                         for(Argument *arg : args) {
                             if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
                                 (matchingArg = arg)->m_indices.push_back(index);
@@ -494,7 +521,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     if(!matchingArg) {
                         // use the first default argument
                         for(Argument *arg : args) {
-                            if(arg->isDefault()) {
+                            if(arg->isImplicit()) {
                                 (matchingArg = arg)->m_indices.push_back(index);
                                 break;
                             }
@@ -512,11 +539,11 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                         // read sub arguments if no abbreviated argument follows
                         ++m_actualArgc, lastArg = matchingArg;
-                        readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end);
+                        readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, level + 1);
                         continue;
                     }
                 }
-                if(isTopLevel) {
+                if(!level) {
                     if(m_ignoreUnknownArgs) {
                         cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
                         ++index, ++argv;
@@ -557,7 +584,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             throw Failure("The argument \"" + string(conflictingArgument->name()) + "\" can not be combined with \"" + arg->name() + "\".");
         }
         for(size_t i = 0; i != occurrences; ++i) {
-            if(!arg->allRequiredValuesPresent(occurrences)) {
+            if(!arg->allRequiredValuesPresent(i)) {
                 stringstream ss(stringstream::in | stringstream::out);
                 ss << "Not all parameter for argument \"" << arg->name() << "\" ";
                 if(i) {
@@ -566,8 +593,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
                 ss << "provided. You have to provide the following parameter:";
                 size_t valueNamesPrint = 0;
                 for(const auto &name : arg->m_valueNames) {
-                    ss << "\n" << name;
-                    ++valueNamesPrint;
+                    ss << ' ' << name, ++valueNamesPrint;
                 }
                 if(arg->m_requiredValueCount != static_cast<size_t>(-1)) {
                     while(valueNamesPrint < arg->m_requiredValueCount) {
@@ -596,11 +622,7 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
         // invoke the callback for each occurance of the argument
         if(arg->m_callbackFunction) {
             for(const auto &valuesOfOccurance : arg->m_values) {
-                if(arg->isDefault() && valuesOfOccurance.empty()) {
-                    arg->m_callbackFunction(arg->defaultValues());
-                } else {
-                    arg->m_callbackFunction(valuesOfOccurance);
-                }
+                arg->m_callbackFunction(valuesOfOccurance);
             }
         }
         // invoke the callbacks for sub arguments recursively

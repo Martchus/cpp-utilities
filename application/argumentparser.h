@@ -57,10 +57,6 @@ public:
     void setValueNames(std::initializer_list<const char *> valueNames);
     void appendValueName(const char *valueName);
     bool allRequiredValuesPresent(std::size_t occurrance = 0) const;
-    bool isDefault() const;
-    void setDefault(bool isDefault);
-    const std::vector<const char *> &defaultValues() const;
-    void setDefaultValues(const std::initializer_list<const char *> &defaultValues);
     bool isPresent() const;
     std::size_t occurrences() const;
     const std::vector<std::size_t> &indices() const;
@@ -98,8 +94,7 @@ private:
     bool m_denotesOperation;
     std::size_t m_requiredValueCount;
     std::vector<const char *> m_valueNames;
-    bool m_default;
-    std::vector<const char *> m_defaultValues;
+    bool m_implicit;
     std::vector<std::size_t> m_indices;
     std::vector<std::vector<const char *> > m_values;
     ArgumentVector m_subArgs;
@@ -297,62 +292,25 @@ inline void Argument::appendValueName(const char *valueName)
 inline bool Argument::allRequiredValuesPresent(std::size_t occurrance) const
 {
     return m_requiredValueCount == static_cast<std::size_t>(-1)
-            || (m_values[occurrance].size() >= static_cast<std::size_t>(m_requiredValueCount))
-            || (m_default && m_defaultValues.size() >= static_cast<std::size_t>(m_requiredValueCount));
+            || (m_values[occurrance].size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
 /*!
- * \brief Returns an indication whether the argument is a default argument.
- *
- * A default argument will be flagged as present when parsing arguments even
- * if it is not actually present and there is no uncombinable argument present
- * and the it is a main argument or the parent is present.
- *
- * The callback function will be invoked in this case as the argument where
- * actually present.
- *
- * The default value (for this property) is false.
- *
- * \sa setDefault()
+ * \brief Returns an indication whether the argument is an implicit argument.
+ * \sa setImplicit()
  */
-inline bool Argument::isDefault() const
+inline bool Argument::isImplicit() const
 {
-    return m_default;
+    return m_implicit;
 }
 
 /*!
- * \brief Sets whether the argument is a default argument.
- * \sa isDefault()
+ * \brief Sets whether the argument is an implicit argument.
+ * \sa isImplicit()
  */
-inline void Argument::setDefault(bool isDefault)
+inline void Argument::setImplicit(bool implicit)
 {
-    m_default = isDefault;
-}
-
-/*!
- * \brief Returns the default values.
- * \sa isDefault()
- * \sa setDefault()
- * \sa setDefaultValues()
- */
-inline const std::vector<const char *> &Argument::defaultValues() const
-{
-    return m_defaultValues;
-}
-
-/*!
- * \brief Sets the default values.
- *
- * There must be as many default values as required values
- * if the argument is a default argument.
- *
- * \sa isDefault()
- * \sa setDefault()
- * \sa defaultValues()
- */
-inline void Argument::setDefaultValues(const std::initializer_list<const char *> &defaultValues)
-{
-    m_defaultValues = defaultValues;
+    m_implicit = implicit;
 }
 
 /*!
@@ -564,20 +522,23 @@ public:
     void parseArgs(int argc, char *argv[]);
     void parseArgs(int argc, const char *argv[]);
     unsigned int actualArgumentCount() const;
-    const char *currentDirectory() const;
+    const char *executable() const;
     bool areUnknownArgumentsIgnored() const;
     void setIgnoreUnknownArguments(bool ignore);
+    Argument *defaultArgument() const;
+    void setDefaultArgument(Argument *argument);
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
-    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end);
+    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end, unsigned int level = 0);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);
 
     ArgumentVector m_mainArgs;
     unsigned int m_actualArgc;
-    const char *m_currentDirectory;
+    const char *m_executable;
     bool m_ignoreUnknownArgs;
+    Argument *m_defaultArg;
 };
 
 /*!
@@ -606,11 +567,11 @@ inline unsigned int ArgumentParser::actualArgumentCount() const
 }
 
 /*!
- * \brief Returns the current directory.
+ * \brief Returns the name of the current executable.
  */
-inline const char *ArgumentParser::currentDirectory() const
+inline const char *ArgumentParser::executable() const
 {
-    return m_currentDirectory;
+    return m_executable;
 }
 
 /*!
@@ -643,6 +604,24 @@ inline bool ArgumentParser::areUnknownArgumentsIgnored() const
 inline void ArgumentParser::setIgnoreUnknownArguments(bool ignore)
 {
     m_ignoreUnknownArgs = ignore;
+}
+
+/*!
+ * \brief Returns the default argument.
+ * \remarks The default argument is assumed to be present if no other arguments have been specified.
+ */
+inline Argument *ArgumentParser::defaultArgument() const
+{
+    return m_defaultArg;
+}
+
+/*!
+ * \brief Sets the default argument.
+ * \remarks The default argument is assumed to be present if no other arguments have been specified.
+ */
+inline void ArgumentParser::setDefaultArgument(Argument *argument)
+{
+    m_defaultArg = argument;
 }
 
 class LIB_EXPORT HelpArgument : public Argument

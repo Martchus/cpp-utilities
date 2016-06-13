@@ -68,9 +68,8 @@ void ArgumentParserTests::testArgument()
  */
 void ArgumentParserTests::testParsing()
 {
+    // setup parser with some test argument definitions
     ArgumentParser parser;
-
-    // add some test argument definitions
     SET_APPLICATION_INFO;
     QT_CONFIG_ARGUMENTS qtConfigArgs;
     HelpArgument helpArg(parser);
@@ -94,7 +93,7 @@ void ArgumentParserTests::testParsing()
     Argument fieldsArg("fields", '\0', "specifies the fields");
     fieldsArg.setRequiredValueCount(-1);
     fieldsArg.setValueNames({"title", "album", "artist", "trackpos"});
-    fieldsArg.setDefault(true);
+    fieldsArg.setImplicit(true);
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({&fieldsArg, &filesArg, &verboseArg});
@@ -115,8 +114,9 @@ void ArgumentParserTests::testParsing()
     filesArg.setCombinable(true);
     parser.parseArgs(7, argv);
     // check results
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(parser.currentDirectory(), "tageditor"));
+    CPPUNIT_ASSERT(!strcmp(parser.executable(), "tageditor"));
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
@@ -131,6 +131,7 @@ void ArgumentParserTests::testParsing()
     displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();
     parser.parseArgs(7, argv2);
     // check results again
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
@@ -157,8 +158,23 @@ void ArgumentParserTests::testParsing()
     // repeat the test, but this time just ignore the undefined argument
     displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();
     parser.setIgnoreUnknownArguments(true);
-    parser.parseArgs(6, argv3);
+    // redirect stderr to check whether warnings are printed correctly
+    stringstream buffer;
+    streambuf *regularCerrBuffer = cerr.rdbuf(buffer.rdbuf());
+    try {
+        parser.parseArgs(6, argv3);
+        cerr.rdbuf(regularCerrBuffer);
+    } catch(...) {
+        cerr.rdbuf(regularCerrBuffer);
+        throw;
+    }
+    CPPUNIT_ASSERT(!strcmp(buffer.str().data(), "The specified argument \"album\" is unknown and will be ignored.\n"
+                           "The specified argument \"title\" is unknown and will be ignored.\n"
+                           "The specified argument \"diskpos\" is unknown and will be ignored.\n"
+                           "The specified argument \"--file\" is unknown and will be ignored.\n"
+                           "The specified argument \"somefile\" is unknown and will be ignored.\n"));
     // none of the arguments should be present now
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!fieldsArg.isPresent());
@@ -169,6 +185,7 @@ void ArgumentParserTests::testParsing()
     displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();
     parser.setIgnoreUnknownArguments(false);
     parser.parseArgs(4, argv4);
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(verboseArg.isPresent());
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
@@ -183,6 +200,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(4, argv4);
         CPPUNIT_FAIL("Exception expected.");
     } catch(const Failure &e) {
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" mustn't be specified more than 1 time."));
     }
 
@@ -190,11 +208,13 @@ void ArgumentParserTests::testParsing()
     displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
     verboseArg.setConstraints(0, -1);
     parser.parseArgs(4, argv4);
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // make verbose mandatory
     verboseArg.setRequired(true);
     displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
     parser.parseArgs(4, argv4);
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // make it complain about missing argument
     const char *argv5[] = {"tageditor", "-i", "-f", "test"};
@@ -203,6 +223,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(4, argv5);
         CPPUNIT_FAIL("Exception expected.");
     } catch(const Failure &e) {
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" must be specified at least 1 time."));
     }
 
@@ -210,15 +231,58 @@ void ArgumentParserTests::testParsing()
     const char *argv6[] = {"tageditor", "-g"};
     displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
     parser.parseArgs(2, argv6);
+    CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // it should not be possible to specify -f without -i or -p
     const char *argv7[] = {"tageditor", "-f", "test"};
-    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
+    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset(), qtConfigArgs.qtWidgetsGuiArg().reset();
     try {
         parser.parseArgs(3, argv7);
         CPPUNIT_FAIL("Exception expected.");
     } catch(const Failure &e) {
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The specified argument \"-f\" is unknown and will be ignored."));
+    }
+
+    // test default argument
+    const char *argv8[] = {"tageditor"};
+    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
+    parser.parseArgs(1, argv8);
+    CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
+    CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
+    CPPUNIT_ASSERT(!verboseArg.isPresent());
+    CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(!filesArg.isPresent());
+    CPPUNIT_ASSERT(!fileArg.isPresent());
+
+    // test required value count constraint with sufficient number of provided parameters
+    qtConfigArgs.qtWidgetsGuiArg().reset();
+    fieldsArg.setRequiredValueCount(3);
+    verboseArg.setRequired(false);
+    parser.parseArgs(7, argv2);
+    // this should still work without complaints
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
+    CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
+    CPPUNIT_ASSERT(!verboseArg.isPresent());
+    CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(fieldsArg.isPresent());
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
+    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT(filesArg.isPresent());
+    CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
+
+    // test required value count constraint with insufficient number of provided parameters
+    displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();
+    fieldsArg.setRequiredValueCount(4);
+    const char *argv9[] = {"tageditor", "-p", "album", "title", "diskpos"};
+    try {
+        parser.parseArgs(5, argv9);
+        CPPUNIT_FAIL("Exception expected.");
+    } catch(const Failure &e) {
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
+        CPPUNIT_ASSERT(!strcmp(e.what(), "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"));
     }
 }
 
@@ -249,5 +313,4 @@ void ArgumentParserTests::testCallbacks()
     callbackArg.reset();
     const char *argv2[] = {"test", "-l", "val1", "val2"};
     parser.parseArgs(4, argv2);
-
 }
