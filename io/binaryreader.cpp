@@ -137,7 +137,6 @@ string BinaryReader::readString(size_t length)
 string BinaryReader::readTerminatedString(byte termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
-    // thrown ios_base::failure when badbit or failbit is set
     ss.exceptions(ios_base::badbit | ios_base::failbit);
     m_stream->get(*ss.rdbuf(), termination); // delim byte is not extracted from the stream
     m_stream->seekg(1, ios_base::cur); // "extract" delim byte manually
@@ -175,7 +174,6 @@ string BinaryReader::readTerminatedString(size_t maxBytesToRead, byte terminatio
 string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
-    // thrown ios_base::failure when badbit or failbit is set
     ss.exceptions(ios_base::badbit | ios_base::failbit);
     char *delimChars = m_buffer, *buff = m_buffer + 2;
     ConversionUtilities::BE::getBytes(termination, delimChars);
@@ -196,7 +194,6 @@ string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
 string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
-    // thrown ios_base::failure when badbit or failbit is set
     ss.exceptions(ios_base::badbit | ios_base::failbit);
     char *delimChars = m_buffer, *buff = m_buffer + 2;
     ConversionUtilities::LE::getBytes(termination, delimChars);

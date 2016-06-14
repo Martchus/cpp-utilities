@@ -6,6 +6,7 @@
 #include "../io/path.h"
 #include "../io/inifile.h"
 #include "../io/copy.h"
+#include "../io/catchiofailure.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
@@ -57,17 +58,27 @@ void IoTests::tearDown()
 /*!
  * \brief Tests for GCC Bug 66145.
  * \sa https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145
+ * \remarks Using workaround now; hence testing workaround instead.
  */
 void IoTests::testFailure()
 {
-    fstream stream;
-    stream.exceptions(ios_base::failbit | ios_base::badbit);
-    CPPUNIT_ASSERT_THROW(stream.open("path/to/file/which/does/not/exist", ios_base::in), ios_base::failure);
+    //fstream stream;
+    //stream.exceptions(ios_base::failbit | ios_base::badbit);
+    //CPPUNIT_ASSERT_THROW(stream.open("path/to/file/which/does/not/exist", ios_base::in), ios_base::failure);
     // check other exceptions used by my applications, too
     vector<int> testVec;
     map<string, string> testMap;
     CPPUNIT_ASSERT_THROW(testVec.at(1), out_of_range);
     CPPUNIT_ASSERT_THROW(testMap.at("test"), out_of_range);
+
+    // check workaround
+    try {
+        fstream stream;
+        stream.exceptions(ios_base::failbit | ios_base::badbit);
+        stream.open("path/to/file/which/does/not/exist", ios_base::in);
+    } catch(...) {
+        catchIoFailure();
+    }
 }
 
 /*!

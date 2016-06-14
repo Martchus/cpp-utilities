@@ -2,6 +2,7 @@
 
 #include "../application/failure.h"
 #include "../conversion/stringconversion.h"
+#include "../io/catchiofailure.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -13,6 +14,7 @@
 using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
+using namespace IoUtilities;
 
 /*!
  * \brief Contains classes and functions utilizing creating of test applications.
@@ -193,7 +195,8 @@ string TestApplication::workingCopyPath(const string &name) const
         workingCopy.open(path, ios_base::out | ios_base::binary | ios_base::trunc);
         workingCopy << origFile.rdbuf();
         return path;
-    } catch(const ios_base::failure &) {
+    } catch(...) {
+        catchIoFailure();
         cerr << "Unable to create working copy for \"" << name << "\": an IO error occured." << endl;
     }
     return string();

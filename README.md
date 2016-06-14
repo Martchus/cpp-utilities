@@ -68,8 +68,8 @@ The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files
 PKGBUILD files to build for Windows using the Mingw-w64 compiler are also included.
 
 ### Notes
-* Because of [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) usage of the new libstdc++ ABI
-  is currently disabled. Linking against cppunit built using new libstdc++ ABI isn't possible.
+* There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
+  in io/catchiofailure.h.
 
 ## TODO
 - remove unused features

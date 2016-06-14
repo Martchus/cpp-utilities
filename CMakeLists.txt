@@ -23,6 +23,7 @@ set(HEADER_FILES
     io/copy.h
     io/inifile.h
     io/path.h
+    io/catchiofailure.h
     math/math.h
     misc/memory.h
     misc/random.h
@@ -45,6 +46,7 @@ set(SRC_FILES
     io/bitreader.cpp
     io/inifile.cpp
     io/path.cpp
+    io/catchiofailure.cpp
     math/math.cpp
     misc/random.cpp
     tests/testutils.cpp

@@ -1,4 +1,5 @@
 #include "./bitreader.h"
+#include "./catchiofailure.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ void BitReader::skipBits(std::size_t bitCount)
         m_bitsAvail -= bitCount;
     } else {
         if((m_buffer += 1 + (bitCount -= m_bitsAvail) / 8) >= m_end) {
-            throw ios_base::failure("end of buffer exceeded");
+            throwIoFailure("end of buffer exceeded");
         }
         m_bitsAvail = 8 - (bitCount % 8);
     }

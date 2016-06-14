@@ -43,8 +43,11 @@ configure_file(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # disable new ABI (can't catch ios_base::failure with new ABI)
-add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-message(STATUS "Forcing usage of old CXX11 ABI to be able to catch std::ios_base::failure.")
+set(FORCE_OLD_ABI "no" CACHE STRING "specifies whether usage of old ABI should be forced")
+if(${FORCE_OLD_ABI} STREQUAL "yes")
+    add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+    message(STATUS "Forcing usage of old CXX11 ABI.")
+endif()
 
 # enable debug-only code when doing a debug build
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
