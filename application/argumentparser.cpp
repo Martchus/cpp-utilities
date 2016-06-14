@@ -521,7 +521,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     if(!matchingArg) {
                         // use the first default argument
                         for(Argument *arg : args) {
-                            if(arg->isImplicit()) {
+                            if(arg->isImplicit() && !arg->isPresent()) {
                                 (matchingArg = arg)->m_indices.push_back(index);
                                 break;
                             }
