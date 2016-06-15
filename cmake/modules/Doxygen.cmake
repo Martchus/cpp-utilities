@@ -50,6 +50,7 @@ else()
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc"
             DESTINATION "share/${META_PROJECT_NAME}"
             COMPONENT api-doc
+            OPTIONAL
     )
 
     if(NOT TARGET install-api-doc)
