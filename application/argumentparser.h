@@ -519,8 +519,7 @@ public:
     void printHelp(std::ostream &os) const;
     Argument *findArg(const ArgumentPredicate &predicate) const;
     static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
-    void parseArgs(int argc, char *argv[]);
-    void parseArgs(int argc, const char *argv[]);
+    void parseArgs(int argc, const char *const *argv);
     unsigned int actualArgumentCount() const;
     const char *executable() const;
     bool areUnknownArgumentsIgnored() const;
@@ -530,7 +529,7 @@ public:
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
-    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end, unsigned int level = 0);
+    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, unsigned int level = 0);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);
 
@@ -548,14 +547,6 @@ private:
 inline const ArgumentVector &ArgumentParser::mainArguments() const
 {
     return m_mainArgs;
-}
-
-/*!
- * \brief Parses the specified command line arguments.
- */
-inline void ArgumentParser::parseArgs(int argc, char *argv[])
-{
-    parseArgs(argc, const_cast<const char **>(argv));
 }
 
 /*!

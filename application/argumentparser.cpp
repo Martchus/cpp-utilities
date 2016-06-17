@@ -363,7 +363,7 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
  * \throws Throws Failure if the specified arguments violate the constraints defined
  *         by the Argument instances.
  */
-void ArgumentParser::parseArgs(int argc, const char *argv[])
+void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
     m_actualArgc = 0;
@@ -431,7 +431,7 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
  * \brief Reads the specified commands line arguments.
  * \remarks Results are stored in Argument instances added as main arguments and sub arguments.
  */
-void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char **&argv, const char **end, unsigned int level)
+void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, unsigned int level)
 {
     enum ArgumentDenotationType : unsigned char {
         Value = 0, // parameter value
