@@ -36,6 +36,15 @@ inline bool notEmpty(const char *str)
 /// \endcond
 
 /*!
+ * \brief The ArgumentDenotationType enum specifies the type of a given argument denotation.
+ */
+enum ArgumentDenotationType : unsigned char {
+    Value = 0, /**< parameter value */
+    Abbreviation = 1, /**< argument abbreviation */
+    FullName = 2 /**< full argument name */
+};
+
+/*!
  * \class ApplicationUtilities::Argument
  * \brief The Argument class is a wrapper for command line argument information.
  *
@@ -366,13 +375,15 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
 void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
-    m_actualArgc = 0;
+            m_actualArgc = 0;
     if(argc) {
         m_executable = *argv;
         if(--argc) {
             size_t index = 0;
             ++argv;
-            readSpecifiedArgs(m_mainArgs, index, argv, argv + argc);
+            vector<Argument *> path;
+            path.reserve(4);
+            readSpecifiedArgs(m_mainArgs, index, argv, argv + argc, path);
         } else {
             // no arguments specified -> set default argument as present
             if(m_defaultArg) {
@@ -431,14 +442,8 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
  * \brief Reads the specified commands line arguments.
  * \remarks Results are stored in Argument instances added as main arguments and sub arguments.
  */
-void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, unsigned int level)
+void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, std::vector<Argument *> &currentPath)
 {
-    enum ArgumentDenotationType : unsigned char {
-        Value = 0, // parameter value
-        Abbreviation = 1, // argument abbreviation
-        FullName = 2 // full argument name
-    };
-
     Argument *lastArg = nullptr;
     vector<const char *> *values = nullptr;
     while(argv != end) {
@@ -456,9 +461,10 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
             // try to find matching Argument instance
             Argument *matchingArg = nullptr;
+            size_t argDenLen;
             if(argDenotationType != Value) {
                 const char *const equationPos = strchr(argDenotation, '=');
-                for(const auto argDenLen = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); ; matchingArg = nullptr) {
+                for(argDenLen = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); ; matchingArg = nullptr) {
                     // search for arguments by abbreviation or name depending on the denotation type
                     if(argDenotationType == Abbreviation) {
                         for(Argument *arg : args) {
@@ -491,7 +497,9 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                         // read sub arguments if no abbreviated argument follows
                         ++index, ++m_actualArgc, lastArg = matchingArg;
                         if(argDenotationType != Abbreviation || (!*++argDenotation && argDenotation != equationPos)) {
-                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, level + 1);
+                            currentPath.push_back(matchingArg);
+                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, currentPath);
+                            currentPath.pop_back();
                             break;
                         } // else: another abbreviated argument follows
                     } else {
@@ -501,49 +509,67 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
             }
 
             if(!matchingArg) {
+                if(argDenotationType != Value) {
+                    // unknown argument might be a sibling of the parent element
+                    for(auto parentArgument = currentPath.crbegin(), end = currentPath.crend(); parentArgument != end; ) {
+                        for(Argument *sibling : (++parentArgument != end ? (*parentArgument)->subArguments() : m_mainArgs)) {
+                            if(sibling->occurrences() < sibling->maxOccurrences()) {
+                                if((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
+                                        || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenLen))) {
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if(lastArg && values->size() < lastArg->requiredValueCount()) {
-                    // treat unknown argument as parameter of last argument
+                    // unknown argument might just be a parameter of the last argument
                     values->emplace_back(abbreviationFound ? argDenotation : *argv);
                     ++index, ++argv;
                     continue;
-                } else {
-                    // first value might denote "operation"
-                    if(!level) {
-                        for(Argument *arg : args) {
-                            if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
-                                (matchingArg = arg)->m_indices.push_back(index);
-                                ++index, ++argv;
-                                break;
-                            }
-                        }
-                    }
+                }
 
-                    if(!matchingArg) {
-                        // use the first default argument
-                        for(Argument *arg : args) {
-                            if(arg->isImplicit() && !arg->isPresent()) {
-                                (matchingArg = arg)->m_indices.push_back(index);
-                                break;
-                            }
-                        }
-                    }
-                    if(matchingArg) {
-                        // an argument matched the specified denotation
-                        if(lastArg == matchingArg) {
+                // first value might denote "operation"
+                if(currentPath.empty()) {
+                    for(Argument *arg : args) {
+                        if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
+                            (matchingArg = arg)->m_indices.push_back(index);
+                            ++index, ++argv;
                             break;
-                        }                        
-
-                        // prepare reading parameter values
-                        matchingArg->m_values.emplace_back();
-                        values = &matchingArg->m_values.back();
-
-                        // read sub arguments if no abbreviated argument follows
-                        ++m_actualArgc, lastArg = matchingArg;
-                        readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, level + 1);
-                        continue;
+                        }
                     }
                 }
-                if(!level) {
+
+                if(!matchingArg) {
+                    // use the first default argument which is not already present
+                    for(Argument *arg : args) {
+                        if(arg->isImplicit() && !arg->isPresent()) {
+                            (matchingArg = arg)->m_indices.push_back(index);
+                            break;
+                        }
+                    }
+                }
+
+                if(matchingArg) {
+                    // an argument matched the specified denotation
+                    if(lastArg == matchingArg) {
+                        break;
+                    }
+
+                    // prepare reading parameter values
+                    matchingArg->m_values.emplace_back();
+                    values = &matchingArg->m_values.back();
+
+                    // read sub arguments
+                    ++m_actualArgc, lastArg = matchingArg;
+                    currentPath.push_back(matchingArg);
+                    readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, currentPath);
+                    currentPath.pop_back();
+                    continue;
+                }
+
+                if(currentPath.empty()) {
                     if(m_ignoreUnknownArgs) {
                         cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
                         ++index, ++argv;
