@@ -454,6 +454,11 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
         } else {
             // determine denotation type
             const char *argDenotation = *argv;
+            if(!*argDenotation && (!lastArg || values->size() >= lastArg->requiredValueCount())) {
+                // skip empty arguments
+                ++index, ++argv;
+                continue;
+            }
             bool abbreviationFound = false;
             unsigned char argDenotationType = Value;
             *argDenotation == '-' && (++argDenotation, ++argDenotationType)

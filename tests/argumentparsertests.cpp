@@ -126,10 +126,10 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
 
     // define the same arguments in a different way
-    const char *argv2[] = {"tageditor", "-p", "album", "title", "diskpos", "--file", "somefile"};
+    const char *argv2[] = {"tageditor", "", "-p", "album", "title", "diskpos", "", "--file", "somefile"};
     // reparse the args
     displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();
-    parser.parseArgs(7, argv2);
+    parser.parseArgs(9, argv2);
     // check results again
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -139,7 +139,8 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
-    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(3), ""));
+    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(4), out_of_range);
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
 
@@ -259,7 +260,7 @@ void ArgumentParserTests::testParsing()
     qtConfigArgs.qtWidgetsGuiArg().reset();
     fieldsArg.setRequiredValueCount(3);
     verboseArg.setRequired(false);
-    parser.parseArgs(7, argv2);
+    parser.parseArgs(9, argv2);
     // this should still work without complaints
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -269,7 +270,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
-    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), out_of_range);
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
 
