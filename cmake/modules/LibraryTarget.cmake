@@ -7,9 +7,20 @@ include(CMakePackageConfigHelpers)
 include(TemplateFinder)
 find_template_file("Config.cmake" CPP_UTILITIES CONFIG_TEMPLATE_FILE)
 
+# determine library directory suffix
+set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
+set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")
+set(LIB_SUFFIX_32 "" CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
+set(LIB_SUFFIX_64 "" CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
+if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT ${LIB_SUFFIX_64} STREQUAL "")
+    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_64}")
+elseif(CMAKE_SIZEOF_VOID_P MATCHES "4" AND NOT ${LIB_SUFFIX_32} STREQUAL "")
+    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_32}")
+endif()
+
 # set install destination for the CMake modules, config files and header files
 set(HEADER_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
-set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake")
 
@@ -96,9 +107,9 @@ install(
     TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
     RUNTIME DESTINATION bin
     COMPONENT binary
-    LIBRARY DESTINATION lib
+    LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
     COMPONENT binary
-    ARCHIVE DESTINATION lib
+    ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
     COMPONENT binary
 )
 
@@ -115,9 +126,9 @@ if(${BUILD_STATIC_LIBS} STREQUAL "yes")
         TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
         RUNTIME DESTINATION bin
         COMPONENT binary
-        LIBRARY DESTINATION lib
+        LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
         COMPONENT binary
-        ARCHIVE DESTINATION lib
+        ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
         COMPONENT binary
     )
 endif(${BUILD_STATIC_LIBS} STREQUAL "yes")
