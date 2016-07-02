@@ -29,6 +29,9 @@ if(NOT META_PROJECT_VARNAME_UPPER)
     string(TOUPPER ${META_PROJECT_VARNAME} META_PROJECT_VARNAME_UPPER)
 endif()
 
+# set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
+set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+
 # find config.h template
 include(TemplateFinder)
 find_template_file("config.h" CPP_UTILITIES CONFIG_H_TEMPLATE_FILE)
