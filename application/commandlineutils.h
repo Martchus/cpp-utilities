@@ -5,6 +5,9 @@
 
 namespace ApplicationUtilities {
 
+/*!
+ * \brief The Response enum is used to specify the default response for the confirmPrompt() method.
+ */
 enum class Response
 {
     None,
