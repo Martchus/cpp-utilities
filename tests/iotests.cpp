@@ -13,6 +13,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 using namespace IoUtilities;
@@ -224,9 +225,27 @@ void IoTests::testBitReader()
 void IoTests::testPathUtilities()
 {
     CPPUNIT_ASSERT(fileName("/usr/lib/libc++utilities.so") == "libc++utilities.so");
+    CPPUNIT_ASSERT(directory("/usr/lib/libc++utilities.so") == "/usr/lib/");
+    CPPUNIT_ASSERT(directory("libc++utilities.so").empty());
     string invalidPath("lib/c++uti*lities.so?");
     removeInvalidChars(invalidPath);
     CPPUNIT_ASSERT(invalidPath == "libc++utilities.so");
+#ifdef PLATFORM_UNIX
+    const string iniFilePath = TestUtilities::testFilePath("test.ini");
+    const string testFilesDir = iniFilePath.substr(0, iniFilePath.size() - 9);
+    auto testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::All);
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") != testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") != testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") != testFilesDirEntries.cend());
+    testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::Directory);
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") == testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") != testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") != testFilesDirEntries.cend());
+    testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::File);
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") != testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") == testFilesDirEntries.cend());
+    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") == testFilesDirEntries.cend());
+#endif
 }
 
 /*!

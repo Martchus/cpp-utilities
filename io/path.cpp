@@ -8,20 +8,21 @@
 #include <fstream>
 #include <cstdlib>
 #ifdef PLATFORM_UNIX
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <pwd.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <pwd.h>
+# include <dirent.h>
 #else
-#ifdef PLATFORM_WINDOWS
-#ifdef UNICODE
-#undef UNICODE
-#endif
-#ifdef _UNICODE
-#undef _UNICODE
-#endif
-#include <windows.h>
-#endif
+# ifdef PLATFORM_WINDOWS
+#  ifdef UNICODE
+#   undef UNICODE
+#  endif
+#  ifdef _UNICODE
+#   undef _UNICODE
+#  endif
+#  include <windows.h>
+# endif
 #endif
 
 using namespace std;
@@ -37,15 +38,36 @@ string fileName(const string &path)
     size_t lastSlash = path.rfind('/');
     size_t lastBackSlash = path.rfind('\\');
     size_t lastSeparator;
-    if(lastSlash == string::npos && lastBackSlash == string::npos)
+    if(lastSlash == string::npos && lastBackSlash == string::npos) {
         return path;
-    else if(lastSlash == string::npos)
+    } else if(lastSlash == string::npos) {
         lastSeparator = lastBackSlash;
-    else if(lastBackSlash == string::npos)
+    } else if(lastBackSlash == string::npos) {
         lastSeparator = lastSlash;
-    else
+    } else {
         lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
+    }
     return path.substr(lastSeparator + 1);
+}
+
+/*!
+ * \brief Returns the directory of the specified \a path string (including trailing slash).
+ */
+string directory(const string &path)
+{
+    size_t lastSlash = path.rfind('/');
+    size_t lastBackSlash = path.rfind('\\');
+    size_t lastSeparator;
+    if(lastSlash == string::npos && lastBackSlash == string::npos) {
+        return string();
+    } else if(lastSlash == string::npos) {
+        lastSeparator = lastBackSlash;
+    } else if(lastBackSlash == string::npos) {
+        lastSeparator = lastSlash;
+    } else {
+        lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
+    }
+    return path.substr(0, lastSeparator + 1);
 }
 
 /*!
@@ -156,6 +178,41 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
 #endif
     }
     return true;
+}
+
+/*!
+ * \brief Returns the names of the directory entries in the specified \a path with the specified \a types.
+ */
+std::list<std::string> directoryEntries(const char *path, DirectoryEntryType types)
+{
+#ifdef PLATFORM_UNIX
+    list<string> entries;
+    if(auto dir = opendir(path)) {
+        while(auto dirEntry = readdir(dir)) {
+            bool filter = false;
+            switch(dirEntry->d_type) {
+            case DT_REG:
+                filter = (types & DirectoryEntryType::File) != DirectoryEntryType::None;
+                break;
+            case DT_DIR:
+                filter = (types & DirectoryEntryType::Directory) != DirectoryEntryType::None;
+                break;
+            case DT_LNK:
+                filter = (types & DirectoryEntryType::Symlink) != DirectoryEntryType::None;
+                break;
+            default:
+                filter = (types & DirectoryEntryType::All) != DirectoryEntryType::None;
+            }
+            if(filter) {
+                entries.emplace_back(dirEntry->d_name);
+            }
+        }
+        closedir(dir);
+    }
+    return entries;
+#else
+    return list<string>(); // TODO
+#endif
 }
 
 }
