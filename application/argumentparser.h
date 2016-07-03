@@ -10,6 +10,8 @@
 # include <cassert>
 #endif
 
+class ArgumentParserTests;
+
 namespace ApplicationUtilities {
 
 LIB_EXPORT extern const char *applicationName;
@@ -30,7 +32,64 @@ typedef std::initializer_list<Argument *> ArgumentInitializerList;
 typedef std::vector<Argument *> ArgumentVector;
 typedef std::function<bool (Argument *)> ArgumentPredicate;
 
+/*!
+ * \brief The UnknownArgumentBehavior enum specifies the behavior of the argument parser when an unknown
+ *        argument is detected.
+ */
+enum class UnknownArgumentBehavior
+{
+    Ignore, /**< Unknown arguments are ignored without warnings. */
+    Warn, /**< A warning is printed to std::cerr if an unknown argument is detected. */
+    Fail /**< Further parsing is aborted and an ApplicationUtilities::Failure instance with an error message is thrown. */
+};
+
+/*!
+ * \brief The ValueCompletionBehavior enum specifies the items to be considered when generating completion for an argument value.
+ */
+enum class ValueCompletionBehavior : unsigned char
+{
+    None = 0,
+    PreDefinedValues = 2,
+    Files = 4,
+    Directories = 8,
+    FileSystemIfNoPreDefinedValues = 16,
+    AppendEquationSign = 32
+};
+
+constexpr ValueCompletionBehavior operator|(ValueCompletionBehavior lhs, ValueCompletionBehavior rhs)
+{
+    return static_cast<ValueCompletionBehavior>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+}
+
+constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rhs)
+{
+    return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
+}
+
 Argument LIB_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
+
+struct LIB_EXPORT ArgumentOccurance
+{
+    ArgumentOccurance(std::size_t index);
+    ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
+
+    std::size_t index;
+    std::vector<const char *> values;
+    std::vector<Argument *> path;
+};
+
+inline ArgumentOccurance::ArgumentOccurance(std::size_t index) :
+    index(index)
+{}
+
+inline ArgumentOccurance::ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent) :
+    index(index),
+    path(parentPath)
+{
+    if(parent) {
+        path.push_back(parent);
+    }
+}
 
 class LIB_EXPORT Argument
 {
@@ -59,10 +118,11 @@ public:
     bool allRequiredValuesPresent(std::size_t occurrance = 0) const;
     bool isPresent() const;
     std::size_t occurrences() const;
-    const std::vector<std::size_t> &indices() const;
+    std::size_t index(std::size_t occurrance) const;
     std::size_t minOccurrences() const;
     std::size_t maxOccurrences() const;
     void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
+    const std::vector<Argument *> &path(std::size_t occurrance = 0) const;
     bool isRequired() const;
     void setRequired(bool required);
     bool isCombinable() const;
@@ -80,6 +140,10 @@ public:
     const ArgumentVector parents() const;
     bool isMainArgument() const;
     bool isParentPresent() const;
+    ValueCompletionBehavior valueCompletionBehaviour() const;
+    void setValueCompletionBehavior(ValueCompletionBehavior valueCompletionBehaviour);
+    const char *preDefinedCompletionValues() const;
+    void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
     Argument *conflictsWithArgument() const;
     void reset();
 
@@ -95,12 +159,47 @@ private:
     std::size_t m_requiredValueCount;
     std::vector<const char *> m_valueNames;
     bool m_implicit;
-    std::vector<std::size_t> m_indices;
-    std::vector<std::vector<const char *> > m_values;
+    std::vector<ArgumentOccurance> m_occurances;
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
     bool m_isMainArg;
+    ValueCompletionBehavior m_valueCompletionBehavior;
+    const char *m_preDefinedCompletionValues;
+};
+
+class LIB_EXPORT ArgumentParser
+{
+    friend ArgumentParserTests;
+public:
+    ArgumentParser();
+
+    const ArgumentVector &mainArguments() const;
+    void setMainArguments(const ArgumentInitializerList &mainArguments);
+    void addMainArgument(Argument *argument);
+    void printHelp(std::ostream &os) const;
+    Argument *findArg(const ArgumentPredicate &predicate) const;
+    static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
+    void parseArgs(int argc, const char *const *argv);
+    unsigned int actualArgumentCount() const;
+    const char *executable() const;
+    UnknownArgumentBehavior unknownArgumentBehavior() const;
+    void setUnknownArgumentBehavior(UnknownArgumentBehavior behavior);
+    Argument *defaultArgument() const;
+    void setDefaultArgument(Argument *argument);
+
+private:
+    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
+    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, bool completionMode = false);
+    void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const Argument *lastDetectedArg);
+    void checkConstraints(const ArgumentVector &args);
+    void invokeCallbacks(const ArgumentVector &args);
+
+    ArgumentVector m_mainArgs;
+    unsigned int m_actualArgc;
+    const char *m_executable;
+    UnknownArgumentBehavior m_unknownArgBehavior;
+    Argument *m_defaultArg;
 };
 
 /*!
@@ -207,7 +306,7 @@ inline void Argument::setExample(const char *example)
  */
 inline const std::vector<const char *> &Argument::values(std::size_t occurrance) const
 {
-    return m_values[occurrance];
+    return m_occurances[occurrance].values;
 }
 
 /*!
@@ -292,7 +391,7 @@ inline void Argument::appendValueName(const char *valueName)
 inline bool Argument::allRequiredValuesPresent(std::size_t occurrance) const
 {
     return m_requiredValueCount == static_cast<std::size_t>(-1)
-            || (m_values[occurrance].size() >= static_cast<std::size_t>(m_requiredValueCount));
+            || (m_occurances[occurrance].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
 /*!
@@ -318,7 +417,7 @@ inline void Argument::setImplicit(bool implicit)
  */
 inline bool Argument::isPresent() const
 {
-    return !m_indices.empty();
+    return !m_occurances.empty();
 }
 
 /*!
@@ -326,15 +425,15 @@ inline bool Argument::isPresent() const
  */
 inline std::size_t Argument::occurrences() const
 {
-    return m_indices.size();
+    return m_occurances.size();
 }
 
 /*!
  * \brief Returns the indices of the argument's occurences which could be detected when parsing.
  */
-inline const std::vector<std::size_t> &Argument::indices() const
+inline std::size_t Argument::index(std::size_t occurrance) const
 {
-    return m_indices;
+    return m_occurances[occurrance].index;
 }
 
 /*!
@@ -366,6 +465,14 @@ inline void Argument::setConstraints(std::size_t minOccurrences, std::size_t max
 {
     m_minOccurrences = minOccurrences;
     m_maxOccurrences = maxOccurrences;
+}
+
+/*!
+ * \brief Returns the path of the specified \a occurrance.
+ */
+inline const std::vector<Argument *> &Argument::path(std::size_t occurrance) const
+{
+    return m_occurances[occurrance].path;
 }
 
 /*!
@@ -508,37 +615,45 @@ inline bool Argument::isMainArgument() const
     return m_isMainArg;
 }
 
-class LIB_EXPORT ArgumentParser
+/*!
+ * \brief Returns the items to be considered when generating completion for the values.
+ */
+inline ValueCompletionBehavior Argument::valueCompletionBehaviour() const
 {
-public:
-    ArgumentParser();
+    return m_valueCompletionBehavior;
+}
 
-    const ArgumentVector &mainArguments() const;
-    void setMainArguments(const ArgumentInitializerList &mainArguments);
-    void addMainArgument(Argument *argument);
-    void printHelp(std::ostream &os) const;
-    Argument *findArg(const ArgumentPredicate &predicate) const;
-    static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
-    void parseArgs(int argc, const char *const *argv);
-    unsigned int actualArgumentCount() const;
-    const char *executable() const;
-    bool areUnknownArgumentsIgnored() const;
-    void setIgnoreUnknownArguments(bool ignore);
-    Argument *defaultArgument() const;
-    void setDefaultArgument(Argument *argument);
+/*!
+ * \brief Sets the items to be considered when generating completion for the values.
+ */
+inline void Argument::setValueCompletionBehavior(ValueCompletionBehavior completionValues)
+{
+    m_valueCompletionBehavior = completionValues;
+}
 
-private:
-    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
-    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, std::vector<Argument *> &currentPath);
-    void checkConstraints(const ArgumentVector &args);
-    void invokeCallbacks(const ArgumentVector &args);
+/*!
+ * \brief Returns the assigned values used when generating completion for the values.
+ */
+inline const char *Argument::preDefinedCompletionValues() const
+{
+    return m_preDefinedCompletionValues;
+}
 
-    ArgumentVector m_mainArgs;
-    unsigned int m_actualArgc;
-    const char *m_executable;
-    bool m_ignoreUnknownArgs;
-    Argument *m_defaultArg;
-};
+/*!
+ * \brief Assignes the values to be used when generating completion for the values.
+ */
+inline void Argument::setPreDefinedCompletionValues(const char *preDefinedCompletionValues)
+{
+    m_preDefinedCompletionValues = preDefinedCompletionValues;
+}
+
+/*!
+ * \brief Resets occurrences (indices, values and paths).
+ */
+inline void Argument::reset()
+{
+    m_occurances.clear();
+}
 
 /*!
  * \brief Returns the main arguments.
@@ -566,35 +681,23 @@ inline const char *ArgumentParser::executable() const
 }
 
 /*!
- * \brief Returns an indication whether unknown arguments detected
- *        when parsing should be ignored.
+ * \brief Returns how unknown arguments are treated.
  *
- * If unknown arguments are not ignored the parser will throw a
- * Failure when an unknown argument is detected.
- * Otherwise only a warning will be shown.
- *
- * The default value is false.
- *
- * \sa setIgnoreUnknownArguments()
+ * The default value is UnknownArgumentBehavior::Fail.
  */
-inline bool ArgumentParser::areUnknownArgumentsIgnored() const
+inline UnknownArgumentBehavior ArgumentParser::unknownArgumentBehavior() const
 {
-    return m_ignoreUnknownArgs;
+    return m_unknownArgBehavior;
 }
 
 /*!
- * \brief Sets whether the parser should ignore unknown arguments
- *        when parsing.
+ * \brief Sets how unknown arguments are treated.
  *
- * If set to false the parser should throw a Failure object
- * when an unknown argument is found. Otherwise only a warning
- * will be printed.
- *
- * \sa areUnknownArgumentsIgnored()
+ * The default value is UnknownArgumentBehavior::Fail.
  */
-inline void ArgumentParser::setIgnoreUnknownArguments(bool ignore)
+inline void ArgumentParser::setUnknownArgumentBehavior(UnknownArgumentBehavior behavior)
 {
-    m_ignoreUnknownArgs = ignore;
+    m_unknownArgBehavior = behavior;
 }
 
 /*!

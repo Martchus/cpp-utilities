@@ -3,17 +3,21 @@
 #include "./failure.h"
 
 #include "../conversion/stringconversion.h"
-#include "../misc/random.h"
+#include "../io/path.h"
 
 #include <algorithm>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <cstring>
+#ifdef LOGGING_ENABLED
+# include <fstream>
+#endif
 
 using namespace std;
 using namespace std::placeholders;
 using namespace ConversionUtilities;
+using namespace IoUtilities;
 
 /*!
  *  \namespace ApplicationUtilities
@@ -71,7 +75,9 @@ Argument::Argument(const char *name, char abbreviation, const char *description,
     m_denotesOperation(false),
     m_requiredValueCount(0),
     m_implicit(false),
-    m_isMainArg(false)
+    m_isMainArg(false),
+    m_valueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::Files | ValueCompletionBehavior::Directories | ValueCompletionBehavior::FileSystemIfNoPreDefinedValues),
+    m_preDefinedCompletionValues(nullptr)
 {}
 
 /*!
@@ -231,15 +237,6 @@ Argument *Argument::conflictsWithArgument() const
 }
 
 /*!
- * \brief Resets occurrences and values.
- */
-void Argument::reset()
-{
-    m_indices.clear();
-    m_values.clear();
-}
-
-/*!
  * \class ApplicationUtilities::ArgumentParser
  * \brief The ArgumentParser class provides a means for handling command line arguments.
  *
@@ -258,7 +255,7 @@ void Argument::reset()
 ArgumentParser::ArgumentParser() :
     m_actualArgc(0),
     m_executable(nullptr),
-    m_ignoreUnknownArgs(false),
+    m_unknownArgBehavior(UnknownArgumentBehavior::Fail),
     m_defaultArg(nullptr)
 {}
 
@@ -374,21 +371,57 @@ Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const Argumen
  */
 void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
+#ifdef LOGGING_ENABLED
+    {
+        fstream logFile("/tmp/args.log", ios_base::out);
+        for(const char *const *i = argv, *const *end = argv + argc; i != end; ++i) {
+            logFile << *i << '\n';
+        }
+    }
+#endif
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
             m_actualArgc = 0;
     if(argc) {
+        // the first argument is the executable name
         m_executable = *argv;
+
+        // check for further arguments
         if(--argc) {
+            // if the first argument (after executable name) is "--bash-completion-for" bash completion for the following arguments is requested
+            bool completionMode = !strcmp(*++argv, "--bash-completion-for");
+            unsigned int currentWordIndex;
+            if(completionMode) {
+                // the first argument after "--bash-completion-for" is the index of the current word
+                try {
+                    currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
+                    ++argv, --argc;
+                } catch(const ConversionException &) {
+                    currentWordIndex = argc - 1;
+                }
+            }
+
+            // those variables are modified by readSpecifiedArgs() and reflect the current reading position
             size_t index = 0;
-            ++argv;
-            vector<Argument *> path;
-            path.reserve(4);
-            readSpecifiedArgs(m_mainArgs, index, argv, argv + argc, path);
+            Argument *lastDetectedArgument = nullptr;
+
+            // read specified arguments
+            try {
+                const char *const *argv2 = argv;
+                readSpecifiedArgs(m_mainArgs, index, argv2, argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), lastDetectedArgument, completionMode);
+            } catch(const Failure &) {
+                if(!completionMode) {
+                    throw;
+                }
+            }
+
+            if(completionMode) {
+                printBashCompletion(argc, argv, currentWordIndex, lastDetectedArgument);
+                exit(0); // prevent the applicaton to continue with the regular execution
+            }
         } else {
-            // no arguments specified -> set default argument as present
+            // no arguments specified -> flag default argument as present if one is assigned
             if(m_defaultArg) {
-                m_defaultArg->m_indices.push_back(0);
-                m_defaultArg->m_values.emplace_back();
+                m_defaultArg->m_occurances.emplace_back(0);
             }
         }
         checkConstraints(m_mainArgs);
@@ -442,19 +475,21 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
  * \brief Reads the specified commands line arguments.
  * \remarks Results are stored in Argument instances added as main arguments and sub arguments.
  */
-void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, std::vector<Argument *> &currentPath)
+void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, bool completionMode)
 {
-    Argument *lastArg = nullptr;
+    Argument *const parentArg = lastArg;
+    const vector<Argument *> &parentPath = parentArg ? parentArg->path(parentArg->occurrences() - 1) : vector<Argument *>();
+    Argument *lastArgInLevel = nullptr;
     vector<const char *> *values = nullptr;
     while(argv != end) {
-        if(values && lastArg->requiredValueCount() != static_cast<size_t>(-1) && values->size() < lastArg->requiredValueCount()) {
+        if(values && lastArgInLevel->requiredValueCount() != static_cast<size_t>(-1) && values->size() < lastArgInLevel->requiredValueCount()) {
             // there are still values to read
             values->emplace_back(*argv);
             ++index, ++argv;
         } else {
             // determine denotation type
             const char *argDenotation = *argv;
-            if(!*argDenotation && (!lastArg || values->size() >= lastArg->requiredValueCount())) {
+            if(!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
                 // skip empty arguments
                 ++index, ++argv;
                 continue;
@@ -469,7 +504,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
             size_t argDenLen;
             if(argDenotationType != Value) {
                 const char *const equationPos = strchr(argDenotation, '=');
-                for(argDenLen = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); ; matchingArg = nullptr) {
+                for(argDenLen = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); argDenLen; matchingArg = nullptr) {
                     // search for arguments by abbreviation or name depending on the denotation type
                     if(argDenotationType == Abbreviation) {
                         for(Argument *arg : args) {
@@ -481,7 +516,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                         }
                     } else {
                         for(Argument *arg : args) {
-                            if(arg->name() && !strncmp(arg->name(), argDenotation, argDenLen)) {
+                            if(arg->name() && !strncmp(arg->name(), argDenotation, argDenLen) && *(arg->name() + argDenLen) == '\0') {
                                 matchingArg = arg;
                                 break;
                             }
@@ -490,21 +525,18 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                     if(matchingArg) {
                         // an argument matched the specified denotation
-                        matchingArg->m_indices.push_back(index);
+                        matchingArg->m_occurances.emplace_back(index, parentPath, parentArg);
 
                         // prepare reading parameter values
-                        matchingArg->m_values.emplace_back();
-                        values = &matchingArg->m_values.back();
+                        values = &matchingArg->m_occurances.back().values;
                         if(equationPos) {
                             values->push_back(equationPos + 1);
                         }
 
                         // read sub arguments if no abbreviated argument follows
-                        ++index, ++m_actualArgc, lastArg = matchingArg;
+                        ++index, ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
                         if(argDenotationType != Abbreviation || (!*++argDenotation && argDenotation != equationPos)) {
-                            currentPath.push_back(matchingArg);
-                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, currentPath);
-                            currentPath.pop_back();
+                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, lastArg, completionMode);
                             break;
                         } // else: another abbreviated argument follows
                     } else {
@@ -516,8 +548,8 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
             if(!matchingArg) {
                 if(argDenotationType != Value) {
                     // unknown argument might be a sibling of the parent element
-                    for(auto parentArgument = currentPath.crbegin(), end = currentPath.crend(); parentArgument != end; ) {
-                        for(Argument *sibling : (++parentArgument != end ? (*parentArgument)->subArguments() : m_mainArgs)) {
+                    for(auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend(); ; ++parentArgument) {
+                        for(Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : m_mainArgs)) {
                             if(sibling->occurrences() < sibling->maxOccurrences()) {
                                 if((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
                                         || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenLen))) {
@@ -525,10 +557,13 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                                 }
                             }
                         }
-                    }
+                        if(parentArgument == pathEnd) {
+                            break;
+                        }
+                    };
                 }
 
-                if(lastArg && values->size() < lastArg->requiredValueCount()) {
+                if(lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
                     // unknown argument might just be a parameter of the last argument
                     values->emplace_back(abbreviationFound ? argDenotation : *argv);
                     ++index, ++argv;
@@ -536,21 +571,21 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                 }
 
                 // first value might denote "operation"
-                if(currentPath.empty()) {
+                if(!index) {
                     for(Argument *arg : args) {
                         if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
-                            (matchingArg = arg)->m_indices.push_back(index);
+                            (matchingArg = arg)->m_occurances.emplace_back(index, parentPath, parentArg);
                             ++index, ++argv;
                             break;
                         }
                     }
                 }
 
-                if(!matchingArg) {
+                if(!matchingArg && (!completionMode || (argv + 1 != end))) {
                     // use the first default argument which is not already present
                     for(Argument *arg : args) {
                         if(arg->isImplicit() && !arg->isPresent()) {
-                            (matchingArg = arg)->m_indices.push_back(index);
+                            (matchingArg = arg)->m_occurances.emplace_back(index, parentPath, parentArg);
                             break;
                         }
                     }
@@ -558,28 +593,33 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                 if(matchingArg) {
                     // an argument matched the specified denotation
-                    if(lastArg == matchingArg) {
-                        break;
+                    if(lastArgInLevel == matchingArg) {
+                        break; // TODO: why?
                     }
 
                     // prepare reading parameter values
-                    matchingArg->m_values.emplace_back();
-                    values = &matchingArg->m_values.back();
+                    values = &matchingArg->m_occurances.back().values;
 
                     // read sub arguments
-                    ++m_actualArgc, lastArg = matchingArg;
-                    currentPath.push_back(matchingArg);
-                    readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, currentPath);
-                    currentPath.pop_back();
+                    ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
+                    readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, lastArg, completionMode);
                     continue;
                 }
 
-                if(currentPath.empty()) {
-                    if(m_ignoreUnknownArgs) {
-                        cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
+                if(!parentArg) {
+                    if(completionMode) {
                         ++index, ++argv;
                     } else {
-                        throw Failure("The specified argument \"" + string(*argv) + "\" is unknown and will be ignored.");
+                        switch(m_unknownArgBehavior) {
+                        case UnknownArgumentBehavior::Warn:
+                            cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
+                            FALLTHROUGH;
+                        case UnknownArgumentBehavior::Ignore:
+                            ++index, ++argv;
+                            break;
+                        case UnknownArgumentBehavior::Fail:
+                            throw Failure("The specified argument \"" + string(*argv) + "\" is unknown and will be ignored.");
+                        }
                     }
                 } else {
                     return; // unknown argument name or abbreviation found -> continue with parent level
@@ -587,6 +627,293 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
             }
         }
     }
+}
+/*!
+ * \brief Returns whether \a arg1 should be listed before \a arg2 when
+ *        printing completion.
+ *
+ * Arguments are sorted by name (ascending order). However, all arguments
+ * denoting an operation are listed before all other arguments.
+ */
+bool compareArgs(const Argument *arg1, const Argument *arg2)
+{
+    if(arg1->denotesOperation() && !arg2->denotesOperation()) {
+        return true;
+    } else if(!arg1->denotesOperation() && arg2->denotesOperation()) {
+        return false;
+    } else {
+        return strcmp(arg1->name(), arg2->name()) < 0;
+    }
+}
+
+/*!
+ * \brief Inserts the specified \a siblings in the \a target list.
+ * \remarks Only inserts siblings which could still occur at least once more.
+ */
+void insertSiblings(const ArgumentVector &siblings, list<const Argument *> &target)
+{
+    bool onlyCombinable = false;
+    for(const Argument *sibling : siblings) {
+        if(sibling->isPresent() && !sibling->isCombinable()) {
+            onlyCombinable = true;
+            break;
+        }
+    }
+    for(const Argument *sibling : siblings) {
+        if((!onlyCombinable || sibling->isCombinable()) && sibling->occurrences() < sibling->maxOccurrences()) {
+            target.push_back(sibling);
+        }
+    }
+}
+
+/*!
+ * \brief Prints the bash completion for the specified arguments and the specified \a lastPath.
+ * \remarks Arguments must have been parsed before with readSpecifiedArgs(). When calling this method, completionMode must
+ *          be set to true.
+ */
+void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const Argument *lastDetectedArg)
+{
+    // variables to store relevant completions (arguments, pre-defined values, files/dirs)
+    list<const Argument *> relevantArgs, relevantPreDefinedValues;
+    bool completeFiles = false, completeDirs = false, noWhitespace = false;
+
+    // get the last argument the argument parser was able to detect successfully
+    size_t lastDetectedArgIndex;
+    vector<Argument *> lastDetectedArgPath;
+    if(lastDetectedArg) {
+        lastDetectedArgIndex = lastDetectedArg->index(lastDetectedArg->occurrences() - 1);
+        lastDetectedArgPath = lastDetectedArg->path(lastDetectedArg->occurrences() - 1);
+    }
+
+    bool nextArgumentOrValue;
+    const char *const *lastSpecifiedArg;
+    unsigned int lastSpecifiedArgIndex;
+    if(argc) {
+        // determine last arg omitting trailing empty args
+        lastSpecifiedArgIndex = static_cast<unsigned int>(argc) - 1;
+        lastSpecifiedArg = argv + lastSpecifiedArgIndex;
+        for(; lastSpecifiedArg >= argv && **lastSpecifiedArg == '\0'; --lastSpecifiedArg, --lastSpecifiedArgIndex);
+    }
+
+    if(lastDetectedArg && lastDetectedArg->isPresent()) {
+        if((nextArgumentOrValue = currentWordIndex > lastDetectedArgIndex)) {
+            // parameter values of the last arg are possible completions
+            auto currentValueCount = lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size();
+            if(currentValueCount) {
+                currentValueCount -= (currentWordIndex - lastDetectedArgIndex);
+            }
+            if(lastDetectedArg->requiredValueCount() == static_cast<size_t>(-1) || (currentValueCount < lastDetectedArg->requiredValueCount())) {
+                if(lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::PreDefinedValues) {
+                    relevantPreDefinedValues.push_back(lastDetectedArg);
+                }
+                if(!(lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::FileSystemIfNoPreDefinedValues) || !lastDetectedArg->preDefinedCompletionValues()) {
+                    completeFiles = completeFiles || lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::Files;
+                    completeDirs = completeDirs || lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::Directories;
+                }
+            }
+
+            if(lastDetectedArg->requiredValueCount() == static_cast<size_t>(-1) || lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size() >= lastDetectedArg->requiredValueCount()) {
+                // sub arguments of the last arg are possible completions
+                for(const Argument *subArg : lastDetectedArg->subArguments()) {
+                    if(subArg->occurrences() < subArg->maxOccurrences()) {
+                        relevantArgs.push_back(subArg);
+                    }
+                }
+
+                // siblings of parents are possible completions as well
+                for(auto parentArgument = lastDetectedArgPath.crbegin(), end = lastDetectedArgPath.crend(); ; ++parentArgument) {
+                    insertSiblings(parentArgument != end ? (*parentArgument)->subArguments() : m_mainArgs, relevantArgs);
+                    if(parentArgument == end) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            // since the argument could be detected (hopefully unambiguously?) just return it for "final completion"
+            relevantArgs.push_back(lastDetectedArg);
+        }
+
+    } else {
+        nextArgumentOrValue = true;
+        insertSiblings(m_mainArgs, relevantArgs);
+    }
+
+    // read the "opening" (started but not finished argument denotation)
+    const char *opening = nullptr;
+    size_t openingLen;
+    unsigned char openingDenotationType = Value;
+    if(argc && nextArgumentOrValue) {
+        opening = (currentWordIndex < argc ? argv[currentWordIndex] : *lastSpecifiedArg);
+        *opening == '-' && (++opening, ++openingDenotationType)
+                && *opening == '-' && (++opening, ++openingDenotationType);
+        openingLen = strlen(opening);
+    }
+
+    relevantArgs.sort(compareArgs);
+
+    // print "COMPREPLY" bash array
+    cout << "COMPREPLY=(";
+    // -> completions for parameter values
+    for(const Argument *arg : relevantPreDefinedValues) {
+        if(arg->preDefinedCompletionValues()) {
+            bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
+            if(argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+                if(openingDenotationType == Value) {
+                    bool wordStart = true, ok = false;
+                    for(const char *i = arg->preDefinedCompletionValues(), *end = opening + openingLen; *i;) {
+                        if(wordStart) {
+                            const char *i1 = i, *i2 = opening;
+                            for(; *i1 && i2 != end && *i1 == *i2; ++i1, ++i2);
+                            ok = (i2 == end);
+                            wordStart = false;
+                        } else {
+                            wordStart = (*i == ' ') || (*i == '\n');
+                        }
+                        if(ok) {
+                            cout << *i;
+                            ++i;
+                            if(appendEquationSign) {
+                                switch(*i) {
+                                case ' ': case '\n': case '\0':
+                                    cout << '=';
+                                    noWhitespace = true;
+                                }
+                            }
+                        } else {
+                            ++i;
+                        }
+                    }
+                    cout << ' ';
+                }
+            } else if(appendEquationSign) {
+                for(const char *i = arg->preDefinedCompletionValues(); *i;) {
+                    cout << *i;
+                    switch(*(++i)) {
+                    case ' ': case '\n': case '\0':
+                        cout << '=';
+                    }
+                }
+            } else {
+                cout << arg->preDefinedCompletionValues() << ' ';
+            }
+        }
+    }
+    // -> completions for further arguments
+    for(const Argument *arg : relevantArgs) {
+        if(argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+            switch(openingDenotationType) {
+            case Value:
+                if(!arg->denotesOperation() || strncmp(arg->name(), opening, openingLen)) {
+                    continue;
+                }
+                break;
+            case Abbreviation:
+                break;
+            case FullName:
+                if(strncmp(arg->name(), opening, openingLen)) {
+                    continue;
+                }
+            }
+        }
+
+        if(openingDenotationType == Abbreviation && opening) {
+            cout << '-' << opening << arg->abbreviation() << ' ';
+        } else if(arg->denotesOperation() && (!actualArgumentCount() || (currentWordIndex == 0 && (!lastDetectedArg || (lastDetectedArg->isPresent() && lastDetectedArgIndex == 0))))) {
+            cout << arg->name() << ' ';
+        } else {
+            cout << '-' << '-' << arg->name() << ' ';
+        }
+    }
+    // -> completions for files and dirs
+    // -> if there's already an "opening", determine the dir part and the file part
+    string actualDir, actualFile;
+    bool haveFileOrDirCompletions = false;
+    if(argc && currentWordIndex == lastSpecifiedArgIndex && opening) {
+        // the "opening" might contain escaped characters which need to be unescaped first
+        string unescapedOpening(opening);
+        findAndReplace<string>(unescapedOpening, "\\ ", " ");
+        findAndReplace<string>(unescapedOpening, "\\,", ",");
+        findAndReplace<string>(unescapedOpening, "\\[", "[");
+        findAndReplace<string>(unescapedOpening, "\\]", "]");
+        findAndReplace<string>(unescapedOpening, "\\!", "!");
+        findAndReplace<string>(unescapedOpening, "\\#", "#");
+        findAndReplace<string>(unescapedOpening, "\\$", "$");
+        // determine the "directory" part
+        string dir = directory(unescapedOpening);
+        if(dir.empty()) {
+            actualDir = ".";
+        } else {
+            if(dir[0] == '\"' || dir[0] == '\'') {
+                dir.erase(0, 1);
+            }
+            if(dir.size() > 1 && (dir[dir.size() - 2] == '\"' || dir[dir.size() - 2] == '\'')) {
+                dir.erase(dir.size() - 2, 1);
+            }
+            actualDir = move(dir);
+        }
+        // determine the "file" part
+        string file = fileName(unescapedOpening);
+        if(file[0] == '\"' || file[0] == '\'') {
+            file.erase(0, 1);
+        }
+        if(file.size() > 1 && (file[dir.size() - 2] == '\"' || dir[file.size() - 2] == '\'')) {
+            file.erase(file.size() - 2, 1);
+        }
+        actualFile = move(file);
+    }
+    // -> completion for files
+    if(completeFiles) {
+        if(argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+            for(const string &dirEntry : directoryEntries(actualDir.c_str(), DirectoryEntryType::File)) {
+                if(startsWith(dirEntry, actualFile)) {
+                    cout << '\'';
+                    if(actualDir != ".") {
+                        cout << actualDir;
+                    }
+                    cout << dirEntry << '\'' << ' ';
+                    haveFileOrDirCompletions = true;
+                }
+            }
+        } else {
+            for(const string &dirEntry : directoryEntries(".", DirectoryEntryType::File)) {
+                cout << dirEntry << ' ';
+                haveFileOrDirCompletions = true;
+            }
+        }
+    }
+    // -> completion for dirs
+    if(completeDirs) {
+        if(argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+            for(const string &dirEntry : directoryEntries(actualDir.c_str(), DirectoryEntryType::Directory)) {
+                if(startsWith(dirEntry, actualFile)) {
+                    cout << '\'';
+                    if(actualDir != ".") {
+                        cout << actualDir;
+                    }
+                    cout << dirEntry << '\'' << ' ';
+                    haveFileOrDirCompletions = true;
+                }
+            }
+        } else {
+            for(const string &dirEntry : directoryEntries(".", DirectoryEntryType::Directory)) {
+                cout << '\'' << dirEntry << '/' << '\'' << ' ';
+                haveFileOrDirCompletions = true;
+            }
+        }
+    }
+    cout << ')';
+
+    // ensure file or dir completions are formatted appropriately
+    if(haveFileOrDirCompletions) {
+        cout << "; compopt -o filenames";
+    }
+
+    // ensure trailing whitespace is ommitted
+    if(noWhitespace) {
+        cout << "; compopt -o nospace";
+    }
+
+    cout << endl;
 }
 
 /*!
@@ -652,8 +979,8 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
     for(const Argument *arg : args) {
         // invoke the callback for each occurance of the argument
         if(arg->m_callbackFunction) {
-            for(const auto &valuesOfOccurance : arg->m_values) {
-                arg->m_callbackFunction(valuesOfOccurance);
+            for(const auto &occurance : arg->m_occurances) {
+                arg->m_callbackFunction(occurance.values);
             }
         }
         // invoke the callbacks for sub arguments recursively

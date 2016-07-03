@@ -4,8 +4,8 @@
 #include <iostream>
 
 #ifdef PLATFORM_WINDOWS
-#include <windows.h>
-#include <fcntl.h>
+# include <windows.h>
+# include <fcntl.h>
 #endif
 
 using namespace std;

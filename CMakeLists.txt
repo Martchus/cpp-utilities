@@ -72,12 +72,14 @@ set(CMAKE_MODULE_FILES
     cmake/modules/TemplateFinder.cmake
     cmake/modules/Doxygen.cmake
     cmake/modules/ListToString.cmake
+    cmake/modules/ShellCompletion.cmake
 )
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/Config.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
     cmake/templates/doxygen.in
+    cmake/templates/bash-completion.sh.in
 )
 if(MINGW)
     list(APPEND CMAKE_TEMPLATE_FILES
