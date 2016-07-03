@@ -57,3 +57,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG_BUILD)
     message(STATUS "Debug build enabled.")
 endif()
+
+# enable logging when option is set
+set(LOGGING_ENABLED "no" CACHE STRING "specifies whether logging is enabled")
+if(${LOGGING_ENABLED} STREQUAL "yes")
+    add_definitions(-DLOGGING_ENABLED)
+endif()
