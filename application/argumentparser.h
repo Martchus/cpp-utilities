@@ -96,7 +96,7 @@ class LIB_EXPORT Argument
     friend class ArgumentParser;
 
 public:
-    typedef std::function <void (const std::vector<const char *> &)> CallbackFunction;
+    typedef std::function <void (const ArgumentOccurance &)> CallbackFunction;
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();

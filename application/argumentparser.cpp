@@ -980,7 +980,7 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
         // invoke the callback for each occurance of the argument
         if(arg->m_callbackFunction) {
             for(const auto &occurance : arg->m_occurances) {
-                arg->m_callbackFunction(occurance.values);
+                arg->m_callbackFunction(occurance);
             }
         }
         // invoke the callbacks for sub arguments recursively
@@ -1000,7 +1000,7 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
 HelpArgument::HelpArgument(ArgumentParser &parser) :
     Argument("help", 'h', "shows this information")
 {
-    setCallback([&parser] (const std::vector<const char *> &) {
+    setCallback([&parser] (const ArgumentOccurance &) {
         CMD_UTILS_START_CONSOLE;
         parser.printHelp(cout);
     });
