@@ -1,14 +1,14 @@
-set(SHELL_COMPLETION_ENABLED "yes" CACHE STRING "controls whether shell completion is enabled")
-set(BASH_COMPLETION_ENABLED "yes" CACHE STRING "controls whether bash completion is enabled")
+option(SHELL_COMPLETION_ENABLED "controls whether shell completion is enabled in general" ON)
+option(BASH_COMPLETION_ENABLED "controls whether shell completion for bash is enabled" ON)
 
-if(${SHELL_COMPLETION_ENABLED} STREQUAL "yes")
+if(SHELL_COMPLETION_ENABLED)
 
     if(NOT COMPLETION_META_PROJECT_NAME)
         set(COMPLETION_META_PROJECT_NAME ${META_PROJECT_NAME})
     endif()
 
     # add bash completion (currently the only supported shell completion)
-    if(${BASH_COMPLETION_ENABLED} STREQUAL "yes")
+    if(BASH_COMPLETION_ENABLED)
         # find bash-completion.sh template
         include(TemplateFinder)
         find_template_file("bash-completion.sh" CPP_UTILITIES BASH_COMPLETION_TEMPLATE_FILE)
@@ -30,6 +30,8 @@ if(${SHELL_COMPLETION_ENABLED} STREQUAL "yes")
                 COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=bash-completion -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
             )
         endif()
+
+        message(STATUS "Generating files for bash completion.")
     endif()
 
 endif()

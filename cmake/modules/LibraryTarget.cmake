@@ -55,21 +55,24 @@ if(MINGW)
 endif(MINGW)
 
 # add target for building the library
-add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
-target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${LIBRARIES})
-set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
-    VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}
-    SOVERSION ${META_VERSION_MAJOR}
-    CXX_STANDARD 11
-)
+option(BUILD_SHARED_LIBS "whether to build dynamic libraries (enabled by default)" ON)
+if(BUILD_SHARED_LIBS)
+    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
+    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${LIBRARIES})
+    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
+        VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}
+        SOVERSION ${META_VERSION_MAJOR}
+        CXX_STANDARD 11
+    )
+endif()
 
 # add target for building a static version of the library
 if(MINGW)
-    set(BUILD_STATIC_LIBS "yes" CACHE STRING "specifies whether to build static libraries (enabled by default on mingw-w64 platform)")
+    option(BUILD_STATIC_LIBS "whether to build static libraries (enabled by default on mingw-w64 platform)" ON)
 else()
-    set(BUILD_STATIC_LIBS "no" CACHE STRING "specifies whether to build static libraries (disabled by default on none-mingw-w64- platform)")
+    option(BUILD_STATIC_LIBS "whether to build static libraries (disabled by default on none-mingw-w64- platform)" OFF)
 endif()
-if(${BUILD_STATIC_LIBS} STREQUAL "yes")
+if(BUILD_STATIC_LIBS)
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     # add target link libraries for the static lib also because otherwise Qt header files can not be located
     target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${LIBRARIES})
@@ -79,10 +82,7 @@ if(${BUILD_STATIC_LIBS} STREQUAL "yes")
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
     )
-elseif(${BUILD_STATIC_LIBS} STREQUAL "no")
-else()
-    message(FATAL_ERROR "The specification whether to build static libs or not is invalid.")
-endif(${BUILD_STATIC_LIBS} STREQUAL "yes")
+endif()
 
 # add install target for the CMake config files
 install(
@@ -103,15 +103,17 @@ if(NOT TARGET install-cmake-config)
 endif()
 
 # add install target for dynamic libs
-install(
-    TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-    RUNTIME DESTINATION bin
-    COMPONENT binary
-    LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
-    COMPONENT binary
-    ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
-    COMPONENT binary
-)
+if(BUILD_SHARED_LIBS)
+    install(
+        TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        RUNTIME DESTINATION bin
+        COMPONENT binary
+        LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
+        COMPONENT binary
+        ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
+        COMPONENT binary
+    )
+endif()
 
 if(NOT TARGET install-binary)
     add_custom_target(install-binary
@@ -121,7 +123,7 @@ if(NOT TARGET install-binary)
 endif()
 
 # add install for static libs when building with mingw-w64
-if(${BUILD_STATIC_LIBS} STREQUAL "yes")
+if(BUILD_STATIC_LIBS)
     install(
         TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
         RUNTIME DESTINATION bin
@@ -131,7 +133,7 @@ if(${BUILD_STATIC_LIBS} STREQUAL "yes")
         ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
         COMPONENT binary
     )
-endif(${BUILD_STATIC_LIBS} STREQUAL "yes")
+endif()
 
 # add install target for stripped libs
 if(NOT TARGET install-binary-strip)

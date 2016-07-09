@@ -46,8 +46,8 @@ configure_file(
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # disable new ABI (can't catch ios_base::failure with new ABI)
-set(FORCE_OLD_ABI "no" CACHE STRING "specifies whether usage of old ABI should be forced")
-if(${FORCE_OLD_ABI} STREQUAL "yes")
+option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
+if(FORCE_OLD_ABI)
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
     message(STATUS "Forcing usage of old CXX11 ABI.")
 endif()
@@ -59,7 +59,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # enable logging when option is set
-set(LOGGING_ENABLED "no" CACHE STRING "specifies whether logging is enabled")
-if(${LOGGING_ENABLED} STREQUAL "yes")
+option(LOGGING_ENABLED "specifies whether logging is enabled" OFF)
+if(LOGGING_ENABLED)
     add_definitions(-DLOGGING_ENABLED)
+    message(STATUS "Logging is enabled.")
 endif()
