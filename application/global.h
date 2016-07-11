@@ -68,10 +68,22 @@
 
 /*!
  * \def DECLARE_ENUM
- * \brief Forward-declares enums without preventing lupdate to parse the file correctly.
+ * \brief Declares an enum without preventing lupdate to parse the file correctly.
  */
 
-#define DECLARE_ENUM(name, base) enum class name : base;
+#define DECLARE_ENUM(name, base) enum name : base
+
+/*!
+ * \def DECLARE_ENUM_CLASS
+ * \brief Declares an enum without preventing lupdate to parse the file correctly.
+ */
+
+#define DECLARE_ENUM_CLASS(name, base) enum class name : base
+
+/*!
+ * \def VAR_UNUSED
+ * \brief Prevents warnings about unused variables.
+ */
 
 #define VAR_UNUSED(x) (void)x;
 
