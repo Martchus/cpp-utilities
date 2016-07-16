@@ -68,20 +68,46 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
 
 Argument LIB_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
 
+/*!
+ * \brief The ArgumentOccurance struct holds argument values for an occurance of an argument.
+ */
 struct LIB_EXPORT ArgumentOccurance
 {
     ArgumentOccurance(std::size_t index);
     ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
 
+    /*!
+     * \brief The index of the occurance. This is not necessarily the index in the argv array.
+     */
     std::size_t index;
+
+    /*!
+     * \brief The parameter values which have been specified after the occurance of the argument.
+     */
     std::vector<const char *> values;
+
+    /*!
+     * \brief The "path" of the occurance (the parent elements which have been specified before).
+     * \remarks Empty for top-level occurances.
+     */
     std::vector<Argument *> path;
 };
 
+/*!
+ * \brief Constructs an argument occurance for the specified \a index.
+ */
 inline ArgumentOccurance::ArgumentOccurance(std::size_t index) :
     index(index)
 {}
 
+/*!
+ * \brief Constructs an argument occurance.
+ * \param index Specifies the index.
+ * \param parentPath Specifies the path of \a parent.
+ * \param parent Specifies the parent which might be nullptr for top-level occurances.
+ *
+ * The path of the new occurance is built from the specified \a parentPath and \a parent.
+ */
 inline ArgumentOccurance::ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent) :
     index(index),
     path(parentPath)
@@ -105,11 +131,14 @@ public:
     void setName(const char *name);
     char abbreviation() const;
     void setAbbreviation(char abbreviation);
+    const char *environmentVariable() const;
+    void setEnvironmentVariable(const char *environmentVariable);
     const char *description() const;
     void setDescription(const char *description);
     const char *example() const;
     void setExample(const char *example);
     const std::vector<const char *> &values(std::size_t occurrance = 0) const;
+    const char *firstValue() const;
     std::size_t requiredValueCount() const;
     void setRequiredValueCount(std::size_t requiredValueCount);
     const std::vector<const char *> &valueNames() const;
@@ -150,6 +179,7 @@ public:
 private:
     const char *m_name;
     char m_abbreviation;
+    const char *m_environmentVar;
     const char *m_description;
     const char *m_example;
     std::size_t m_minOccurrences;
@@ -260,6 +290,24 @@ inline void Argument::setAbbreviation(char abbreviation)
 }
 
 /*!
+ * \brief Returns the environment variable queried when firstValue() is called.
+ * \sa firstValue(), setEnvironmentVariable()
+ */
+inline const char *Argument::environmentVariable() const
+{
+    return m_environmentVar;
+}
+
+/*!
+ * \brief Sets the environment variable queried when firstValue() is called.
+ * \sa firstValue(), environmentVariable()
+ */
+inline void Argument::setEnvironmentVariable(const char *environmentVariable)
+{
+    m_environmentVar = environmentVariable;
+}
+
+/*!
  * \brief Returns the description of the argument.
  *
  * The parser uses the description when printing help information.
@@ -300,9 +348,10 @@ inline void Argument::setExample(const char *example)
 }
 
 /*!
- * \brief Returns the additional values for the argument.
- *
- * These values set by the parser when parsing the command line arguments.
+ * \brief Returns the parameter values for the specified \a occurrance of argument.
+ * \remarks
+ *  - The values are set by the parser when parsing the command line arguments.
+ *  - The specified \a occurance must be less than occurrences().
  */
 inline const std::vector<const char *> &Argument::values(std::size_t occurrance) const
 {

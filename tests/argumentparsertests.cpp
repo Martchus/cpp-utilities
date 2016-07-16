@@ -12,6 +12,7 @@
 #include <cppunit/TestFixture.h>
 
 #include <cstring>
+#include <cstdlib>
 
 using namespace std;
 using namespace ApplicationUtilities;
@@ -64,7 +65,14 @@ void ArgumentParserTests::testArgument()
     argument.addSubArgument(&subArg);
     CPPUNIT_ASSERT_EQUAL(subArg.parents().at(0), &argument);
     CPPUNIT_ASSERT(!subArg.conflictsWithArgument());
-
+    CPPUNIT_ASSERT(!argument.firstValue());
+    argument.setEnvironmentVariable("PATH");
+    if(getenv("PATH")) {
+        CPPUNIT_ASSERT(argument.firstValue());
+        CPPUNIT_ASSERT(!strcmp(argument.firstValue(), getenv("PATH")));
+    } else {
+        CPPUNIT_ASSERT(!argument.firstValue());
+    }
 }
 
 /*!
@@ -82,6 +90,7 @@ void ArgumentParserTests::testParsing()
     Argument fileArg("file", 'f', "specifies the path of the file to be opened");
     fileArg.setValueNames({"path"});
     fileArg.setRequiredValueCount(1);
+    fileArg.setEnvironmentVariable("PATH");
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
     filesArg.setValueNames({"path 1", "path 2"});
     filesArg.setRequiredValueCount(-1);
@@ -259,6 +268,12 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(!fileArg.isPresent());
+    if(getenv("PATH")) {
+        CPPUNIT_ASSERT(fileArg.firstValue());
+        CPPUNIT_ASSERT(!strcmp(fileArg.firstValue(), getenv("PATH")));
+    } else {
+        CPPUNIT_ASSERT(!fileArg.firstValue());
+    }
 
     // test required value count constraint with sufficient number of provided parameters
     qtConfigArgs.qtWidgetsGuiArg().reset();

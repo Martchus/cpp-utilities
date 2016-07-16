@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <cstdlib>
 #ifdef LOGGING_ENABLED
 # include <fstream>
 #endif
@@ -67,6 +68,7 @@ enum ArgumentDenotationType : unsigned char {
 Argument::Argument(const char *name, char abbreviation, const char *description, const char *example) :
     m_name(name),
     m_abbreviation(abbreviation),
+    m_environmentVar(nullptr),
     m_description(description),
     m_example(example),
     m_minOccurrences(0),
@@ -87,11 +89,29 @@ Argument::~Argument()
 {}
 
 /*!
- * \brief Appends the name, the abbreviation and the description of the Argument to the give ostream.
+ * \brief Returns the first parameter value of the first occurance of the argument.
+ * \remarks
+ * - If the argument is not present and the an environment variable has been set
+ *   using setEnvironmentVariable() the value of the specified variable will be returned.
+ * - Returns nullptr if no value is available though.
+ */
+const char *Argument::firstValue() const
+{
+    if(!m_occurances.empty() && !m_occurances.front().values.empty()) {
+        return m_occurances.front().values.front();
+    } else if(m_environmentVar) {
+        return getenv(m_environmentVar);
+    } else {
+        return nullptr;
+    }
+}
+
+/*!
+ * \brief Writes the name, the abbreviation and other information about the Argument to the give ostream.
  */
 void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
 {
-    for(unsigned char i = 0; i < indentionLevel; ++i) os << "  ";
+    for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
     if(notEmpty(name())) {
         os << '-' << '-' << name();
     }
@@ -101,7 +121,7 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
     if(abbreviation()) {
         os << '-' << abbreviation();
     }
-    if(requiredValueCount() != 0) {
+    if(requiredValueCount()) {
         unsigned int valueNamesPrint = 0;
         for(auto i = valueNames().cbegin(), end = valueNames().cend(); i != end && valueNamesPrint < requiredValueCount(); ++i) {
             os << ' ' << '[' << *i << ']';
@@ -307,7 +327,7 @@ void ArgumentParser::addMainArgument(Argument *argument)
 }
 
 /*!
- * \brief Prints help information for all main arguments which have been set using setMainArguments().
+ * \brief Prints help text for all assigned arguments.
  */
 void ArgumentParser::printHelp(ostream &os) const
 {
