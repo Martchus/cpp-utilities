@@ -10,6 +10,9 @@ if(HAS_PARENT)
     set(${META_PROJECT_VARNAME}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
     set(${META_PROJECT_VARNAME}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
     set(${META_PROJECT_NAME}_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+    if(CMAKE_FIND_ROOT_PATH AND MINGW)
+        set(RUNTIME_LIBRARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" ${RUNTIME_LIBRARY_PATH} PARENT_SCOPE)
+    endif()
 endif()
 
 # stringify the meta data
@@ -50,6 +53,8 @@ option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
 if(FORCE_OLD_ABI)
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
     message(STATUS "Forcing usage of old CXX11 ABI.")
+else()
+    message(STATUS "Using default CXX11 ABI (not forcing old CX11 ABI).")
 endif()
 
 # enable debug-only code when doing a debug build

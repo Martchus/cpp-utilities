@@ -33,7 +33,7 @@ if(MINGW)
         "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc"
     )
     # set windres as resource compiler
-    set(RES_FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc")
+    list(APPEND RES_FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc")
     set(CMAKE_RC_COMPILER_INIT windres)
     set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
     enable_language(RC)

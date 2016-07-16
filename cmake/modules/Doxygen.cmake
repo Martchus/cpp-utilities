@@ -17,6 +17,7 @@ if(DOT_BIN)
 else()
     set(HAVE_DOT "NO")
 endif()
+
 if(NOT DOXYGEN_BIN)
     message(WARNING "Doxygen not found, unable to add target for generating API documentation.")
 

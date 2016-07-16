@@ -69,6 +69,10 @@ TestApplication::TestApplication(int argc, char **argv) :
     // parse arguments
     try {
         m_parser.parseArgs(argc, argv);
+        if(m_helpArg.isPresent()) {
+            m_valid = false;
+            exit(0);
+        }
         cerr << "Directories used to search for testfiles:" << endl;
         if(m_testFilesPathArg.isPresent()) {
             if(*m_testFilesPathArg.values().front()) {
