@@ -355,33 +355,6 @@ void ArgumentParser::printHelp(ostream &os) const
 }
 
 /*!
- * \brief Returns the first argument definition which matches the predicate.
- *
- * The search includes all assigned main argument definitions and their sub arguments.
- */
-Argument *ArgumentParser::findArg(const ArgumentPredicate &predicate) const
-{
-    return findArg(m_mainArgs, predicate);
-}
-
-/*!
- * \brief Returns the first argument definition which matches the predicate.
- *
- * The search includes all provided \a arguments and their sub arguments.
- */
-Argument *ArgumentParser::findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate)
-{
-    for(Argument *arg : arguments) {
-        if(predicate(arg)) {
-            return arg; // argument matches
-        } else if(Argument *subarg = findArg(arg->subArguments(), predicate)) {
-            return subarg; // a secondary argument matches
-        }
-    }
-    return nullptr; // no argument matches
-}
-
-/*!
  * \brief Parses the specified command line arguments.
  * \remarks
  *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.

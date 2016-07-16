@@ -208,8 +208,6 @@ public:
     void setMainArguments(const ArgumentInitializerList &mainArguments);
     void addMainArgument(Argument *argument);
     void printHelp(std::ostream &os) const;
-    Argument *findArg(const ArgumentPredicate &predicate) const;
-    static Argument *findArg(const ArgumentVector &arguments, const ArgumentPredicate &predicate);
     void parseArgs(int argc, const char *const *argv);
     unsigned int actualArgumentCount() const;
     const char *executable() const;
