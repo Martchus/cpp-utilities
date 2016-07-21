@@ -25,27 +25,6 @@ set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake")
 
-# create the CMake config file from the template
-configure_package_config_file(
-    "${CONFIG_TEMPLATE_FILE}"
-    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
-    INSTALL_DESTINATION
-        "${CMAKE_CONFIG_INSTALL_DESTINATION}"
-    PATH_VARS
-        CMAKE_MODULE_INSTALL_DESTINATION
-        CMAKE_CONFIG_INSTALL_DESTINATION
-        HEADER_INSTALL_DESTINATION
-        BIN_INSTALL_DESTINATION
-        LIB_INSTALL_DESTINATION
-)
-
-# write the CMake version config file
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}ConfigVersion.cmake
-    VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
-    COMPATIBILITY SameMajorVersion
-)
-
 # remove library prefix when building with mingw-w64 (just for consistency with qmake)
 if(MINGW)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
@@ -77,14 +56,36 @@ endif()
 if(BUILD_STATIC_LIBS)
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     # add target link libraries for the static lib also because otherwise Qt header files can not be located
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${LIBRARIES})
+    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${STATIC_LIBRARIES})
     set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static PROPERTIES
         VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}
         SOVERSION ${META_VERSION_MAJOR}
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
     )
+    set(META_LIB_DEPENDS ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS}) # used in config file
 endif()
+
+# create the CMake config file from the template
+configure_package_config_file(
+    "${CONFIG_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION
+        "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+    PATH_VARS
+        CMAKE_MODULE_INSTALL_DESTINATION
+        CMAKE_CONFIG_INSTALL_DESTINATION
+        HEADER_INSTALL_DESTINATION
+        BIN_INSTALL_DESTINATION
+        LIB_INSTALL_DESTINATION
+)
+
+# write the CMake version config file
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}ConfigVersion.cmake
+    VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+    COMPATIBILITY SameMajorVersion
+)
 
 # add install target for the CMake config files
 install(

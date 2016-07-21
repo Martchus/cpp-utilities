@@ -1,9 +1,9 @@
 # before including this module, BasicConfig must be included
 
-# set the windows extension to "exe", this is required by the mingw-w64 specific WindowsResources module
-if(MINGW)
+# set the windows extension to "exe", this is required by the Windows specific WindowsResources module
+if(WIN32)
     set(WINDOWS_EXT "exe")
-endif(MINGW)
+endif(WIN32)
 
 # add target for building the application
 add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})

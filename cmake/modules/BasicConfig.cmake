@@ -69,3 +69,7 @@ if(LOGGING_ENABLED)
     add_definitions(-DLOGGING_ENABLED)
     message(STATUS "Logging is enabled.")
 endif()
+
+# options for forcing static linkage when building applications or dynamic libraries
+option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
+option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
