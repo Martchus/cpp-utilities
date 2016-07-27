@@ -3,6 +3,8 @@
 
 #include <memory>
 
+/// \cond
+
 #if __cplusplus <= 201103L
 #define __cpp_lib_make_unique 201304
 namespace std {
@@ -36,6 +38,8 @@ namespace std {
     make_unique(_Args&&...) = delete;
 }
 #endif
+
+/// \endcond
 
 #endif // MEMORY_H
 

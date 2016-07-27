@@ -72,7 +72,7 @@ namespace ConversionUtilities
 {
 
 /*!
- * \brief Encapsulates functions using the big endian byte order.
+ * \brief Encapsulates binary conversion functions using the big endian byte order.
  * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
  */
 namespace BE {
@@ -88,7 +88,7 @@ namespace BE {
 }
 
 /*!
- * \brief Encapsulates functions using the little endian byte order.
+ * \brief Encapsulates binary conversion functions using the little endian byte order.
  * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
  */
 namespace LE {

@@ -6,7 +6,8 @@
 #include <ostream>
 
 /*!
- * \brief Encapsulates ANSI escape codes.
+ * \brief Encapsulates functions for formatted terminal output using ANSI escape codes.
+ * \remarks The functions haven't been tested yet and are still experimental. API/ABI might change in next minor release.
  */
 namespace EscapeCodes {
 
