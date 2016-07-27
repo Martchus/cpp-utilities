@@ -106,6 +106,10 @@ set(META_VERSION_MAJOR 4)
 set(META_VERSION_MINOR 0)
 set(META_VERSION_PATCH 0)
 
+# find required 3rd party libraries
+include(3rdParty)
+find_iconv(AUTO_LINKAGE REQUIRED)
+
 # include modules to apply configuration
 include(BasicConfig)
 include(WindowsResources)
