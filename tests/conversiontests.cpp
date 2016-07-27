@@ -1,5 +1,6 @@
 #include "../conversion/binaryconversion.h"
 #include "../conversion/stringconversion.h"
+#include "../tests/testutils.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
@@ -11,6 +12,7 @@
 
 using namespace std;
 using namespace ConversionUtilities;
+using namespace TestUtilities;
 
 using namespace CPPUNIT_NS;
 
@@ -23,6 +25,7 @@ class ConversionTests : public TestFixture
     CPPUNIT_TEST(testEndianness);
     CPPUNIT_TEST(testBinaryConversions);
     CPPUNIT_TEST(testSwapOrderFunctions);
+    CPPUNIT_TEST(testStringEncodingConversions);
     CPPUNIT_TEST(testStringConversions);
     CPPUNIT_TEST_SUITE_END();
 
@@ -35,6 +38,7 @@ public:
     void testEndianness();
     void testBinaryConversions();
     void testSwapOrderFunctions();
+    void testStringEncodingConversions();
     void testStringConversions();
 
 private:
@@ -157,7 +161,70 @@ void ConversionTests::testSwapOrderFunctions()
 }
 
 /*!
- * \brief Tests most important string conversions.
+ * \brief Internally used for string encoding tests to check results.
+ */
+void assertEqual(const char *message, const byte *expectedValues, size_t expectedSize, const pair<unique_ptr<char[], StringDataDeleter>, size_t> &actualValues)
+{
+    // check whether number of elements matches
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(message, expectedSize, actualValues.second);
+    // check whether contents match
+    auto *end = expectedValues + expectedSize;
+    auto *i = reinterpret_cast<byte *>(actualValues.first.get());
+    for(; expectedValues != end; ++expectedValues, ++i) {
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(message, asHexNumber(*expectedValues), asHexNumber(*i));
+    }
+}
+
+#if CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN == true
+# define LE_STR_FOR_ENDIANNESS(name) name ## LE ## String
+# define BE_STR_FOR_ENDIANNESS(name) name ## BE ## String
+#elif CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN == true
+# define LE_STR_FOR_ENDIANNESS(name) name ## BE ## String
+# define BE_STR_FOR_ENDIANNESS(name) name ## LE ## String
+#endif
+
+/*!
+ * \def LE_STR_FOR_ENDIANNESS
+ * \brief Selects right string for little-endian checks.
+ */
+
+/*!
+ * \def BE_STR_FOR_ENDIANNESS
+ * \brief Selects right string for big-endian checks.
+ */
+
+/*!
+ * \brief Tests string encoding conversions.
+ */
+void ConversionTests::testStringEncodingConversions()
+{
+    // define test string "ABCD" for the different encodings
+    const byte simpleString[] = {'A', 'B', 'C', 'D'};
+    const uint16 simpleUtf16LEString[] = {0x0041, 0x0042, 0x0043, 0x0044};
+    const uint16 simpleUtf16BEString[] = {0x4100, 0x4200, 0x4300, 0x4400};
+    // define test string "ABÖCD" for the different encodings
+    const byte latin1String[] = {'A', 'B', 0xD6, 'C', 'D'};
+    const byte utf8String[] = {'A', 'B', 0xC3, 0x96, 'C', 'D'};
+    const uint16 utf16LEString[] = {0x0041, 0x0042, 0x00D6, 0x0043, 0x0044};
+    const uint16 utf16BEString[] = {0x4100, 0x4200, 0xD600, 0x4300, 0x4400};
+    // test conversion to UTF-8
+    assertEqual("Latin-1 to UTF-8 (simple)", simpleString, 4, convertLatin1ToUtf8(reinterpret_cast<const char *>(simpleString), 4));
+    assertEqual("Latin-1 to UTF-8", utf8String, 6, convertLatin1ToUtf8(reinterpret_cast<const char *>(latin1String), 5));
+    assertEqual("UTF-16LE to UTF-8 (simple)", simpleString, 4, convertUtf16LEToUtf8(reinterpret_cast<const char *>(LE_STR_FOR_ENDIANNESS(simpleUtf16)), 8));
+    assertEqual("UTF-16LE to UTF-8", utf8String, 6, convertUtf16LEToUtf8(reinterpret_cast<const char *>(LE_STR_FOR_ENDIANNESS(utf16)), 10));
+    assertEqual("UTF-16BE to UTF-8 (simple)", simpleString, 4, convertUtf16BEToUtf8(reinterpret_cast<const char *>(BE_STR_FOR_ENDIANNESS(simpleUtf16)), 8));
+    assertEqual("UTF-16BE to UTF-8", utf8String, 6, convertUtf16BEToUtf8(reinterpret_cast<const char *>(BE_STR_FOR_ENDIANNESS(utf16)), 10));
+    // test conversion from UTF-8
+    assertEqual("UTF-8 to Latin-1 (simple)", simpleString, 4, convertUtf8ToLatin1(reinterpret_cast<const char *>(simpleString), 4));
+    assertEqual("UTF-8 to Latin-1", latin1String, 5, convertUtf8ToLatin1(reinterpret_cast<const char *>(utf8String), 6));
+    assertEqual("UTF-8 to UFT-16LE (simple)", reinterpret_cast<const byte *>(LE_STR_FOR_ENDIANNESS(simpleUtf16)), 8, convertUtf8ToUtf16LE(reinterpret_cast<const char *>(simpleString), 4));
+    assertEqual("UTF-8 to UFT-16LE", reinterpret_cast<const byte *>(LE_STR_FOR_ENDIANNESS(utf16)), 10, convertUtf8ToUtf16LE(reinterpret_cast<const char *>(utf8String), 6));
+    assertEqual("UTF-8 to UFT-16BE (simple)", reinterpret_cast<const byte *>(BE_STR_FOR_ENDIANNESS(simpleUtf16)), 8, convertUtf8ToUtf16BE(reinterpret_cast<const char *>(simpleString), 4));
+    assertEqual("UTF-8 to UFT-16BE", reinterpret_cast<const byte *>(BE_STR_FOR_ENDIANNESS(utf16)), 10, convertUtf8ToUtf16BE(reinterpret_cast<const char *>(utf8String), 6));
+}
+
+/*!
+ * \brief Tests miscellaneous string conversions.
  */
 void ConversionTests::testStringConversions()
 {

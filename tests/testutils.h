@@ -4,6 +4,7 @@
 #include "../application/argumentparser.h"
 
 #include <string>
+#include <ostream>
 
 namespace TestUtilities {
 
@@ -90,6 +91,42 @@ inline LIB_EXPORT std::string workingCopyPath(const std::string &name)
     return TestApplication::instance()->workingCopyPath(name);
 }
 #endif
+
+/*!
+ * \brief The AsHexNumber class allows printing values asserted with cppunit (or similar test framework) using the
+ *        hex system in the error case.
+ */
+template <typename T> class AsHexNumber
+{
+public:
+    /// \brief Constructs a new instance; use asHexNumber() for convenience instead.
+    AsHexNumber(const T &value) : value(value) {}
+    const T &value;
+};
+
+/*!
+ * \brief Provides operator == required by CPPUNIT_ASSERT_EQUAL.
+ */
+template <typename T> bool operator==(const AsHexNumber<T> &lhs, const AsHexNumber<T> &rhs)
+{
+    return lhs.value == rhs.value;
+}
+
+/*!
+ * \brief Provides the actual formatting of the output for AsHexNumber class.
+ */
+template <typename T> std::ostream &operator<< (std::ostream &out, const AsHexNumber<T> &value)
+{
+    return out << std::hex << '0' << 'x' << unsigned(value.value) << std::dec;
+}
+
+/*!
+ * \brief Wraps the value to be printed using the hex system.
+ */
+template <typename T> AsHexNumber<T> asHexNumber(const T &value)
+{
+    return AsHexNumber<T>(value);
+}
 
 }
 

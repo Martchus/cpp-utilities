@@ -7,6 +7,7 @@ The library utilizes:
 * dealing with dates and times
 * conversion of primitive data types to byte-buffers and vice versa (litte-endian and big-endian)
 * common string conversions/operations, eg.
+ - character set conversion via iconv
  - split, join, find and replace
  - conversion from number to string and vice verca
  - encoding/decoding base-64
@@ -20,14 +21,19 @@ The library utilizes:
 ## Build instructions
 ### Requirements
 #### Build-only dependencies
-* C++ compiler supporting C++11 (I've tested GNU g++, Clang and mingw-w64 yet.)
-* CMake (I've only tested 3.5.1 so far.)
+* C++ compiler supporting C++11, tested with
+ - GNU g++
+ - mingw-w64
+ - Clang
+* CMake, tested 3.5.1 and 3.6.0
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
 * Graphviz for diagrams in the API documentation (optional)
 
 #### Runtime dependencies
-* The c++utilities library itself only needs the C/C++ standard library.
+* The c++utilities library itself only needs
+ - the C/C++ standard library
+ - libiconv (might be part of glibc or provided as extra library)
 * For dependencies of my other projects check the README.md of these projects.
 
 ### How to build

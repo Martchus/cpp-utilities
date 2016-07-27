@@ -4,11 +4,164 @@
 
 #include <sstream>
 #include <iomanip>
+#include <cstdlib>
+
+#include <iconv.h>
+#include <errno.h>
 
 using namespace std;
 
 namespace ConversionUtilities
 {
+
+/// \cond
+
+struct Keep { size_t operator()(size_t value) { return value; } };
+struct Double { size_t operator()(size_t value) { return value + value; } };
+struct Half { size_t operator()(size_t value) { return value / 2; } };
+struct Factor {
+    Factor(float factor) : factor(factor) {};
+    size_t operator()(size_t value) { return value * factor; }
+    float factor;
+};
+
+template<class OutputSizeHint>
+class ConversionDescriptor
+{
+public:
+    ConversionDescriptor(const char *fromCharset, const char *toCharset) :
+        m_ptr(iconv_open(toCharset, fromCharset)),
+        m_outputSizeHint(OutputSizeHint())
+    {
+        if(m_ptr == reinterpret_cast<iconv_t>(-1)) {
+            throw ConversionException("Unable to allocate descriptor for character set conversion.");
+        }
+    }
+
+    ConversionDescriptor(const char *fromCharset, const char *toCharset, OutputSizeHint outputSizeHint) :
+        m_ptr(iconv_open(toCharset, fromCharset)),
+        m_outputSizeHint(outputSizeHint)
+    {
+        if(m_ptr == reinterpret_cast<iconv_t>(-1)) {
+            throw ConversionException("Unable to allocate descriptor for character set conversion.");
+        }
+    }
+
+    ~ConversionDescriptor()
+    {
+        iconv_close(m_ptr);
+    }
+
+public:
+    StringData convertString(const char *inputBuffer, size_t inputBufferSize)
+    {
+        // setup input and output buffer
+        size_t inputBytesLeft = inputBufferSize;
+        size_t outputSize = m_outputSizeHint(inputBufferSize);
+        size_t outputBytesLeft = outputSize;
+        char *outputBuffer = reinterpret_cast<char *>(malloc(outputSize));
+        size_t bytesWritten;
+
+        char *currentOutputOffset = outputBuffer;
+        for(; ; currentOutputOffset = outputBuffer + bytesWritten) {
+            bytesWritten = iconv(m_ptr, const_cast<char **>(&inputBuffer), &inputBytesLeft, &currentOutputOffset, &outputBytesLeft);
+            if(bytesWritten == static_cast<size_t>(-1)) {
+                if(errno == EINVAL) {
+                    // ignore incomplete multibyte sequence in the input
+                    bytesWritten = currentOutputOffset - outputBuffer;
+                    break;
+                } else if(errno == E2BIG) {
+                    // output buffer has no more room for next converted character
+                    bytesWritten = currentOutputOffset - outputBuffer;
+                    outputBytesLeft = (outputSize += m_outputSizeHint(inputBytesLeft)) - bytesWritten;
+                    outputBuffer = reinterpret_cast<char *>(realloc(outputBuffer, outputSize));
+                } else /*if(errno == EILSEQ)*/ {
+                    // invalid multibyte sequence in the input
+                    free(outputBuffer);
+                    throw ConversionException("Invalid multibyte sequence in the input.");
+                }
+            } else {
+                // conversion completed without (further) errors
+                break;
+            }
+        }
+        return make_pair(unique_ptr<char[], StringDataDeleter>(outputBuffer), currentOutputOffset - outputBuffer);
+    }
+
+private:
+    iconv_t m_ptr;
+    OutputSizeHint m_outputSizeHint;
+};
+
+/// \endcond
+
+/*!
+ * \brief Converts the specified string from one character set to another.
+ * \remarks
+ * - The term "size" referes here always to the actual number of bytes and not to the number of characters
+ *   (eg. the size of the UTF-8 string "ö" is 2 and not 1).
+ * - The expected size of the output buffer can be specified via \a outputBufferSizeFactor. This hint helps
+ *   to reduce buffer reallocations during the conversion (eg. for the conversion from Latin-1 to UTF-16
+ *   the factor would be 2, for the conversion from UTF-16 to Latin-1 the factor would be 0.5).
+ */
+StringData convertString(const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor)
+{
+    return ConversionDescriptor<Factor>(fromCharset, toCharset, outputBufferSizeFactor).convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified UTF-8 string to UTF-16 (little-endian).
+ */
+StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16LE");
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified UTF-16 (little-endian) string to UTF-8.
+ */
+StringData convertUtf16LEToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Half> descriptor("UTF-16LE", "UTF-8");
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified UTF-8 string to UTF-16 (big-endian).
+ */
+StringData convertUtf8ToUtf16BE(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16BE");
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified UTF-16 (big-endian) string to UTF-8.
+ */
+StringData convertUtf16BEToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Half> descriptor("UTF-16BE", "UTF-8");
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified Latin-1 string to UTF-8.
+ */
+StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Keep> descriptor("ISO-8859-1", "UTF-8");
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified UTF-8 string to Latin-1.
+ */
+StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize)
+{
+    static ConversionDescriptor<Factor> descriptor("UTF-8", "ISO-8859-1", 1.1);
+    return descriptor.convertString(inputBuffer, inputBufferSize);
+}
 
 /*!
  * \brief Truncates all characters after the first occurrence of the
@@ -87,13 +240,15 @@ string bitrateToString(double bitrateInKbitsPerSecond, bool useIecBinaryPrefixes
     return res.str();
 }
 
+//! \cond
 const char *const base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const char base64Pad = '=';
+//! \endcond
 
 /*!
  * \brief Encodes the specified \a data to Base64.
  */
-LIB_EXPORT string encodeBase64(const byte *data, uint32 dataSize)
+string encodeBase64(const byte *data, uint32 dataSize)
 {
     string encoded;
     byte mod = dataSize % 3;
@@ -132,7 +287,7 @@ LIB_EXPORT string encodeBase64(const byte *data, uint32 dataSize)
  * \brief Decodes the specified Base64 encoded string.
  * \throw Throws a ConversionException if the specified string is no valid Base64.
  */
-LIB_EXPORT pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize)
+pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize)
 {
     if(strSize % 4) {
         throw ConversionException("invalid size of base64");
@@ -187,4 +342,3 @@ LIB_EXPORT pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr,
 }
 
 }
-

@@ -12,10 +12,37 @@
 #include <vector>
 #include <memory>
 
-#include <bits/codecvt.h>
+//#include <bits/codecvt.h>
 
 namespace ConversionUtilities
 {
+
+/*!
+ * \brief The StringDataDeleter struct deletes the data of a StringData instance.
+ */
+struct LIB_EXPORT StringDataDeleter {
+    /*!
+     * \brief Deletes the specified \a stringData with std::free(), because the memory has been
+     *        allocated using std::malloc()/std::realloc().
+     */
+    void operator()(char *stringData)
+    {
+      std::free(stringData);
+    }
+};
+
+/*!
+ * \brief Type used to return string encoding conversion result.
+ */
+typedef std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t> StringData;
+
+LIB_EXPORT StringData convertString(const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
+LIB_EXPORT StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize);
+LIB_EXPORT StringData convertUtf16LEToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
+LIB_EXPORT StringData convertUtf8ToUtf16BE(const char *inputBuffer, std::size_t inputBufferSize);
+LIB_EXPORT StringData convertUtf16BEToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
+LIB_EXPORT StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
+LIB_EXPORT StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize);
 
 LIB_EXPORT void truncateString(std::string &str, char terminationChar = '\0');
 
@@ -147,7 +174,7 @@ template <typename StringType> LIB_EXPORT void findAndReplace(StringType &str, c
 }
 
 /*!
- * \brief Converts the given \a number to its equivalent std::string representation using the specified \a base.
+ * \brief Converts the given \a number to its equivalent string representation using the specified \a base.
  * \tparam NumberType The data type of the given number.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \sa stringToNumber()
@@ -160,7 +187,7 @@ template <typename NumberType, typename StringType = std::string> LIB_EXPORT Str
 }
 
 /*!
- * \brief Converts the given \a string to a numeric value using the specified \a base.
+ * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided string is not a valid number.
@@ -179,7 +206,7 @@ template <typename NumberType, typename StringType> LIB_EXPORT NumberType string
 }
 
 /*!
- * \brief Converts the given \a string to a numeric value using the specified \a base.
+ * \brief Converts the given null-terminated \a string to a numeric value using the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided string is not a valid number.
@@ -200,9 +227,9 @@ template <typename NumberType, typename CharType> LIB_EXPORT NumberType stringTo
 /*!
  * \brief Interprets the given \a integer at the specified position as std::string using the specified byte order.
  *
- * Example: Interpretation of ID3v2 frame IDs (stored as 32-bit integer) as string
+ * Example: interpretation of ID3v2 frame IDs (stored as 32-bit integer) as string
  *  - 0x54495432/1414091826 will be interpreted as "TIT2".
- *  - 0x00545432/5526578 will be interpreted as "TT2" using start offset 1 to "exclude" the first byte.
+ *  - 0x00545432/5526578 will be interpreted as "TT2" using start offset 1 to omit the first byte.
  *
  * \tparam T The data type of the integer to be interpreted.
  */
