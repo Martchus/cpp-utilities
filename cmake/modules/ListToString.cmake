@@ -6,7 +6,7 @@ if(NOT DEFINED LIST_TO_STRING_EXISTS)
         list(LENGTH input_list list_length)
         # if the list has 0 or 1 element, there is no need to loop over
         if(list_length LESS 2)
-            set(res "${input_list}")
+            set(res "${prefix}${input_list}${suffix}")
         else()
             math(EXPR last_element_index "${list_length} - 1")
             foreach(index RANGE ${last_element_index})
