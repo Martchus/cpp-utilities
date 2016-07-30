@@ -9,9 +9,24 @@ endif()
 
 # add test executable, but exclude it from the "all target"
 add_executable(${META_PROJECT_NAME}_tests EXCLUDE_FROM_ALL ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
-target_link_libraries(${META_PROJECT_NAME}_tests ${META_PROJECT_NAME} ${TEST_LIBRARIES} cppunit)
+
+# always link test applications against c++utilities, cppunit and pthreads
+find_library(CPP_UNIT_LIB cppunit)
+find_library(PTHREAD_LIB pthread)
+list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_SHARED_LIB} ${CPP_UNIT_LIB} ${PTHREAD_LIB})
+
+# test applications of my projects always use c++utilities and cppunit
+if(NOT META_PROJECT_TYPE OR "${META_PROJECT_TYPE}" STREQUAL "library") # default project type is library
+    # when testing a library, the test application always needs to link against it
+    list(APPEND TEST_LIBRARIES ${META_PROJECT_NAME})
+else()
+    # otherwise, the tests application needs the path of the application to be tested
+    set(APPLICATION_PATH "-a ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}")
+endif()
+
+target_link_libraries(${META_PROJECT_NAME}_tests ${TEST_LIBRARIES})
 set_target_properties(${META_PROJECT_NAME}_tests PROPERTIES CXX_STANDARD 11)
-add_test(NAME ${META_PROJECT_NAME}_cppunit COMMAND ${META_PROJECT_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles")
+add_test(NAME ${META_PROJECT_NAME}_cppunit COMMAND ${META_PROJECT_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" ${APPLICATION_PATH})
 
 # add the test executable to the dependencies of the check target
 add_dependencies(check ${META_PROJECT_NAME}_tests)

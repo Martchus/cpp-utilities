@@ -8,8 +8,14 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <initializer_list>
+#include <thread>
 
-#include <sys/stat.h>
+#ifdef PLATFORM_UNIX
+# include <unistd.h>
+# include <sys/wait.h>
+# include <sys/stat.h>
+#endif
 
 using namespace std;
 using namespace ApplicationUtilities;
@@ -36,6 +42,7 @@ TestApplication *TestApplication::m_instance = nullptr;
 TestApplication::TestApplication(int argc, char **argv) :
     m_helpArg(m_parser),
     m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files"),
+    m_applicationPathArg("app-path",'a', "specifies the path of the application to be tested"),
     m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files"),
     m_unitsArg("units", 'u', "specifies the units to test; omit to test all units")
 {
@@ -55,16 +62,15 @@ TestApplication::TestApplication(int argc, char **argv) :
     }
 
     // setup argument parser
-    m_testFilesPathArg.setRequiredValueCount(1);
-    m_testFilesPathArg.setValueNames({"path"});
-    m_testFilesPathArg.setCombinable(true);
-    m_workingDirArg.setRequiredValueCount(1);
-    m_workingDirArg.setValueNames({"path"});
-    m_workingDirArg.setCombinable(true);
+    for(Argument *arg : initializer_list<Argument *>{&m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg}) {
+        arg->setRequiredValueCount(1);
+        arg->setValueNames({"path"});
+        arg->setCombinable(true);
+    }
     m_unitsArg.setRequiredValueCount(-1);
     m_unitsArg.setValueNames({"unit1", "unit2", "unit3"});
     m_unitsArg.setCombinable(true);
-    m_parser.setMainArguments({&m_testFilesPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg});
+    m_parser.setMainArguments({&m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg});
 
     // parse arguments
     try {
@@ -157,6 +163,7 @@ string TestApplication::testFilePath(const string &name) const
 #ifdef PLATFORM_UNIX
 /*!
  * \brief Returns the full path to a working copy of the test file with the specified \a name.
+ * \remarks Currently only available under UNIX.
  */
 string TestApplication::workingCopyPath(const string &name) const
 {
@@ -204,6 +211,63 @@ string TestApplication::workingCopyPath(const string &name) const
         cerr << "Unable to create working copy for \"" << name << "\": an IO error occured." << endl;
     }
     return string();
+}
+
+/*!
+ * \brief Executes the application to be tested with the specified \a args and stores the standard output and
+ *        errors in \a stdout and \a stderr.
+ * \throws Throws std::runtime_error when the application can not be executed.
+ * \remarks
+ *  - The specified \a args must be 0 terminated. The first argument is the application name.
+ *  - Currently only available under UNIX.
+ */
+int TestApplication::execApp(const char *const *args, string &stdout, string &stderr) const
+{
+    // determine application path
+    const char *appPath = m_applicationPathArg.firstValue();
+    if(!appPath || !*appPath) {
+        throw runtime_error("Unable to execute application to be tested: no application path specified");
+    }
+    // create pipes
+    int coutPipes[2], cerrPipes[2];
+    pipe(coutPipes), pipe(cerrPipes);
+    int readCoutPipe = coutPipes[0], writeCoutPipe = coutPipes[1];
+    int readCerrPipe = cerrPipes[0], writeCerrPipe = cerrPipes[1];
+    // create child process
+    if(int child = fork()) {
+        // parent process: read stdout and stderr from child
+        close(writeCoutPipe), close(writeCerrPipe);
+        thread readCoutThread([readCoutPipe, &stdout] {
+            char buffer[512];
+            ssize_t count;
+            stdout.clear();
+            while((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
+                stdout.append(buffer, count);
+            }
+            close(readCoutPipe);
+        });
+        thread readCerrThread([readCerrPipe, &stderr] {
+            char buffer[512];
+            ssize_t count;
+            stderr.clear();
+            while((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
+                stderr.append(buffer, count);
+            }
+            close(readCerrPipe);
+        });
+        readCoutThread.join();
+        readCerrThread.join();
+        int childReturnCode;
+        waitpid(child, &childReturnCode, 0);
+        return childReturnCode;
+    } else {
+        // child process: set pipes to be used for stdout/stderr, execute application
+        dup2(writeCoutPipe, STDOUT_FILENO), dup2(writeCerrPipe, STDERR_FILENO);
+        close(readCoutPipe), close(writeCoutPipe), close(readCerrPipe), close(writeCerrPipe);
+        execv(appPath, const_cast<char *const *>(args));
+        cerr << "Unable to execute \"" << appPath << "\": execv() failed" << endl;
+        exit(-101);
+    }
 }
 #endif
 

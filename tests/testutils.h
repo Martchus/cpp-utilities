@@ -18,6 +18,7 @@ public:
     std::string testFilePath(const std::string &name) const;
 #ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
+    int execApp(const char *const *args, std::string &output, std::string &errors) const;
 #endif
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
@@ -27,6 +28,7 @@ private:
     ApplicationUtilities::ArgumentParser m_parser;
     ApplicationUtilities::HelpArgument m_helpArg;
     ApplicationUtilities::Argument m_testFilesPathArg;
+    ApplicationUtilities::Argument m_applicationPathArg;
     ApplicationUtilities::Argument m_workingDirArg;
     ApplicationUtilities::Argument m_unitsArg;
     std::string m_testFilesPathArgValue;
@@ -75,6 +77,7 @@ inline const std::vector<const char *> &TestApplication::units() const
 /*!
  * \brief Convenience function which returns the full path of the test file with the specified \a name.
  * \remarks A TestApplication must be present.
+ * \sa TestApplication::testFilePath()
  */
 inline LIB_EXPORT std::string testFilePath(const std::string &name)
 {
@@ -85,10 +88,21 @@ inline LIB_EXPORT std::string testFilePath(const std::string &name)
 /*!
  * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
  * \remarks A TestApplication must be present.
+ * \sa TestApplication::workingCopyPath()
  */
 inline LIB_EXPORT std::string workingCopyPath(const std::string &name)
 {
     return TestApplication::instance()->workingCopyPath(name);
+}
+
+/*!
+ * \brief Convenience function which executes the application to be tested with the specified \a args.
+ * \remarks A TestApplication must be present.
+ * \sa TestApplication::execApp()
+ */
+inline LIB_EXPORT int execApp(const char *const *args, std::string &output, std::string &errors)
+{
+    return TestApplication::instance()->execApp(args, output, errors);
 }
 #endif
 
