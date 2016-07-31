@@ -49,6 +49,11 @@ enum class Direction : char
     Backward = 'D'
 };
 
+inline void setStyle(std::ostream &stream, TextAttribute displayAttribute = TextAttribute::Reset)
+{
+    stream << '\e' << '[' << static_cast<char>(displayAttribute) << 'm';
+}
+
 inline void setStyle(std::ostream &stream, Color color,
                  ColorContext context = ColorContext::Foreground,
                  TextAttribute displayAttribute = TextAttribute::Reset)

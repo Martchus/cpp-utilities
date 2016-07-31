@@ -4,6 +4,7 @@
 
 #include "../conversion/stringconversion.h"
 #include "../io/path.h"
+#include "../io/ansiescapecodes.h"
 
 #include <algorithm>
 #include <iostream>
@@ -89,7 +90,7 @@ Argument::~Argument()
 {}
 
 /*!
- * \brief Returns the first parameter value of the first occurance of the argument.
+ * \brief Returns the first parameter value of the first occurrence of the argument.
  * \remarks
  * - If the argument is not present and the an environment variable has been set
  *   using setEnvironmentVariable() the value of the specified variable will be returned.
@@ -97,8 +98,8 @@ Argument::~Argument()
  */
 const char *Argument::firstValue() const
 {
-    if(!m_occurances.empty() && !m_occurances.front().values.empty()) {
-        return m_occurances.front().values.front();
+    if(!m_occurrences.empty() && !m_occurrences.front().values.empty()) {
+        return m_occurrences.front().values.front();
     } else if(m_environmentVar) {
         return getenv(m_environmentVar);
     } else {
@@ -112,6 +113,7 @@ const char *Argument::firstValue() const
 void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
 {
     for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
+    EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
     if(notEmpty(name())) {
         os << '-' << '-' << name();
     }
@@ -121,6 +123,7 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
     if(abbreviation()) {
         os << '-' << abbreviation();
     }
+    EscapeCodes::setStyle(os);
     if(requiredValueCount()) {
         unsigned int valueNamesPrint = 0;
         for(auto i = valueNames().cbegin(), end = valueNames().cend(); i != end && valueNamesPrint < requiredValueCount(); ++i) {
@@ -331,6 +334,7 @@ void ArgumentParser::addMainArgument(Argument *argument)
  */
 void ArgumentParser::printHelp(ostream &os) const
 {
+    EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
     if(applicationName && *applicationName) {
         os << applicationName;
         if(applicationVersion && *applicationVersion) {
@@ -343,9 +347,11 @@ void ArgumentParser::printHelp(ostream &os) const
     if((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
         os << '\n' << '\n';
     }
+    EscapeCodes::setStyle(os);
     if(!m_mainArgs.empty()) {
-        os << "Available arguments:\n";
-        for(const auto *arg : m_mainArgs) {
+        os << "Available arguments:";
+        for(const Argument *arg : m_mainArgs) {
+            os << '\n';
             arg->printInfo(os);
         }
     }
@@ -414,7 +420,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
         } else {
             // no arguments specified -> flag default argument as present if one is assigned
             if(m_defaultArg) {
-                m_defaultArg->m_occurances.emplace_back(0);
+                m_defaultArg->m_occurrences.emplace_back(0);
             }
         }
         checkConstraints(m_mainArgs);
@@ -518,10 +524,10 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                     if(matchingArg) {
                         // an argument matched the specified denotation
-                        matchingArg->m_occurances.emplace_back(index, parentPath, parentArg);
+                        matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
 
                         // prepare reading parameter values
-                        values = &matchingArg->m_occurances.back().values;
+                        values = &matchingArg->m_occurrences.back().values;
                         if(equationPos) {
                             values->push_back(equationPos + 1);
                         }
@@ -567,7 +573,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                 if(!index) {
                     for(Argument *arg : args) {
                         if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
-                            (matchingArg = arg)->m_occurances.emplace_back(index, parentPath, parentArg);
+                            (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                             ++index, ++argv;
                             break;
                         }
@@ -578,7 +584,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     // use the first default argument which is not already present
                     for(Argument *arg : args) {
                         if(arg->isImplicit() && !arg->isPresent()) {
-                            (matchingArg = arg)->m_occurances.emplace_back(index, parentPath, parentArg);
+                            (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                             break;
                         }
                     }
@@ -591,7 +597,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     }
 
                     // prepare reading parameter values
-                    values = &matchingArg->m_occurances.back().values;
+                    values = &matchingArg->m_occurrences.back().values;
 
                     // read sub arguments
                     ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
@@ -733,10 +739,34 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
 
     // read the "opening" (started but not finished argument denotation)
     const char *opening = nullptr;
-    size_t openingLen;
+    string compoundOpening;
+    size_t openingLen, compoundOpeningStartLen = 0;
     unsigned char openingDenotationType = Value;
     if(argc && nextArgumentOrValue) {
-        opening = (currentWordIndex < argc ? argv[currentWordIndex] : *lastSpecifiedArg);
+        if(currentWordIndex < argc) {
+            opening = argv[currentWordIndex];
+            // For some reasons completions for eg. "set --values disk=1 tag=a" are splitted so the
+            // equation sign is an own argument ("set --values disk = 1 tag = a").
+            // This is not how values are treated by the argument parser. Hence the opening
+            // must be joined again. In this case only the part after the equation sign needs to be
+            // provided for completion so compoundOpeningStartLen is set to number of characters to skip.
+            size_t minCurrentWordIndex = (lastDetectedArg ? lastDetectedArgIndex : 0);
+            if(currentWordIndex > minCurrentWordIndex && !strcmp(opening, "=")) {
+                compoundOpening.reserve(compoundOpeningStartLen = strlen(argv[--currentWordIndex]) + 1);
+                compoundOpening = argv[currentWordIndex];
+                compoundOpening += '=';
+            } else if(currentWordIndex > (minCurrentWordIndex + 1) && !strcmp(argv[currentWordIndex - 1], "=")) {
+                compoundOpening.reserve((compoundOpeningStartLen = strlen(argv[currentWordIndex -= 2]) + 1) + strlen(opening));
+                compoundOpening = argv[currentWordIndex];
+                compoundOpening += '=';
+                compoundOpening += opening;
+            }
+            if(!compoundOpening.empty()) {
+                opening = compoundOpening.data();
+            }
+        } else {
+            opening = *lastSpecifiedArg;
+        }
         *opening == '-' && (++opening, ++openingDenotationType)
                 && *opening == '-' && (++opening, ++openingDenotationType);
         openingLen = strlen(opening);
@@ -752,24 +782,31 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
             if(argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
                 if(openingDenotationType == Value) {
-                    bool wordStart = true, ok = false;
+                    bool wordStart = true, ok = false, equationSignAlreadyPresent = false;
+                    int wordIndex = 0;
                     for(const char *i = arg->preDefinedCompletionValues(), *end = opening + openingLen; *i;) {
                         if(wordStart) {
                             const char *i1 = i, *i2 = opening;
                             for(; *i1 && i2 != end && *i1 == *i2; ++i1, ++i2);
                             ok = (i2 == end);
                             wordStart = false;
-                        } else {
-                            wordStart = (*i == ' ') || (*i == '\n');
+                            wordIndex = 0;
+                        } else if((wordStart = (*i == ' ') || (*i == '\n'))) {
+                            equationSignAlreadyPresent = false;
+                        } else if(*i == '=') {
+                            equationSignAlreadyPresent = true;
                         }
                         if(ok) {
-                            cout << *i;
-                            ++i;
-                            if(appendEquationSign) {
+                            if(!compoundOpeningStartLen || wordIndex >= compoundOpeningStartLen) {
+                                cout << *i;
+                            }
+                            ++i, ++wordIndex;
+                            if(appendEquationSign && !equationSignAlreadyPresent) {
                                 switch(*i) {
                                 case ' ': case '\n': case '\0':
                                     cout << '=';
                                     noWhitespace = true;
+                                    equationSignAlreadyPresent = false;
                                 }
                             }
                         } else {
@@ -779,11 +816,18 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                     cout << ' ';
                 }
             } else if(appendEquationSign) {
+                bool equationSignAlreadyPresent = false;
                 for(const char *i = arg->preDefinedCompletionValues(); *i;) {
                     cout << *i;
                     switch(*(++i)) {
+                    case '=':
+                        equationSignAlreadyPresent = true;
+                        break;
                     case ' ': case '\n': case '\0':
-                        cout << '=';
+                        if(!equationSignAlreadyPresent) {
+                            cout << '=';
+                            equationSignAlreadyPresent = false;
+                        }
                     }
                 }
             } else {
@@ -964,16 +1008,16 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
  * \brief Invokes the callbacks for the specified \a args.
  * \remarks
  *  - Checks the callbacks for sub arguments, too.
- *  - Invokes the assigned callback methods for each occurance of
+ *  - Invokes the assigned callback methods for each occurrence of
  *    the argument.
  */
 void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
 {
     for(const Argument *arg : args) {
-        // invoke the callback for each occurance of the argument
+        // invoke the callback for each occurrence of the argument
         if(arg->m_callbackFunction) {
-            for(const auto &occurance : arg->m_occurances) {
-                arg->m_callbackFunction(occurance);
+            for(const auto &occurrence : arg->m_occurrences) {
+                arg->m_callbackFunction(occurrence);
             }
         }
         // invoke the callbacks for sub arguments recursively
@@ -993,7 +1037,7 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
 HelpArgument::HelpArgument(ArgumentParser &parser) :
     Argument("help", 'h', "shows this information")
 {
-    setCallback([&parser] (const ArgumentOccurance &) {
+    setCallback([&parser] (const ArgumentOccurrence &) {
         CMD_UTILS_START_CONSOLE;
         parser.printHelp(cout);
     });

@@ -48,14 +48,15 @@ enum class UnknownArgumentBehavior
  */
 enum class ValueCompletionBehavior : unsigned char
 {
-    None = 0,
-    PreDefinedValues = 2,
-    Files = 4,
-    Directories = 8,
-    FileSystemIfNoPreDefinedValues = 16,
-    AppendEquationSign = 32
+    None = 0, /**< no auto-completion */
+    PreDefinedValues = 2, /**< values assigned with Argument::setPreDefinedCompletionValues() */
+    Files = 4, /**< files */
+    Directories = 8, /**< directories */
+    FileSystemIfNoPreDefinedValues = 16, /**< files and directories but only if no values have been assigned (default behavior) */
+    AppendEquationSign = 32 /**< an equation sign is appended to values which not contain an equation sign already */
 };
 
+/// \cond
 constexpr ValueCompletionBehavior operator|(ValueCompletionBehavior lhs, ValueCompletionBehavior rhs)
 {
     return static_cast<ValueCompletionBehavior>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
@@ -65,50 +66,51 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
 {
     return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
 }
+/// \endcond
 
 Argument LIB_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
 
 /*!
- * \brief The ArgumentOccurance struct holds argument values for an occurance of an argument.
+ * \brief The ArgumentOccurrence struct holds argument values for an occurrence of an argument.
  */
-struct LIB_EXPORT ArgumentOccurance
+struct LIB_EXPORT ArgumentOccurrence
 {
-    ArgumentOccurance(std::size_t index);
-    ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
+    ArgumentOccurrence(std::size_t index);
+    ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
 
     /*!
-     * \brief The index of the occurance. This is not necessarily the index in the argv array.
+     * \brief The index of the occurrence. This is not necessarily the index in the argv array.
      */
     std::size_t index;
 
     /*!
-     * \brief The parameter values which have been specified after the occurance of the argument.
+     * \brief The parameter values which have been specified after the occurrence of the argument.
      */
     std::vector<const char *> values;
 
     /*!
-     * \brief The "path" of the occurance (the parent elements which have been specified before).
-     * \remarks Empty for top-level occurances.
+     * \brief The "path" of the occurrence (the parent elements which have been specified before).
+     * \remarks Empty for top-level occurrences.
      */
     std::vector<Argument *> path;
 };
 
 /*!
- * \brief Constructs an argument occurance for the specified \a index.
+ * \brief Constructs an argument occurrence for the specified \a index.
  */
-inline ArgumentOccurance::ArgumentOccurance(std::size_t index) :
+inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index) :
     index(index)
 {}
 
 /*!
- * \brief Constructs an argument occurance.
+ * \brief Constructs an argument occurrence.
  * \param index Specifies the index.
  * \param parentPath Specifies the path of \a parent.
- * \param parent Specifies the parent which might be nullptr for top-level occurances.
+ * \param parent Specifies the parent which might be nullptr for top-level occurrences.
  *
- * The path of the new occurance is built from the specified \a parentPath and \a parent.
+ * The path of the new occurrence is built from the specified \a parentPath and \a parent.
  */
-inline ArgumentOccurance::ArgumentOccurance(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent) :
+inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent) :
     index(index),
     path(parentPath)
 {
@@ -122,7 +124,7 @@ class LIB_EXPORT Argument
     friend class ArgumentParser;
 
 public:
-    typedef std::function <void (const ArgumentOccurance &)> CallbackFunction;
+    typedef std::function <void (const ArgumentOccurrence &)> CallbackFunction;
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
@@ -137,21 +139,21 @@ public:
     void setDescription(const char *description);
     const char *example() const;
     void setExample(const char *example);
-    const std::vector<const char *> &values(std::size_t occurrance = 0) const;
+    const std::vector<const char *> &values(std::size_t occurrence = 0) const;
     const char *firstValue() const;
     std::size_t requiredValueCount() const;
     void setRequiredValueCount(std::size_t requiredValueCount);
     const std::vector<const char *> &valueNames() const;
     void setValueNames(std::initializer_list<const char *> valueNames);
     void appendValueName(const char *valueName);
-    bool allRequiredValuesPresent(std::size_t occurrance = 0) const;
+    bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
     bool isPresent() const;
     std::size_t occurrences() const;
-    std::size_t index(std::size_t occurrance) const;
+    std::size_t index(std::size_t occurrence) const;
     std::size_t minOccurrences() const;
     std::size_t maxOccurrences() const;
     void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
-    const std::vector<Argument *> &path(std::size_t occurrance = 0) const;
+    const std::vector<Argument *> &path(std::size_t occurrence = 0) const;
     bool isRequired() const;
     void setRequired(bool required);
     bool isCombinable() const;
@@ -189,7 +191,7 @@ private:
     std::size_t m_requiredValueCount;
     std::vector<const char *> m_valueNames;
     bool m_implicit;
-    std::vector<ArgumentOccurance> m_occurances;
+    std::vector<ArgumentOccurrence> m_occurrences;
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
@@ -346,14 +348,14 @@ inline void Argument::setExample(const char *example)
 }
 
 /*!
- * \brief Returns the parameter values for the specified \a occurrance of argument.
+ * \brief Returns the parameter values for the specified \a occurrence of argument.
  * \remarks
  *  - The values are set by the parser when parsing the command line arguments.
- *  - The specified \a occurance must be less than occurrences().
+ *  - The specified \a occurrence must be less than occurrences().
  */
-inline const std::vector<const char *> &Argument::values(std::size_t occurrance) const
+inline const std::vector<const char *> &Argument::values(std::size_t occurrence) const
 {
-    return m_occurances[occurrance].values;
+    return m_occurrences[occurrence].values;
 }
 
 /*!
@@ -435,10 +437,10 @@ inline void Argument::appendValueName(const char *valueName)
 /*!
  * \brief Returns an indication whether all required values are present.
  */
-inline bool Argument::allRequiredValuesPresent(std::size_t occurrance) const
+inline bool Argument::allRequiredValuesPresent(std::size_t occurrence) const
 {
     return m_requiredValueCount == static_cast<std::size_t>(-1)
-            || (m_occurances[occurrance].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
+            || (m_occurrences[occurrence].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
 /*!
@@ -464,7 +466,7 @@ inline void Argument::setImplicit(bool implicit)
  */
 inline bool Argument::isPresent() const
 {
-    return !m_occurances.empty();
+    return !m_occurrences.empty();
 }
 
 /*!
@@ -472,15 +474,15 @@ inline bool Argument::isPresent() const
  */
 inline std::size_t Argument::occurrences() const
 {
-    return m_occurances.size();
+    return m_occurrences.size();
 }
 
 /*!
  * \brief Returns the indices of the argument's occurences which could be detected when parsing.
  */
-inline std::size_t Argument::index(std::size_t occurrance) const
+inline std::size_t Argument::index(std::size_t occurrence) const
 {
-    return m_occurances[occurrance].index;
+    return m_occurrences[occurrence].index;
 }
 
 /*!
@@ -515,11 +517,11 @@ inline void Argument::setConstraints(std::size_t minOccurrences, std::size_t max
 }
 
 /*!
- * \brief Returns the path of the specified \a occurrance.
+ * \brief Returns the path of the specified \a occurrence.
  */
-inline const std::vector<Argument *> &Argument::path(std::size_t occurrance) const
+inline const std::vector<Argument *> &Argument::path(std::size_t occurrence) const
 {
-    return m_occurances[occurrance].path;
+    return m_occurrences[occurrence].path;
 }
 
 /*!
@@ -607,7 +609,7 @@ inline void Argument::setDenotesOperation(bool denotesOperation)
 /*!
  * \brief Sets a \a callback function which will be called by the parser if
  *        the argument could be found and no parsing errors occured.
- * \remarks The \a callback will be called for each occurrance of the argument.
+ * \remarks The \a callback will be called for each occurrence of the argument.
  */
 inline void Argument::setCallback(Argument::CallbackFunction callback)
 {
@@ -699,7 +701,7 @@ inline void Argument::setPreDefinedCompletionValues(const char *preDefinedComple
  */
 inline void Argument::reset()
 {
-    m_occurances.clear();
+    m_occurrences.clear();
 }
 
 /*!

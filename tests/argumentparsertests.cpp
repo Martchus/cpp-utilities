@@ -314,12 +314,12 @@ void ArgumentParserTests::testCallbacks()
     ArgumentParser parser;
     Argument callbackArg("with-callback", 't', "callback test");
     callbackArg.setRequiredValueCount(2);
-    callbackArg.setCallback([] (const ArgumentOccurance &occurance) {
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), occurance.index);
-        CPPUNIT_ASSERT(occurance.path.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), occurance.values.size());
-        CPPUNIT_ASSERT(!strcmp(occurance.values[0], "val1"));
-        CPPUNIT_ASSERT(!strcmp(occurance.values[1], "val2"));
+    callbackArg.setCallback([] (const ArgumentOccurrence &occurrence) {
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), occurrence.index);
+        CPPUNIT_ASSERT(occurrence.path.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), occurrence.values.size());
+        CPPUNIT_ASSERT(!strcmp(occurrence.values[0], "val1"));
+        CPPUNIT_ASSERT(!strcmp(occurrence.values[1], "val2"));
         throw 42;
     });
     Argument noCallbackArg("no-callback", 'l', "callback test");
