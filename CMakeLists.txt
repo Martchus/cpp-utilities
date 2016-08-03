@@ -65,6 +65,7 @@ set(TEST_SRC_FILES
 
 set(CMAKE_MODULE_FILES
     cmake/modules/BasicConfig.cmake
+    cmake/modules/ConfigHeader.cmake
     cmake/modules/LibraryTarget.cmake
     cmake/modules/TestTarget.cmake
     cmake/modules/AppTarget.cmake
