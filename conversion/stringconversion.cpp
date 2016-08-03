@@ -85,7 +85,7 @@ public:
                 break;
             }
         }
-        return make_pair(unique_ptr<char[], StringDataDeleter>(outputBuffer), currentOutputOffset - outputBuffer);
+        return StringData(outputBuffer, currentOutputOffset - outputBuffer);
     }
 
 private:

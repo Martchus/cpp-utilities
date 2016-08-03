@@ -5,6 +5,7 @@
 #include "./binaryconversion.h"
 
 #include <string>
+#include <cstring>
 #include <sstream>
 #include <iomanip>
 #include <initializer_list>
@@ -35,6 +36,7 @@ struct LIB_EXPORT StringDataDeleter {
  * \brief Type used to return string encoding conversion result.
  */
 typedef std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t> StringData;
+//typedef std::pair<std::unique_ptr<char>, std::size_t> StringData; // might work too
 
 LIB_EXPORT StringData convertString(const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
 LIB_EXPORT StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize);
@@ -161,6 +163,53 @@ template <typename StringType> LIB_EXPORT bool startsWith(const StringType &str,
         }
     }
     return false;
+}
+
+/*!
+ * \brief Returns whether \a str starts with \a phrase.
+ */
+template <typename StringType> LIB_EXPORT bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
+{
+    for(auto stri = str.cbegin(), strend = str.cend(); stri != strend; ++stri, ++phrase) {
+        if(!*phrase) {
+            return true;
+        } else if(*stri != *phrase) {
+            return false;
+        }
+    }
+    return false;
+}
+
+/*!
+ * \brief Returns whether \a str contains the specified \a substrings.
+ * \remarks The \a substrings must occur in the specified order.
+ */
+template <typename StringType> LIB_EXPORT bool containsSubstrings(const StringType &str, std::initializer_list<StringType> substrings)
+{
+    typename StringType::size_type currentPos = 0;
+    for(const auto &substr : substrings) {
+        if((currentPos = str.find(substr, currentPos)) == StringType::npos) {
+            return false;
+        }
+        currentPos += substr.size();
+    }
+    return true;
+}
+
+/*!
+ * \brief Returns whether \a str contains the specified \a substrings.
+ * \remarks The \a substrings must occur in the specified order.
+ */
+template <typename StringType> LIB_EXPORT bool containsSubstrings(const StringType &str, std::initializer_list<const typename StringType::value_type *> substrings)
+{
+    typename StringType::size_type currentPos = 0;
+    for(const auto *substr : substrings) {
+        if((currentPos = str.find(substr, currentPos)) == StringType::npos) {
+            return false;
+        }
+        currentPos += std::strlen(substr);
+    }
+    return true;
 }
 
 /*!

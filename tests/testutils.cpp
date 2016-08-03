@@ -237,6 +237,11 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
     if(int child = fork()) {
         // parent process: read stdout and stderr from child
         close(writeCoutPipe), close(writeCerrPipe);
+        if(child == -1) {
+            close(readCoutPipe), close(readCerrPipe);
+            throw runtime_error("Unable to create fork");
+        }
+        // TODO: use select instead of threads
         thread readCoutThread([readCoutPipe, &stdout] {
             char buffer[512];
             ssize_t count;

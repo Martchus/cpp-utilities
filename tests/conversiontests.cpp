@@ -163,7 +163,7 @@ void ConversionTests::testSwapOrderFunctions()
 /*!
  * \brief Internally used for string encoding tests to check results.
  */
-void assertEqual(const char *message, const byte *expectedValues, size_t expectedSize, const pair<unique_ptr<char[], StringDataDeleter>, size_t> &actualValues)
+void assertEqual(const char *message, const byte *expectedValues, size_t expectedSize, const StringData &actualValues)
 {
     // check whether number of elements matches
     CPPUNIT_ASSERT_EQUAL_MESSAGE(message, expectedSize, actualValues.second);
@@ -228,7 +228,7 @@ void ConversionTests::testStringEncodingConversions()
  */
 void ConversionTests::testStringConversions()
 {
-    // test stringToNumber() / numberToString() with random numbers
+    // stringToNumber() / numberToString() with random numbers
     uniform_int_distribution<int64> randomDistSigned(numeric_limits<int64>::min());
     uniform_int_distribution<uint64> randomDistUnsigned(0);
     for(byte b = 1; b < 100; ++b) {
@@ -248,10 +248,10 @@ void ConversionTests::testStringConversions()
         }
     }
 
-    // test interpretIntegerAsString()
+    // interpretIntegerAsString()
     CPPUNIT_ASSERT(interpretIntegerAsString<uint32>(0x54455354) == "TEST");
 
-    // test splitString() / joinStrings()
+    // splitString() / joinStrings()
     auto splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", false, "(", ")");
     CPPUNIT_ASSERT(splitJoinTest == "() (a) () (ab) (ABC) (s)");
     splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", true, "(", ")");
@@ -261,16 +261,20 @@ void ConversionTests::testStringConversions()
     splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Merge), " ", false, "(", ")");
     CPPUNIT_ASSERT(splitJoinTest == "(a,ab) (ABC) (s)");
 
-    // test findAndReplace()
+    // findAndReplace()
     string findReplaceTest("findAndReplace()");
     findAndReplace<string>(findReplaceTest, "And", "Or");
     CPPUNIT_ASSERT(findReplaceTest == "findOrReplace()");
 
-    // test startsWith()
+    // startsWith()
     CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"));
     CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"));
 
-    // test encodeBase64() / decodeBase64() with random data
+    // containsSubstrings()
+    CPPUNIT_ASSERT(containsSubstrings<string>("this string contains foo and bar", {"foo", "bar"}));
+    CPPUNIT_ASSERT(!containsSubstrings<string>("this string contains foo and bar", {"bar", "foo"}));
+
+    // encodeBase64() / decodeBase64() with random data
     uniform_int_distribution<byte> randomDistChar;
     byte originalBase64Data[4047];
     for(byte &c : originalBase64Data) {
