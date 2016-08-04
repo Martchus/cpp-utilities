@@ -221,8 +221,16 @@ string TestApplication::workingCopyPath(const string &name) const
  *  - The specified \a args must be 0 terminated. The first argument is the application name.
  *  - Currently only available under UNIX.
  */
-int TestApplication::execApp(const char *const *args, string &stdout, string &stderr) const
+int TestApplication::execApp(const char *const *args, string &stdout, string &stderr, bool suppressLogging) const
 {
+    // print log message
+    if(!suppressLogging) {
+        cout << '-';
+        for(const char *const *i = args; *i; ++i) {
+            cout << ' ' << *i;
+        }
+        cout << endl;
+    }
     // determine application path
     const char *appPath = m_applicationPathArg.firstValue();
     if(!appPath || !*appPath) {

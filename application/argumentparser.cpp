@@ -288,8 +288,8 @@ ArgumentParser::ArgumentParser() :
  * \remarks
  *  - The parser does not take ownership. Do not destroy the arguments as long as they are used as
  *    main arguments.
- *  - Sets the first specified argument as default argument if none is assigned yet and the
- *    first argument has no mandatory sub arguments.
+ *  - Sets the first specified argument as default argument if none has been assigned yet and the
+ *    first argument does not require any values or has no mandatory sub arguments.
  */
 void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArguments)
 {
@@ -301,7 +301,7 @@ void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArgumen
         if(!m_defaultArg) {
             if(!(*mainArguments.begin())->requiredValueCount()) {
                 bool subArgsRequired = false;
-                for(Argument *subArg : (*mainArguments.begin())->subArguments()) {
+                for(const Argument *subArg : (*mainArguments.begin())->subArguments()) {
                     if(subArg->isRequired()) {
                         subArgsRequired = true;
                         break;
