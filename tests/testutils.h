@@ -135,12 +135,21 @@ template <typename T> std::ostream &operator<< (std::ostream &out, const AsHexNu
 }
 
 /*!
- * \brief Wraps the value to be printed using the hex system.
+ * \brief Wraps a value to be printed using the hex system in the error case when asserted
+ *        with cppunit (or similar test framework).
  */
 template <typename T> AsHexNumber<T> asHexNumber(const T &value)
 {
     return AsHexNumber<T>(value);
 }
+
+#ifndef TESTUTILS_ASSERT_EXEC
+/*!
+ * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
+ * \remarks Requires cppunit.
+ */
+# define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
+#endif
 
 }
 
