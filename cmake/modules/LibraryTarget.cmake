@@ -12,9 +12,9 @@ set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library dir
 set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")
 set(LIB_SUFFIX_32 "" CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
 set(LIB_SUFFIX_64 "" CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
-if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT ${LIB_SUFFIX_64} STREQUAL "")
+if(LIB_SUFFIX_64 AND CMAKE_SIZEOF_VOID_P MATCHES "8")
     set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_64}")
-elseif(CMAKE_SIZEOF_VOID_P MATCHES "4" AND NOT ${LIB_SUFFIX_32} STREQUAL "")
+elseif(LIB_SUFFIX_32 AND CMAKE_SIZEOF_VOID_P MATCHES "4")
     set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_32}")
 endif()
 
@@ -63,10 +63,10 @@ if(BUILD_STATIC_LIBS)
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
     )
-    set(META_LIB_DEPENDS ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS}) # used in config file
+    set(META_STATIC_LIB_DEPENDS ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS}) # used in config file
 endif()
 
-# create the CMake config file from the template
+# create the CMake package config file from template
 configure_package_config_file(
     "${CONFIG_TEMPLATE_FILE}"
     "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
@@ -87,13 +87,23 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 
+# create pkg-config file from template
+# will (currently) not contain Libs.private if static libs haven't been built anyways
+include(TemplateFinder)
+find_template_file("template.pc" CPP_UTILITIES PKGCONFIG_TEMPLATE_FILE)
+configure_file(
+    "${PKGCONFIG_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}.pc"
+    @ONLY
+)
+
 # add install target for the CMake config files
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}ConfigVersion.cmake"
     DESTINATION
-        "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+        "share/${META_PROJECT_NAME}/cmake"
     COMPONENT
         cmake-config
 )
@@ -102,6 +112,19 @@ if(NOT TARGET install-cmake-config)
     add_custom_target(install-cmake-config
         DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-config -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+    )
+endif()
+
+# add install target for pkg-config file
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}.pc"
+    DESTINATION "lib${SELECTED_LIB_SUFFIX}/lib"
+    COMPONENT pkg-config
+)
+if(NOT TARGET install-pkg-config)
+    add_custom_target(install-pkg-config
+        DEPENDS ${META_PROJECT_NAME}
+        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=pkg-config -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
 
