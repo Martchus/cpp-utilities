@@ -9,10 +9,10 @@
 #include <iostream>
 #include <fstream>
 #include <initializer_list>
-#include <thread>
 
 #ifdef PLATFORM_UNIX
 # include <unistd.h>
+# include <poll.h>
 # include <sys/wait.h>
 # include <sys/stat.h>
 #endif
@@ -219,9 +219,10 @@ string TestApplication::workingCopyPath(const string &name) const
  * \throws Throws std::runtime_error when the application can not be executed.
  * \remarks
  *  - The specified \a args must be 0 terminated. The first argument is the application name.
- *  - Currently only available under UNIX.
+ *  - Currently only supported under UNIX.
+ *  - \a stdout and \a stderr are cleared before.
  */
-int TestApplication::execApp(const char *const *args, string &stdout, string &stderr, bool suppressLogging) const
+int TestApplication::execApp(const char *const *args, string &stdout, string &stderr, bool suppressLogging, int timeout) const
 {
     // print log message
     if(!suppressLogging) {
@@ -245,31 +246,59 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
     if(int child = fork()) {
         // parent process: read stdout and stderr from child
         close(writeCoutPipe), close(writeCerrPipe);
-        if(child == -1) {
+
+        try {
+            if(child == -1) {
+                throw runtime_error("Unable to create fork");
+            }
+
+            // init file descriptor set for poll
+            struct pollfd fileDescriptorSet[2];
+            fileDescriptorSet[0].fd = readCoutPipe;
+            fileDescriptorSet[1].fd = readCerrPipe;
+            fileDescriptorSet[0].events = fileDescriptorSet[1].events = POLLIN;
+
+            // init variables for reading
+            char buffer[512];
+            ssize_t count;
+            stdout.clear(), stderr.clear();
+
+            // poll as long as at least one pipe is open
+            do {
+                int retpoll = poll(fileDescriptorSet, 2, timeout);
+                if(retpoll > 0) {
+                    // poll succeeds
+                    if(fileDescriptorSet[0].revents & POLLIN) {
+                        if((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
+                            stdout.append(buffer, count);
+                        }
+                    } else if(fileDescriptorSet[0].revents & POLLHUP) {
+                        close(readCoutPipe);
+                        fileDescriptorSet[0].fd = -1;
+                    }
+                    if(fileDescriptorSet[1].revents & POLLIN) {
+                        if((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
+                            stderr.append(buffer, count);
+                        }
+                    } else if(fileDescriptorSet[1].revents & POLLHUP) {
+                        close(readCerrPipe);
+                        fileDescriptorSet[1].fd = -1;
+                    }
+                } else if(retpoll == 0) {
+                    // timeout
+                    throw runtime_error("Poll time-out");
+                } else {
+                    // fail
+                    throw runtime_error("Poll failed");
+                }
+            } while(fileDescriptorSet[0].fd >= 0 || fileDescriptorSet[1].fd >= 0);
+        } catch(...) {
+            // ensure all pipes are close in the error case
             close(readCoutPipe), close(readCerrPipe);
-            throw runtime_error("Unable to create fork");
+            throw;
         }
-        // TODO: use select instead of threads
-        thread readCoutThread([readCoutPipe, &stdout] {
-            char buffer[512];
-            ssize_t count;
-            stdout.clear();
-            while((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
-                stdout.append(buffer, count);
-            }
-            close(readCoutPipe);
-        });
-        thread readCerrThread([readCerrPipe, &stderr] {
-            char buffer[512];
-            ssize_t count;
-            stderr.clear();
-            while((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
-                stderr.append(buffer, count);
-            }
-            close(readCerrPipe);
-        });
-        readCoutThread.join();
-        readCerrThread.join();
+
+        // get return code
         int childReturnCode;
         waitpid(child, &childReturnCode, 0);
         return childReturnCode;

@@ -18,7 +18,7 @@ public:
     std::string testFilePath(const std::string &name) const;
 #ifdef PLATFORM_UNIX
     std::string workingCopyPath(const std::string &name) const;
-    int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false) const;
+    int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
