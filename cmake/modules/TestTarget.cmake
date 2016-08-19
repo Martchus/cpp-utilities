@@ -13,12 +13,16 @@ add_executable(${META_PROJECT_NAME}_tests EXCLUDE_FROM_ALL ${TEST_HEADER_FILES} 
 # always link test applications against c++utilities, cppunit and pthreads
 find_library(CPP_UNIT_LIB cppunit)
 find_library(PTHREAD_LIB pthread)
-list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_SHARED_LIB} ${CPP_UNIT_LIB} ${PTHREAD_LIB})
+list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB} ${CPP_UNIT_LIB} ${PTHREAD_LIB})
 
 # test applications of my projects always use c++utilities and cppunit
 if(NOT META_PROJECT_TYPE OR "${META_PROJECT_TYPE}" STREQUAL "library") # default project type is library
     # when testing a library, the test application always needs to link against it
-    list(APPEND TEST_LIBRARIES ${META_PROJECT_NAME})
+    if(BUILD_SHARED_LIBS)
+        list(APPEND TEST_LIBRARIES ${META_PROJECT_NAME})
+    else()
+        list(APPEND TEST_LIBRARIES ${META_PROJECT_NAME}_static)
+    endif()
 else()
     # otherwise, the tests application needs the path of the application to be tested
     set(APPLICATION_PATH "-a ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}")
@@ -39,6 +43,6 @@ if(MINGW AND CMAKE_CROSSCOMPILING AND CPP_UTILITIES_SOURCE_DIR)
             list(APPEND RUNTIME_LIBRARY_PATH "${CMAKE_FIND_ROOT_PATH}/bin")
         endif()
         add_custom_target(${META_PROJECT_NAME}_run_tests COMMAND "${CPP_UTILITIES_SOURCE_DIR}/scripts/wine.sh" "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}_tests.${WINDOWS_EXT}" ${RUNTIME_LIBRARY_PATH})
-        add_dependencies(${META_PROJECT_NAME}_run_tests ${META_PROJECT_NAME})
+        add_dependencies(${META_PROJECT_NAME}_run_tests ${META_PROJECT_NAME}_tests)
     endif()
 endif()

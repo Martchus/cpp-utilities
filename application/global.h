@@ -3,24 +3,24 @@
 
 #ifdef _WIN32
 # ifndef PLATFORM_WINDOWS
-/*!
- * \brief Defined on Windows.
- */
+/// \brief Defined when compiling for Windows.
 #  define PLATFORM_WINDOWS
+# endif
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  ifndef PLATFORM_MINGW
+/// \brief Defined when compiling with mingw(-w64).
+#   define PLATFORM_MINGW
+#  endif
 # endif
 #elif __unix__
 # ifndef PLATFORM_UNIX
-/*!
- * \brief Defined on any UNIX system.
- */
+/// \brief Defined when compiling for any UNIX (like) system.
 #  define PLATFORM_UNIX
 # endif
 #endif
 #ifdef __linux__
 # ifndef PLATFORM_LINUX
-/*!
- * \brief Defined on Linux.
- */
+/// \brief Defined when compiling for Linux.
 #  define PLATFORM_LINUX
 # endif
 #endif

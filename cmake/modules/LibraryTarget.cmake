@@ -1,5 +1,10 @@
 # before including this module, BasicConfig must be included
 
+# check whether project type is set correctly
+if((NOT "${META_PROJECT_TYPE}" STREQUAL "library") AND (NOT "${META_PROJECT_TYPE}" STREQUAL ""))
+    message(FATAL_ERROR "The LibraryTarget CMake module is intended to be used for building library projects only (and not for applications).")
+endif()
+
 # include for configure_package_config_file and write_basic_package_version_file
 include(CMakePackageConfigHelpers)
 
@@ -36,23 +41,29 @@ if(MINGW)
 endif(MINGW)
 
 # add target for building the library
-option(BUILD_SHARED_LIBS "whether to build dynamic libraries (enabled by default)" ON)
 if(BUILD_SHARED_LIBS)
+    # use correct linker flags and compile definitions (depend on linkage)
+    if(STATIC_LIBRARY_LINKAGE)
+        set(ACTUAL_ADDITIONAL_LINK_FLAGS ${ADDITIONAL_STATIC_LINK_FLAGS})
+        set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_STATIC_COMPILE_DEFINITIONS})
+    else()
+        set(ACTUAL_ADDITIONAL_LINK_FLAGS ${ADDITIONAL_LINK_FLAGS})
+        set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_COMPILE_DEFINITIONS})
+    endif()
+    # add library to be created, set libs to link against, set version and C++ standard
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${LIBRARIES})
+    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTUAL_ADDITIONAL_LINK_FLAGS} ${LIBRARIES})
     set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
         VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}
         SOVERSION ${META_VERSION_MAJOR}
         CXX_STANDARD 11
+        COMPILE_DEFINITIONS "${ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS}"
+        LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+        LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
     )
 endif()
 
 # add target for building a static version of the library
-if(MINGW)
-    option(BUILD_STATIC_LIBS "whether to build static libraries (enabled by default on mingw-w64 platform)" ON)
-else()
-    option(BUILD_STATIC_LIBS "whether to build static libraries (disabled by default on none-mingw-w64- platform)" OFF)
-endif()
 if(BUILD_STATIC_LIBS)
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     # add target link libraries for the static lib also because otherwise Qt header files can not be located
@@ -62,6 +73,7 @@ if(BUILD_STATIC_LIBS)
         SOVERSION ${META_VERSION_MAJOR}
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
+        COMPILE_DEFINITIONS "${ADDITIONAL_STATIC_COMPILE_DEFINITIONS}"
     )
     set(META_STATIC_LIB_DEPENDS ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS}) # used in config file
 endif()

@@ -58,9 +58,21 @@ if(LOGGING_ENABLED)
     message(STATUS "Logging is enabled.")
 endif()
 
+# options for deciding whether to build static and/or shared libraries
+if((NOT ${META_PROJECT_TYPE} STREQUAL "library") AND (NOT ${META_PROJECT_TYPE} STREQUAL ""))
+    option(BUILD_STATIC_LIBS "whether to build static libraries (disabled by default)" OFF)
+    option(BUILD_SHARED_LIBS "whether to build dynamic libraries (enabled by default)" ON)
+endif()
+
 # options for forcing static linkage when building applications or dynamic libraries
-option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
-option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
+if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
+    option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
+elseif("${META_PROJECT_TYPE}" STREQUAL "application")
+    option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
+endif()
+
+# additional linker flags used when static linkage is enables
+set(ADDITIONAL_STATIC_LINK_FLAGS -static -static-libstdc++ -static-libgcc)
 
 # options for enabling/disabling Qt GUI (if available)
 if(WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES)

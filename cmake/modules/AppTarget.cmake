@@ -1,15 +1,31 @@
 # before including this module, BasicConfig must be included
 
+# check whether project type is set correctly
+if(NOT "${META_PROJECT_TYPE}" STREQUAL "application")
+    message(FATAL_ERROR "The AppTarget CMake module is intended to be used for building application projects only (and not for libraries).")
+endif()
+
 # set the windows extension to "exe", this is required by the Windows specific WindowsResources module
 if(WIN32)
     set(WINDOWS_EXT "exe")
 endif(WIN32)
 
+# use correct linker flags and compile definitions (depend on linkage)
+if(STATIC_LINKAGE)
+    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${ADDITIONAL_STATIC_LINK_FLAGS})
+    set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_STATIC_COMPILE_DEFINITIONS})
+else()
+    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${ADDITIONAL_LINK_FLAGS})
+    set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_COMPILE_DEFINITIONS})
+endif()
 # add target for building the application
 add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
-target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${LIBRARIES})
+target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTUAL_ADDITIONAL_LINK_FLAGS} ${LIBRARIES})
 set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
     CXX_STANDARD 11
+    COMPILE_DEFINITIONS "${ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS}"
+    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
 )
 
 # add install target for binary

@@ -35,7 +35,7 @@ if(NOT DEFINED FIND_THIRD_PARTY_LIBRARIES_EXISTS)
         elseif("${REQUIRED}" STREQUAL "REQUIRED")
             set(${NAME}_REQUIRED "REQUIRED")
         else()
-            message(FATAL_ERROR "Invalid use of use_external_library; must specify either REQUIRED or OPTIONAL.")
+            message(FATAL_ERROR "Invalid use of link_against_library; must specify either REQUIRED or OPTIONAL.")
         endif()
 
         # add library to list of libraries to link against when building dynamic libraries or applications
@@ -55,9 +55,36 @@ if(NOT DEFINED FIND_THIRD_PARTY_LIBRARIES_EXISTS)
 
         # add library to list of libraries to be provided as transitive dependencies when building static libraries
         list(APPEND STATIC_LIBRARIES ${${NAME}_STATIC_LIB})
+        message(STATUS "Adding ${${NAME}_STATIC_LIB} to static library dependencies of ${META_PROJECT_NAME}.")
     endmacro()
 
-    macro(use_external_library_from_package NAME VERSION INCLUDE_VAR LIBRARY_VAR LINKAGE REQUIRED)
+    macro(use_external_library NAME LINKAGE REQUIRED)
+        save_default_library_suffixes()
+        configure_dynamic_library_suffixes()
+        find_library(${NAME}_DYNAMIC_LIB ${NAME})
+        configure_static_library_suffixes()
+        find_library(${NAME}_STATIC_LIB ${NAME})
+        link_against_library(${NAME} ${LINKAGE} ${REQUIRED})
+        restore_default_library_suffixes()
+    endmacro()
+
+    function(use_external_library_from_package_dynamic NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
+        # internally used by use_external_library_from_package to find dynamic libraries
+        configure_dynamic_library_suffixes()
+        find_package(${PKGNAME} ${COMPAT_VERSION})
+        include_directories(${${INCLUDE_VAR}})
+        set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}} PARENT_SCOPE)
+    endfunction()
+
+    function(use_external_library_from_package_static NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
+        # internally used by use_external_library_from_package to find static libraries
+        configure_static_library_suffixes()
+        find_package(${PKGNAME} ${COMPAT_VERSION})
+        include_directories(${${INCLUDE_VAR}})
+        set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}} PARENT_SCOPE)
+    endfunction()
+
+    macro(use_external_library_from_package NAME PKGNAME VERSION INCLUDE_VAR LIBRARY_VAR LINKAGE REQUIRED)
         save_default_library_suffixes()
 
         # handle specified VERSION
@@ -67,24 +94,28 @@ if(NOT DEFINED FIND_THIRD_PARTY_LIBRARIES_EXISTS)
             set(${NAME}_COMPATIBLE_VERSION ${VERSION})
         endif()
 
-        # find dynamic library
+        # use the find_library approach first because it is less buggy when trying to detect static libraries
         configure_dynamic_library_suffixes()
-        find_package(${NAME} ${${NAME}_COMPATIBLE_VERSION})
-        include_directories(${${INCLUDE_VAR}})
-        set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}})
-        unset(${${LIBRARY_VAR}})
-
-        # find static library
+        find_library(${NAME}_DYNAMIC_LIB ${NAME})
         configure_static_library_suffixes()
-        find_package(${NAME} ${${NAME}_COMPATIBLE_VERSION})
-        set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}})
+        find_library(${NAME}_STATIC_LIB ${NAME})
+
+        # fall back to actual use of find_package
+        # use separate functions to get a new scope
+        if(NOT ${NAME}_DYNAMIC_LIB)
+            use_external_library_from_package_dynamic(${NAME} ${PKGNAME} ${INCLUDE_VAR} "${LIBRARY_VAR}" "${${NAME}_COMPATIBLE_VERSION}")
+        endif()
+        if(NOT ${NAME}_STATIC_LIB)
+            use_external_library_from_package_static(${NAME} ${PKGNAME} ${INCLUDE_VAR} "${LIBRARY_VAR}" "${${NAME}_COMPATIBLE_VERSION}")
+        endif()
+
 
         link_against_library(${NAME} ${LINKAGE} ${REQUIRED})
 
         restore_default_library_suffixes()
     endmacro()
 
-    macro(find_iconv LINKAGE REQUIRED)
+    macro(use_iconv LINKAGE REQUIRED)
         # check whether iconv exists in the standard library
         include(CheckFunctionExists)
         check_function_exists(iconv HAS_ICONV)
@@ -92,17 +123,7 @@ if(NOT DEFINED FIND_THIRD_PARTY_LIBRARIES_EXISTS)
             message(STATUS "Using iconv from the standard library for ${META_PROJECT_NAME}.")
         else()
             # find external iconv library
-            save_default_library_suffixes()
-
-            configure_dynamic_library_suffixes()
-            find_library(ICONV_DYNAMIC_LIB iconv)
-
-            configure_static_library_suffixes()
-            find_library(ICONV_STATIC_LIB iconv)
-
-            link_against_library(ICONV ${LINKAGE} ${REQUIRED})
-
-            restore_default_library_suffixes()
+            use_external_library(iconv ${LINKAGE} ${REQUIRED})
         endif()
     endmacro()
 endif()

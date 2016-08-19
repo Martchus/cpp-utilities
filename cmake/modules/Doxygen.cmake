@@ -20,7 +20,6 @@ endif()
 
 if(NOT DOXYGEN_BIN)
     message(WARNING "Doxygen not found, unable to add target for generating API documentation.")
-
 else()
     # load cached configuration and other variables
     set(DOXY_LANGUAGE "English" CACHE STRING "specifies the language of the API documentation generated with Doxygen")
