@@ -1,5 +1,8 @@
-#ifndef APP_METADATA_AVAIL
-#define APP_METADATA_AVAIL
+// Created via CMake from template config.h.in
+// WARNING! Any changes to this file will be overwritten by the next CMake run!
+
+#ifndef APPLICATION_CONFIG
+#define APPLICATION_CONFIG
 
 #define PROJECT_NAME @META_PROJECT_NAME_STR@
 #define APP_NAME @META_APP_NAME_STR@
@@ -12,4 +15,4 @@
 #cmakedefine SVG_SUPPORT
 #cmakedefine SVG_ICON_SUPPORT
 
-#endif // APP_METADATA_AVAIL
+#endif // APPLICATION_CONFIG

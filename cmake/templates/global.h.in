@@ -1,0 +1,17 @@
+// Created via CMake from template global.h.in
+// WARNING! Any changes to this file will be overwritten by the next CMake run!
+
+#ifndef @META_PROJECT_VARNAME_UPPER@_GLOBAL
+#define @META_PROJECT_VARNAME_UPPER@_GLOBAL
+
+#include @GENERAL_GLOBAL_H_INCLUDE_PATH@
+
+#ifdef @META_PROJECT_VARNAME_UPPER@_STATIC
+# define @META_PROJECT_VARNAME_UPPER@_EXPORT
+# define @META_PROJECT_VARNAME_UPPER@_IMPORT
+#else
+# define @META_PROJECT_VARNAME_UPPER@_EXPORT LIB_EXPORT
+# define @META_PROJECT_VARNAME_UPPER@_IMPORT LIB_IMPORT
+#endif
+
+#endif // @META_PROJECT_VARNAME_UPPER@_GLOBAL

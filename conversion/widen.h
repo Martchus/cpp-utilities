@@ -1,7 +1,7 @@
 #ifndef CONVERSION_UTILITIES_WIDEN_H
 #define CONVERSION_UTILITIES_WIDEN_H
 
-#include "../application/global.h"
+#include "../global.h"
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@ namespace ConversionUtilities
  * \brief Converts a std::string to a wide string using the specified locale.
  */
 template<class E, class T = std::char_traits<E>, class A = std::allocator<E> >
-class LIB_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> >
+class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> >
 {
 public:
     /*!

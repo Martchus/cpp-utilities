@@ -59,7 +59,7 @@ typedef std::uintptr_t uintptr;
  */
 typedef float float32;
 #else
-#error "Unable to define float32!"
+# error "Unable to define float32!"
 #endif
 
 #if __SIZEOF_DOUBLE__ == 8
@@ -68,7 +68,7 @@ typedef float float32;
  */
 typedef double float64;
 #else
-#error "Unable to define float64!"
+# error "Unable to define float64!"
 #endif
 
 #endif // CONVERSION_UTILITIES_TYPES_H

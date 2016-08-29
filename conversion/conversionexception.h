@@ -1,14 +1,14 @@
 #ifndef CONVERSION_UTILITIES_CONVERSIONEXCEPTION_H
 #define CONVERSION_UTILITIES_CONVERSIONEXCEPTION_H
 
-#include "../application/global.h"
+#include "../global.h"
 
 #include <stdexcept>
 #include <string>
 
 namespace ConversionUtilities {
 
-class LIB_EXPORT ConversionException : public std::runtime_error
+class CPP_UTILITIES_EXPORT ConversionException : public std::runtime_error
 {
 public:
     ConversionException() USE_NOTHROW;

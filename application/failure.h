@@ -1,14 +1,14 @@
 #ifndef APPLICATION_UTILITIES_FAILURE_H
 #define APPLICATION_UTILITIES_FAILURE_H
 
-#include "./global.h"
+#include "../global.h"
 
 #include <exception>
 #include <string>
 
 namespace ApplicationUtilities {
 
-class LIB_EXPORT Failure : public std::exception
+class CPP_UTILITIES_EXPORT Failure : public std::exception
 {
 public:
     Failure();

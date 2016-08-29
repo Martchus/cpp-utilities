@@ -1,7 +1,7 @@
 #ifndef IOUTILITIES_INIFILE_H
 #define IOUTILITIES_INIFILE_H
 
-#include "../application/global.h"
+#include "../global.h"
 
 #include <vector>
 #include <map>
@@ -9,7 +9,7 @@
 
 namespace IoUtilities {
 
-class LIB_EXPORT IniFile
+class CPP_UTILITIES_EXPORT IniFile
 {
 public:
     IniFile();

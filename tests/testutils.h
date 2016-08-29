@@ -8,7 +8,7 @@
 
 namespace TestUtilities {
 
-class LIB_EXPORT TestApplication
+class CPP_UTILITIES_EXPORT TestApplication
 {
 public:
     TestApplication(int argc, char **argv);
@@ -79,7 +79,7 @@ inline const std::vector<const char *> &TestApplication::units() const
  * \remarks A TestApplication must be present.
  * \sa TestApplication::testFilePath()
  */
-inline LIB_EXPORT std::string testFilePath(const std::string &name)
+inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &name)
 {
     return TestApplication::instance()->testFilePath(name);
 }
@@ -90,7 +90,7 @@ inline LIB_EXPORT std::string testFilePath(const std::string &name)
  * \remarks A TestApplication must be present.
  * \sa TestApplication::workingCopyPath()
  */
-inline LIB_EXPORT std::string workingCopyPath(const std::string &name)
+inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &name)
 {
     return TestApplication::instance()->workingCopyPath(name);
 }
@@ -100,7 +100,7 @@ inline LIB_EXPORT std::string workingCopyPath(const std::string &name)
  * \remarks A TestApplication must be present.
  * \sa TestApplication::execApp()
  */
-inline LIB_EXPORT int execApp(const char *const *args, std::string &output, std::string &errors)
+inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &output, std::string &errors)
 {
     return TestApplication::instance()->execApp(args, output, errors);
 }

@@ -1,7 +1,7 @@
 #ifndef APPLICATIONUTILITIES_COMMANDLINEUTILS_H
 #define APPLICATIONUTILITIES_COMMANDLINEUTILS_H
 
-#include "./global.h"
+#include "../global.h"
 
 namespace ApplicationUtilities {
 
@@ -15,10 +15,10 @@ enum class Response
     No
 };
 
-bool LIB_EXPORT confirmPrompt(const char *message, Response defaultResponse = Response::None);
+bool CPP_UTILITIES_EXPORT confirmPrompt(const char *message, Response defaultResponse = Response::None);
 
 #ifdef PLATFORM_WINDOWS
-void LIB_EXPORT startConsole();
+void CPP_UTILITIES_EXPORT startConsole();
 # define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
 #else
 # define CMD_UTILS_START_CONSOLE

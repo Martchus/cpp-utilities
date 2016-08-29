@@ -1,7 +1,7 @@
 #ifndef CHRONO_UTILITIES_TIMESPAN_H
 #define CHRONO_UTILITIES_TIMESPAN_H
 
-#include "../application/global.h"
+#include "../global.h"
 #include "../conversion/types.h"
 
 #include <string>
@@ -25,7 +25,7 @@ enum class TimeSpanOutputFormat
     WithMeasures /**< measures are used, eg.: 34 d 5 h 10 min 7 s 31 ms */
 };
 
-class LIB_EXPORT TimeSpan
+class CPP_UTILITIES_EXPORT TimeSpan
 {
     friend class DateTime;
 public:

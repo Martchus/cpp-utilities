@@ -1,7 +1,6 @@
 #ifndef IOUTILITIES_BINARYWRITER_H
 #define IOUTILITIES_BINARYWRITER_H
 
-#include "../application/global.h"
 #include "../conversion/types.h"
 #include "../conversion/binaryconversion.h"
 
@@ -12,7 +11,7 @@
 namespace IoUtilities
 {
 
-class LIB_EXPORT BinaryWriter
+class CPP_UTILITIES_EXPORT BinaryWriter
 {
 public:
     BinaryWriter(std::ostream *stream);

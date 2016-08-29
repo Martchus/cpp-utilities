@@ -6,12 +6,12 @@
 
 #include "./types.h"
 
-#include "../application/global.h"
+#include "../global.h"
 
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.
  */
-LIB_EXPORT inline int16 toInt16(const char *value)
+CPP_UTILITIES_EXPORT inline int16 toInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<int16>(value[0]) << 8 & 0xFF00)
@@ -25,7 +25,7 @@ LIB_EXPORT inline int16 toInt16(const char *value)
 /*!
  * \brief Returns a 16-bit unsigned integer converted from two bytes at a specified position in a char array.
  */
-LIB_EXPORT inline uint16 toUInt16(const char *value)
+CPP_UTILITIES_EXPORT inline uint16 toUInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<uint16>(value[0]) << 8 & 0xFF00)
@@ -39,7 +39,7 @@ LIB_EXPORT inline uint16 toUInt16(const char *value)
 /*!
  * \brief Returns a 32-bit signed integer converted from four bytes at a specified position in a char array.
  */
-LIB_EXPORT inline int32 toInt32(const char *value)
+CPP_UTILITIES_EXPORT inline int32 toInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<int32>(value[0]) << 24 & 0xFF000000)
@@ -57,7 +57,7 @@ LIB_EXPORT inline int32 toInt32(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from three bytes at a specified position in a char array.
  */
-LIB_EXPORT inline uint32 toUInt24(const char *value)
+CPP_UTILITIES_EXPORT inline uint32 toUInt24(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<uint32>(value[0]) << 16 & 0x00FF0000)
@@ -73,7 +73,7 @@ LIB_EXPORT inline uint32 toUInt24(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from four bytes at a specified position in a char array.
  */
-LIB_EXPORT inline uint32 toUInt32(const char *value)
+CPP_UTILITIES_EXPORT inline uint32 toUInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<uint32>(value[0]) << 24 & 0xFF000000)
@@ -91,7 +91,7 @@ LIB_EXPORT inline uint32 toUInt32(const char *value)
 /*!
  * \brief Returns a 64-bit signed integer converted from eight bytes at a specified position in a char array.
  */
-LIB_EXPORT inline int64 toInt64(const char *value)
+CPP_UTILITIES_EXPORT inline int64 toInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<int64>(value[0]) << 56 & 0xFF00000000000000)
@@ -117,7 +117,7 @@ LIB_EXPORT inline int64 toInt64(const char *value)
 /*!
  * \brief Returns a 64-bit unsigned integer converted from eight bytes at a specified position in a char array.
  */
-LIB_EXPORT inline uint64 toUInt64(const char *value)
+CPP_UTILITIES_EXPORT inline uint64 toUInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return    (static_cast<uint64>(value[0]) << 56 & 0xFF00000000000000)
@@ -143,7 +143,7 @@ LIB_EXPORT inline uint64 toUInt64(const char *value)
 /*!
  * \brief Returns a 32-bit floating point number converted from four bytes at a specified position in a char array.
  */
-LIB_EXPORT inline float32 toFloat32(const char *value)
+CPP_UTILITIES_EXPORT inline float32 toFloat32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     int32 val = toInt32(value);
@@ -159,7 +159,7 @@ LIB_EXPORT inline float32 toFloat32(const char *value)
 /*!
  * \brief Returns a 64-bit floating point number converted from eight bytes at a specified position in a char array.
  */
-LIB_EXPORT inline float64 toFloat64(const char *value)
+CPP_UTILITIES_EXPORT inline float64 toFloat64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     int64 val = toInt64(value);
@@ -175,7 +175,7 @@ LIB_EXPORT inline float64 toFloat64(const char *value)
 /*!
  * \brief Stores the specified 16-bit signed integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(int16 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(int16 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
@@ -189,7 +189,7 @@ LIB_EXPORT inline void getBytes(int16 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 16-bit unsigned integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(uint16 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(uint16 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
@@ -204,7 +204,7 @@ LIB_EXPORT inline void getBytes(uint16 value, char *outputbuffer)
  * \brief Stores the specified 24-bit unsigned integer value at a specified position in a char array.
  * \remarks Ignores the most significant byte.
  */
-LIB_EXPORT inline void getBytes24(uint32 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes24(uint32 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 16) & 0xFF);
@@ -220,7 +220,7 @@ LIB_EXPORT inline void getBytes24(uint32 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 32-bit signed integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(int32 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(int32 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
@@ -238,7 +238,7 @@ LIB_EXPORT inline void getBytes(int32 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 32-bit signed integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(uint32 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(uint32 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
@@ -256,7 +256,7 @@ LIB_EXPORT inline void getBytes(uint32 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 64-bit signed integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(int64 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(int64 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 56) & 0xFF);
@@ -282,7 +282,7 @@ LIB_EXPORT inline void getBytes(int64 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 64-bit unsigned integer value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 56) & 0xFF);
@@ -308,7 +308,7 @@ LIB_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 32-bit floating point value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(float32 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(float32 value, char *outputbuffer)
 {
     char *c = reinterpret_cast<char *>(&value);
     int32 i = *reinterpret_cast<int32 *>(c);
@@ -318,7 +318,7 @@ LIB_EXPORT inline void getBytes(float32 value, char *outputbuffer)
 /*!
  * \brief Stores the specified 64-bit floating point value at a specified position in a char array.
  */
-LIB_EXPORT inline void getBytes(float64 value, char *outputbuffer)
+CPP_UTILITIES_EXPORT inline void getBytes(float64 value, char *outputbuffer)
 {
     char *c = reinterpret_cast<char *>(&value);
     int64 i = *reinterpret_cast<int64 *>(c);

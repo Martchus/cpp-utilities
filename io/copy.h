@@ -1,7 +1,7 @@
 #ifndef IOUTILITIES_COPY_H
 #define IOUTILITIES_COPY_H
 
-#include "../application/global.h"
+#include "../global.h"
 
 #include <iostream>
 #include <functional>
@@ -14,7 +14,7 @@ namespace IoUtilities {
  * \tparam Specifies the buffer size.
  */
 template<std::size_t bufferSize>
-class LIB_EXPORT CopyHelper
+class CPP_UTILITIES_EXPORT CopyHelper
 {
 public:
     CopyHelper();

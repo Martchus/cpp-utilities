@@ -3,7 +3,7 @@
 
 #include "./types.h"
 
-#include "../application/global.h"
+#include "../global.h"
 
 #ifdef __BYTE_ORDER__
 #   if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -106,7 +106,7 @@ namespace LE {
 /*!
  * \brief Returns the 8.8 fixed point representation converted from the specified 32-bit floating point number.
  */
-LIB_EXPORT constexpr uint16 toFixed8(float32 float32value)
+CPP_UTILITIES_EXPORT constexpr uint16 toFixed8(float32 float32value)
 {
     return static_cast<uint16>(float32value * 256.0f);
 }
@@ -114,7 +114,7 @@ LIB_EXPORT constexpr uint16 toFixed8(float32 float32value)
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 8.8 fixed point representation.
  */
-LIB_EXPORT constexpr float32 toFloat32(uint16 fixed8value)
+CPP_UTILITIES_EXPORT constexpr float32 toFloat32(uint16 fixed8value)
 {
     return static_cast<float32>(fixed8value) / 256.0f;
 }
@@ -122,7 +122,7 @@ LIB_EXPORT constexpr float32 toFloat32(uint16 fixed8value)
 /*!
  * \brief Returns the 16.16 fixed point representation converted from the specified 32-bit floating point number.
  */
-LIB_EXPORT constexpr uint32 toFixed16(float32 float32value)
+CPP_UTILITIES_EXPORT constexpr uint32 toFixed16(float32 float32value)
 {
     return static_cast<uint32>(float32value * 65536.0f);
 }
@@ -130,7 +130,7 @@ LIB_EXPORT constexpr uint32 toFixed16(float32 float32value)
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 16.16 fixed point representation.
  */
-LIB_EXPORT constexpr float32 toFloat32(uint32 fixed16value)
+CPP_UTILITIES_EXPORT constexpr float32 toFloat32(uint32 fixed16value)
 {
     return static_cast<float32>(fixed16value) / 65536.0f;
 }
@@ -140,7 +140,7 @@ LIB_EXPORT constexpr float32 toFloat32(uint32 fixed16value)
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-LIB_EXPORT constexpr uint32 toSynchsafeInt(uint32 normalInt)
+CPP_UTILITIES_EXPORT constexpr uint32 toSynchsafeInt(uint32 normalInt)
 {
     return    ((normalInt & 0x0000007fu)     )
             | ((normalInt & 0x00003f80u) << 1)
@@ -153,7 +153,7 @@ LIB_EXPORT constexpr uint32 toSynchsafeInt(uint32 normalInt)
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-LIB_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
+CPP_UTILITIES_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
 {
     return    ((synchsafeInt & 0x0000007fu)     )
             | ((synchsafeInt & 0x00007f00u) >> 1)
@@ -164,7 +164,7 @@ LIB_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
 /*!
  * \brief Swaps the byte order of the specified 16-bit unsigned integer.
  */
-LIB_EXPORT constexpr uint16 swapOrder(uint16 value)
+CPP_UTILITIES_EXPORT constexpr uint16 swapOrder(uint16 value)
 {
     return (value >> 8) | (value << 8);
 }
@@ -172,7 +172,7 @@ LIB_EXPORT constexpr uint16 swapOrder(uint16 value)
 /*!
  * \brief Swaps the byte order of the specified 32-bit unsigned integer.
  */
-LIB_EXPORT constexpr uint32 swapOrder(uint32 value)
+CPP_UTILITIES_EXPORT constexpr uint32 swapOrder(uint32 value)
 {
     return (value >> 24)
             | ((value & 0x00FF0000) >> 8)
@@ -183,7 +183,7 @@ LIB_EXPORT constexpr uint32 swapOrder(uint32 value)
 /*!
  * \brief Swaps the byte order of the specified 64-bit unsigned integer.
  */
-LIB_EXPORT constexpr uint64 swapOrder(uint64 value)
+CPP_UTILITIES_EXPORT constexpr uint64 swapOrder(uint64 value)
 {
     return(value >> (7 * 8))
             | ((value & 0x00FF000000000000) >> (5 * 8))

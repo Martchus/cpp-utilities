@@ -1,7 +1,7 @@
 #ifndef APPLICATION_UTILITIES_ARGUMENTPARSER_H
 #define APPLICATION_UTILITIES_ARGUMENTPARSER_H
 
-#include "./global.h"
+#include "../global.h"
 
 #include <vector>
 #include <initializer_list>
@@ -14,10 +14,10 @@ class ArgumentParserTests;
 
 namespace ApplicationUtilities {
 
-LIB_EXPORT extern const char *applicationName;
-LIB_EXPORT extern const char *applicationAuthor;
-LIB_EXPORT extern const char *applicationVersion;
-LIB_EXPORT extern const char *applicationUrl;
+CPP_UTILITIES_EXPORT extern const char *applicationName;
+CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
+CPP_UTILITIES_EXPORT extern const char *applicationVersion;
+CPP_UTILITIES_EXPORT extern const char *applicationUrl;
 
 #define SET_APPLICATION_INFO \
     ::ApplicationUtilities::applicationName = APP_NAME; \
@@ -68,12 +68,12 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
 }
 /// \endcond
 
-Argument LIB_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
+Argument CPP_UTILITIES_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
 
 /*!
  * \brief The ArgumentOccurrence struct holds argument values for an occurrence of an argument.
  */
-struct LIB_EXPORT ArgumentOccurrence
+struct CPP_UTILITIES_EXPORT ArgumentOccurrence
 {
     ArgumentOccurrence(std::size_t index);
     ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
@@ -119,7 +119,7 @@ inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vect
     }
 }
 
-class LIB_EXPORT Argument
+class CPP_UTILITIES_EXPORT Argument
 {
     friend class ArgumentParser;
 
@@ -200,7 +200,7 @@ private:
     const char *m_preDefinedCompletionValues;
 };
 
-class LIB_EXPORT ArgumentParser
+class CPP_UTILITIES_EXPORT ArgumentParser
 {
     friend ArgumentParserTests;
 public:
@@ -767,7 +767,7 @@ inline void ArgumentParser::setDefaultArgument(Argument *argument)
     m_defaultArg = argument;
 }
 
-class LIB_EXPORT HelpArgument : public Argument
+class CPP_UTILITIES_EXPORT HelpArgument : public Argument
 {
 public:
     HelpArgument(ArgumentParser &parser);

@@ -10,4 +10,4 @@ URL: @META_APP_URL@
 
 Libs: -L${libdir} -l@TARGET_PREFIX@@META_PROJECT_NAME@@TARGET_SUFFIX@
 Libs.private: @META_STATIC_LIB_DEPENDS@
-Cflags: -I${includedir} @META_REQUIRED_CFLAGS@
+Cflags: -I${includedir}

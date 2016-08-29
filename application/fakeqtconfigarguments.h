@@ -5,7 +5,7 @@
 
 namespace ApplicationUtilities {
 
-class LIB_EXPORT FakeQtConfigArguments
+class CPP_UTILITIES_EXPORT FakeQtConfigArguments
 {
 public:
     FakeQtConfigArguments();

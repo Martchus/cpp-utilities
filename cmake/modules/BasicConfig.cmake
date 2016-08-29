@@ -39,7 +39,7 @@ set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJEC
 option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
 if(FORCE_OLD_ABI)
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-    set(META_REQUIRED_CFLAGS "${META_REQUIRED_CFLAGS} -D-D_GLIBCXX_USE_CXX11_ABI=0")
+    set(META_REQUIRED_BUILD_FLAGS "${META_REQUIRED_BUILD_CFLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
     message(STATUS "Forcing usage of old CXX11 ABI.")
 else()
     message(STATUS "Using default CXX11 ABI (not forcing old CX11 ABI).")
@@ -59,9 +59,14 @@ if(LOGGING_ENABLED)
 endif()
 
 # options for deciding whether to build static and/or shared libraries
-if((NOT ${META_PROJECT_TYPE} STREQUAL "library") AND (NOT ${META_PROJECT_TYPE} STREQUAL ""))
+if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
     option(BUILD_STATIC_LIBS "whether to build static libraries (disabled by default)" OFF)
-    option(BUILD_SHARED_LIBS "whether to build dynamic libraries (enabled by default)" ON)
+    option(DISABLE_SHARED_LIBS "whether building dynamic libraries is disabled (prevents BUILD_SHARED_LIBS being re-enabled when using Qt Creator)" OFF)
+    if(DISABLE_SHARED_LIBS)
+        set(BUILD_SHARED_LIBS OFF)
+    else()
+        option(BUILD_SHARED_LIBS "whether to build dynamic libraries (enabled by default)" ON)
+    endif()
 endif()
 
 # options for forcing static linkage when building applications or dynamic libraries

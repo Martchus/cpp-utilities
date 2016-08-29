@@ -1,7 +1,7 @@
 #ifndef IOUTILITIES_ANSIESCAPECODES
 #define IOUTILITIES_ANSIESCAPECODES
 
-#include "../application/global.h"
+#include "../global.h"
 
 #include <ostream>
 

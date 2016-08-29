@@ -1,8 +1,6 @@
 #ifndef IOUTILITIES_BINERYREADER_H
 #define IOUTILITIES_BINERYREADER_H
 
-#include "../application/global.h"
-#include "../conversion/types.h"
 #include "../conversion/binaryconversion.h"
 
 #include <vector>
@@ -11,7 +9,7 @@
 
 namespace IoUtilities
 {
-class LIB_EXPORT BinaryReader
+class CPP_UTILITIES_EXPORT BinaryReader
 {
 
 public:

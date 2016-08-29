@@ -30,6 +30,7 @@ set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake")
 
+
 # remove library prefix when building with mingw-w64 (just for consistency with qmake)
 if(MINGW)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
@@ -39,6 +40,29 @@ endif(MINGW)
 if(MINGW)
     set(WINDOWS_EXT "dll")
 endif(MINGW)
+
+# create global header and define build flags
+if(NOT META_SHARED_LIB_COMPILE_DEFINITIONS)
+    set(META_SHARED_LIB_COMPILE_DEFINITIONS ${META_COMPILE_DEFINITIONS})
+endif()
+if(NOT META_STATIC_LIB_COMPILE_DEFINITIONS)
+    set(META_STATIC_LIB_COMPILE_DEFINITIONS ${META_COMPILE_DEFINITIONS} ${META_PROJECT_VARNAME_UPPER}_STATIC)
+endif()
+
+# add global library-specific header
+include(TemplateFinder)
+find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
+if("${META_PROJECT_NAME}" STREQUAL "c++utilities")
+    set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"./application/global.h\"")
+else()
+    set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
+endif()
+configure_file(
+    "${GLOBAL_H_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/global.h" # simply add this to source to ease inclusion
+    NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
+)
+list(APPEND HEADER_FILES global.h)
 
 # add target for building the library
 if(BUILD_SHARED_LIBS)
@@ -65,6 +89,8 @@ endif()
 
 # add target for building a static version of the library
 if(BUILD_STATIC_LIBS)
+    set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_STATIC_COMPILE_DEFINITIONS})
+    list(APPEND ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${META_STATIC_LIB_COMPILE_DEFINITIONS})
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     # add target link libraries for the static lib also because otherwise Qt header files can not be located
     target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${STATIC_LIBRARIES})
@@ -73,7 +99,7 @@ if(BUILD_STATIC_LIBS)
         SOVERSION ${META_VERSION_MAJOR}
         OUTPUT_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         CXX_STANDARD 11
-        COMPILE_DEFINITIONS "${ADDITIONAL_STATIC_COMPILE_DEFINITIONS}"
+        COMPILE_DEFINITIONS "${ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS}"
     )
     set(META_STATIC_LIB_DEPENDS ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS}) # used in config file
 endif()
@@ -101,7 +127,6 @@ write_basic_package_version_file(
 
 # create pkg-config file from template
 # will (currently) not contain Libs.private if static libs haven't been built anyways
-include(TemplateFinder)
 find_template_file("template.pc" CPP_UTILITIES PKGCONFIG_TEMPLATE_FILE)
 configure_file(
     "${PKGCONFIG_TEMPLATE_FILE}"
@@ -119,7 +144,6 @@ install(
     COMPONENT
         cmake-config
 )
-
 if(NOT TARGET install-cmake-config)
     add_custom_target(install-cmake-config
         DEPENDS ${META_PROJECT_NAME}
@@ -152,7 +176,6 @@ if(BUILD_SHARED_LIBS)
         COMPONENT binary
     )
 endif()
-
 if(NOT TARGET install-binary)
     add_custom_target(install-binary
         DEPENDS ${META_PROJECT_NAME}
@@ -190,7 +213,6 @@ foreach(HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
         COMPONENT header
     )
 endforeach()
-
 if(NOT TARGET install-header)
     add_custom_target(install-header
         DEPENDS ${META_PROJECT_NAME}
@@ -207,7 +229,6 @@ foreach(CMAKE_MODULE_FILE ${CMAKE_MODULE_FILES})
         COMPONENT cmake-modules
     )
 endforeach()
-
 if(NOT TARGET install-cmake-modules)
     add_custom_target(install-cmake-modules
         DEPENDS ${META_PROJECT_NAME}
@@ -224,7 +245,6 @@ foreach(CMAKE_TEMPLATE_FILE ${CMAKE_TEMPLATE_FILES})
         COMPONENT cmake-templates
     )
 endforeach()
-
 if(NOT TARGET install-cmake-templates)
     add_custom_target(install-cmake-templates
         DEPENDS ${META_PROJECT_NAME}
@@ -245,21 +265,18 @@ if(NOT TARGET install-mingw-w64)
         DEPENDS install-binary install-header install-cmake-stuff ${LOCALIZATION_TARGET}
     )
 endif()
-
 if(NOT TARGET install-mingw-w64-importlib-strip)
     add_custom_target(install-mingw-w64-importlib-strip
         DEPENDS install-binary-strip
         COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" --strip-unneeded "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_PROJECT_NAME}.dll.a"
     )
 endif()
-
 if(NOT TARGET install-mingw-w64-staticlib-strip)
     add_custom_target(install-mingw-w64-staticlib-strip
         DEPENDS install-binary-strip
         COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" -g "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_PROJECT_NAME}.a"
     )
 endif()
-
 if(NOT TARGET install-mingw-w64-strip)
     add_custom_target(install-mingw-w64-strip
         DEPENDS install-binary-strip install-mingw-w64-importlib-strip install-mingw-w64-staticlib-strip install-header install-cmake-stuff ${LOCALIZATION_TARGET}

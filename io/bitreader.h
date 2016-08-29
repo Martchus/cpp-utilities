@@ -2,8 +2,8 @@
 #define IOUTILITIES_BITREADER_H
 
 #include "../conversion/types.h"
-#include "../application/global.h"
 #include "../io/catchiofailure.h"
+#include "../global.h"
 
 #include <ios>
 #include <iostream>
@@ -11,7 +11,7 @@
 
 namespace IoUtilities {
 
-class LIB_EXPORT BitReader
+class CPP_UTILITIES_EXPORT BitReader
 {
 public:
     BitReader(const char *buffer, std::size_t bufferSize);

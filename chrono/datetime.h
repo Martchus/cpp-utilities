@@ -52,7 +52,7 @@ enum class DatePart
     Day /**< day */
 };
 
-class LIB_EXPORT DateTime
+class CPP_UTILITIES_EXPORT DateTime
 {
 public:
     explicit constexpr DateTime();

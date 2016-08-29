@@ -18,6 +18,7 @@ else()
     set(ACTUAL_ADDITIONAL_LINK_FLAGS ${ADDITIONAL_LINK_FLAGS})
     set(ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS ${ADDITIONAL_COMPILE_DEFINITIONS})
 endif()
+
 # add target for building the application
 add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
 target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTUAL_ADDITIONAL_LINK_FLAGS} ${LIBRARIES})
@@ -33,7 +34,6 @@ install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
     RUNTIME DESTINATION bin
     COMPONENT binary
 )
-
 if(NOT TARGET install-binary)
     add_custom_target(install-binary
         DEPENDS ${META_PROJECT_NAME}
@@ -64,7 +64,6 @@ foreach(ICON_FILE ${ICON_FILES})
         COMPONENT desktop
     )
 endforeach()
-
 if(NOT TARGET install-desktop)
     add_custom_target(install-desktop
         DEPENDS ${META_PROJECT_NAME}

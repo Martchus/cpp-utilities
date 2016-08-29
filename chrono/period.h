@@ -3,11 +3,9 @@
 
 #include "./datetime.h"
 
-#include "../application/global.h"
-
 namespace ChronoUtilities {
 
-class LIB_EXPORT Period
+class CPP_UTILITIES_EXPORT Period
 {
 public:
     Period(const DateTime &beg, const DateTime &end);

@@ -1,6 +1,5 @@
 #include "./path.h"
 
-#include "../application/global.h"
 #include "../conversion/widen.h"
 
 #include <string>
