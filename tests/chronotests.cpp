@@ -1,6 +1,7 @@
 #include "../chrono/datetime.h"
 #include "../chrono/timespan.h"
 #include "../chrono/period.h"
+#include "../chrono/format.h"
 #include "../conversion/conversionexception.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -42,20 +43,20 @@ CPPUNIT_TEST_SUITE_REGISTRATION(ChronoTests);
 void ChronoTests::testDateTime()
 {
     // test year(), month(), ...
-    auto test1 = DateTime::fromDateAndTime(2012, 2, 29, 15, 34, 20, 33.0);
-    CPPUNIT_ASSERT(test1.year() == 2012);
-    CPPUNIT_ASSERT(test1.month() == 2);
-    CPPUNIT_ASSERT(test1.day() == 29);
-    CPPUNIT_ASSERT(test1.minute() == 34);
-    CPPUNIT_ASSERT(test1.second() == 20);
-    CPPUNIT_ASSERT(test1.millisecond() == 33);
+    const auto test1 = DateTime::fromDateAndTime(2012, 2, 29, 15, 34, 20, 33.0);
+    CPPUNIT_ASSERT_EQUAL(2012, test1.year());
+    CPPUNIT_ASSERT_EQUAL(2, test1.month());
+    CPPUNIT_ASSERT_EQUAL(29, test1.day());
+    CPPUNIT_ASSERT_EQUAL(34, test1.minute());
+    CPPUNIT_ASSERT_EQUAL(20, test1.second());
+    CPPUNIT_ASSERT_EQUAL(33, test1.millisecond());
     CPPUNIT_ASSERT(test1.dayOfWeek() == DayOfWeek::Wednesday);
-    CPPUNIT_ASSERT(test1.dayOfYear() == (31 + 29));
+    CPPUNIT_ASSERT_EQUAL((31 + 29), test1.dayOfYear());
     CPPUNIT_ASSERT(test1.isLeapYear());
-    CPPUNIT_ASSERT(test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday) == "Wed 2012-02-29 15:34:20.33");
+    CPPUNIT_ASSERT_EQUAL(string("Wed 2012-02-29 15:34:20.033"), test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
 
     // test fromTimeStamp()
-    auto test2 = DateTime::fromTimeStampGmt(1453840331);
+    const auto test2 = DateTime::fromTimeStampGmt(1453840331);
     CPPUNIT_ASSERT(test2.toString(DateTimeOutputFormat::DateTimeAndShortWeekday) == "Tue 2016-01-26 20:32:11");
 
     // test whether ConversionException() is thrown when invalid values are specified
@@ -63,6 +64,13 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_THROW(DateTime::fromDateAndTime(2012, 2, 29, 15, 61, 20, 33), ConversionException);
     CPPUNIT_ASSERT_THROW(DateTime::fromDateAndTime(2012, 4, 31, 15, 0, 20, 33), ConversionException);
     CPPUNIT_ASSERT_THROW(DateTime::fromDateAndTime(2012, 3, 31, 15, 0, 61, 33), ConversionException);
+
+    // test fromString()/toString()
+    CPPUNIT_ASSERT_EQUAL(test1, DateTime::fromString("2012-02-29 15:34:20.033"));
+    CPPUNIT_ASSERT_EQUAL(string("2012-02-29 15:34:20.033"), test1.toString(DateTimeOutputFormat::DateAndTime, false));
+    CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2012-02-29 15:34:34:20.033"), ConversionException);
+    const auto test3 = DateTime::fromIsoString("2016-08-29T21:32:31.125+02:00");
+    CPPUNIT_ASSERT_EQUAL(string("2016-08-29T21:32:31.125+02:00"), test3.first.toIsoString(test3.second));
 }
 
 /*!

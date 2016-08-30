@@ -10,6 +10,7 @@ set(HEADER_FILES
     chrono/datetime.h
     chrono/period.h
     chrono/timespan.h
+    chrono/format.h
     conversion/binaryconversion.h
     conversion/binaryconversionprivate.h
     conversion/conversionexception.h

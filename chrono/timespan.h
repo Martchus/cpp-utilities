@@ -37,8 +37,8 @@ public:
     static constexpr TimeSpan fromMinutes(double minutes);
     static constexpr TimeSpan fromHours(double hours);
     static constexpr TimeSpan fromDays(double days);
-    static TimeSpan fromString(const std::string &str);
-    static TimeSpan fromString(const std::string &str, char separator);
+    static TimeSpan fromString(const std::string &str, char separator = ':');
+    static TimeSpan fromString(const char *str, char separator);
     static constexpr TimeSpan negativeInfinity();
     static constexpr TimeSpan infinity();
 
@@ -132,6 +132,14 @@ constexpr inline TimeSpan TimeSpan::fromHours(double hours)
 constexpr inline TimeSpan TimeSpan::fromDays(double days)
 {
     return TimeSpan(static_cast<int64>(days * static_cast<double>(m_ticksPerDay)));
+}
+
+/*!
+ * \brief Parses the given std::string as TimeSpan.
+ */
+inline TimeSpan TimeSpan::fromString(const std::string &str, char separator)
+{
+    return TimeSpan::fromString(str.data(), separator);
 }
 
 /*!

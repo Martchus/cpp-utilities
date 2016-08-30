@@ -61,6 +61,8 @@ public:
     static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromString(const std::string &str);
+    static DateTime fromString(const char *str);
+    static std::pair<DateTime, TimeSpan> fromIsoString(const char *str);
     static DateTime fromTimeStamp(time_t timeStamp);
     static DateTime fromTimeStampGmt(time_t timeStamp);
 
@@ -81,6 +83,7 @@ public:
     constexpr bool isSameDay(const DateTime &other) const;
     std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
+    std::string toIsoString(TimeSpan delta) const;
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
 
     static constexpr DateTime eternity();
@@ -121,6 +124,8 @@ private:
     static const int m_daysInMonth366[12];
 };
 
+
+
 /*!
  * \brief Constructs a DateTime.
  */
@@ -160,6 +165,14 @@ inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour
         return DateTime(ticks + timeToTicks(hour, minute, second, millisecond));
     }
     return DateTime();
+}
+
+/*!
+ * \brief Parses the given std::string as DateTime.
+ */
+inline DateTime DateTime::fromString(const std::string &str)
+{
+    return fromString(str.data());
 }
 
 /*!

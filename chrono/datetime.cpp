@@ -76,30 +76,109 @@ DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 }
 
 /*!
- * \brief Parses the given std::string \a str as DateTime.
+ * \brief Parses the given C-style string as DateTime.
  */
-DateTime DateTime::fromString(const string &str)
+DateTime DateTime::fromString(const char *str)
 {
-    int values[7] = {0};
-    int *i = values;
-    for(const auto &c : str) {
-        if(c >= '1' || c <= '0') {
-            *i *= 10;
-            *i += c - '1';
-        } else if((c == '-' || c == ':' || c == '/') || (c == '.' && (i == values + 5))) {
-            ++i;
+    int values[6] = {0};
+    int *const dayIndex = values + 2;
+    int *const secondsIndex = values + 5;
+    int *valueIndex = values;
+    int *const valuesEnd = values + 7;
+    double miliSecondsFact = 100.0, miliSeconds = 0.0;
+    for(const char *strIndex = str; ; ++strIndex) {
+        const char c = *strIndex;
+        if(c <= '9' && c >= '0') {
+            if(valueIndex > secondsIndex) {
+                 miliSeconds += (c - '0') * miliSecondsFact;
+                 miliSecondsFact /= 10;
+            } else {
+                *valueIndex *= 10;
+                *valueIndex += c - '0';
+            }
+        } else if((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex)) || (c == ' ' && (valueIndex == dayIndex))) {
+            if(++valueIndex == valuesEnd) {
+                break; // just ignore further values for now
+            }
+        } else if(c == '\0') {
+            break;
         } else {
-            throw ConversionException(string("string contains unexpected character ") + c);
+            throw ConversionException(string("unexpected ") + c);
         }
     }
-    return DateTime::fromDateAndTime(values[0], values[1], values[2], values[3], values[4], values[5], 100.0 * values[6]);
+    return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, miliSeconds);
 }
 
 /*!
- * \brief Converts the value of the current DateTime object to its equivalent std::string representation
- *        according the given \a format.
- *
- * If \a noMilliseconds is true the date will be rounded to full seconds.
+ * \brief Parses the given ISO date time denotation provided as C-style string.
+ * \returns Returns a pair where the first value is the parsed UTC DateTime and the second value
+ *          a TimeSpan which can be added to the first value to get the local DateTime.
+ * \remarks Not sure whether it is actually ISO conform, but it parses denotations like
+ *          "2016-08-29T21:32:31.588539814+02:00".
+ */
+std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
+{
+    int values[9] = {0};
+    int *const dayIndex = values + 2;
+    int *const hourIndex = values + 3;
+    int *const secondsIndex = values + 5;
+    int *const miliSecondsIndex = values + 6;
+    int *const deltaHourIndex = values + 7;
+    int *valueIndex = values;
+    bool deltaNegative = false;
+    double miliSecondsFact = 100.0, miliSeconds = 0.0;
+    for(const char *strIndex = str; ; ++strIndex) {
+        const char c = *strIndex;
+        if(c <= '9' && c >= '0') {
+            if(valueIndex == miliSecondsIndex) {
+                miliSeconds += (c - '0') * miliSecondsFact;
+                miliSecondsFact /= 10;
+            } else {
+                *valueIndex *= 10;
+                *valueIndex += c - '0';
+            }
+        } else if(c == 'T') {
+            if(++valueIndex != hourIndex) {
+                throw ConversionException("\"T\" expected before hour");
+            }
+        } else if(c == '-') {
+            if(valueIndex < dayIndex) {
+                ++valueIndex;
+            } else {
+                throw ConversionException("unexpected \"-\" after day");
+            }
+        } else if(c == '.') {
+            if(valueIndex != secondsIndex) {
+                throw ConversionException("unexpected \".\"");
+            } else {
+                ++valueIndex;
+            }
+        } else if(c == ':') {
+            if(valueIndex < hourIndex) {
+                throw ConversionException("unexpected \":\" before hour");
+            } else if(valueIndex == secondsIndex) {
+                throw ConversionException("unexpected \":\" after second");
+            } else {
+                ++valueIndex;
+            }
+        } else if((c == '+') && (++valueIndex == deltaHourIndex)) {
+            deltaNegative = false;
+        } else if((c == '-') && (++valueIndex == deltaHourIndex)) {
+            deltaNegative = true;
+        } else if(c == '\0') {
+            break;
+        } else {
+            throw ConversionException(string("unexpected \"") + c + '\"');
+        }
+    }
+    deltaNegative && (*deltaHourIndex = -*deltaHourIndex);
+    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
+}
+
+/*!
+ * \brief Returns the string representation of the current instance using the specified \a format.
+ * \remarks If \a noMilliseconds is true the date will be rounded to full seconds.
+ * \sa toIsoString() for ISO format
  */
 string DateTime::toString(DateTimeOutputFormat format, bool noMilliseconds) const
 {
@@ -109,10 +188,9 @@ string DateTime::toString(DateTimeOutputFormat format, bool noMilliseconds) cons
 }
 
 /*!
- * \brief Converts the value of the current DateTime object to its equivalent std::string representation
- *        according the given \a format.
- *
- * If \a noMilliseconds is true the date will be rounded to full seconds.
+ * \brief Returns the string representation of the current instance using the specified \a format.
+ * \remarks If \a noMilliseconds is true the date will be rounded to full seconds.
+ * \sa toIsoString() for ISO format
  */
 void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMilliseconds) const
 {
@@ -120,12 +198,12 @@ void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMill
     s << setfill('0');
     if(format == DateTimeOutputFormat::DateTimeAndWeekday
             || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
-        s << printDayOfWeek(dayOfWeek(), format == DateTimeOutputFormat::DateTimeAndShortWeekday) << " ";
+        s << printDayOfWeek(dayOfWeek(), format == DateTimeOutputFormat::DateTimeAndShortWeekday) << ' ';
     if(format == DateTimeOutputFormat::DateOnly
             || format == DateTimeOutputFormat::DateAndTime
             || format == DateTimeOutputFormat::DateTimeAndWeekday
             || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
-        s << setw(4) << year() << "-" << setw(2) << month() << "-" << setw(2) << day();
+        s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day();
     if(format == DateTimeOutputFormat::DateAndTime
             || format == DateTimeOutputFormat::DateTimeAndWeekday
             || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
@@ -134,13 +212,30 @@ void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMill
             || format == DateTimeOutputFormat::DateAndTime
             || format == DateTimeOutputFormat::DateTimeAndWeekday
             || format == DateTimeOutputFormat::DateTimeAndShortWeekday) {
-        s << setw(2) << hour() << ":" << setw(2) << minute() << ":" << setw(2) << second();
+        s << setw(2) << hour() << ':' << setw(2) << minute() << ':' << setw(2) << second();
         int ms = millisecond();
         if(!noMilliseconds && ms > 0) {
-            s << "." << ms;
+            s << '.' << setw(3) << ms;
         }
     }
     result = s.str();
+}
+
+/*!
+ * \brief Returns the string representation of the current instance in the ISO format,
+ *        eg. 2016-08-29T21:32:31.588539814+02:00.
+ */
+string DateTime::toIsoString(TimeSpan timeZoneDelta) const
+{
+    stringstream s(stringstream::in | stringstream::out);
+    s << setfill('0');
+    s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day()
+      << 'T' << setw(2) << hour() << ':' << setw(2) << minute() << ':' << setw(2) << second() << '.' << setw(3) << millisecond();
+    if(!timeZoneDelta.isNull()) {
+        s << (timeZoneDelta.isNegative() ? '-' : '+');
+        s << setw(2) << timeZoneDelta.hours() << ':' << setw(2) << timeZoneDelta.minutes();
+    }
+    return s.str();
 }
 
 /*!

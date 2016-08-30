@@ -18,32 +18,29 @@ using namespace ConversionUtilities;
  */
 
 /*!
- * \brief Parses the given std::string \a str as TimeSpan.
+ * \brief Parses the given C-style string as TimeSpan.
  */
-TimeSpan TimeSpan::fromString(const string &str)
-{
-    return TimeSpan::fromString(str, ':');
-}
-
-/*!
- * \brief Parses the given std::string \a str as TimeSpan.
- */
-TimeSpan TimeSpan::fromString(const string &str, char separator)
+TimeSpan TimeSpan::fromString(const char *str, char separator)
 {
     vector<double> parts;
-    string::size_type start = 0;
-    string::size_type end = str.find(separator, start);
-    while(true) {
-        parts.push_back(stringToNumber<double>(str.substr(start, end - start)));
-        if(end == string::npos) {
-            break;
-        }
-        start = end + 1;
-        if(start >= str.size()) {
-            break;
-        }
-        end = str.find(separator, start);
+    size_t partsSize = 1;
+    for(const char *i = str; *i; ++i) {
+        *i == separator && ++partsSize;
     }
+    parts.reserve(partsSize);
+
+    for(const char *i = str; ;) {
+        if(*i == separator) {
+            parts.emplace_back(stringToNumber<double>(string(str, i)));
+            str = ++i;
+        } else if(*i == '\0') {
+            parts.emplace_back(stringToNumber<double>(string(str, i)));
+            break;
+        } else {
+            ++i;
+        }
+    }
+
     switch(parts.size()) {
     case 0:
         return TimeSpan();
