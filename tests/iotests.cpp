@@ -216,7 +216,12 @@ void IoTests::testBitReader()
     CPPUNIT_ASSERT(reader.readSignedExpGolombCodedBits<sbyte>() == 4);
     CPPUNIT_ASSERT(reader.readBit() == 0);
     CPPUNIT_ASSERT(reader.readBit() == 0);
-    CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
+    try {
+        reader.readBit();
+    } catch(...) {
+        catchIoFailure();
+    }
+
 }
 
 /*!
