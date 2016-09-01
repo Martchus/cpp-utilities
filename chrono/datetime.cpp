@@ -110,9 +110,9 @@ DateTime DateTime::fromString(const char *str)
 }
 
 /*!
- * \brief Parses the given ISO date time denotation provided as C-style string.
- * \returns Returns a pair where the first value is the parsed UTC DateTime and the second value
- *          a TimeSpan which can be added to the first value to get the local DateTime.
+ * \brief Parses the specified ISO date time denotation provided as C-style string.
+ * \returns Returns a pair where the first value is the parsed date time and the second value
+ *          a time span which can be subtracted from the first value to get the UTC time.
  * \remarks Not sure whether it is actually ISO conform, but it parses denotations like
  *          "2016-08-29T21:32:31.588539814+02:00".
  */
@@ -297,7 +297,7 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
             if(inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
                 int passedYears = year - 1;
                 int passedDays = day - 1;
-                return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays) * TimeSpan::m_ticksPerDay;
+                return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays) * TimeSpan::ticksPerDay;
             } else {
                 throw ConversionException("day is out of range");
             }
@@ -327,7 +327,7 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
     if(!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return (hour * TimeSpan::m_ticksPerHour) + (minute * TimeSpan::m_ticksPerMinute) + (second * TimeSpan::m_ticksPerSecond) + (uint64)(millisecond * (double)TimeSpan::m_ticksPerMillisecond);
+    return (hour * TimeSpan::ticksPerHour) + (minute * TimeSpan::ticksPerMinute) + (second * TimeSpan::ticksPerSecond) + (uint64)(millisecond * (double)TimeSpan::ticksPerMillisecond);
 }
 
 /*!
@@ -336,7 +336,7 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
  */
 int DateTime::getDatePart(DatePart part) const
 {
-    int fullDays = m_ticks / TimeSpan::m_ticksPerDay;
+    int fullDays = m_ticks / TimeSpan::ticksPerDay;
     int full400YearBlocks = fullDays / m_daysPer400Years;
     int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
     int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;

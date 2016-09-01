@@ -63,6 +63,8 @@ public:
     static DateTime fromString(const std::string &str);
     static DateTime fromString(const char *str);
     static std::pair<DateTime, TimeSpan> fromIsoString(const char *str);
+    static DateTime fromIsoStringGmt(const char *str);
+    static DateTime fromIsoStringLocal(const char *str);
     static DateTime fromTimeStamp(time_t timeStamp);
     static DateTime fromTimeStampGmt(time_t timeStamp);
 
@@ -83,7 +85,7 @@ public:
     constexpr bool isSameDay(const DateTime &other) const;
     std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
-    std::string toIsoString(TimeSpan delta) const;
+    std::string toIsoString(TimeSpan timeZoneDelta = TimeSpan()) const;
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
 
     static constexpr DateTime eternity();
@@ -176,6 +178,27 @@ inline DateTime DateTime::fromString(const std::string &str)
 }
 
 /*!
+ * \brief Parses the specified ISO date time denotation provided as C-style string.
+ * \returns Returns the parsed UTC time. That means a possibly denoted time zone delta is subtracted from the time stamp.
+ * \sa fromIsoString()
+ */
+inline DateTime DateTime::fromIsoStringGmt(const char *str)
+{
+    const auto tmp = fromIsoString(str);
+    return tmp.first - tmp.second;
+}
+
+/*!
+ * \brief Parses the specified ISO date time denotation provided as C-style string.
+ * \returns Returns the parsed local time. That means a possibly denoted time zone delta is discarded.
+ * \sa fromIsoString()
+ */
+inline DateTime DateTime::fromIsoStringLocal(const char *str)
+{
+    return fromIsoString(str).first;
+}
+
+/*!
  * \brief Gets the number of ticks which represent the value of the current instance.
  */
 constexpr inline uint64 DateTime::totalTicks() const
@@ -221,7 +244,7 @@ inline int DateTime::dayOfYear() const
  */
 constexpr inline DayOfWeek DateTime::dayOfWeek() const
 {
-    return static_cast<DayOfWeek>((m_ticks / TimeSpan::m_ticksPerDay) % 7l);
+    return static_cast<DayOfWeek>((m_ticks / TimeSpan::ticksPerDay) % 7l);
 }
 
 /*!
@@ -229,7 +252,7 @@ constexpr inline DayOfWeek DateTime::dayOfWeek() const
  */
 constexpr inline int DateTime::hour() const
 {
-    return m_ticks / TimeSpan::m_ticksPerHour % 24ul;
+    return m_ticks / TimeSpan::ticksPerHour % 24ul;
 }
 
 /*!
@@ -237,7 +260,7 @@ constexpr inline int DateTime::hour() const
  */
 constexpr inline int DateTime::minute() const
 {
-    return m_ticks / TimeSpan::m_ticksPerMinute % 60ul;
+    return m_ticks / TimeSpan::ticksPerMinute % 60ul;
 }
 
 /*!
@@ -245,7 +268,7 @@ constexpr inline int DateTime::minute() const
  */
 constexpr inline int DateTime::second() const
 {
-    return m_ticks / TimeSpan::m_ticksPerSecond % 60ul;
+    return m_ticks / TimeSpan::ticksPerSecond % 60ul;
 }
 
 /*!
@@ -253,7 +276,7 @@ constexpr inline int DateTime::second() const
  */
 constexpr inline int DateTime::millisecond() const
 {
-    return m_ticks / TimeSpan::m_ticksPerMillisecond % 1000ul;
+    return m_ticks / TimeSpan::ticksPerMillisecond % 1000ul;
 }
 
 /*!
@@ -270,7 +293,7 @@ constexpr inline bool DateTime::isNull() const
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
-    return TimeSpan(m_ticks % TimeSpan::m_ticksPerDay);
+    return TimeSpan(m_ticks % TimeSpan::ticksPerDay);
 }
 
 /*!
@@ -318,7 +341,7 @@ inline int DateTime::daysInMonth(int year, int month)
  */
 constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 {
-    return (m_ticks / TimeSpan::m_ticksPerDay) == (other.m_ticks / TimeSpan::m_ticksPerDay);
+    return (m_ticks / TimeSpan::ticksPerDay) == (other.m_ticks / TimeSpan::ticksPerDay);
 }
 
 /*!
