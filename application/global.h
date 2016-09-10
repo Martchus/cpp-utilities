@@ -1,27 +1,58 @@
 #ifndef APPLICATION_UTILITIES_GLOBAL_H
 #define APPLICATION_UTILITIES_GLOBAL_H
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 # ifndef PLATFORM_WINDOWS
 /// \brief Defined when compiling for Windows.
 #  define PLATFORM_WINDOWS
 # endif
+#if defined(__CYGWIN__)
+# ifndef PLATFORM_CYGWIN
+/// \brief Defined when compiling for Cygwin.
+#  define PLATFORM_CYGWIN
+# endif
+#endif
 # if defined(__MINGW32__) || defined(__MINGW64__)
 #  ifndef PLATFORM_MINGW
 /// \brief Defined when compiling with mingw(-w64).
 #   define PLATFORM_MINGW
 #  endif
 # endif
-#elif __unix__
+#elif defined(__unix__)
 # ifndef PLATFORM_UNIX
 /// \brief Defined when compiling for any UNIX (like) system.
 #  define PLATFORM_UNIX
 # endif
 #endif
-#ifdef __linux__
+#if defined(__linux__) || defined(__linux) || defined(__gnu_linux__)
 # ifndef PLATFORM_LINUX
 /// \brief Defined when compiling for Linux.
 #  define PLATFORM_LINUX
+# endif
+# if defined(__ANDROID__) || defined(ANDROID)
+#  ifndef PLATFORM_ANDROID
+/// \brief Defined when compiling for Android.
+#   define PLATFORM_ANDROID
+#  endif
+# endif
+#endif
+#if defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__) || defined(__xlc__))
+# include <TargetConditionals.h>
+# if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+#  ifndef PLATFORM_MAC
+/// \brief Defined when compiling for Mac/Darwin.
+#   define PLATFORM_MAC
+#  endif
+#  ifndef PLATFORM_BSD4
+/// \brief Defined when compiling for BSD 4.
+#   define PLATFORM_BSD4
+#  endif
+# endif
+#endif
+#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__FreeBSD_kernel__)
+# ifndef PLATFORM_FREE_BSD
+/// \brief Defined when compiling for FreeBSD
+#  define PLATFORM_FREE_BSD
 # endif
 #endif
 
