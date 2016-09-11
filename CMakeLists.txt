@@ -84,9 +84,13 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/doxygen.in
     cmake/templates/bash-completion.sh.in
 )
+set(SCRIPT_FILES)
 if(MINGW)
     list(APPEND CMAKE_TEMPLATE_FILES
-      cmake/templates/windows.rc.in
+        cmake/templates/windows.rc.in
+    )
+    list(APPEND SCRIPT_FILES
+        scripts/wine.sh
     )
 endif()
 
