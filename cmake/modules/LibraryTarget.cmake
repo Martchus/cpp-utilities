@@ -265,20 +265,23 @@ if(NOT TARGET install-mingw-w64)
         DEPENDS install-binary install-header install-cmake-stuff ${LOCALIZATION_TARGET}
     )
 endif()
-if(NOT TARGET install-mingw-w64-importlib-strip)
+set(ADDITIONAL_STRIP_TARGETS)
+if(BUILD_SHARED_LIBS AND NOT TARGET install-mingw-w64-importlib-strip)
     add_custom_target(install-mingw-w64-importlib-strip
         DEPENDS install-binary-strip
         COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" --strip-unneeded "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_PROJECT_NAME}.dll.a"
     )
+    list(APPEND ADDITIONAL_STRIP_TARGETS install-mingw-w64-importlib-strip)
 endif()
-if(NOT TARGET install-mingw-w64-staticlib-strip)
+if(BUILD_STATIC_LIBS AND NOT TARGET install-mingw-w64-staticlib-strip)
     add_custom_target(install-mingw-w64-staticlib-strip
         DEPENDS install-binary-strip
         COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" -g "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_PROJECT_NAME}.a"
     )
+    list(APPEND ADDITIONAL_STRIP_TARGETS install-mingw-w64-staticlib-strip)
 endif()
 if(NOT TARGET install-mingw-w64-strip)
     add_custom_target(install-mingw-w64-strip
-        DEPENDS install-binary-strip install-mingw-w64-importlib-strip install-mingw-w64-staticlib-strip install-header install-cmake-stuff ${LOCALIZATION_TARGET}
+        DEPENDS install-binary-strip ${ADDITIONAL_STRIP_TARGETS} install-header install-cmake-stuff ${LOCALIZATION_TARGET}
     )
 endif()
