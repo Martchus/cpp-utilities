@@ -154,7 +154,7 @@ endif()
 # add install target for pkg-config file
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}.pc"
-    DESTINATION "lib${SELECTED_LIB_SUFFIX}/lib"
+    DESTINATION "lib${SELECTED_LIB_SUFFIX}/pkgconfig"
     COMPONENT pkg-config
 )
 if(NOT TARGET install-pkg-config)
