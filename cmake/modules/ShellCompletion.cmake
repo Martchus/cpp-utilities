@@ -22,7 +22,7 @@ if(SHELL_COMPLETION_ENABLED)
 
         # add install target bash completion
         install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions"
-                DESTINATION "share/${META_PROJECT_NAME}/share"
+                DESTINATION "share/bash-completion"
                 COMPONENT bash-completion
         )
         if(NOT TARGET install-bash-completion)
