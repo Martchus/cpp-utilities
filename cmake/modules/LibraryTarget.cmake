@@ -146,7 +146,6 @@ install(
 )
 if(NOT TARGET install-cmake-config)
     add_custom_target(install-cmake-config
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-config -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -159,7 +158,6 @@ install(
 )
 if(NOT TARGET install-pkg-config)
     add_custom_target(install-pkg-config
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=pkg-config -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -178,7 +176,6 @@ if(BUILD_SHARED_LIBS)
 endif()
 if(NOT TARGET install-binary)
     add_custom_target(install-binary
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -199,7 +196,6 @@ endif()
 # add install target for stripped libs
 if(NOT TARGET install-binary-strip)
     add_custom_target(install-binary-strip
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -215,7 +211,6 @@ foreach(HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
 endforeach()
 if(NOT TARGET install-header)
     add_custom_target(install-header
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=header -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -231,7 +226,6 @@ foreach(CMAKE_MODULE_FILE ${CMAKE_MODULE_FILES})
 endforeach()
 if(NOT TARGET install-cmake-modules)
     add_custom_target(install-cmake-modules
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-modules -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
@@ -247,7 +241,6 @@ foreach(CMAKE_TEMPLATE_FILE ${CMAKE_TEMPLATE_FILES})
 endforeach()
 if(NOT TARGET install-cmake-templates)
     add_custom_target(install-cmake-templates
-        DEPENDS ${META_PROJECT_NAME}
         COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-templates -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
     )
 endif()
