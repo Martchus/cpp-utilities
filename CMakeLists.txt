@@ -78,11 +78,13 @@ set(CMAKE_MODULE_FILES
     cmake/modules/3rdParty.cmake
 )
 set(CMAKE_TEMPLATE_FILES
+    cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
     cmake/templates/doxygen.in
-    cmake/templates/bash-completion.sh.in
+    cmake/templates/global.h.in
+    cmake/templates/template.pc.in
 )
 set(SCRIPT_FILES)
 if(MINGW)
