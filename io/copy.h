@@ -10,7 +10,7 @@ namespace IoUtilities {
 
 /*!
  * \class IoUtilities::CopyHelper
- * \brief The copy helper class helps to copy bytes from one stream to another.
+ * \brief The CopyHelper class helps to copy bytes from one stream to another.
  * \tparam Specifies the buffer size.
  */
 template<std::size_t bufferSize>

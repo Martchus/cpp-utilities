@@ -398,7 +398,7 @@ inline void Argument::setRequiredValueCount(std::size_t requiredValueCount)
  * These names will be shown when printing information about the argument.
  *
  * \sa setValueNames()
- * \sa appendValueNames()
+ * \sa appendValueName()
  */
 inline const std::vector<const char *> &Argument::valueNames() const
 {
