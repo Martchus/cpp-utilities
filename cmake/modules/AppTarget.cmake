@@ -132,11 +132,11 @@ endfunction()
 # convenience function to add *.desktop file from project meta data
 function(add_desktop_file)
     add_custom_desktop_file(
-        "${TARGET_EXECUTABLE}"
+        "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_APP_NAME}"
         "${META_APP_DESCRIPTION}"
         "${META_APP_CATEGORIES}"
-        "${META_PROJECT_NAME}"
+        "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_PROJECT_NAME}"
     )
 endfunction()

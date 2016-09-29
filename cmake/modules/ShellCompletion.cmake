@@ -2,11 +2,6 @@ option(SHELL_COMPLETION_ENABLED "controls whether shell completion is enabled in
 option(BASH_COMPLETION_ENABLED "controls whether shell completion for bash is enabled" ON)
 
 if(SHELL_COMPLETION_ENABLED)
-
-    if(NOT COMPLETION_META_PROJECT_NAME)
-        set(COMPLETION_META_PROJECT_NAME ${META_PROJECT_NAME})
-    endif()
-
     # add bash completion (currently the only supported shell completion)
     if(BASH_COMPLETION_ENABLED)
         # find bash-completion.sh template
@@ -33,5 +28,4 @@ if(SHELL_COMPLETION_ENABLED)
 
         message(STATUS "Generating files for bash completion.")
     endif()
-
 endif()
