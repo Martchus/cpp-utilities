@@ -102,7 +102,7 @@ inline void eraseDisplay(std::ostream &stream)
 
 inline void eraseLine(std::ostream &stream)
 {
-    stream << "\e[K";
+    stream << "\33[2K";
 }
 
 }

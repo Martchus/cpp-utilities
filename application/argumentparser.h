@@ -163,7 +163,7 @@ public:
     bool denotesOperation() const;
     void setDenotesOperation(bool denotesOperation);
     void setCallback(CallbackFunction callback);
-    void printInfo(std::ostream &os, unsigned char indentionLevel = 0) const;
+    void printInfo(std::ostream &os, unsigned char indentation = 0) const;
     const ArgumentVector &subArguments() const;
     void setSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArgument(Argument *arg);
@@ -211,12 +211,15 @@ public:
     void addMainArgument(Argument *argument);
     void printHelp(std::ostream &os) const;
     void parseArgs(int argc, const char *const *argv);
+    void readArgs(int argc, const char *const *argv);
     unsigned int actualArgumentCount() const;
     const char *executable() const;
     UnknownArgumentBehavior unknownArgumentBehavior() const;
     void setUnknownArgumentBehavior(UnknownArgumentBehavior behavior);
     Argument *defaultArgument() const;
     void setDefaultArgument(Argument *argument);
+    void checkConstraints();
+    void invokeCallbacks();
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
@@ -767,11 +770,56 @@ inline void ArgumentParser::setDefaultArgument(Argument *argument)
     m_defaultArg = argument;
 }
 
+/*!
+ * \brief Checks whether contraints are violated.
+ * \remarks Automatically called by parseArgs().
+ * \throws Throws Failure if constraints are violated.
+ */
+inline void ArgumentParser::checkConstraints()
+{
+    checkConstraints(m_mainArgs);
+}
+
+/*!
+ * \brief Invokes all assigned callbacks.
+ * \remarks Automatically called by parseArgs().
+ */
+inline void ArgumentParser::invokeCallbacks()
+{
+    invokeCallbacks(m_mainArgs);
+}
+
 class CPP_UTILITIES_EXPORT HelpArgument : public Argument
 {
 public:
     HelpArgument(ArgumentParser &parser);
 };
+
+class CPP_UTILITIES_EXPORT OperationArgument : public Argument
+{
+public:
+    OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
+};
+
+inline OperationArgument::OperationArgument(const char *name, char abbreviation, const char *description, const char *example) :
+    Argument(name, abbreviation, description, example)
+{
+    setDenotesOperation(true);
+}
+
+class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument
+{
+public:
+    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
+};
+
+inline ConfigValueArgument::ConfigValueArgument(const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames) :
+    Argument(name, abbreviation, description)
+{
+    setCombinable(true);
+    setRequiredValueCount(valueNames.size());
+    setValueNames(valueNames);
+}
 
 }
 

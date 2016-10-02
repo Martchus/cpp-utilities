@@ -3,6 +3,8 @@
 
 #include "../global.h"
 
+#include <ostream>
+
 namespace ApplicationUtilities {
 
 /*!
@@ -23,6 +25,34 @@ void CPP_UTILITIES_EXPORT startConsole();
 #else
 # define CMD_UTILS_START_CONSOLE
 #endif
+
+/*!
+ * \brief The Indent class allows printing indentation conveniently, eg. cout << Ident(4) << ...
+ */
+class CPP_UTILITIES_EXPORT Indentation
+{
+public:
+    Indentation(unsigned char level = 4, char character = ' ') :
+        level(level),
+        character(character)
+    {}
+
+    Indentation operator +(unsigned char level)
+    {
+        return Indentation(this->level + level, character);
+    }
+
+    unsigned char level;
+    char character;
+};
+
+inline CPP_UTILITIES_EXPORT std::ostream &operator<< (std::ostream &out, Indentation indentation)
+{
+    for(unsigned char i = 0; i < indentation.level; ++i) {
+        out << indentation.character;
+    }
+    return out;
+}
 
 } // namespace ApplicationUtilities
 

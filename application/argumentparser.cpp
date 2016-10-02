@@ -12,9 +12,6 @@
 #include <sstream>
 #include <cstring>
 #include <cstdlib>
-#ifdef LOGGING_ENABLED
-# include <fstream>
-#endif
 
 using namespace std;
 using namespace std::placeholders;
@@ -110,9 +107,9 @@ const char *Argument::firstValue() const
 /*!
  * \brief Writes the name, the abbreviation and other information about the Argument to the give ostream.
  */
-void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
+void Argument::printInfo(ostream &os, unsigned char indentation) const
 {
-    for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
+    os << Indentation(indentation);
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
     if(notEmpty(name())) {
         os << '-' << '-' << name();
@@ -138,24 +135,25 @@ void Argument::printInfo(ostream &os, unsigned char indentionLevel) const
             }
         }
     }
-    ++indentionLevel;
+    indentation += 2;
     if(notEmpty(description())) {
-        os << endl;
-        for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
-        os << description();
+        os << '\n' << Indentation(indentation) << description();
     }
     if(isRequired()) {
-        os << endl;
-        for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
-        os << "This argument is required.";
+        os << '\n' << Indentation(indentation) << "particularities: mandatory";
+        if(!isMainArgument()) {
+            os << " if parent argument is present";
+        }
+    }
+    if(environmentVariable()) {
+        os << '\n' << Indentation(indentation) << "default environment variable: " << environmentVariable();
     }
     if(notEmpty(example())) {
-        for(unsigned char i = 0; i < indentionLevel; ++i) os << ' ' << ' ';
-        os << endl << "Usage: " << example();
+        os << '\n' << Indentation(indentation) << "\nusage: " << example();
     }
-    os << endl;
+    os << '\n';
     for(const auto *arg : subArguments()) {
-        arg->printInfo(os, indentionLevel + 1);
+        arg->printInfo(os, indentation);
     }
 }
 
@@ -365,21 +363,32 @@ void ArgumentParser::printHelp(ostream &os) const
  * \remarks
  *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
  *  - Calls the assigned callbacks if no constraints are violated.
- * \throws Throws Failure if the specified arguments violate the constraints defined
+ * \throws Throws Failure if the specified arguments are invalid or violate the constraints defined
  *         by the Argument instances.
+ * \sa readArgs()
  */
 void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
-#ifdef LOGGING_ENABLED
-    {
-        fstream logFile("/tmp/args.log", ios_base::out);
-        for(const char *const *i = argv, *const *end = argv + argc; i != end; ++i) {
-            logFile << *i << '\n';
-        }
+    readArgs(argc, argv);
+    if(argc) {
+        checkConstraints(m_mainArgs);
+        invokeCallbacks(m_mainArgs);
     }
-#endif
+}
+
+/*!
+ * \brief Parses the specified command line arguments.
+ * \remarks
+ *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
+ *  - In contrast to parseArgs() this method does not check whether constraints are violated and it
+ *    does not call any callbacks.
+ * \throws Throws Failure if the specified arguments are invalid.
+ * \sa readArgs()
+ */
+void ArgumentParser::readArgs(int argc, const char * const *argv)
+{
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
-            m_actualArgc = 0;
+    m_actualArgc = 0;
     if(argc) {
         // the first argument is the executable name
         m_executable = *argv;
@@ -395,7 +404,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
                     currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
                     ++argv, --argc;
                 } catch(const ConversionException &) {
-                    currentWordIndex = argc - 1;
+                    currentWordIndex = static_cast<unsigned int>(argc - 1);
                 }
             }
 
@@ -423,8 +432,6 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
                 m_defaultArg->m_occurrences.emplace_back(0);
             }
         }
-        checkConstraints(m_mainArgs);
-        invokeCallbacks(m_mainArgs);
     } else {
         m_executable = nullptr;
     }
