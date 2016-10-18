@@ -108,14 +108,15 @@ endif()
 include(TemplateFinder)
 find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
 
-# function to add *.desktop files
-function(add_custom_desktop_file
+# function to add *.desktop files with additional entries
+function(add_custom_desktop_file_with_additional_entries
         FILE_NAME
         DESKTOP_FILE_APP_NAME
         DESKTOP_FILE_DESCRIPTION
         DESKTOP_FILE_CATEGORIES
         DESKTOP_FILE_CMD
-        DESKTOP_FILE_ICON)
+        DESKTOP_FILE_ICON
+        DESKTOP_FILE_ADDITIONAL_ENTRIES)
     # create desktop file from template
     configure_file(
         "${APP_DESKTOP_TEMPLATE_FILE}"
@@ -129,14 +130,44 @@ function(add_custom_desktop_file
     )
 endfunction()
 
+# function to add *.desktop files
+function(add_custom_desktop_file
+        FILE_NAME
+        DESKTOP_FILE_APP_NAME
+        DESKTOP_FILE_DESCRIPTION
+        DESKTOP_FILE_CATEGORIES
+        DESKTOP_FILE_CMD
+        DESKTOP_FILE_ICON)
+    add_custom_desktop_file_with_additional_entries(
+        "${FILE_NAME}"
+        "${DESKTOP_FILE_APP_NAME}"
+        "${DESKTOP_FILE_DESCRIPTION}"
+        "${DESKTOP_FILE_CATEGORIES}"
+        "${DESKTOP_FILE_CMD}"
+        "${DESKTOP_FILE_ICON}"
+        ""
+    )
+endfunction()
+
 # convenience function to add *.desktop file from project meta data
 function(add_desktop_file)
-    add_custom_desktop_file(
+    # compose actions
+    set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
+    foreach(ACTION_VAR ${META_APP_ACTIONS})
+        list(GET META_APP_ACTION_${ACTION_VAR} 0 ACTION_ID)
+        list(GET META_APP_ACTION_${ACTION_VAR} 1 ACTION_NAME)
+        list(GET META_APP_ACTION_${ACTION_VAR} 2 ACTION_ARGS)
+        set(DESKTOP_FILE_ADDITIONAL_ENTRIES "${DESKTOP_FILE_ADDITIONAL_ENTRIES}\n[Desktop Action ${ACTION_ID}]\nName=${ACTION_NAME}\nExec=${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTION_ARGS}")
+    endforeach()
+
+    # create desktop file
+    add_custom_desktop_file_with_additional_entries(
         "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_APP_NAME}"
         "${META_APP_DESCRIPTION}"
         "${META_APP_CATEGORIES}"
         "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_PROJECT_NAME}"
+        "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
     )
 endfunction()

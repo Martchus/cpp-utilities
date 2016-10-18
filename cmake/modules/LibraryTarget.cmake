@@ -30,7 +30,6 @@ set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake")
 
-
 # remove library prefix when building with mingw-w64 (just for consistency with qmake)
 if(MINGW)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
