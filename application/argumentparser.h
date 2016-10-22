@@ -238,8 +238,7 @@ private:
 /*!
  * \brief Returns the name of the argument.
  *
- * The parser compares the name with the characters following a "--" prefix to
- * identify arguments.
+ * The parser compares the name with the characters following a "--" prefix to identify arguments.
  */
 inline const char *Argument::name() const
 {
@@ -249,17 +248,17 @@ inline const char *Argument::name() const
 /*!
  * \brief Sets the name of the argument.
  *
- * The name mustn't be empty or contain white spaces or equation chars.
+ * The name mustn't be empty, start with a minus or contain white spaces, equation chars, quotes and newlines.
  *
- * The parser compares the name with the characters following a "--" prefix to
- * identify arguments.
+ * The parser compares the name with the characters following a "--" prefix to identify arguments.
  */
 inline void Argument::setName(const char *name)
 {
 #ifdef DEBUG_BUILD
     if(name && *name) {
+        assert(*name != '-');
         for(const char *c = name; *c; ++c) {
-            assert(*c != ' ' && *c != '=');
+            assert(*c != ' ' && *c != '=' && *c != '\'' && *c != '\"' && *c != '\n' && *c != '\r');
         }
     }
 #endif
@@ -269,8 +268,7 @@ inline void Argument::setName(const char *name)
 /*!
  * \brief Returns the abbreviation of the argument.
  *
- * The parser compares the abbreviation with the characters following a "-" prefix to
- * identify arguments.
+ * The parser compares the abbreviation with the characters following a "-" prefix to identify arguments.
  */
 inline char Argument::abbreviation() const
 {
@@ -280,15 +278,14 @@ inline char Argument::abbreviation() const
 /*!
  * \brief Sets the abbreviation of the argument.
  *
- * The abbreviation might be empty but mustn't contain any white spaces or
- * equation chars when provided.
+ * The abbreviation might be empty but mustn't be white spaces, equation char, single quote, double quote or newline.
  *
- * The parser compares the abbreviation with the characters following a "-" prefix to
- * identify arguments.
+ * The parser compares the abbreviation with the characters following a "-" prefix to identify arguments.
  */
 inline void Argument::setAbbreviation(char abbreviation)
 {
-    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '='));
+    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '=' && abbreviation != '-'
+            && abbreviation != '\'' && abbreviation != '"' && abbreviation != '\n' && abbreviation != '\r'));
     m_abbreviation = abbreviation;
 }
 

@@ -399,7 +399,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv1 + 1, lastDetectedArg, true);
         parser.printBashCompletion(1, argv1, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(set )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
 
         // argument is already specified
         const char *const argv2[] = {"set"};
@@ -409,7 +409,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, true);
         parser.printBashCompletion(1, argv2, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(set )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
 
         // advance the cursor position -> the completion should propose the next argument
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), setArg.reset();
@@ -418,7 +418,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, true);
         parser.printBashCompletion(1, argv2, 1, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(--files --values )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
 
         // specifying no args should propose all main arguments
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
@@ -427,7 +427,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, nullptr, lastDetectedArg, true);
         parser.printBashCompletion(0, nullptr, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(display-file-info get set --help )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"), buffer.str());
 
         // values
         const char *const argv3[] = {"get", "--fields"};
@@ -437,7 +437,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv3 + 2, lastDetectedArg, true);
         parser.printBashCompletion(2, argv3, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(title album artist trackpos --files )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"), buffer.str());
 
         // values with equation sign, one letter already present
         const char *const argv4[] = {"set", "--values", "a"};
@@ -447,11 +447,14 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv4 + 3, lastDetectedArg, true);
         parser.printBashCompletion(3, argv4, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(album= artist=  ); compopt -o nospace\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n"), buffer.str());
 
         // file names
         string iniFilePath = TestUtilities::testFilePath("test.ini");
-        iniFilePath.resize(iniFilePath.size() - 3);
+        iniFilePath.resize(iniFilePath.size() - 4);
+        string mkvFilePath = TestUtilities::testFilePath("test 'with quote'.mkv");
+        mkvFilePath.resize(mkvFilePath.size() - 17);
+        TestUtilities::testFilePath("t.aac");
         const char *const argv5[] = {"get", "--files", iniFilePath.c_str()};
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
@@ -459,7 +462,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv5 + 3, lastDetectedArg, true);
         parser.printBashCompletion(3, argv5, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + iniFilePath + "ini' ); compopt -o filenames\n", buffer.str());
+        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' '" + iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
 
         // sub arguments
         const char *const argv6[] = {"set", "--"};
@@ -469,7 +472,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv6 + 2, lastDetectedArg, true);
         parser.printBashCompletion(2, argv6, 1, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(--files --values )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
 
         // nested sub arguments
         const char *const argv7[] = {"-i", "--sub", "--"};
@@ -479,7 +482,7 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv7 + 3, lastDetectedArg, true);
         parser.printBashCompletion(3, argv7, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=(--files --nested-sub --verbose )\n"), buffer.str());
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"), buffer.str());
 
     } catch(...) {
         cout.rdbuf(regularCoutBuffer);
