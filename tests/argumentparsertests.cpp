@@ -462,7 +462,13 @@ void ArgumentParserTests::testBashCompletion()
         parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv5 + 3, lastDetectedArg, true);
         parser.printBashCompletion(3, argv5, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' '" + iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
+        // order for file names is not specified
+        const string res(buffer.str());
+        if(res.find(".mkv") < res.find(".ini")) {
+            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' '" + iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
+        } else {
+            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + iniFilePath + ".ini' '" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
+        }
 
         // sub arguments
         const char *const argv6[] = {"set", "--"};
