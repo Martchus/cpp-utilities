@@ -46,3 +46,5 @@ macro(use_@META_PROJECT_VARNAME@)
     # make CMake modules of the project available
     list(APPEND CMAKE_MODULE_PATH ${@META_PROJECT_VARNAME_UPPER@_MODULE_DIRS})
 endmacro()
+
+# FIXME: provide an imported target
