@@ -8,4 +8,4 @@ for arg in "${@:2}"; do
     WINEPATH="${arg};${WINEPATH}"
 done
 export WINEPATH;
-echo wine "${@:1:1}"
+wine "${@:1:1}"
