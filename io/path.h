@@ -38,7 +38,7 @@ constexpr DirectoryEntryType operator|(DirectoryEntryType lhs, DirectoryEntryTyp
     return static_cast<DirectoryEntryType>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
 }
 
-constexpr DirectoryEntryType &operator|=(DirectoryEntryType &lhs, DirectoryEntryType rhs)
+inline DirectoryEntryType &operator|=(DirectoryEntryType &lhs, DirectoryEntryType rhs)
 {
     return (lhs = static_cast<DirectoryEntryType>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs)));
 }
