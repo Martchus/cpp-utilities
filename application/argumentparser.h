@@ -30,6 +30,8 @@ CPP_UTILITIES_EXPORT extern const char *applicationUrl;
     ::ApplicationUtilities::applicationVersion = APP_VERSION; \
     ::ApplicationUtilities::applicationUrl = APP_URL
 
+CPP_UTILITIES_EXPORT extern void(*exitFunction)(int);
+
 class Argument;
 class ArgumentParser;
 

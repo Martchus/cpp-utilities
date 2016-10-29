@@ -33,6 +33,12 @@ const char *applicationVersion = nullptr;
 /// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
 const char *applicationUrl = nullptr;
 
+/*!
+ * \brief Specifies a function quit the application.
+ * \remarks Currently only used after printing Bash completion. Default is std::exit().
+ */
+void(*exitFunction)(int) = &exit;
+
 /// \cond
 
 inline bool notEmpty(const char *str)
@@ -429,7 +435,7 @@ void ArgumentParser::readArgs(int argc, const char * const *argv)
 
             if(completionMode) {
                 printBashCompletion(argc, argv, currentWordIndex, lastDetectedArgument);
-                exit(0); // prevent the applicaton to continue with the regular execution
+                exitFunction(0); // prevent the applicaton to continue with the regular execution
             }
         } else {
             // no arguments specified -> flag default argument as present if one is assigned
