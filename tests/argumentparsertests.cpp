@@ -241,15 +241,27 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" must be specified at least 1 time."));
     }
 
+    // test abbreviation combination with nesting "-pf"
+    const char *argv10[] = {"tageditor", "-pf", "test"};
+    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset(), verboseArg.setRequired(false);
+    parser.parseArgs(3, argv10);
+    CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
+    CPPUNIT_ASSERT(!fileArg.isPresent());
+    CPPUNIT_ASSERT(filesArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(filesArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
+    CPPUNIT_ASSERT(!strcmp(filesArg.values(0).front(), "test"));
+    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
+
     // it should not complain if -i is not present
     const char *argv6[] = {"tageditor", "-g"};
-    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
+    displayTagInfoArg.reset(), fileArg.reset(), verboseArg.reset(), filesArg.reset();
     parser.parseArgs(2, argv6);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // it should not be possible to specify -f without -i or -p
     const char *argv7[] = {"tageditor", "-f", "test"};
-    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset(), qtConfigArgs.qtWidgetsGuiArg().reset();
+    displayFileInfoArg.reset(), fileArg.reset(), filesArg.reset(), verboseArg.reset(), qtConfigArgs.qtWidgetsGuiArg().reset();
     try {
         parser.parseArgs(3, argv7);
         CPPUNIT_FAIL("Exception expected.");
@@ -257,6 +269,24 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The specified argument \"-f\" is unknown and will be ignored."));
     }
+
+    // test equation sign syntax
+    const char *argv11[] = {"tageditor", "-if=test"};
+    fileArg.reset();
+    parser.parseArgs(2, argv11);
+    CPPUNIT_ASSERT(!filesArg.isPresent());
+    CPPUNIT_ASSERT(fileArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(fileArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
+    CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
+
+    // test specifying value directly after abbreviation
+    const char *argv12[] = {"tageditor", "-iftest"};
+    displayFileInfoArg.reset(), fileArg.reset();
+    parser.parseArgs(2, argv12);
+    CPPUNIT_ASSERT(!filesArg.isPresent());
+    CPPUNIT_ASSERT(fileArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(fileArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
+    CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
 
     // test default argument
     const char *argv8[] = {"tageditor"};
@@ -377,6 +407,7 @@ void ArgumentParserTests::testBashCompletion()
 
     size_t index = 0;
     Argument *lastDetectedArg = nullptr;
+    const char *argDenotation = nullptr;
 
     // redirect cout to custom buffer
     stringstream buffer;
@@ -386,7 +417,7 @@ void ArgumentParserTests::testBashCompletion()
         // should fail because operation flags are not set
         const char *const argv1[] = {"se"};
         const char *const *argv = argv1;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv1 + 1, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv1 + 1, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(1, argv1, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=()\n"), buffer.str());
@@ -396,7 +427,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         getArg.setDenotesOperation(true), setArg.setDenotesOperation(true);
         argv = argv1;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv1 + 1, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv1 + 1, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(1, argv1, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
@@ -406,7 +437,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         argv = argv2;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(1, argv2, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
@@ -415,7 +446,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv2;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv2 + 1, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(1, argv2, 1, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
@@ -424,7 +455,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = nullptr;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, nullptr, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, nullptr, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(0, nullptr, 0, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"), buffer.str());
@@ -434,7 +465,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv3;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv3 + 2, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv3 + 2, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(2, argv3, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"), buffer.str());
@@ -444,7 +475,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv4;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv4 + 3, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv4 + 3, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(3, argv4, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n"), buffer.str());
@@ -459,7 +490,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv5;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv5 + 3, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv5 + 3, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(3, argv5, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         // order for file names is not specified
@@ -475,7 +506,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), setArg.reset(), valuesArg.reset(), filesArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv6;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv6 + 2, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv6 + 2, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(2, argv6, 1, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
@@ -485,7 +516,7 @@ void ArgumentParserTests::testBashCompletion()
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), setArg.reset(), valuesArg.reset(), filesArg.reset();
         cout.rdbuf(buffer.rdbuf());
         argv = argv7;
-        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv7 + 3, lastDetectedArg, true);
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv7 + 3, lastDetectedArg, argDenotation = nullptr, true);
         parser.printBashCompletion(3, argv7, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"), buffer.str());

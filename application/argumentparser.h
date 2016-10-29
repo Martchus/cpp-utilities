@@ -223,7 +223,7 @@ public:
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
-    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, bool completionMode = false);
+    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, const char *&argDenotation, bool completionMode = false);
     void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const Argument *lastDetectedArg);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);

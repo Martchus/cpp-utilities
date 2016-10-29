@@ -415,7 +415,8 @@ void ArgumentParser::readArgs(int argc, const char * const *argv)
             // read specified arguments
             try {
                 const char *const *argv2 = argv;
-                readSpecifiedArgs(m_mainArgs, index, argv2, argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), lastDetectedArgument, completionMode);
+                const char *argDenotation = nullptr;
+                readSpecifiedArgs(m_mainArgs, index, argv2, argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), lastDetectedArgument, argDenotation, completionMode);
             } catch(const Failure &) {
                 if(!completionMode) {
                     throw;
@@ -479,39 +480,60 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
 
 /*!
  * \brief Reads the specified commands line arguments.
- * \remarks Results are stored in Argument instances added as main arguments and sub arguments.
+ * \param args Specifies the Argument instances to store the results. Sub arguments of \a args are considered as well.
+ * \param index Specifies and index which is incremented when an argument is encountered (the current index is stored in the occurrence) or a value is encountered.
+ * \param argv Points to the first argument denotation and will be incremented when a denotation has been processed.
+ * \param end Points to the end of the \a argv array.
+ * \param lastArg Specifies the last Argument instance which could be detected. Set to nullptr in the initial call. Used for Bash completion.
+ * \param argDenotation Specifies the currently processed abbreviation denotation (should be substring of \a argv). Set to nullptr for processing \a argv from the beginning (default).
+ * \param completionMode Specifies whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
+ * \remarks Results are stored in specified \a args and assigned sub arguments.
  */
-void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, bool completionMode)
+void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, const char *&argDenotation, bool completionMode)
 {
+    // method is called recursively for sub args to the last argument (which is nullptr in the initial call) is the current parent argument
     Argument *const parentArg = lastArg;
+    // determine the current path
     const vector<Argument *> &parentPath = parentArg ? parentArg->path(parentArg->occurrences() - 1) : vector<Argument *>();
+
     Argument *lastArgInLevel = nullptr;
     vector<const char *> *values = nullptr;
+
+    // iterate through all argument denotations; loop might exit earlier when an denotation is unknown
     while(argv != end) {
         if(values && lastArgInLevel->requiredValueCount() != static_cast<size_t>(-1) && values->size() < lastArgInLevel->requiredValueCount()) {
             // there are still values to read
-            values->emplace_back(*argv);
-            ++index, ++argv;
+            values->emplace_back(argDenotation ? argDenotation : *argv);
+            ++index, ++argv, argDenotation = nullptr;
         } else {
-            // determine denotation type
-            const char *argDenotation = *argv;
-            if(!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
-                // skip empty arguments
-                ++index, ++argv;
-                continue;
-            }
+            // determine how denotation must be processed
             bool abbreviationFound = false;
-            unsigned char argDenotationType = Value;
-            *argDenotation == '-' && (++argDenotation, ++argDenotationType)
-                    && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+            unsigned char argDenotationType;
+            if(argDenotation) {
+                // continue reading childs for abbreviation denotation already detected
+                abbreviationFound = false;
+                argDenotationType = Abbreviation;
+            } else {
+                // determine denotation type
+                argDenotation = *argv;
+                if(!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
+                    // skip empty arguments
+                    ++index, ++argv, argDenotation = nullptr;
+                    continue;
+                }
+                abbreviationFound = false;
+                argDenotationType = Value;
+                *argDenotation == '-' && (++argDenotation, ++argDenotationType)
+                        && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+            }
 
             // try to find matching Argument instance
             Argument *matchingArg = nullptr;
-            size_t argDenLen;
+            size_t argDenotationLength;
             if(argDenotationType != Value) {
                 const char *const equationPos = strchr(argDenotation, '=');
-                for(argDenLen = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); argDenLen; matchingArg = nullptr) {
-                    // search for arguments by abbreviation or name depending on the denotation type
+                for(argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); argDenotationLength; matchingArg = nullptr) {
+                    // search for arguments by abbreviation or name depending on the previously determined denotation type
                     if(argDenotationType == Abbreviation) {
                         for(Argument *arg : args) {
                             if(arg->abbreviation() && arg->abbreviation() == *argDenotation) {
@@ -522,7 +544,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                         }
                     } else {
                         for(Argument *arg : args) {
-                            if(arg->name() && !strncmp(arg->name(), argDenotation, argDenLen) && *(arg->name() + argDenLen) == '\0') {
+                            if(arg->name() && !strncmp(arg->name(), argDenotation, argDenotationLength) && *(arg->name() + argDenotationLength) == '\0') {
                                 matchingArg = arg;
                                 break;
                             }
@@ -530,7 +552,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     }
 
                     if(matchingArg) {
-                        // an argument matched the specified denotation
+                        // an argument matched the specified denotation so add an occurrence
                         matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
 
                         // prepare reading parameter values
@@ -539,12 +561,18 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                             values->push_back(equationPos + 1);
                         }
 
-                        // read sub arguments if no abbreviated argument follows
+                        // read sub arguments
                         ++index, ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
-                        if(argDenotationType != Abbreviation || (!*++argDenotation && argDenotation != equationPos)) {
-                            readSpecifiedArgs(matchingArg->m_subArgs, index, ++argv, end, lastArg, completionMode);
+                        if(argDenotationType != Abbreviation || (++argDenotation != equationPos)) {
+                            if(argDenotationType != Abbreviation || !*argDenotation) {
+                                // no further abbreviations follow -> read sub args for next argv
+                                readSpecifiedArgs(lastArg->m_subArgs, index, ++argv, end, lastArg, argDenotation = nullptr, completionMode);
+                            } else {
+                                // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
+                                readSpecifiedArgs(lastArg->m_subArgs, index, argv, end, lastArg, argDenotation, completionMode);
+                            }
                             break;
-                        } // else: another abbreviated argument follows
+                        } // else: another abbreviated argument follows (and it is not present in the sub args)
                     } else {
                         break;
                     }
@@ -552,13 +580,13 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
             }
 
             if(!matchingArg) {
+                // unknown argument might be a sibling of the parent element
                 if(argDenotationType != Value) {
-                    // unknown argument might be a sibling of the parent element
                     for(auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend(); ; ++parentArgument) {
                         for(Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : m_mainArgs)) {
                             if(sibling->occurrences() < sibling->maxOccurrences()) {
                                 if((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
-                                        || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenLen))) {
+                                        || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenotationLength))) {
                                     return;
                                 }
                             }
@@ -569,10 +597,10 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     };
                 }
 
+                // unknown argument might just be a parameter value of the last argument
                 if(lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
-                    // unknown argument might just be a parameter of the last argument
                     values->emplace_back(abbreviationFound ? argDenotation : *argv);
-                    ++index, ++argv;
+                    ++index, ++argv, argDenotation = nullptr;
                     continue;
                 }
 
@@ -587,8 +615,8 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     }
                 }
 
+                // use the first default argument which is not already present if there is still no match
                 if(!matchingArg && (!completionMode || (argv + 1 != end))) {
-                    // use the first default argument which is not already present
                     for(Argument *arg : args) {
                         if(arg->isImplicit() && !arg->isPresent()) {
                             (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
@@ -600,7 +628,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                 if(matchingArg) {
                     // an argument matched the specified denotation
                     if(lastArgInLevel == matchingArg) {
-                        break; // TODO: why?
+                        break; // break required? -> TODO: add test for this condition
                     }
 
                     // prepare reading parameter values
@@ -608,31 +636,34 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                     // read sub arguments
                     ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
-                    readSpecifiedArgs(matchingArg->m_subArgs, index, argv, end, lastArg, completionMode);
+                    readSpecifiedArgs(lastArg->m_subArgs, index, argv, end, lastArg, argDenotation = nullptr, completionMode);
                     continue;
                 }
 
-                if(!parentArg) {
-                    if(completionMode) {
-                        ++index, ++argv;
-                    } else {
-                        switch(m_unknownArgBehavior) {
-                        case UnknownArgumentBehavior::Warn:
-                            cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
-                            FALLTHROUGH;
-                        case UnknownArgumentBehavior::Ignore:
-                            ++index, ++argv;
-                            break;
-                        case UnknownArgumentBehavior::Fail:
-                            throw Failure("The specified argument \"" + string(*argv) + "\" is unknown and will be ignored.");
-                        }
-                    }
-                } else {
-                    return; // unknown argument name or abbreviation found -> continue with parent level
+                // argument denotation is unknown -> handle error
+                if(parentArg) {
+                    // continue with parent level
+                    return;
                 }
-            }
-        }
-    }
+                if(completionMode) {
+                    // ignore unknown denotation
+                    ++index, ++argv, argDenotation = nullptr;
+                } else {
+                    switch(m_unknownArgBehavior) {
+                    case UnknownArgumentBehavior::Warn:
+                        cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
+                        FALLTHROUGH;
+                    case UnknownArgumentBehavior::Ignore:
+                        // ignore unknown denotation
+                        ++index, ++argv, argDenotation = nullptr;
+                        break;
+                    case UnknownArgumentBehavior::Fail:
+                        throw Failure("The specified argument \"" + string(*argv) + "\" is unknown and will be ignored.");
+                    }
+                }
+            } // if(!matchingArg)
+        } // no values to read
+    } // while(argv != end)
 }
 /*!
  * \brief Returns whether \a arg1 should be listed before \a arg2 when
