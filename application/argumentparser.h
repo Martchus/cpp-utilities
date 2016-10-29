@@ -19,6 +19,11 @@ CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
 CPP_UTILITIES_EXPORT extern const char *applicationVersion;
 CPP_UTILITIES_EXPORT extern const char *applicationUrl;
 
+/*!
+ * \macro SET_APPLICATION_INFO
+ * \brief Sets application meta data used by ArgumentParser::printHelp().
+ * \remarks Reads those data from the config header so "config.h" must be included.
+ */
 #define SET_APPLICATION_INFO \
     ::ApplicationUtilities::applicationName = APP_NAME; \
     ::ApplicationUtilities::applicationAuthor = APP_AUTHOR; \
@@ -365,7 +370,7 @@ inline const std::vector<const char *> &Argument::values(std::size_t occurrence)
  * The parser will expect that many values when parsing command line arguments.
  * A negative value indicates a variable number of arguments to be expected.
  *
- * The default value is 0.
+ * The default value is 0, except for ConfigValueArgument instances.
  *
  * \sa setRequiredValueCount()
  * \sa valueNames()
@@ -570,7 +575,7 @@ inline bool Argument::isCombinable() const
 }
 
 /*!
- * \brief Sets if this argument can be combined.
+ * \brief Sets whether this argument can be combined.
  *
  * The parser will complain if two arguments labeled as uncombinable are
  * present at the same time.
@@ -588,7 +593,7 @@ inline void Argument::setCombinable(bool value)
  * An argument which denotes the operation might be specified
  * withouth "--" or "-" prefix as first main argument.
  *
- * The default value is false.
+ * The default value is false, except for OperationArgument instances.
  *
  * \sa setDenotesOperation()
  */
@@ -810,6 +815,9 @@ public:
     ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
 };
 
+/*!
+ * \brief Constructs a new ConfigValueArgument with the specified parameter. The initial value of requiredValueCount() is set to size of specified \a valueNames.
+ */
 inline ConfigValueArgument::ConfigValueArgument(const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames) :
     Argument(name, abbreviation, description)
 {

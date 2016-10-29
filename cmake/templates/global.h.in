@@ -14,4 +14,14 @@
 # define @META_PROJECT_VARNAME_UPPER@_IMPORT LIB_IMPORT
 #endif
 
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_EXPORT
+ * \brief Marks the symbol to be exported by the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_IMPORT
+ * \brief Marks the symbol to be imported from the @META_PROJECT_NAME@ library.
+ */
+
 #endif // @META_PROJECT_VARNAME_UPPER@_GLOBAL

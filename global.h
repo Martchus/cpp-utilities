@@ -14,4 +14,14 @@
 # define CPP_UTILITIES_IMPORT LIB_IMPORT
 #endif
 
+/*!
+ * \def CPP_UTILITIES_EXPORT
+ * \brief Marks the symbol to be exported by the c++utilities library.
+ */
+
+/*!
+ * \def CPP_UTILITIES_IMPORT
+ * \brief Marks the symbol to be imported from the c++utilities library.
+ */
+
 #endif // CPP_UTILITIES_GLOBAL

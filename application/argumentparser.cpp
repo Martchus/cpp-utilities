@@ -24,12 +24,16 @@ using namespace IoUtilities;
  */
 namespace ApplicationUtilities {
 
-/// \cond
-
+/// \brief Specifies the name of the application (used by ArgumentParser::printHelp()).
 const char *applicationName = nullptr;
+/// \brief Specifies the author of the application (used by ArgumentParser::printHelp()).
 const char *applicationAuthor = nullptr;
+/// \brief Specifies the version of the application (used by ArgumentParser::printHelp()).
 const char *applicationVersion = nullptr;
+/// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
 const char *applicationUrl = nullptr;
+
+/// \cond
 
 inline bool notEmpty(const char *str)
 {
@@ -1098,5 +1102,16 @@ HelpArgument::HelpArgument(ArgumentParser &parser) :
         parser.printHelp(cout);
     });
 }
+
+/*!
+ * \class OperationArgument
+ * \brief The OperationArgument class is an Argument where denotesOperation() is true by default.
+ */
+
+/*!
+ * \class ConfigValueArgument
+ * \brief The ConfigValueArgument class is an Argument where setCombinable() is true by default.
+ * \sa ConfigValueArgument::ConfigValueArgument()
+ */
 
 }
