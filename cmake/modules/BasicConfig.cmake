@@ -1,6 +1,7 @@
 # before including this module, the project meta-data must be set
 
 # set project name (displayed in Qt Creator)
+message(STATUS "Configuring project ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 project(${META_PROJECT_NAME})
 
 # set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
