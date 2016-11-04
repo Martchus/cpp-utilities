@@ -112,6 +112,7 @@ find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
 function(add_custom_desktop_file_with_additional_entries
         FILE_NAME
         DESKTOP_FILE_APP_NAME
+        DESKTOP_FILE_GENERIC_NAME
         DESKTOP_FILE_DESCRIPTION
         DESKTOP_FILE_CATEGORIES
         DESKTOP_FILE_CMD
@@ -134,6 +135,7 @@ endfunction()
 function(add_custom_desktop_file
         FILE_NAME
         DESKTOP_FILE_APP_NAME
+        DESKTOP_FILE_GENERIC_NAME
         DESKTOP_FILE_DESCRIPTION
         DESKTOP_FILE_CATEGORIES
         DESKTOP_FILE_CMD
@@ -141,6 +143,7 @@ function(add_custom_desktop_file
     add_custom_desktop_file_with_additional_entries(
         "${FILE_NAME}"
         "${DESKTOP_FILE_APP_NAME}"
+        "${DESKTOP_FILE_GENERIC_NAME}"
         "${DESKTOP_FILE_DESCRIPTION}"
         "${DESKTOP_FILE_CATEGORIES}"
         "${DESKTOP_FILE_CMD}"
@@ -164,6 +167,7 @@ function(add_desktop_file)
     add_custom_desktop_file_with_additional_entries(
         "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_APP_NAME}"
+        "${META_GENERIC_NAME}"
         "${META_APP_DESCRIPTION}"
         "${META_APP_CATEGORIES}"
         "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"

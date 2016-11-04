@@ -6,10 +6,15 @@ project(${META_PROJECT_NAME})
 
 # set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
 if(NOT META_PROJECT_VARNAME)
-    set(META_PROJECT_VARNAME ${META_PROJECT_NAME})
+    set(META_PROJECT_VARNAME "${META_PROJECT_NAME}")
 endif()
 if(NOT META_PROJECT_VARNAME_UPPER)
     string(TOUPPER ${META_PROJECT_VARNAME} META_PROJECT_VARNAME_UPPER)
+endif()
+
+# set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
+if(NOT META_GENERIC_NAME)
+    set(META_GENERIC_NAME "${META_APP_NAME}")
 endif()
 
 # provide variables for other projects built as part of the same subdirs project
