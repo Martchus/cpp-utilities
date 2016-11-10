@@ -44,8 +44,7 @@ set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJEC
 # disable new ABI (can't catch ios_base::failure with new ABI)
 option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
 if(FORCE_OLD_ABI)
-    add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
-    set(META_REQUIRED_BUILD_FLAGS "${META_REQUIRED_BUILD_CFLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS _GLIBCXX_USE_CXX11_ABI=0)
     message(STATUS "Forcing usage of old CXX11 ABI.")
 else()
     message(STATUS "Using default CXX11 ABI (not forcing old CX11 ABI).")
@@ -53,14 +52,14 @@ endif()
 
 # enable debug-only code when doing a debug build
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG_BUILD)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS DEBUG_BUILD)
     message(STATUS "Debug build enabled.")
 endif()
 
 # enable logging when option is set
 option(LOGGING_ENABLED "specifies whether logging is enabled" OFF)
 if(LOGGING_ENABLED)
-    add_definitions(-DLOGGING_ENABLED)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS LOGGING_ENABLED)
     message(STATUS "Logging is enabled.")
 endif()
 
@@ -88,7 +87,7 @@ elseif("${META_PROJECT_TYPE}" STREQUAL "application")
 endif()
 
 # additional linker flags used when static linkage is enables
-set(ADDITIONAL_STATIC_LINK_FLAGS -static -static-libstdc++ -static-libgcc)
+list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static -static-libstdc++ -static-libgcc)
 
 # options for enabling/disabling Qt GUI (if available)
 if(WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES)
