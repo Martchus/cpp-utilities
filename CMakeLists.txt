@@ -28,6 +28,7 @@ set(HEADER_FILES
     math/math.h
     misc/memory.h
     misc/random.h
+    misc/traits.h
     tests/testutils.h
     tests/cppunit.h
 )
