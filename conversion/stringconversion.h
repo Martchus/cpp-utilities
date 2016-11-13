@@ -4,6 +4,8 @@
 #include "./conversionexception.h"
 #include "./binaryconversion.h"
 
+#include "../misc/traits.h"
+
 #include <string>
 #include <cstring>
 #include <sstream>
@@ -59,7 +61,7 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
  * \tparam Container The STL-container used to provide the \a strings.
  * \returns Returns the joined string.
  */
-template <class Container = std::initializer_list<std::string> > CPP_UTILITIES_EXPORT
+template <class Container = std::initializer_list<std::string> >
 typename Container::value_type joinStrings(const Container &strings, const typename Container::value_type &delimiter = typename Container::value_type(), bool omitEmpty = false, const typename Container::value_type &leftClosure = typename Container::value_type(), const typename Container::value_type &rightClosure = typename Container::value_type())
 {
     typename Container::value_type res;
@@ -108,7 +110,7 @@ enum class EmptyPartsTreat
  * \tparam Container The STL-container used to return the parts.
  * \returns Returns the parts.
  */
-template <class Container = std::list<std::string> > CPP_UTILITIES_EXPORT
+template <class Container = std::list<std::string> >
 Container splitString(const typename Container::value_type &string, const typename Container::value_type &delimiter, EmptyPartsTreat emptyPartsRole = EmptyPartsTreat::Keep, int maxParts = -1)
 {
     --maxParts;
@@ -148,7 +150,8 @@ Container splitString(const typename Container::value_type &string, const typena
 /*!
  * \brief Returns whether \a str starts with \a phrase.
  */
-template <typename StringType> CPP_UTILITIES_EXPORT bool startsWith(const StringType &str, const StringType &phrase)
+template <typename StringType>
+bool startsWith(const StringType &str, const StringType &phrase)
 {
     if(str.size() < phrase.size()) {
         return false;
@@ -166,7 +169,8 @@ template <typename StringType> CPP_UTILITIES_EXPORT bool startsWith(const String
 /*!
  * \brief Returns whether \a str starts with \a phrase.
  */
-template <typename StringType> CPP_UTILITIES_EXPORT bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
+template <typename StringType>
+bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
 {
     for(auto stri = str.cbegin(), strend = str.cend(); stri != strend; ++stri, ++phrase) {
         if(!*phrase) {
@@ -182,7 +186,8 @@ template <typename StringType> CPP_UTILITIES_EXPORT bool startsWith(const String
  * \brief Returns whether \a str contains the specified \a substrings.
  * \remarks The \a substrings must occur in the specified order.
  */
-template <typename StringType> CPP_UTILITIES_EXPORT bool containsSubstrings(const StringType &str, std::initializer_list<StringType> substrings)
+template <typename StringType>
+bool containsSubstrings(const StringType &str, std::initializer_list<StringType> substrings)
 {
     typename StringType::size_type currentPos = 0;
     for(const auto &substr : substrings) {
@@ -198,7 +203,8 @@ template <typename StringType> CPP_UTILITIES_EXPORT bool containsSubstrings(cons
  * \brief Returns whether \a str contains the specified \a substrings.
  * \remarks The \a substrings must occur in the specified order.
  */
-template <typename StringType> CPP_UTILITIES_EXPORT bool containsSubstrings(const StringType &str, std::initializer_list<const typename StringType::value_type *> substrings)
+template <typename StringType>
+bool containsSubstrings(const StringType &str, std::initializer_list<const typename StringType::value_type *> substrings)
 {
     typename StringType::size_type currentPos = 0;
     for(const auto *substr : substrings) {
@@ -213,11 +219,30 @@ template <typename StringType> CPP_UTILITIES_EXPORT bool containsSubstrings(cons
 /*!
  * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
  */
-template <typename StringType> CPP_UTILITIES_EXPORT void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
+template <typename StringType>
+void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
 {
     for(typename StringType::size_type i = 0; (i = str.find(find, i)) != StringType::npos; i += replace.size()) {
         str.replace(i, find.size(), replace);
     }
+}
+
+/*!
+ * \brief Returns the character representation of the specified \a digit.
+ * \remarks
+ * - Uses capital letters.
+ * - Valid values for \a digit: 0 <= \a digit <= 35
+ */
+template <typename CharType>
+CharType digitToChar(CharType digit)
+{
+    CharType res;
+    if(digit <= 9) {
+        res = digit + '0';
+    } else {
+        res = digit + 'A' - 10;
+    }
+    return res;
 }
 
 /*!
@@ -226,7 +251,57 @@ template <typename StringType> CPP_UTILITIES_EXPORT void findAndReplace(StringTy
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \sa stringToNumber()
  */
-template <typename NumberType, typename StringType = std::string> CPP_UTILITIES_EXPORT StringType numberToString(NumberType number, int base = 10)
+template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
+{
+    std::size_t resSize = 0;
+    for(auto n = number; n; n /= base, ++resSize);
+    StringType res;
+    res.reserve(resSize);
+    for(; number; number /= base) {
+        res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
+    }
+    return res;
+}
+
+/*!
+ * \brief Converts the given \a number to its equivalent string representation using the specified \a base.
+ * \tparam NumberType The data type of the given number.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \sa stringToNumber()
+ */
+template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
+{
+    const bool negative = number < 0;
+    std::size_t resSize;
+    if(negative) {
+        number = -number, resSize = 1;
+    } else {
+        resSize = 0;
+    }
+    for(auto n = number; n; n /= base, ++resSize);
+    StringType res;
+    res.reserve(resSize);
+    for(; number; number /= base) {
+        res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
+    }
+    if(negative) {
+        res.insert(res.begin(), '-');
+    }
+    return res;
+}
+
+/*!
+ * \brief Converts the given \a number to its equivalent string representation using the specified \a base.
+ * \tparam NumberType The data type of the given number.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ *          \a base and types).
+ * \sa stringToNumber()
+ */
+template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType> >...>
+StringType numberToString(FloatingType number, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << number;
@@ -234,21 +309,98 @@ template <typename NumberType, typename StringType = std::string> CPP_UTILITIES_
 }
 
 /*!
+ * \brief Returns number/digit of the specified \a character representation using the specified \a base.
+ * \throws A ConversionException will be thrown if the provided \a character does not represent a valid digit for the specified \a base.
+ */
+template <typename CharType>
+CharType charToDigit(CharType character, CharType base)
+{
+    CharType res;
+    if(character >= '0' && character <= '9') {
+        res = character - '0';
+    } else if(character >= 'a' && character <= 'z') {
+        res = character - 'a' + 10;
+    } else if(character >= 'A' && character <= 'Z') {
+        res = character - 'A' + 10;
+    } else {
+        throw ConversionException("The string is no valid number");
+    }
+    if(res >= base) {
+        throw ConversionException("The string is no valid number");
+    }
+    return res;
+}
+
+/*!
  * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
- * \throws A ConversionException will be thrown if the provided string is not a valid number.
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename NumberType, typename StringType> CPP_UTILITIES_EXPORT NumberType stringToNumber(const StringType &string, int base = 10)
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
+{
+    IntegralType result = 0;
+    for(const auto &c : string) {
+        if(c == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<typename StringType::value_type>(c, base);
+    }
+    return result;
+}
+
+/*!
+ * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \sa numberToString()
+ */
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
+{
+    auto i = string.begin();
+    auto end = string.end();
+    if(i == end) {
+        return 0;
+    }
+    const bool negative = (*i == '-');
+    if(negative) {
+        ++i;
+    }
+    IntegralType result = 0;
+    for(; i != end; ++i) {
+        if(*i == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<typename StringType::value_type>(*i, base);
+    }
+    return negative ? -result : result;
+}
+
+/*!
+ * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ *          \a base and types).
+ * \sa numberToString()
+ */
+template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType> >...>
+FloatingType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << string;
-    NumberType result;
+    FloatingType result;
     if((ss >> result) && ss.eof()) {
         return result;
     } else {
-        throw ConversionException("The specified string is no valid number.");
+        throw ConversionException("The string is no valid number.");
     }
 }
 
@@ -256,19 +408,49 @@ template <typename NumberType, typename StringType> CPP_UTILITIES_EXPORT NumberT
  * \brief Converts the given null-terminated \a string to a numeric value using the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
- * \throws A ConversionException will be thrown if the provided string is not a valid number.
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename NumberType, typename CharType> CPP_UTILITIES_EXPORT NumberType stringToNumber(const CharType *string, int base = 10)
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
-    std::basic_stringstream<CharType> ss;
-    ss << std::setbase(base) << string;
-    NumberType result;
-    if((ss >> result) && ss.eof()) {
-        return result;
-    } else {
-        throw ConversionException("The specified string is no valid number.");
+    IntegralType result = 0;
+    for(; *string; ++string) {
+        if(*string == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<CharType>(*string, base);
     }
+    return result;
+}
+
+/*!
+ * \brief Converts the given null-terminated \a string to a numeric value using the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \sa numberToString()
+ */
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
+{
+    if(!*string) {
+        return 0;
+    }
+    const bool negative = (*string == '-');
+    if(negative) {
+        ++string;
+    }
+    IntegralType result = 0;
+    for(; *string; ++string) {
+        if(*string == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<CharType>(*string, base);
+    }
+    return negative ? -result : result;
 }
 
 /*!
@@ -280,7 +462,8 @@ template <typename NumberType, typename CharType> CPP_UTILITIES_EXPORT NumberTyp
  *
  * \tparam T The data type of the integer to be interpreted.
  */
-template <typename T> CPP_UTILITIES_EXPORT std::string interpretIntegerAsString(T integer, int startOffset = 0)
+template <typename T>
+std::string interpretIntegerAsString(T integer, int startOffset = 0)
 {
     char buffer[sizeof(T)];
     ConversionUtilities::BE::getBytes(integer, buffer);

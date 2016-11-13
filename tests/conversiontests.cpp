@@ -237,16 +237,24 @@ void ConversionTests::testStringConversions()
         for(const auto base : initializer_list<byte>{2, 8, 10, 16}) {
             auto resultString = stringToNumber<uint64, string>(numberToString<uint64, string>(unsignedRandom, base), base);
             auto resultWideString = stringToNumber<uint64, wstring>(numberToString<uint64, wstring>(unsignedRandom, base), base);
-            CPPUNIT_ASSERT(resultString == unsignedRandom);
-            CPPUNIT_ASSERT(resultWideString == unsignedRandom);
+            CPPUNIT_ASSERT_EQUAL(unsignedRandom, resultString);
+            CPPUNIT_ASSERT_EQUAL(unsignedRandom, resultWideString);
         }
         for(const auto base : initializer_list<byte>{10}) {
             auto resultString = stringToNumber<int64, string>(numberToString<int64, string>(signedRandom, base), base);
             auto resultWideString = stringToNumber<int64, wstring>(numberToString<int64, wstring>(signedRandom, base), base);
-            CPPUNIT_ASSERT(resultString == signedRandom);
-            CPPUNIT_ASSERT(resultWideString == signedRandom);
+            CPPUNIT_ASSERT_EQUAL(signedRandom, resultString);
+            CPPUNIT_ASSERT_EQUAL(signedRandom, resultWideString);
         }
     }
+
+    // stringToNumber() with leading zeroes and different types
+    int32 res = stringToNumber<int32, string>("01");
+    CPPUNIT_ASSERT_EQUAL(1, res);
+    res = stringToNumber<int32, wstring>(L"01");
+    CPPUNIT_ASSERT_EQUAL(1, res);
+    res = stringToNumber<int32, u16string>(u"01");
+    CPPUNIT_ASSERT_EQUAL(1, res);
 
     // interpretIntegerAsString()
     CPPUNIT_ASSERT(interpretIntegerAsString<uint32>(0x54455354) == "TEST");
