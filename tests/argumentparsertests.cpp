@@ -107,10 +107,11 @@ void ArgumentParserTests::testParsing()
     fieldsArg.setRequiredValueCount(-1);
     fieldsArg.setValueNames({"title", "album", "artist", "trackpos"});
     fieldsArg.setImplicit(true);
+    Argument notAlbumArg("album", 'a', "should not be confused with album value");
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
-    displayTagInfoArg.setSubArguments({&fieldsArg, &filesArg, &verboseArg});
-    parser.setMainArguments({&qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg});
+    displayTagInfoArg.setSubArguments({&fieldsArg, &filesArg, &verboseArg, &notAlbumArg});
+    parser.setMainArguments({&qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg, &notAlbumArg});
 
     // define some argument values
     const char *argv[] = {"tageditor", "get", "album", "title", "diskpos", "-f", "somefile"};
@@ -306,22 +307,24 @@ void ArgumentParserTests::testParsing()
     }
 
     // test required value count constraint with sufficient number of provided parameters
+    const char *argv13[] = {"tageditor", "get", "--fields", "album=test", "title", "diskpos", "--files", "somefile"};
     qtConfigArgs.qtWidgetsGuiArg().reset();
     fieldsArg.setRequiredValueCount(3);
     verboseArg.setRequired(false);
-    parser.parseArgs(9, argv2);
+    parser.parseArgs(8, argv13);
     // this should still work without complaints
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album=test"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
     CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), out_of_range);
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
+    CPPUNIT_ASSERT(!notAlbumArg.isPresent());
 
     // test required value count constraint with insufficient number of provided parameters
     displayTagInfoArg.reset(), fieldsArg.reset(), filesArg.reset();

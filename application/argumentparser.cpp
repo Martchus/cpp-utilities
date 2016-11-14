@@ -577,6 +577,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                             if(argDenotationType != Abbreviation || !*argDenotation) {
                                 // no further abbreviations follow -> read sub args for next argv
                                 readSpecifiedArgs(lastArg->m_subArgs, index, ++argv, end, lastArg, argDenotation = nullptr, completionMode);
+                                argDenotation = nullptr;
                             } else {
                                 // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
                                 readSpecifiedArgs(lastArg->m_subArgs, index, argv, end, lastArg, argDenotation, completionMode);
@@ -647,6 +648,7 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
                     // read sub arguments
                     ++m_actualArgc, lastArg = lastArgInLevel = matchingArg;
                     readSpecifiedArgs(lastArg->m_subArgs, index, argv, end, lastArg, argDenotation = nullptr, completionMode);
+                    argDenotation = nullptr;
                     continue;
                 }
 
