@@ -183,6 +183,7 @@ public:
     const char *preDefinedCompletionValues() const;
     void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
     Argument *conflictsWithArgument() const;
+    Argument *wouldConflictWithArgument() const;
     void reset();
 
 private:
@@ -227,6 +228,7 @@ public:
     void setDefaultArgument(Argument *argument);
     void checkConstraints();
     void invokeCallbacks();
+    bool isUncombinableMainArgPresent() const;
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)

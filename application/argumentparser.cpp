@@ -252,10 +252,25 @@ bool Argument::isParentPresent() const
  *
  * If the argument is in conflict with an other argument this argument will be returned.
  * Otherwise nullptr will be returned.
+ *
+ * \remarks Conflicts with main arguments aren't considered by this method!
  */
 Argument *Argument::conflictsWithArgument() const
 {
-    if(!isCombinable() && isPresent()) {
+    return isPresent() ? wouldConflictWithArgument() : nullptr;
+}
+
+/*!
+ * \brief Checks if this argument would conflict with other arguments if it was present.
+ *
+ * If the argument is in conflict with an other argument this argument will be returned.
+ * Otherwise nullptr will be returned.
+ *
+ * \remarks Conflicts with main arguments aren't considered by this method!
+ */
+Argument *Argument::wouldConflictWithArgument() const
+{
+    if(!isCombinable()) {
         for(Argument *parent : m_parents) {
             for(Argument *sibling : parent->subArguments()) {
                 if(sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
@@ -448,6 +463,19 @@ void ArgumentParser::readArgs(int argc, const char * const *argv)
     }
 }
 
+/*!
+ * \brief Checks whether at least one uncombinable main argument is present.
+ */
+bool ArgumentParser::isUncombinableMainArgPresent() const
+{
+    for(const Argument *arg : m_mainArgs) {
+        if(!arg->isCombinable() && arg->isPresent()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 #ifdef DEBUG_BUILD
 /*!
  * \brief Verifies the specified \a argument definitions.
@@ -628,8 +656,9 @@ void ArgumentParser::readSpecifiedArgs(ArgumentVector &args, std::size_t &index,
 
                 // use the first default argument which is not already present if there is still no match
                 if(!matchingArg && (!completionMode || (argv + 1 != end))) {
+                    const bool uncombinableMainArgPresent = parentArg ? false : isUncombinableMainArgPresent();
                     for(Argument *arg : args) {
-                        if(arg->isImplicit() && !arg->isPresent()) {
+                        if(arg->isImplicit() && !arg->isPresent() && !arg->wouldConflictWithArgument() && (!uncombinableMainArgPresent || !arg->isMainArgument())) {
                             (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                             break;
                         }
