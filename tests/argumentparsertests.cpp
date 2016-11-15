@@ -101,17 +101,17 @@ void ArgumentParserTests::testParsing()
     outputFileArg.setCombinable(true);
     Argument printFieldNamesArg("print-field-names", '\0', "prints available field names");
     Argument displayFileInfoArg("display-file-info", 'i', "displays general file information");
+    Argument notAlbumArg("album", 'a', "should not be confused with album value");
     displayFileInfoArg.setDenotesOperation(true);
-    displayFileInfoArg.setSubArguments({&fileArg, &verboseArg});
+    displayFileInfoArg.setSubArguments({&fileArg, &verboseArg, &notAlbumArg});
     Argument fieldsArg("fields", '\0', "specifies the fields");
     fieldsArg.setRequiredValueCount(-1);
     fieldsArg.setValueNames({"title", "album", "artist", "trackpos"});
     fieldsArg.setImplicit(true);
-    Argument notAlbumArg("album", 'a', "should not be confused with album value");
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({&fieldsArg, &filesArg, &verboseArg, &notAlbumArg});
-    parser.setMainArguments({&qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg, &notAlbumArg});
+    parser.setMainArguments({&qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg});
 
     // define some argument values
     const char *argv[] = {"tageditor", "get", "album", "title", "diskpos", "-f", "somefile"};

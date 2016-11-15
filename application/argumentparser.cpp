@@ -412,7 +412,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
  */
 void ArgumentParser::readArgs(int argc, const char * const *argv)
 {
-    IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
+    IF_DEBUG_BUILD(verifyArgs(m_mainArgs, std::vector<char>(), std::vector<const char *>());)
     m_actualArgc = 0;
     if(argc) {
         // the first argument is the executable name
@@ -491,14 +491,12 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
  *  - Verifies the sub arguments, too.
  *  - For debugging purposes only; hence only available in debug builds.
  */
-void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args)
+void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args, vector<char> abbreviations, vector<const char *> names)
 {
     vector<const Argument *> verifiedArgs;
     verifiedArgs.reserve(args.size());
-    vector<char> abbreviations;
-    abbreviations.reserve(args.size());
-    vector<string> names;
-    names.reserve(args.size());
+    abbreviations.reserve(abbreviations.size() + args.size());
+    names.reserve(names.size() + args.size());
     bool hasImplicit = false;
     for(const Argument *arg : args) {
         assert(find(verifiedArgs.cbegin(), verifiedArgs.cend(), arg) == verifiedArgs.cend());
@@ -508,10 +506,12 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
         hasImplicit |= arg->isImplicit();
         assert(!arg->abbreviation() || find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) == abbreviations.cend());
         abbreviations.push_back(arg->abbreviation());
-        assert(!arg->name() || find(names.cbegin(), names.cend(), arg->name()) == names.cend());
+        assert(!arg->name() || find_if(names.cbegin(), names.cend(), [arg] (const char *name) { return !strcmp(arg->name(), name); }) == names.cend());
         assert(arg->requiredValueCount() == 0 || arg->subArguments().size() == 0);
         names.emplace_back(arg->name());
-        verifyArgs(arg->subArguments());
+    }
+    for(const Argument *arg : args) {
+        verifyArgs(arg->subArguments(), abbreviations, names);
     }
 }
 #endif
