@@ -85,7 +85,7 @@ public:
                 break;
             }
         }
-        return StringData(outputBuffer, currentOutputOffset - outputBuffer);
+        return StringData(std::unique_ptr<char[], StringDataDeleter>(outputBuffer), currentOutputOffset - outputBuffer);
     }
 
 private:
