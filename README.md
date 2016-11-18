@@ -75,10 +75,14 @@ For a debug build, just use ```-DCMAKE_BUILD_TYPE=Debug```.
 #### Arch Linux package
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files
 for building Arch Linux packages.
+
 PKGBUILD files to build for Windows using the Mingw-w64 compiler are also included.
 
-#### RPM package
-A \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
+#### RPM packages
+RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
+
+#### Gentoo
+Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
 
 ### General notes
 * There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
