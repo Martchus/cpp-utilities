@@ -80,6 +80,26 @@ if(NOT META_SOVERSION)
     endif()
 endif()
 
+# add header providing meta information about the library
+find_template_file("meta.h" CPP_UTILITIES META_H_TEMPLATE_FILE)
+find_template_file("meta.cpp" CPP_UTILITIES META_CPP_TEMPLATE_FILE)
+configure_file(
+    "${META_H_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_BINARY_DIR}/meta.h"
+    NEWLINE_STYLE UNIX # since this will be installed ensure consistency
+)
+configure_file(
+    "${META_CPP_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_BINARY_DIR}/meta.cpp"
+    NEWLINE_STYLE UNIX # since this will be installed ensure consistency
+)
+list(APPEND SOURCE_FILES "${CMAKE_CURRENT_BINARY_DIR}/.cpp")
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/meta.h"
+    DESTINATION "include/${META_PROJECT_NAME}"
+    COMPONENT header
+)
+
 # add target for building the library
 if(BUILD_SHARED_LIBS)
     if(STATIC_LIBRARY_LINKAGE)

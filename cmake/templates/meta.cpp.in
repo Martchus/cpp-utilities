@@ -1,0 +1,26 @@
+// Created via CMake from template meta.h.in
+// WARNING! Any changes to this file will be overwritten by the next CMake run!
+
+namespace Meta {
+
+    const char *@META_PROJECT_VARNAME_LOWER@Author()
+    {
+        return "@META_APP_AUTHOR@";
+    }
+
+    const char *@META_PROJECT_VARNAME_LOWER@Url()
+    {
+        return "@META_APP_URL@";
+    }
+
+    const char *@META_PROJECT_VARNAME_LOWER@Description()
+    {
+        return "@META_APP_DESCRIPTION@";
+    }
+
+    const char *@META_PROJECT_VARNAME_LOWER@Version()
+    {
+        return "@META_VERSION_MAJOR@.@META_VERSION_MINOR@.@META_VERSION_PATCH@";
+    }
+
+}
