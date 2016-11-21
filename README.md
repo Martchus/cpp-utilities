@@ -23,16 +23,17 @@ The library utilizes:
 #### Build-only dependencies
 * C++ compiler supporting C++11, tested with
  - GNU g++
- - mingw-w64
  - Clang
-* CMake, tested 3.5.1 and 3.6.0
+ - mingw-w64 g++
+ - Cygwin g++
+* CMake (at least 3.3.0)
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
 * Graphviz for diagrams in the API documentation (optional)
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
- - the C/C++ standard library
+ - C/C++ standard library supporting C++11
  - libiconv (might be part of glibc or provided as extra library)
 * For dependencies of my other projects check the README.md of these projects.
 
@@ -68,7 +69,8 @@ make DESTDIR="/temporary/install/location" install-mingw-w64-strip
 During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big project.
 
 This can be easily achieved by using CMake's ```add_subdirectory()``` function. For project files
-see the repository [subdirs](https://github.com/Martchus/subdirs).
+see the repository [subdirs](https://github.com/Martchus/subdirs). For an example, see
+[build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight).
 
 For a debug build, just use ```-DCMAKE_BUILD_TYPE=Debug```.
 
@@ -80,9 +82,14 @@ PKGBUILD files to build for Windows using the Mingw-w64 compiler are also includ
 
 #### RPM packages
 RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
+Those files have only been tested under Tumbleweed so far.
 
 #### Gentoo
 Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
+
+#### Cygwin
+Scripts to build with Cygwin are provided by svnpenn. Checkout his
+[repository](https://github.com/svnpenn/glade).
 
 ### General notes
 * There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
