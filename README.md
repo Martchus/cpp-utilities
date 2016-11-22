@@ -53,6 +53,10 @@ make DESTDIR="/temporary/install/location" install
 * The make option ```-j``` can be used for concurrent compilation.
 * ```LIB_SUFFIX```, ```LIB_SUFFIX_32``` and ```LIB_SUFFIX_64``` can be set to
   specify a suffix for the library directory, eg. lib*64* or lib*32*. The 32/64 variants are only used when building for 32/64-bit architecture.
+* By default the build system will *build* shared libs. To *build* also static libraries, set `ENABLE_STATIC_LIBS=ON`. To disable building shared libs
+  set `DISABLE_SHARED_LIBS=ON`.
+* By default the build system will prefer *linking against* shared libraries. To force *linking against* static libraries set `STATIC_LINKAGE=ON`.
+  However, this will only affect applications. To force linking statically when building shared libraries set `STATIC_LIBRARY_LINKAGE=ON`.
 
 #### Building for Windows
 Building for Windows with Mingw-w64 cross compiler can be utilized using a small
