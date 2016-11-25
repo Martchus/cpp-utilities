@@ -283,6 +283,18 @@ Argument *Argument::wouldConflictWithArgument() const
 }
 
 /*!
+ * \brief Resets this argument and all sub arguments recursively.
+ * \sa Argument::reset()
+ */
+void Argument::resetRecursively()
+{
+    for(Argument *arg : m_subArgs) {
+        arg->resetRecursively();
+    }
+    reset();
+}
+
+/*!
  * \class ApplicationUtilities::ArgumentParser
  * \brief The ArgumentParser class provides a means for handling command line arguments.
  *
@@ -460,6 +472,17 @@ void ArgumentParser::readArgs(int argc, const char * const *argv)
         }
     } else {
         m_executable = nullptr;
+    }
+}
+
+/*!
+ * \brief Resets all Argument instances assigned as mainArguments() and sub arguments.
+ * \sa Argument::reset()
+ */
+void ArgumentParser::resetArgs()
+{
+    for(Argument *arg : m_mainArgs) {
+        arg->resetRecursively();
     }
 }
 

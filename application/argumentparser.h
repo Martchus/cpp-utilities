@@ -185,6 +185,7 @@ public:
     Argument *conflictsWithArgument() const;
     Argument *wouldConflictWithArgument() const;
     void reset();
+    void resetRecursively();
 
 private:
     const char *m_name;
@@ -220,6 +221,7 @@ public:
     void printHelp(std::ostream &os) const;
     void parseArgs(int argc, const char *const *argv);
     void readArgs(int argc, const char *const *argv);
+    void resetArgs();
     unsigned int actualArgumentCount() const;
     const char *executable() const;
     UnknownArgumentBehavior unknownArgumentBehavior() const;
