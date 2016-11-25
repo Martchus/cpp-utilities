@@ -849,7 +849,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     if(argc && nextArgumentOrValue) {
         if(currentWordIndex < argc) {
             opening = argv[currentWordIndex];
-            // For some reasons completions for eg. "set --values disk=1 tag=a" are splitted so the
+            // For some reason completions for eg. "set --values disk=1 tag=a" are splitted so the
             // equation sign is an own argument ("set --values disk = 1 tag = a").
             // This is not how values are treated by the argument parser. Hence the opening
             // must be joined again. In this case only the part after the equation sign needs to be
@@ -911,8 +911,9 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                             if(!compoundOpeningStartLen || wordIndex >= compoundOpeningStartLen) {
                                 if(*i == '\'') {
                                     cout << "'\"'\"'";
+                                } else {
+                                    cout << *i;
                                 }
-                                cout << *i;
                             }
                             ++i, ++wordIndex;
                             switch(*i) {
@@ -921,6 +922,9 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                                     cout << '=';
                                     noWhitespace = true;
                                     equationSignAlreadyPresent = false;
+                                }
+                                if(*i == '\0') {
+                                    cout << '\'';
                                 }
                             }
                         } else {

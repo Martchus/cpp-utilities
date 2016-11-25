@@ -406,6 +406,7 @@ void ArgumentParserTests::testBashCompletion()
     getArg.setSubArguments({&fieldsArg, &filesArg});
     Argument setArg("set", 's', "sets tag values");
     setArg.setSubArguments({&valuesArg, &filesArg});
+
     parser.setMainArguments({&helpArg, &displayFileInfoArg, &getArg, &setArg});
 
     size_t index = 0;
@@ -463,7 +464,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"), buffer.str());
 
-        // values
+        // pre-defined values
         const char *const argv3[] = {"get", "--fields"};
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
@@ -473,7 +474,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"), buffer.str());
 
-        // values with equation sign, one letter already present
+        // pre-defined values with equation sign, one letter already present
         const char *const argv4[] = {"set", "--values", "a"};
         index = 0, lastDetectedArg = nullptr, buffer.str(string()), getArg.reset(), setArg.reset();
         cout.rdbuf(buffer.rdbuf());
@@ -523,6 +524,16 @@ void ArgumentParserTests::testBashCompletion()
         parser.printBashCompletion(3, argv7, 2, lastDetectedArg);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"), buffer.str());
+
+        // started pre-defined values with equation sign, one letter already present, last value matches
+        const char *const argv8[] = {"set", "--values", "t"};
+        index = 0, lastDetectedArg = nullptr, buffer.str(string()), parser.resetArgs();
+        cout.rdbuf(buffer.rdbuf());
+        argv = argv8;
+        parser.readSpecifiedArgs(parser.m_mainArgs, index, argv, argv8 + 3, lastDetectedArg, argDenotation = nullptr, true);
+        parser.printBashCompletion(3, argv8, 2, lastDetectedArg);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title=' 'trackpos=' ); compopt -o nospace\n"), buffer.str());
 
     } catch(...) {
         cout.rdbuf(regularCoutBuffer);
