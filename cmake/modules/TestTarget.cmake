@@ -6,6 +6,14 @@ find_library(CPP_UNIT_LIB cppunit)
 if(CPP_UNIT_LIB)
     list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB} ${CPP_UNIT_LIB})
 
+    # set compile definitions
+    if(NOT META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS)
+        set(META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS ${META_PUBLIC_COMPILE_DEFINITIONS} ${META_ADDITIONAL_PUBLIC_SHARED_COMPILE_DEFINITIONS})
+    endif()
+    if(NOT META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS)
+        set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS} ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
+    endif()
+
     # add autotools-style check target
     if(NOT TARGET check)
         set(CMAKE_CTEST_COMMAND ctest -V)
@@ -28,21 +36,26 @@ if(CPP_UNIT_LIB)
         endif()
     endif()
     if("${META_PROJECT_TYPE}" STREQUAL "application")
-        # the tests application might need the path of the application to be tested
+        # the test application might need the path of the application to be tested
         set(APPLICATION_PATH "-a ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}")
-        # linking tests against the application target might be required
-        # somehow this doesn't work when just specifying the applications target, so we need to specify the full path of the
-        # target executable
         if(LINK_TESTS_AGAINST_APP_TARGET)
+            # linking tests against the application target might be required
+            # somehow this doesn't work when just specifying the applications target, so we need to specify the full path of the
+            # target executable
             list(APPEND TEST_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
             add_dependencies(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
         endif()
     endif()
-
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${ACTUAL_ADDITIONAL_LINK_FLAGS} ${TEST_LIBRARIES} ${LIBRARIES})
+    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+        PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+        PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}"
+    )
+    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+        PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+        PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
+    )
     set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests PROPERTIES
         CXX_STANDARD 11
-        COMPILE_DEFINITIONS "${ACTUAL_ADDITIONAL_COMPILE_DEFINITIONS}"
         LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
         LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
     )
