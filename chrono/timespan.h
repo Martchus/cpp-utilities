@@ -363,4 +363,14 @@ constexpr inline bool TimeSpan::isInfinity() const
 
 }
 
+namespace std {
+template<> struct hash<ChronoUtilities::TimeSpan>
+{
+    inline size_t operator()(const ChronoUtilities::TimeSpan &timeSpan) const
+    {
+        return hash<decltype (timeSpan.totalTicks())>()(timeSpan.totalTicks());
+    }
+};
+}
+
 #endif // CHRONO_UTILITIES_TIMESPAN_H

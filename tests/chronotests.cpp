@@ -24,6 +24,7 @@ class ChronoTests : public TestFixture
     CPPUNIT_TEST(testDateTime);
     CPPUNIT_TEST(testTimeSpan);
     CPPUNIT_TEST(testOperators);
+    CPPUNIT_TEST(testHashing);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -33,6 +34,7 @@ public:
     void testDateTime();
     void testTimeSpan();
     void testOperators();
+    void testHashing();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ChronoTests);
@@ -115,4 +117,22 @@ void ChronoTests::testOperators()
     CPPUNIT_ASSERT_EQUAL(2000, dateTime.year());
     CPPUNIT_ASSERT_EQUAL(5, dateTime.day());
     CPPUNIT_ASSERT_EQUAL(2, Period(dateTime, dateTime + TimeSpan::fromDays(62)).months());
+}
+
+/*!
+ * \brief Tests hashing DateTime / TimeSpan by using in a set.
+ */
+void ChronoTests::testHashing()
+{
+    set<DateTime> dateTimes;
+    dateTimes.emplace(DateTime::fromDate(2500, 2, 1));
+    dateTimes.emplace(DateTime::fromDate(2500, 2, 2));
+    dateTimes.emplace(DateTime::fromDate(2500, 2, 1));
+    CPPUNIT_ASSERT_EQUAL(2ul, dateTimes.size());
+
+    set<TimeSpan> timeSpans;
+    timeSpans.emplace(TimeSpan::fromDays(5));
+    timeSpans.emplace(TimeSpan::fromDays(10));
+    timeSpans.emplace(TimeSpan::fromDays(5));
+    CPPUNIT_ASSERT_EQUAL(2ul, timeSpans.size());
 }

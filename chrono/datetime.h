@@ -486,4 +486,14 @@ inline DateTime &DateTime::operator -=(const TimeSpan &timeSpan)
 
 }
 
+namespace std {
+template<> struct hash<ChronoUtilities::DateTime>
+{
+    inline size_t operator()(const ChronoUtilities::DateTime &dateTime) const
+    {
+        return hash<decltype (dateTime.totalTicks())>()(dateTime.totalTicks());
+    }
+};
+}
+
 #endif // CHRONO_UTILITIES_DATETIME_H
