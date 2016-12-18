@@ -5,6 +5,11 @@
 
 #include <ostream>
 
+#ifdef PLATFORM_WINDOWS
+# include "../misc/memory.h"
+# include <vector>
+#endif
+
 namespace ApplicationUtilities {
 
 /*!
@@ -21,13 +26,20 @@ bool CPP_UTILITIES_EXPORT confirmPrompt(const char *message, Response defaultRes
 
 #ifdef PLATFORM_WINDOWS
 void CPP_UTILITIES_EXPORT startConsole();
-# define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
+std::pair<std::vector<std::unique_ptr<char[]> >, std::vector<char *> > CPP_UTILITIES_EXPORT convertArgsToUtf8();
+# define CMD_UTILS_START_CONSOLE \
+    ::ApplicationUtilities::startConsole();
+# define CMD_UTILS_CONVERT_ARGS_TO_UTF8 \
+    auto utf8Args = ::ApplicationUtilities::convertArgsToUtf8(); \
+    argv = utf8Args.second.data(); \
+    argc = static_cast<int>(utf8Args.second.size());
 #else
 # define CMD_UTILS_START_CONSOLE
+# define CMD_UTILS_CONVERT_ARGS_TO_UTF8
 #endif
 
 /*!
- * \brief The Indent class allows printing indentation conveniently, eg. cout << Ident(4) << ...
+ * \brief The Indentation class allows printing indentation conveniently, eg. cout << Indentation(4) << ...
  */
 class CPP_UTILITIES_EXPORT Indentation
 {

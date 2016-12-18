@@ -73,6 +73,42 @@ void startConsole()
     // sync
     ios::sync_with_stdio(true);
 }
+
+/*!
+ * \brief Convert command line arguments to UTF-8.
+ * \remarks Only available on Windows (on other platforms we can assume passed arguments are already UTF-8 encoded).
+ */
+pair<vector<unique_ptr<char[]> >, vector<char *> > convertArgsToUtf8()
+{
+    pair<vector<unique_ptr<char[]> >, vector<char *> > res;
+    int argc;
+
+    LPWSTR *argv_w = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if(!argv_w || argc <= 0) {
+        return res;
+    }
+
+    res.first.reserve(static_cast<size_t>(argc));
+    res.second.reserve(static_cast<size_t>(argc));
+    for(; argv_w; ++argv_w) {
+        int requiredSize = WideCharToMultiByte(CP_UTF8, 0, *argv_w, -1, nullptr, 0, 0, 0);
+        if(requiredSize <= 0) {
+            break; // just stop on error
+        }
+
+        auto argv = make_unique<char[]>(static_cast<size_t>(requiredSize));
+        requiredSize = WideCharToMultiByte(CP_UTF8, 0, *argv_w, -1, argv.get(), requiredSize, 0, 0);
+        if(requiredSize <= 0) {
+            break;
+        }
+
+        res.second.emplace_back(argv.get());
+        res.first.emplace_back(move(argv));
+    }
+
+    LocalFree(argv_w);
+    return res;
+}
 #endif
 
 } // namespace ApplicationUtilities
