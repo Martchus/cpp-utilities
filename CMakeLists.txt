@@ -25,6 +25,7 @@ set(HEADER_FILES
     io/inifile.h
     io/path.h
     io/catchiofailure.h
+    io/nativefilestream.h
     math/math.h
     misc/memory.h
     misc/random.h
@@ -49,6 +50,7 @@ set(SRC_FILES
     io/inifile.cpp
     io/path.cpp
     io/catchiofailure.cpp
+    io/nativefilestream.cpp
     math/math.cpp
     misc/random.cpp
     tests/testutils.cpp
@@ -118,6 +120,12 @@ set(META_VERSION_PATCH 0)
 # find required 3rd party libraries
 include(3rdParty)
 use_iconv(AUTO_LINKAGE REQUIRED)
+
+# configure use of native file buffer
+option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer under Windows, affects bc (required for unicode filenames under Windows)" OFF)
+if(USE_NATIVE_FILE_BUFFER)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
+endif()
 
 # include modules to apply configuration
 include(BasicConfig)
