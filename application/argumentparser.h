@@ -34,6 +34,7 @@ CPP_UTILITIES_EXPORT extern void(*exitFunction)(int);
 
 class Argument;
 class ArgumentParser;
+class ArgumentReader;
 
 typedef std::initializer_list<Argument *> ArgumentInitializerList;
 typedef std::vector<Argument *> ArgumentVector;
@@ -128,7 +129,8 @@ inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vect
 
 class CPP_UTILITIES_EXPORT Argument
 {
-    friend class ArgumentParser;
+    friend ArgumentParser;
+    friend ArgumentReader;
 
 public:
     typedef std::function <void (const ArgumentOccurrence &)> CallbackFunction;
@@ -212,6 +214,8 @@ private:
 class CPP_UTILITIES_EXPORT ArgumentParser
 {
     friend ArgumentParserTests;
+    friend ArgumentReader;
+
 public:
     ArgumentParser();
 
@@ -234,7 +238,6 @@ public:
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args, std::vector<char> abbreviations, std::vector<const char *> names);)
-    void readSpecifiedArgs(ArgumentVector &args, std::size_t &index, const char *const *&argv, const char *const *end, Argument *&lastArg, const char *&argDenotation, bool completionMode = false);
     void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const Argument *lastDetectedArg);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);

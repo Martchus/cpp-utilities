@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 # add project files
 set(HEADER_FILES
     application/argumentparser.h
+    application/argumentparserprivate.h
     application/commandlineutils.h
     application/failure.h
     application/fakeqtconfigarguments.h
