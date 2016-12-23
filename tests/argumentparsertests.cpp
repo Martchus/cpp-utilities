@@ -417,7 +417,7 @@ void ArgumentParserTests::testBashCompletion()
         const char *const argv1[] = {"se"};
         ArgumentReader reader(parser, argv1, argv1 + 1, true);
         reader.read();
-        parser.printBashCompletion(1, argv1, 0, reader.lastArg);
+        parser.printBashCompletion(1, argv1, 0, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=()\n"), buffer.str());
 
@@ -426,7 +426,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         getArg.setDenotesOperation(true), setArg.setDenotesOperation(true);
         reader.reset(argv1, argv1 + 1).read();
-        parser.printBashCompletion(1, argv1, 0, reader.lastArg);
+        parser.printBashCompletion(1, argv1, 0, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
 
@@ -436,7 +436,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv2, argv2 + 1).read();
-        parser.printBashCompletion(1, argv2, 0, reader.lastArg);
+        parser.printBashCompletion(1, argv2, 0, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('set' )\n"), buffer.str());
 
@@ -445,7 +445,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv2, argv2 + 1).read();
-        parser.printBashCompletion(1, argv2, 1, reader.lastArg);
+        parser.printBashCompletion(1, argv2, 1, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
 
@@ -454,7 +454,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(nullptr, nullptr).read();
-        parser.printBashCompletion(0, nullptr, 0, reader.lastArg);
+        parser.printBashCompletion(0, nullptr, 0, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"), buffer.str());
 
@@ -464,7 +464,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv3, argv3 + 2).read();
-        parser.printBashCompletion(2, argv3, 2, reader.lastArg);
+        parser.printBashCompletion(2, argv3, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"), buffer.str());
 
@@ -474,7 +474,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv4, argv4 + 3).read();
-        parser.printBashCompletion(3, argv4, 2, reader.lastArg);
+        parser.printBashCompletion(3, argv4, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n"), buffer.str());
 
@@ -489,7 +489,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv5, argv5 + 3).read();
-        parser.printBashCompletion(3, argv5, 2, reader.lastArg);
+        parser.printBashCompletion(3, argv5, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         // order for file names is not specified
         const string res(buffer.str());
@@ -505,7 +505,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv6, argv6 + 2).read();
-        parser.printBashCompletion(2, argv6, 1, reader.lastArg);
+        parser.printBashCompletion(2, argv6, 1, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--values' )\n"), buffer.str());
 
@@ -515,7 +515,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv7, argv7 + 3).read();
-        parser.printBashCompletion(3, argv7, 2, reader.lastArg);
+        parser.printBashCompletion(3, argv7, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"), buffer.str());
 
@@ -525,9 +525,27 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
         reader.reset(argv8, argv8 + 3).read();
-        parser.printBashCompletion(3, argv8, 2, reader.lastArg);
+        parser.printBashCompletion(3, argv8, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('title=' 'trackpos=' ); compopt -o nospace\n"), buffer.str());
+
+        // combined abbreviations
+        const char *const argv9[] = {"-gf"};
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        reader.reset(argv9, argv9 + 1).read();
+        parser.printBashCompletion(1, argv9, 0, reader);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL(string("COMPREPLY=('-gf' )\n"), buffer.str());
+
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        reader.reset(argv9, argv9 + 1).read();
+        parser.printBashCompletion(1, argv9, 1, reader);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL(static_cast<string::size_type>(0), buffer.str().find("COMPREPLY=('--fields' "));
 
     } catch(...) {
         cout.rdbuf(regularCoutBuffer);

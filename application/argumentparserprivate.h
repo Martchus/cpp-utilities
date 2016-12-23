@@ -10,21 +10,25 @@ struct CPP_UTILITIES_EXPORT ArgumentReader
     void read();
     void read(ArgumentVector &args);
 
-    /// \brief Specifies the associated ArgumentParser instance.
+    /// \brief The associated ArgumentParser instance.
     ArgumentParser &parser;
-    /// \brief Specifies the Argument instances to store the results. Sub arguments of args are considered as well.
+    /// \brief The Argument instances to store the results. Sub arguments of args are considered as well.
     ArgumentVector &args;
-    /// \brief Specifies and index which is incremented when an argument is encountered (the current index is stored in the occurrence) or a value is encountered.
+    /// \brief An index which is incremented when an argument is encountered (the current index is stored in the occurrence) or a value is encountered.
     size_t index;
     /// \brief Points to the first argument denotation and will be incremented when a denotation has been processed.
     const char *const *argv;
     /// \brief Points to the end of the \a argv array.
     const char *const *end;
-    /// \brief Specifies the last Argument instance which could be detected. Set to nullptr in the initial call. Used for Bash completion.
+    /// \brief The last Argument instance which could be detected. Set to nullptr in the initial call. Used for Bash completion.
     Argument *lastArg;
-    /// \brief Specifies the currently processed abbreviation denotation (should be substring of \a argv). Set to nullptr for processing \a argv from the beginning (default).
+    /// \brief Points to the element in argv where lastArg was encountered. Unspecified if lastArg is not set.
+    const char *const *lastArgDenotation;
+    /// \brief The currently processed abbreviation denotation (should be substring of one of the args in argv). Set to nullptr for processing argv from the beginning (default).
     const char *argDenotation;
-    /// \brief Specifies whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
+    /// \brief The type of the currently processed abbreviation denotation. Unspecified if argDenotation is not set.
+    unsigned char argDenotationType;
+    /// \brief Whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
     bool completionMode;
 };
 

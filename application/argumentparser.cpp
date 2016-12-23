@@ -51,6 +51,9 @@ ArgumentReader::ArgumentReader(ArgumentParser &parser, const char * const *argv,
     completionMode(completionMode)
 {}
 
+/*!
+ * \brief Resets the ArgumentReader to continue reading new \a argv.
+ */
 ArgumentReader &ArgumentReader::reset(const char *const *argv, const char *const *end)
 {
     this->argv = argv;
@@ -63,6 +66,7 @@ ArgumentReader &ArgumentReader::reset(const char *const *argv, const char *const
 
 /*!
  * \brief Reads the commands line arguments specified when constructing the object.
+ * \remarks Reads on main-argument-level.
  */
 void ArgumentReader::read()
 {
@@ -71,6 +75,7 @@ void ArgumentReader::read()
 
 /*!
  * \brief Reads the commands line arguments specified when constructing the object.
+ * \remarks Reads on custom argument-level specified via \a args.
  */
 void ArgumentReader::read(ArgumentVector &args)
 {
@@ -91,7 +96,6 @@ void ArgumentReader::read(ArgumentVector &args)
         } else {
             // determine how denotation must be processed
             bool abbreviationFound = false;
-            unsigned char argDenotationType;
             if(argDenotation) {
                 // continue reading childs for abbreviation denotation already detected
                 abbreviationFound = false;
@@ -145,7 +149,7 @@ void ArgumentReader::read(ArgumentVector &args)
                         }
 
                         // read sub arguments
-                        ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg;
+                        ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
                         if(argDenotationType != Abbreviation || (++argDenotation != equationPos)) {
                             if(argDenotationType != Abbreviation || !*argDenotation) {
                                 // no further abbreviations follow -> read sub args for next argv
@@ -194,6 +198,7 @@ void ArgumentReader::read(ArgumentVector &args)
                     for(Argument *arg : args) {
                         if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
                             (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
+                            lastArgDenotation = argv;
                             ++index, ++argv;
                             break;
                         }
@@ -676,7 +681,7 @@ void ArgumentParser::readArgs(int argc, const char * const *argv)
             }
 
             if(completionMode) {
-                printBashCompletion(argc, argv, currentWordIndex, reader.lastArg);
+                printBashCompletion(argc, argv, currentWordIndex, reader);
                 exitFunction(0); // prevent the applicaton to continue with the regular execution
             }
         } else {
@@ -699,6 +704,7 @@ void ArgumentParser::resetArgs()
     for(Argument *arg : m_mainArgs) {
         arg->resetRecursively();
     }
+    m_actualArgc = 0;
 }
 
 /*!
@@ -797,17 +803,18 @@ void insertSiblings(const ArgumentVector &siblings, list<const Argument *> &targ
  * \remarks Arguments must have been parsed before with readSpecifiedArgs(). When calling this method, completionMode must
  *          be set to true.
  */
-void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const Argument *lastDetectedArg)
+void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader)
 {
     // variables to store relevant completions (arguments, pre-defined values, files/dirs)
     list<const Argument *> relevantArgs, relevantPreDefinedValues;
     bool completeFiles = false, completeDirs = false, noWhitespace = false;
 
     // get the last argument the argument parser was able to detect successfully
+    const Argument *const lastDetectedArg = reader.lastArg;
     size_t lastDetectedArgIndex;
     vector<Argument *> lastDetectedArgPath;
     if(lastDetectedArg) {
-        lastDetectedArgIndex = lastDetectedArg->index(lastDetectedArg->occurrences() - 1);
+        lastDetectedArgIndex = reader.lastArgDenotation - argv;
         lastDetectedArgPath = lastDetectedArg->path(lastDetectedArg->occurrences() - 1);
     }
 
@@ -1006,8 +1013,12 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             }
         }
 
-        if(openingDenotationType == Abbreviation && opening) {
+        if(opening && openingDenotationType == Abbreviation && !nextArgumentOrValue) {
             cout << '\'' << '-' << opening << arg->abbreviation() << '\'' << ' ';
+        } else if(lastDetectedArg && reader.argDenotationType == Abbreviation && !nextArgumentOrValue) {
+            if(reader.argv == reader.end) {
+                cout << '\'' << *(reader.argv - 1) << '\'' << ' ';
+            }
         } else if(arg->denotesOperation() && (!actualArgumentCount() || (currentWordIndex == 0 && (!lastDetectedArg || (lastDetectedArg->isPresent() && lastDetectedArgIndex == 0))))) {
             cout << '\'' << arg->name() << '\'' << ' ';
         } else {

@@ -238,7 +238,7 @@ public:
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args, std::vector<char> abbreviations, std::vector<const char *> names);)
-    void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const Argument *lastDetectedArg);
+    void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const ArgumentReader &reader);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);
 
