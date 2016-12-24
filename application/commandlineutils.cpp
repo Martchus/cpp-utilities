@@ -38,7 +38,7 @@ bool confirmPrompt(const char *message, Response defaultResponse)
 
 #ifdef PLATFORM_WINDOWS
 /*!
- * \brief Starts the console and sets the console output code page to UTF-8.
+ * \brief Starts the console and sets the console output code page to UTF-8 if this is configured.
  * \remarks This method is only available on Windows and used to start a console from a GUI application.
  */
 void startConsole()
@@ -67,9 +67,11 @@ void startConsole()
     fp = _fdopen(conHandle, "w");
     *stderr = *fp;
     setvbuf(stderr, NULL, _IONBF, 0);
+#ifdef CPP_UTILITIES_FORCE_UTF8_CODEPAGE
     // set console to handle UTF-8 IO correctly
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
+#endif
     // sync
     ios::sync_with_stdio(true);
 }

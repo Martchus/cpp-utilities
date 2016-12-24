@@ -128,6 +128,12 @@ if(USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
 endif()
 
+# configure forcing UTF-8 code page under Windows
+option(FORCE_UTF8_CODEPAGE "forces use of UTF-8 code page under Windows" OFF)
+if(FORCE_UTF8_CODEPAGE)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_FORCE_UTF8_CODEPAGE)
+endif()
+
 # include modules to apply configuration
 include(BasicConfig)
 include(WindowsResources)
