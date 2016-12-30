@@ -1,7 +1,7 @@
 #include "./nativefilestream.h"
 
 #ifdef PLATFORM_MINGW
-# include <c++utilities/io/catchiofailure.h>
+# include "catchiofailure.h"
 # include <windows.h>
 # include <fcntl.h>
 # include <sys/stat.h>
