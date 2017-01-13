@@ -12,18 +12,6 @@
 #  define PLATFORM_CYGWIN
 # endif
 #endif
-# if defined(__MINGW32__) || defined(__MINGW64__)
-#  ifndef PLATFORM_MINGW
-/// \brief Defined when compiling with mingw(-w64).
-#   define PLATFORM_MINGW
-#  endif
-# endif
-#elif defined(__unix__)
-# ifndef PLATFORM_UNIX
-/// \brief Defined when compiling for any UNIX (like) system.
-#  define PLATFORM_UNIX
-# endif
-#endif
 #if defined(__linux__) || defined(__linux) || defined(__gnu_linux__)
 # ifndef PLATFORM_LINUX
 /// \brief Defined when compiling for Linux.
@@ -36,7 +24,7 @@
 #  endif
 # endif
 #endif
-#if defined(__APPLE__) && (defined(__GNUC__) || defined(__xlC__) || defined(__xlc__))
+#if defined(__APPLE__)
 # include <TargetConditionals.h>
 # if defined(TARGET_OS_MAC) && TARGET_OS_MAC
 #  ifndef PLATFORM_MAC
@@ -53,6 +41,18 @@
 # ifndef PLATFORM_FREE_BSD
 /// \brief Defined when compiling for FreeBSD
 #  define PLATFORM_FREE_BSD
+# endif
+#endif
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  ifndef PLATFORM_MINGW
+/// \brief Defined when compiling with mingw(-w64).
+#   define PLATFORM_MINGW
+#  endif
+# endif
+#elif defined(__unix__) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREE_BSD) || defined(PLATFORM_MAC)
+# ifndef PLATFORM_UNIX
+/// \brief Defined when compiling for any UNIX (like) system.
+#  define PLATFORM_UNIX
 # endif
 #endif
 
