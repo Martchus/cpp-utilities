@@ -1,8 +1,7 @@
 #ifndef IOUTILITIES_PATHHELPER_H
 #define IOUTILITIES_PATHHELPER_H
 
-#include "./binarywriter.h"
-#include "./binaryreader.h"
+#include "../global.h"
 
 #include <string>
 #include <list>

@@ -1,31 +1,28 @@
 #include "./path.h"
 
-#include "../conversion/widen.h"
-
 #include <string>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-#ifdef PLATFORM_UNIX
+#if defined(PLATFORM_UNIX)
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <pwd.h>
 # include <dirent.h>
-#else
-# ifdef PLATFORM_WINDOWS
-#  ifdef UNICODE
-#   undef UNICODE
-#  endif
-#  ifdef _UNICODE
-#   undef _UNICODE
-#  endif
-#  include <windows.h>
+#elif defined(PLATFORM_WINDOWS)
+# ifdef UNICODE
+#  undef UNICODE
 # endif
+# ifdef _UNICODE
+#  undef _UNICODE
+# endif
+# include <windows.h>
+#else
+# error Platform not supported.
 #endif
 
 using namespace std;
-using namespace ConversionUtilities;
 
 namespace IoUtilities {
 
@@ -92,11 +89,13 @@ void removeInvalidChars(std::string &fileName)
  * \param result Specifies a string to store the path in.
  * \param applicationDirectoryName Specifies the name for the application subdirectory.
  * \param createApplicationDirectory Indicates wheter the application subdirectory should be created if not present.
- * \returns Returns if a settings directory could be located.
+ * \returns Returns whether a settings directory could be located.
+ * \deprecated This function has FIXMEs. Since it is not used actually also a good candidate for being removed.
  */
 bool settingsDirectory(std::string &result, std::string applicationDirectoryName, bool createApplicationDirectory)
 {
     result.clear();
+    // FIXME: this kind of configuration is not actually used so get rid of it, maybe just read env variable instead
     fstream pathConfigFile("path.config", ios_base::in);
     if(pathConfigFile.good()) {
         for(string line; getline(pathConfigFile, line); ) {
@@ -110,22 +109,19 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         }
     }
     if(!result.empty()) {
-#ifdef PLATFORM_UNIX
+#if defined(PLATFORM_UNIX)
         struct stat sb;
         return (stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
-#else
-# ifdef PLATFORM_WINDOWS
+#else // PLATFORM_WINDOWS
+        // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
         DWORD ftyp = GetFileAttributesA(result.c_str());
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
-# else
-#  error Platform not supported.
-# endif
 #endif
     } else {
         if(!applicationDirectoryName.empty()) {
             removeInvalidChars(applicationDirectoryName);
         }
-#ifdef PLATFORM_UNIX
+#if defined(PLATFORM_UNIX) || defined(PLATFORM_MAC)
         if(char *homeDir = getenv("HOME")) {
             result = string(homeDir);
         } else {
@@ -147,13 +143,13 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
                 }
             }
         }
-#else
-# ifdef PLATFORM_WINDOWS
+#else // PLATFORM_WINDOWS
         if(char *appData = getenv("appdata")) {
             result = appData;
             if(!applicationDirectoryName.empty()) {
                 result += "\\" + applicationDirectoryName;
                 if(createApplicationDirectory) {
+                    // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
                     DWORD ftyp = GetFileAttributesA(result.c_str());
                     if(ftyp == INVALID_FILE_ATTRIBUTES) {
                         return false;
@@ -171,9 +167,6 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         } else {
             return false;
         }
-# else
-#  error Platform not supported.
-# endif
 #endif
     }
     return true;
@@ -181,6 +174,7 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
 
 /*!
  * \brief Returns the names of the directory entries in the specified \a path with the specified \a types.
+ * \deprecated This function has FIXMEs. Since it can be replaced by using fs abstraction lib it is a good candidate for being replaced.
  */
 std::list<std::string> directoryEntries(const char *path, DirectoryEntryType types)
 {
