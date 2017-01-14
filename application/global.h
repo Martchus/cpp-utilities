@@ -6,12 +6,19 @@
 /// \brief Defined when compiling for Windows.
 #  define PLATFORM_WINDOWS
 # endif
+#endif
 #if defined(__CYGWIN__)
 # ifndef PLATFORM_CYGWIN
 /// \brief Defined when compiling for Cygwin.
 #  define PLATFORM_CYGWIN
 # endif
 #endif
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  ifndef PLATFORM_MINGW
+/// \brief Defined when compiling with mingw(-w64).
+#   define PLATFORM_MINGW
+#  endif
+# endif
 #if defined(__linux__) || defined(__linux) || defined(__gnu_linux__)
 # ifndef PLATFORM_LINUX
 /// \brief Defined when compiling for Linux.
@@ -43,13 +50,7 @@
 #  define PLATFORM_FREE_BSD
 # endif
 #endif
-# if defined(__MINGW32__) || defined(__MINGW64__)
-#  ifndef PLATFORM_MINGW
-/// \brief Defined when compiling with mingw(-w64).
-#   define PLATFORM_MINGW
-#  endif
-# endif
-#elif defined(__unix__) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREE_BSD) || defined(PLATFORM_MAC)
+#if defined(__unix__) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREE_BSD) || defined(PLATFORM_MAC)
 # ifndef PLATFORM_UNIX
 /// \brief Defined when compiling for any UNIX (like) system.
 #  define PLATFORM_UNIX
