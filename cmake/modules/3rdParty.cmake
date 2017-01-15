@@ -25,6 +25,8 @@ if(NOT DEFINED FIND_THIRD_PARTY_LIBRARIES_EXISTS)
         # allows to look for dynamic libraries in particular
         if(WIN32)
             set(CMAKE_FIND_LIBRARY_SUFFIXES .dll .dll.a)
+        elseif(APPLE)
+            set(CMAKE_FIND_LIBRARY_SUFFIXES .dylib .so)
         else()
             set(CMAKE_FIND_LIBRARY_SUFFIXES .so)
         endif()
