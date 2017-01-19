@@ -1,6 +1,12 @@
-// ensure the old ABI is used
-// TODO: add condition for GCC version if GCC Bug 66145 is fixed
+// ensure the old ABI is used under libstd++ < 7 and the new ABI under libstd++ >= 7
+#ifdef _GLIBCXX_RELEASE
+#include <bits/c++config.h>
+#if _GLIBCXX_RELEASE >= 7
+#define _GLIBCXX_USE_CXX11_ABI 1
+#else
 #define _GLIBCXX_USE_CXX11_ABI 0
+#endif
+#endif
 
 #include "./catchiofailure.h"
 
