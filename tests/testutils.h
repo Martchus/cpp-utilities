@@ -148,7 +148,8 @@ template <typename T> AsHexNumber<T> asHexNumber(const T &value)
  * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
  * \remarks Requires cppunit.
  */
-# define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
+# define TESTUTILS_ASSERT_EXEC(args) \
+    CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
 #endif
 
 }

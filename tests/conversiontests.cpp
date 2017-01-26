@@ -1,5 +1,6 @@
 #include "../conversion/binaryconversion.h"
 #include "../conversion/stringconversion.h"
+#include "../conversion/stringbuilder.h"
 #include "../tests/testutils.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -27,6 +28,7 @@ class ConversionTests : public TestFixture
     CPPUNIT_TEST(testSwapOrderFunctions);
     CPPUNIT_TEST(testStringEncodingConversions);
     CPPUNIT_TEST(testStringConversions);
+    CPPUNIT_TEST(testStringBuilder);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -40,6 +42,7 @@ public:
     void testSwapOrderFunctions();
     void testStringEncodingConversions();
     void testStringConversions();
+    void testStringBuilder();
 
 private:
     template<typename intType>
@@ -294,4 +297,19 @@ void ConversionTests::testStringConversions()
     for(unsigned int i = 0; i < sizeof(originalBase64Data); ++i) {
         CPPUNIT_ASSERT(decodedBase64Data.first[i] == originalBase64Data[i]);
     }
+}
+
+string functionTakingString(const string &str)
+{
+    return str;
+}
+
+void ConversionTests::testStringBuilder()
+{
+    const tuple<const char *, string, const char *> tuple("string1", "string2", "string3");
+    CPPUNIT_ASSERT_EQUAL(string("string1string2string3"), tupleToString(tuple));
+    CPPUNIT_ASSERT_EQUAL(string("foobarfoo2bar2"), tupleToString(string("foo") % "bar" % string("foo2") % "bar2"));
+    CPPUNIT_ASSERT_EQUAL(string("123456"), functionTakingString("12" % string("34") + "56"));
+    constexpr double velocityExample = 27.0;
+    CPPUNIT_ASSERT_EQUAL(string("velocity: 27 km/h (7.5 m/s)"), functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
 }
