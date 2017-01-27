@@ -21,6 +21,9 @@ using Not = Bool<!T::value>;
 template <typename... T>
 struct Any : Bool<false> {};
 
+template <typename Head, typename... Tail>
+struct Any<Head, Tail...> : Conditional<Head, Bool<true>, Any<Tail...> > {};
+
 template <typename... T>
 struct All : Bool<true> {};
 
@@ -32,6 +35,12 @@ using EnableIf = typename std::enable_if<All<Condition...>::value, Detail::Enabl
 
 template <typename... Condition>
 using DisableIf = typename std::enable_if<!All<Condition...>::value, Detail::Enabler>::type;
+
+template <typename... Condition>
+using EnableIfAny = typename std::enable_if<Any<Condition...>::value, Detail::Enabler>::type;
+
+template <typename... Condition>
+using DisableIfAny = typename std::enable_if<!Any<Condition...>::value, Detail::Enabler>::type;
 
 }
 
