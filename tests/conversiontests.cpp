@@ -306,10 +306,14 @@ string functionTakingString(const string &str)
 
 void ConversionTests::testStringBuilder()
 {
+    // conversion of string-tuple to string (the actual string builder)
     const tuple<const char *, string, const char *> tuple("string1", "string2", "string3");
     CPPUNIT_ASSERT_EQUAL(string("string1string2string3"), tupleToString(tuple));
     CPPUNIT_ASSERT_EQUAL(string("foobarfoo2bar2"), tupleToString(string("foo") % "bar" % string("foo2") % "bar2"));
-    CPPUNIT_ASSERT_EQUAL(string("123456"), functionTakingString("12" % string("34") + "56"));
+
+    // construction of string-tuple and final conversion to string works
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string", string("1234567"), functionTakingString("12" % string("34") % '5' + "67"));
     constexpr double velocityExample = 27.0;
-    CPPUNIT_ASSERT_EQUAL(string("velocity: 27 km/h (7.5 m/s)"), functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("real-word example", string("velocity: 27 km/h (7.5 m/s)"), functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("regular + operator still works (no problems with ambiguity)", string("regular + still works"), string("regular") + " + still works");
 }

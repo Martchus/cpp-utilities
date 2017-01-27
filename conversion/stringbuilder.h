@@ -12,47 +12,59 @@ namespace ConversionUtilities
 /// \cond
 namespace Helper {
 
-template<class StringType, Traits::DisableIf<std::is_integral<StringType> > >
+template<class StringType, Traits::EnableIf<std::is_class<StringType> >...>
 std::size_t computeTupleElementSize(const StringType *str)
 {
     return str->size();
 }
 
-template<class StringType>
+template<class StringType, Traits::EnableIf<std::is_class<StringType> >...>
 std::size_t computeTupleElementSize(const StringType &str)
 {
     return str.size();
 }
 
-template<class CharType>
+template<class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType> >...>
 std::size_t computeTupleElementSize(const CharType *str)
 {
     return std::char_traits<CharType>::length(str);
 }
 
-template<class StringType>
+template<class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType> >...>
+constexpr std::size_t computeTupleElementSize(CharType)
+{
+    return 1;
+}
+
+template<class StringType, Traits::EnableIf<std::is_class<StringType> >...>
 void append(StringType &target, const StringType *str)
 {
     target.append(*str);
 }
 
-template<class StringType>
+template<class StringType, Traits::EnableIf<std::is_class<StringType> >...>
 void append(StringType &target, const StringType &str)
 {
     target.append(str);
 }
 
-template<class StringType, class CharType>
+template<class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType> >...>
 void append(StringType &target, const CharType *str)
 {
     target.append(str);
+}
+
+template<class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType> >...>
+void append(StringType &target, CharType c)
+{
+    target += c;
 }
 
 template<class StringType, class Tuple, std::size_t N>
 struct TupleToString {
     static std::size_t precomputeSize(const Tuple &tuple)
     {
-        return TupleToString<StringType, Tuple, N-1>::precomputeSize(tuple) + computeTupleElementSize(std::get<N-1>(tuple));
+        return TupleToString<StringType, Tuple, N-1>::precomputeSize(tuple) + computeTupleElementSize<StringType>(std::get<N-1>(tuple));
     }
 
     static void append(const Tuple &tuple, StringType &str)
@@ -66,7 +78,7 @@ template<class StringType, class Tuple>
 struct TupleToString<StringType, Tuple, 1> {
     static std::size_t precomputeSize(const Tuple &tuple)
     {
-        return computeTupleElementSize(std::get<0>(tuple));
+        return computeTupleElementSize<StringType>(std::get<0>(tuple));
     }
 
     static void append(const Tuple &tuple, StringType &str)
@@ -128,6 +140,15 @@ constexpr auto operator %(const Tuple &lhs, const char *rhs) -> decltype(std::tu
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
+template<class Tuple>
+constexpr auto operator %(const Tuple &lhs, char rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(rhs)))
+{
+    return std::tuple_cat(lhs, std::make_tuple(rhs));
+}
+
+/*!
+ * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
+ */
 constexpr auto operator %(const std::string &lhs, const std::string &rhs) -> decltype(std::make_tuple(&lhs, &rhs))
 {
     return std::make_tuple(&lhs, &rhs);
@@ -150,6 +171,22 @@ constexpr auto operator %(const std::string &lhs, const char *rhs) -> decltype(s
 }
 
 /*!
+ * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
+ */
+constexpr auto operator %(const std::string &lhs, char rhs) -> decltype(std::make_tuple(&lhs, rhs))
+{
+    return std::make_tuple(&lhs, rhs);
+}
+
+/*!
+ * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
+ */
+constexpr auto operator %(char lhs, const std::string &rhs) -> decltype(std::make_tuple(lhs, &rhs))
+{
+    return std::make_tuple(lhs, &rhs);
+}
+
+/*!
  * \brief Allows construction of final string from previously constructed string-tuple and trailing string via +-operator.
  *
  * This is meant to be used for fast string building without multiple heap allocation, eg.
@@ -158,7 +195,7 @@ constexpr auto operator %(const std::string &lhs, const char *rhs) -> decltype(s
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template<class Tuple>
+template<class Tuple, Traits::DisableIfAny<std::is_same<Tuple, std::string>, std::is_same<Tuple, const char *>, std::is_array<Tuple>, std::is_same<Tuple, char> >...>
 inline std::string operator +(const Tuple &lhs, const std::string &rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(&rhs)));
@@ -173,8 +210,23 @@ inline std::string operator +(const Tuple &lhs, const std::string &rhs)
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template<class Tuple>
+template<class Tuple, Traits::DisableIfAny<std::is_trivial<Tuple>, std::is_same<Tuple, std::string>, std::is_same<Tuple, const char *>, std::is_array<Tuple>, std::is_same<Tuple, char> >...>
 inline std::string operator +(const Tuple &lhs, const char *rhs)
+{
+    return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
+}
+
+/*!
+ * \brief Allows construction of final string from previously constructed string-tuple and trailing char via +-operator.
+ *
+ * This is meant to be used for fast string building without multiple heap allocation, eg.
+ *
+ * ```
+ * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
+ * ```
+ */
+template<class Tuple, Traits::DisableIfAny<std::is_trivial<Tuple>, std::is_same<Tuple, std::string>, std::is_same<Tuple, const char *>, std::is_array<Tuple>, std::is_same<Tuple, char> >...>
+inline std::string operator +(const Tuple &lhs, char rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
 }
