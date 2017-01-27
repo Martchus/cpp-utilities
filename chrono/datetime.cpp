@@ -1,6 +1,7 @@
 #include "./datetime.h"
 
 #include "../conversion/stringconversion.h"
+#include "../conversion/stringbuilder.h"
 
 #include <sstream>
 #include <iomanip>
@@ -168,7 +169,7 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
         } else if(c == '\0') {
             break;
         } else {
-            throw ConversionException(string("unexpected \"") + c + '\"');
+            throw ConversionException(string("unexpected \"") % c + '\"');
         }
     }
     deltaNegative && (*deltaHourIndex = -*deltaHourIndex);

@@ -123,10 +123,10 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         }
 #if defined(PLATFORM_UNIX) || defined(PLATFORM_MAC)
         if(char *homeDir = getenv("HOME")) {
-            result = string(homeDir);
+            result = homeDir;
         } else {
             struct passwd *pw = getpwuid(getuid());
-            result = string(pw->pw_dir);
+            result = pw->pw_dir;
         }
         struct stat sb;
         result += "/.config";
@@ -136,7 +136,8 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
             }
         }
         if(!applicationDirectoryName.empty()) {
-            result += "/" + applicationDirectoryName;
+            result += '/';
+            result += applicationDirectoryName;
             if(createApplicationDirectory && !(stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
                 if(mkdir(result.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
                     return false;
@@ -147,7 +148,8 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         if(char *appData = getenv("appdata")) {
             result = appData;
             if(!applicationDirectoryName.empty()) {
-                result += "\\" + applicationDirectoryName;
+                result += '\\';
+                result += applicationDirectoryName;
                 if(createApplicationDirectory) {
                     // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
                     DWORD ftyp = GetFileAttributesA(result.c_str());

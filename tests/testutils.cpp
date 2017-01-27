@@ -202,7 +202,7 @@ string TestApplication::workingCopyPath(const string &name) const
     // copy file
     try {
         origFile.open(testFilePath(name), ios_base::in | ios_base::binary);
-        string path = m_workingDir + name;
+        const string path = m_workingDir + name;
         workingCopy.open(path, ios_base::out | ios_base::binary | ios_base::trunc);
         workingCopy << origFile.rdbuf();
         return path;

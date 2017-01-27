@@ -1,5 +1,7 @@
 #include "./testutils.h"
 
+#include "../conversion/stringbuilder.h"
+
 #include "../application/argumentparser.h"
 #include "../application/argumentparserprivate.h"
 #include "../application/failure.h"
@@ -17,6 +19,7 @@
 
 using namespace std;
 using namespace ApplicationUtilities;
+using namespace ConversionUtilities;
 
 using namespace CPPUNIT_NS;
 
@@ -494,9 +497,9 @@ void ArgumentParserTests::testBashCompletion()
         // order for file names is not specified
         const string res(buffer.str());
         if(res.find(".mkv") < res.find(".ini")) {
-            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' '" + iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
+            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
         } else {
-            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" + iniFilePath + ".ini' '" + mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
+            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
         }
 
         // sub arguments
