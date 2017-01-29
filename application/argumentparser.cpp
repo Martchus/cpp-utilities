@@ -1123,10 +1123,10 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
     for(const Argument *arg : args) {
         const auto occurrences = arg->occurrences();
         if(arg->isParentPresent() && occurrences > arg->maxOccurrences()) {
-            throw Failure("The argument \"" % string(arg->name()) % "\" mustn't be specified more than " % numberToString(arg->maxOccurrences()) + (arg->maxOccurrences() == 1 ? " time." : " times."));
+            throw Failure("The argument \"" % string(arg->name()) % "\" mustn't be specified more than " % arg->maxOccurrences() + (arg->maxOccurrences() == 1 ? " time." : " times."));
         }
         if(arg->isParentPresent() && occurrences < arg->minOccurrences()) {
-            throw Failure("The argument \"" % string(arg->name()) % "\" must be specified at least " % numberToString(arg->minOccurrences()) + (arg->minOccurrences() == 1 ? " time." : " times."));
+            throw Failure("The argument \"" % string(arg->name()) % "\" must be specified at least " % arg->minOccurrences() + (arg->minOccurrences() == 1 ? " time." : " times."));
         }
         Argument *conflictingArgument = nullptr;
         if(arg->isMainArgument()) {

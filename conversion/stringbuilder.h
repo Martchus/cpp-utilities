@@ -126,23 +126,6 @@ struct TupleToString<StringType, Tuple, 1> {
     }
 };
 
-template<class... Elements>
-class StringTuple : public std::tuple<Elements...>
-{
-public:
-    StringTuple(Elements&&... elements) :
-        std::tuple<Elements...>(elements...)
-    {}
-
-
-};
-
-template<class... Elements>
-constexpr auto makeStringTuple(Elements&&... elements) -> decltype(StringTuple<Elements...>(elements...))
-{
-    return StringTuple<Elements...>(elements...);
-}
-
 }
 /// \endcond
 
@@ -156,6 +139,12 @@ StringType tupleToString(const std::tuple<Args...> &tuple)
     res.reserve(Helper::TupleToString<StringType, decltype(tuple), sizeof...(Args)>::precomputeSize(tuple));
     Helper::TupleToString<StringType, decltype(tuple), sizeof...(Args)>::append(tuple, res);
     return res;
+}
+
+template<class StringType = std::string, class... Args>
+constexpr StringType argsToString(Args&&... args)
+{
+    return tupleToString(std::make_tuple(args...));
 }
 
 /*!
