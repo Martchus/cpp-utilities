@@ -25,7 +25,7 @@ int main()
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
             stringstream ss;
-            v1.emplace_back("left. " + numberToString(i + 1) + "; right: " + numberToString(i + 2) + "; top: " + numberToString(i + 3) + "; bottom: " + numberToString(i + 4) + ';');
+            v1.emplace_back("left. "s + numberToString(i + 1) + "; right: "s + numberToString(i + 2) + "; top: "s + numberToString(i + 3) + "; bottom: "s + numberToString(i + 4) + ';');
         }
         v1.clear();
     }
@@ -36,7 +36,7 @@ int main()
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
             stringstream ss;
-            ss << "left: " << (i + 1) << "; right: " << (i + 2) << "; top: " << (i + 3) << "; bottom: " << (i + 4) << ';';
+            ss << "left: "s << (i + 1) << "; right: "s << (i + 2) << "; top: "s << (i + 3) << "; bottom: "s << (i + 4) << ';';
             v1.emplace_back(ss.str());
         }
         v1.clear();
@@ -48,7 +48,7 @@ int main()
     t1 = DateTime::now();
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
-            v2.emplace_back("left. " % numberToString(i + 1) % "; right: " % numberToString(i + 2) % "; top: " % numberToString(i + 3) % "; bottom: " % numberToString(i + 4) + ';');
+            v2.emplace_back("left. "s % (i + 1) % "; right: "s % (i + 2) % "; top: "s % (i + 3) % "; bottom: "s % (i + 4) + ';');
         }
         v2.clear();
     }
