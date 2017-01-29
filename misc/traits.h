@@ -20,27 +20,28 @@ using Not = Bool<!T::value>;
 
 template <typename... T>
 struct Any : Bool<false> {};
-
 template <typename Head, typename... Tail>
 struct Any<Head, Tail...> : Conditional<Head, Bool<true>, Any<Tail...> > {};
 
 template <typename... T>
 struct All : Bool<true> {};
-
 template <typename Head, typename... Tail>
 struct All<Head, Tail...> : Conditional<Head, All<Tail...>, Bool<false> > {};
 
 template <typename... Condition>
 using EnableIf = typename std::enable_if<All<Condition...>::value, Detail::Enabler>::type;
-
 template <typename... Condition>
 using DisableIf = typename std::enable_if<!All<Condition...>::value, Detail::Enabler>::type;
 
 template <typename... Condition>
 using EnableIfAny = typename std::enable_if<Any<Condition...>::value, Detail::Enabler>::type;
-
 template <typename... Condition>
 using DisableIfAny = typename std::enable_if<!Any<Condition...>::value, Detail::Enabler>::type;
+
+template <typename T, template <typename...> class Template>
+struct IsSpecializationOf : Bool<false> {};
+template <template <typename...> class Template, typename... Args>
+struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {};
 
 }
 
