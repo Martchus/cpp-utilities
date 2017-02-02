@@ -11,6 +11,13 @@
 
 using namespace std;
 
+/*!
+ * \namespace ConversionUtilities
+ * \brief Contains several functions providing conversions between different data types.
+ *
+ * binaryconversion.h declares functions which convert base data types to an array of bytes and vice versa.
+ * stringconversion.h declares different functions around string conversion such as converting a number to a string and vice versa.
+ */
 namespace ConversionUtilities
 {
 

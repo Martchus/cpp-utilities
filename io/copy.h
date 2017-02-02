@@ -34,8 +34,8 @@ CopyHelper<bufferSize>::CopyHelper()
 
 /*!
  * \brief Copies \a count bytes from \a input to \a output.
- * \remarks Set an exception mask using std::ios::exceptions() to get
- *          a std::ios_base::failure exception when an IO error occurs.
+ * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
+ *          when an IO error occurs.
  */
 template<std::size_t bufferSize>
 void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std::size_t count)
@@ -51,16 +51,19 @@ void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std
 
 
 /*!
- * \brief Copies \a count bytes from \a input to \a output. The procedure might be abortet. Progress updates will be reportet.
+ * \brief Copies \a count bytes from \a input to \a output. The procedure might be aborted and
+ *        progress updates will be reported.
  *
- * Copying is aborted when \a isAborted returns true. The current progress is reported by calling the specified \a callback function.
+ * Copying is aborted when \a isAborted returns true. The current progress is reported by calling
+ * the specified \a callback function.
  *
- * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception when an IO error occurs.
+ * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
+ *          when an IO error occurs.
  */
 template<std::size_t bufferSize>
 void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool (void)> &isAborted, const std::function<void (double)> &callback)
 {
-    std::size_t totalBytes = count;
+    const std::size_t totalBytes = count;
     while(count > bufferSize) {
         input.read(m_buffer, bufferSize);
         output.write(m_buffer, bufferSize);

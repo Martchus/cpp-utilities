@@ -90,7 +90,7 @@ void removeInvalidChars(std::string &fileName)
  * \param applicationDirectoryName Specifies the name for the application subdirectory.
  * \param createApplicationDirectory Indicates wheter the application subdirectory should be created if not present.
  * \returns Returns whether a settings directory could be located.
- * \deprecated This function has FIXMEs. Since it is not used actually also a good candidate for being removed.
+ * \deprecated This function has FIXMEs. Since it is not used a good candidate for being removed.
  */
 bool settingsDirectory(std::string &result, std::string applicationDirectoryName, bool createApplicationDirectory)
 {

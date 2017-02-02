@@ -14,6 +14,7 @@ namespace ConversionUtilities
 
 /*!
  * \brief Converts a std::string to a wide string using the specified locale.
+ * \deprecated Might be removed in future release because not used anymore. Use iconv based string converion functions instead.
  */
 template<class E, class T = std::char_traits<E>, class A = std::allocator<E> >
 class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> >

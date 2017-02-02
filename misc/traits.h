@@ -3,11 +3,14 @@
 
 #include <type_traits>
 
+/// \brief Contains traits for conveniently exploiting SFINAE.
 namespace Traits {
 
+/// \cond
 namespace Detail {
     enum class Enabler {};
 }
+/// \endcond
 
 template <typename If, typename Then, typename Else>
 using Conditional = typename std::conditional<If::value, Then, Else>::type;

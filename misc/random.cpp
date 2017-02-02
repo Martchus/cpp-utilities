@@ -12,6 +12,7 @@ using namespace std;
 /*!
  * \namespace RandomUtilities
  * \brief Contains utility functions for generating random character sequences.
+ * \deprecated Might be removed in future release because API is bad and it is not used anymore anyways.
  */
 
 namespace RandomUtilities {
@@ -25,7 +26,7 @@ const char symbols[24] = "!\"$%&/()=?'#*+~-_><.:,;";
 
 /*!
  * \brief Generates a random character sequence using the given \a randomizer.
- * \remarks Might be removed because not used anymore.
+ * \deprecated Might be removed in future release because API is bad and it is not used anymore anyways.
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
@@ -114,7 +115,7 @@ void generateRandomCharacterSequence(char *result, unsigned int length, std::fun
 
 /*!
  * \brief Generates a random character sequence using std::rand().
- * \remarks Might be removed because not used anymore.
+ * \deprecated Might be removed in future release because API is bad and it is not used anymore anyways.
  */
 void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
