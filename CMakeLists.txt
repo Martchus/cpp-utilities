@@ -28,6 +28,7 @@ set(HEADER_FILES
     io/path.h
     io/catchiofailure.h
     io/nativefilestream.h
+    io/misc.h
     math/math.h
     misc/memory.h
     misc/random.h
@@ -53,6 +54,7 @@ set(SRC_FILES
     io/path.cpp
     io/catchiofailure.cpp
     io/nativefilestream.cpp
+    io/misc.cpp
     math/math.cpp
     misc/random.cpp
     tests/testutils.cpp
@@ -116,7 +118,7 @@ set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Common C++ classes and routines used by my applications such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 4)
-set(META_VERSION_MINOR 5)
+set(META_VERSION_MINOR 6)
 set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
