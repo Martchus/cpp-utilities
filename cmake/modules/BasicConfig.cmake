@@ -17,6 +17,11 @@ if(NOT META_GENERIC_NAME)
     set(META_GENERIC_NAME "${META_APP_NAME}")
 endif()
 
+# set default CXX_STANDARD for all library, application and test targets to 11
+if(NOT META_CXX_STANDARD)
+    set(META_CXX_STANDARD 11)
+endif()
+
 # provide variables for other projects built as part of the same subdirs project
 # to access files from this project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
