@@ -165,7 +165,7 @@ string TestApplication::testFilePath(const string &name) const
  * \brief Returns the full path to a working copy of the test file with the specified \a name.
  * \remarks Currently only available under UNIX.
  */
-string TestApplication::workingCopyPath(const string &name) const
+string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode mode) const
 {
     // create file streams
     fstream origFile, workingCopy;
@@ -200,17 +200,26 @@ string TestApplication::workingCopyPath(const string &name) const
     }
 
     // copy file
-    try {
-        origFile.open(testFilePath(name), ios_base::in | ios_base::binary);
-        const string path = m_workingDir + name;
-        workingCopy.open(path, ios_base::out | ios_base::binary | ios_base::trunc);
-        workingCopy << origFile.rdbuf();
-        return path;
-    } catch(...) {
-        catchIoFailure();
-        cerr << "Unable to create working copy for \"" << name << "\": an IO error occured." << endl;
+    if(mode != WorkingCopyMode::NoCopy) {
+        try {
+            origFile.open(testFilePath(name), ios_base::in | ios_base::binary);
+            const string path = m_workingDir + name;
+            workingCopy.open(path, ios_base::out | ios_base::binary | ios_base::trunc);
+            workingCopy << origFile.rdbuf();
+            return path;
+        } catch(...) {
+            catchIoFailure();
+            cerr << "Unable to create working copy for \"" << name << "\": an IO error occured." << endl;
+        }
+    } else {
+        return m_workingDir + name;
     }
     return string();
+}
+
+string TestApplication::workingCopyPath(const string &name) const
+{
+    return workingCopyPathMode(name, WorkingCopyMode::CreateCopy);
 }
 
 /*!

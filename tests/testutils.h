@@ -8,6 +8,15 @@
 
 namespace TestUtilities {
 
+/*!
+ * \brief The WorkingCopyMode enum specifies additional options to influence behavior of TestApplication::workingCopyPathMode().
+ */
+enum class WorkingCopyMode
+{
+    CreateCopy, /**< a working copy of the test file is created */
+    NoCopy /**< only the directory for the working copy is created but not the test file itself */
+};
+
 class CPP_UTILITIES_EXPORT TestApplication
 {
 public:
@@ -17,6 +26,7 @@ public:
     operator bool() const;
     std::string testFilePath(const std::string &name) const;
 #ifdef PLATFORM_UNIX
+    std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode) const;
     std::string workingCopyPath(const std::string &name) const;
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
@@ -93,6 +103,16 @@ inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &name)
 inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &name)
 {
     return TestApplication::instance()->workingCopyPath(name);
+}
+
+/*!
+ * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
+ * \remarks A TestApplication must be present.
+ * \sa TestApplication::workingCopyPathEx()
+ */
+inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode)
+{
+    return TestApplication::instance()->workingCopyPathMode(name, mode);
 }
 
 /*!
