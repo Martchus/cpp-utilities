@@ -1,7 +1,6 @@
 #include "./stringconversion.h"
 
-#include "../misc/memory.h"
-
+#include <memory>
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>

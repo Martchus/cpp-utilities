@@ -6,7 +6,7 @@
 #ifndef PLATFORM_MINGW
 # include <fstream>
 #else
-# include "../misc/memory.h"
+# include <memory>
 # include <string>
 # include <iostream>
 # include <ext/stdio_filebuf.h>

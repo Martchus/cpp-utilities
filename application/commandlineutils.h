@@ -6,7 +6,7 @@
 #include <ostream>
 
 #ifdef PLATFORM_WINDOWS
-# include "../misc/memory.h"
+# include <memory>
 # include <vector>
 #endif
 

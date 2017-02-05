@@ -1,8 +1,8 @@
 #include "./binaryreader.h"
 
-#include "../misc/memory.h"
 #include "../conversion/conversionexception.h"
 
+#include <memory>
 #include <sstream>
 #include <cstring>
 
