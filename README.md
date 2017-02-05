@@ -22,7 +22,7 @@ The library utilizes:
 ## Build instructions
 ### Requirements
 #### Build-only dependencies
-* C++ compiler supporting C++11, tested with
+* C++ compiler supporting C++14, tested with
  - GNU g++
  - Clang
  - mingw-w64 g++
@@ -34,7 +34,7 @@ The library utilizes:
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
- - C/C++ standard library supporting C++11
+ - C/C++ standard library supporting C++14
  - libiconv (might be part of glibc or provided as extra library)
 * For dependencies of my other projects check the README.md of these projects.
 
