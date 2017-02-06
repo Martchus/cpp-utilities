@@ -100,7 +100,7 @@ string BinaryReader::readLengthPrefixedString()
 {
     static const int maxPrefixLength = 4;
     int prefixLength = 1;
-    byte beg = m_stream->peek();
+    const byte beg = static_cast<byte>(m_stream->peek());
     byte mask = 0x80;
     while(prefixLength <= maxPrefixLength && (beg & mask) == 0) {
         ++prefixLength;
