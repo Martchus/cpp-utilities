@@ -251,7 +251,7 @@ void ArgumentReader::read(ArgumentVector &args)
                         ++index, ++argv, argDenotation = nullptr;
                         break;
                     case UnknownArgumentBehavior::Fail:
-                        throw Failure("The specified argument \"" % string(*argv) + "\" is unknown and will be ignored.");
+                        throw Failure("The specified argument \""s % *argv + "\" is unknown and will be ignored."s);
                     }
                 }
             } // if(!matchingArg)
@@ -1123,10 +1123,10 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
     for(const Argument *arg : args) {
         const auto occurrences = arg->occurrences();
         if(arg->isParentPresent() && occurrences > arg->maxOccurrences()) {
-            throw Failure("The argument \"" % string(arg->name()) % "\" mustn't be specified more than " % arg->maxOccurrences() + (arg->maxOccurrences() == 1 ? " time." : " times."));
+            throw Failure("The argument \""s % arg->name() % "\" mustn't be specified more than "s % arg->maxOccurrences() + (arg->maxOccurrences() == 1 ? " time."s : " times."s));
         }
         if(arg->isParentPresent() && occurrences < arg->minOccurrences()) {
-            throw Failure("The argument \"" % string(arg->name()) % "\" must be specified at least " % arg->minOccurrences() + (arg->minOccurrences() == 1 ? " time." : " times."));
+            throw Failure("The argument \""s % arg->name() % "\" must be specified at least "s % arg->minOccurrences() + (arg->minOccurrences() == 1 ? " time."s : " times."s));
         }
         Argument *conflictingArgument = nullptr;
         if(arg->isMainArgument()) {
@@ -1137,7 +1137,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             conflictingArgument = arg->conflictsWithArgument();
         }
         if(conflictingArgument) {
-            throw Failure("The argument \"" % string(conflictingArgument->name()) % "\" can not be combined with \"" + arg->name() + "\".");
+            throw Failure("The argument \""s % conflictingArgument->name() % "\" can not be combined with \""s + arg->name() + "\"."s);
         }
         for(size_t i = 0; i != occurrences; ++i) {
             if(!arg->allRequiredValuesPresent(i)) {

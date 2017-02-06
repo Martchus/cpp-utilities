@@ -104,7 +104,7 @@ DateTime DateTime::fromString(const char *str)
         } else if(c == '\0') {
             break;
         } else {
-            throw ConversionException(string("unexpected ") + c);
+            throw ConversionException("unexpected "s + c);
         }
     }
     return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, miliSeconds);
@@ -169,7 +169,7 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
         } else if(c == '\0') {
             break;
         } else {
-            throw ConversionException(string("unexpected \"") % c + '\"');
+            throw ConversionException("unexpected \""s % c + '\"');
         }
     }
     deltaNegative && (*deltaHourIndex = -*deltaHourIndex);

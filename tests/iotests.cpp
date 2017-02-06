@@ -229,8 +229,8 @@ void IoTests::testBitReader()
  */
 void IoTests::testPathUtilities()
 {
-    CPPUNIT_ASSERT(fileName("/usr/lib/libc++utilities.so") == "libc++utilities.so");
-    CPPUNIT_ASSERT(directory("/usr/lib/libc++utilities.so") == "/usr/lib/");
+    CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("/usr/lib/libc++utilities.so"));
+    CPPUNIT_ASSERT_EQUAL("/usr/lib/"s, directory("/usr/lib/libc++utilities.so"));
     CPPUNIT_ASSERT(directory("libc++utilities.so").empty());
     string invalidPath("lib/c++uti*lities.so?");
     removeInvalidChars(invalidPath);

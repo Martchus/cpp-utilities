@@ -263,19 +263,19 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT(interpretIntegerAsString<uint32>(0x54455354) == "TEST");
 
     // splitString() / joinStrings()
-    auto splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", false, "(", ")");
-    CPPUNIT_ASSERT(splitJoinTest == "() (a) () (ab) (ABC) (s)");
-    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Keep), " ", true, "(", ")");
-    CPPUNIT_ASSERT(splitJoinTest == "(a) (ab) (ABC) (s)");
-    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Omit), " ", false, "(", ")");
-    CPPUNIT_ASSERT(splitJoinTest == "(a) (ab) (ABC) (s)");
-    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s", ",", EmptyPartsTreat::Merge), " ", false, "(", ")");
-    CPPUNIT_ASSERT(splitJoinTest == "(a,ab) (ABC) (s)");
+    string splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, false, "("s, ")"s);
+    CPPUNIT_ASSERT_EQUAL("() (a) () (ab) (ABC) (s)"s, splitJoinTest);
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, true, "("s, ")"s);
+    CPPUNIT_ASSERT_EQUAL("(a) (ab) (ABC) (s)"s, splitJoinTest);
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Omit), " "s, false, "("s, ")"s);
+    CPPUNIT_ASSERT_EQUAL("(a) (ab) (ABC) (s)"s, splitJoinTest);
+    splitJoinTest = joinStrings(splitString<vector<string> >(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Merge), " "s, false, "("s, ")"s);
+    CPPUNIT_ASSERT_EQUAL("(a,ab) (ABC) (s)"s, splitJoinTest);
 
     // findAndReplace()
     string findReplaceTest("findAndReplace()");
     findAndReplace<string>(findReplaceTest, "And", "Or");
-    CPPUNIT_ASSERT(findReplaceTest == "findOrReplace()");
+    CPPUNIT_ASSERT_EQUAL("findOrReplace()"s, findReplaceTest);
 
     // startsWith()
     CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"));
@@ -312,8 +312,8 @@ void ConversionTests::testStringBuilder()
     CPPUNIT_ASSERT_EQUAL(string("foobarfoo2bar2"), tupleToString(string("foo") % "bar" % string("foo2") % "bar2"));
 
     // construction of string-tuple and final conversion to string works
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string", string("123456789"), functionTakingString("12" % string("34") % '5' % 67 + "89"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string"s, "123456789"s, functionTakingString("12" % string("34") % '5' % 67 + "89"));
     constexpr double velocityExample = 27.0;
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("real-word example", string("velocity: 27 km/h (7.5 m/s)"), functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("regular + operator still works (no problems with ambiguity)", string("regular + still works"), string("regular") + " + still works");
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("real-word example"s, "velocity: 27 km/h (7.5 m/s)"s, functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("regular + operator still works (no problems with ambiguity)"s, "regular + still works"s, "regular"s + " + still works");
 }
