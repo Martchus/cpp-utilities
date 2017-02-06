@@ -81,11 +81,11 @@ void ChronoTests::testTimeSpan()
     // test fromString(...), this should also test all other from...() methods and + operator
     auto test1 = TimeSpan::fromString("2:34:53:2.5");
     // test days(), hours(), ...
-    CPPUNIT_ASSERT(test1.days() == 3);
-    CPPUNIT_ASSERT(test1.hours() == 10);
-    CPPUNIT_ASSERT(test1.minutes() == 53);
-    CPPUNIT_ASSERT(test1.seconds() == 2);
-    CPPUNIT_ASSERT(test1.milliseconds() == 500);
+    CPPUNIT_ASSERT_EQUAL(3, test1.days());
+    CPPUNIT_ASSERT_EQUAL(10, test1.hours());
+    CPPUNIT_ASSERT_EQUAL(53, test1.minutes());
+    CPPUNIT_ASSERT_EQUAL(2, test1.seconds());
+    CPPUNIT_ASSERT_EQUAL(500, test1.milliseconds());
     CPPUNIT_ASSERT(test1.totalDays() > 3.0 && test1.totalDays() < 4.0);
     CPPUNIT_ASSERT(test1.totalHours() > (2 * 24 + 34) && test1.totalHours() < (2 * 24 + 35));
     CPPUNIT_ASSERT(test1.totalMinutes() > (2 * 24 * 60 + 34 * 60 + 53) && test1.totalHours() < (2 * 24 * 60 + 34 * 60 + 54));
@@ -101,12 +101,12 @@ void ChronoTests::testTimeSpan()
 void ChronoTests::testOperators()
 {
     auto dateTime = DateTime::fromDateAndTime(1999, 1, 5, 4, 16);
-    CPPUNIT_ASSERT((dateTime + TimeSpan::fromDays(2)).day() == 7);
-    CPPUNIT_ASSERT((dateTime + TimeSpan::fromHours(24)).day() == 6);
-    CPPUNIT_ASSERT((dateTime + TimeSpan::fromHours(24) + TimeSpan::fromHours(-1)).hour() == 3);
-    CPPUNIT_ASSERT((dateTime + TimeSpan::fromHours(24) - TimeSpan::fromMinutes(-1)).minute() == 17);
+    CPPUNIT_ASSERT_EQUAL(7, (dateTime + TimeSpan::fromDays(2)).day());
+    CPPUNIT_ASSERT_EQUAL(6, (dateTime + TimeSpan::fromHours(24)).day());
+    CPPUNIT_ASSERT_EQUAL(3, (dateTime + TimeSpan::fromHours(24) + TimeSpan::fromHours(-1)).hour());
+    CPPUNIT_ASSERT_EQUAL(17, (dateTime + TimeSpan::fromHours(24) - TimeSpan::fromMinutes(-1)).minute());
     dateTime += TimeSpan::fromDays(365);
-    CPPUNIT_ASSERT(dateTime.year() == 2000);
-    CPPUNIT_ASSERT(dateTime.day() == 5);
-    CPPUNIT_ASSERT(Period(dateTime, dateTime + TimeSpan::fromDays(62)).months() == 2);
+    CPPUNIT_ASSERT_EQUAL(2000, dateTime.year());
+    CPPUNIT_ASSERT_EQUAL(5, dateTime.day());
+    CPPUNIT_ASSERT_EQUAL(2, Period(dateTime, dateTime + TimeSpan::fromDays(62)).months());
 }
