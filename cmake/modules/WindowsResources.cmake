@@ -2,7 +2,9 @@
 # also attaches the application icon if ffmpeg is available
 # does nothing if not building with mingw-w64
 
-# before including this module, LibraryConfig/ApplicationConfig must be included
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the WindowsResources module, the LibraryConfig/ApplicationConfig module must be included.")
+endif()
 
 option(WINDOWS_RESOURCES_ENABLED "controls Windows resources are enabled" ON)
 option(WINDOWS_ICON_ENABLED "controls Windows icon is enabled" ON)

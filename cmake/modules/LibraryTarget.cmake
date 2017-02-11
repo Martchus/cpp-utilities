@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 
-# before including this module, BasicConfig must be included
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the LibraryTarget module, the BasicConfig module must be included.")
+endif()
+if(TARGET_CONFIG_DONE)
+    message(FATAL_ERROR "Can not include LibraryTarget module when targets are already configured.")
+endif()
 
 # check whether project type is set correctly
 if((NOT "${META_PROJECT_TYPE}" STREQUAL "library") AND (NOT "${META_PROJECT_TYPE}" STREQUAL ""))
@@ -366,3 +371,5 @@ if(BUILD_STATIC_LIBS)
     add_dependencies(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip install-binary-strip)
     add_dependencies(install-mingw-w64-strip install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip)
 endif()
+
+set(TARGET_CONFIG_DONE YES)

@@ -1,5 +1,9 @@
 # before including this module, all relevant variables must be set
-# (just include this module as last one since nothing should depend on it)
+# just include this module as last one since nothing should depend on it
+
+if(NOT TARGET_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the ConfigHeader module, the BasicConfig module must be included.")
+endif()
 
 # find config.h template
 include(TemplateFinder)

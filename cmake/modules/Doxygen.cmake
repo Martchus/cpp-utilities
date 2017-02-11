@@ -1,3 +1,7 @@
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the Doxygen module, the BasicConfig module must be included.")
+endif()
+
 option(NO_DOXYGEN "whether creation of Doxygen targets is disabled (enabled by default)" OFF)
 
 if(NOT NO_DOXYGEN)

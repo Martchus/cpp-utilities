@@ -1,5 +1,5 @@
-if(NOT DEFINED FIND_TEMPLATE_FILE_EXISTS)
-    set(FIND_TEMPLATE_FILE_EXISTS true)
+if(NOT DEFINED TEMPLATE_FINDER_LOADED)
+
     function(find_template_file FILE_NAME PROJECT_VAR_NAME OUTPUT_VAR)
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/${FILE_NAME}.in")
             # check own source directory
@@ -17,4 +17,6 @@ if(NOT DEFINED FIND_TEMPLATE_FILE_EXISTS)
             message(FATAL_ERROR "Template for ${FILE_NAME} file can not be located.")
         endif() 
     endfunction()
+
+    set(TEMPLATE_FINDER_LOADED YES)
 endif()

@@ -1,3 +1,7 @@
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the ShellCompletion module, the BasicConfig module must be included.")
+endif()
+
 option(SHELL_COMPLETION_ENABLED "controls whether shell completion is enabled in general" ON)
 option(BASH_COMPLETION_ENABLED "controls whether shell completion for bash is enabled" ON)
 

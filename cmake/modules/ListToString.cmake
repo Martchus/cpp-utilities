@@ -1,5 +1,5 @@
-if(NOT DEFINED LIST_TO_STRING_EXISTS)
-    set(LIST_TO_STRING_EXISTS true)
+if(NOT DEFINED LIST_TO_STRING_LOADED)
+
     function(list_to_string separator prefix suffix input_list output_string_var)
         set(res "")
         # get list length
@@ -24,4 +24,6 @@ if(NOT DEFINED LIST_TO_STRING_EXISTS)
         endif()
         set(${output_string_var} "${res}" PARENT_SCOPE)
     endfunction()
+
+    set(LIST_TO_STRING_LOADED YES)
 endif()

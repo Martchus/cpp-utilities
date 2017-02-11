@@ -1,4 +1,16 @@
 # before including this module, the project meta-data must be set
+if(NOT META_PROJECT_NAME)
+    message(FATAL_ERROR "No project name (META_PROJECT_NAME) specified.")
+endif()
+if(NOT META_APP_NAME)
+    message(FATAL_ERROR "No project name (META_APP_NAME) specified.")
+endif()
+if(NOT META_APP_AUTHOR)
+    message(FATAL_ERROR "No project name (META_APP_AUTHOR) specified.")
+endif()
+if(NOT META_APP_DESCRIPTION)
+    message(FATAL_ERROR "No project name (META_APP_DESCRIPTION) specified.")
+endif()
 
 # set project name (displayed in Qt Creator)
 message(STATUS "Configuring project ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
@@ -11,6 +23,10 @@ endif()
 if(NOT META_PROJECT_VARNAME_UPPER)
     string(TOUPPER ${META_PROJECT_VARNAME} META_PROJECT_VARNAME_UPPER)
 endif()
+if(NOT META_PROJECT_VARNAME_LOWER)
+    string(REGEX REPLACE "_+" "" META_PROJECT_VARNAME_LOWER "${META_PROJECT_VARNAME}")
+    string(TOLOWER "${META_PROJECT_VARNAME_LOWER}" META_PROJECT_VARNAME_LOWER)
+endif()
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
 if(NOT META_GENERIC_NAME)
@@ -20,6 +36,17 @@ endif()
 # set default CXX_STANDARD for all library, application and test targets
 if(NOT META_CXX_STANDARD)
     set(META_CXX_STANDARD 14)
+endif()
+
+# set version to 0.0.0 if not specified explicitely
+if(NOT META_VERSION_MAJOR)
+    set(META_VERSION_MAJOR 0)
+endif()
+if(NOT META_VERSION_MINOR)
+    set(META_VERSION_MINOR 0)
+endif()
+if(NOT META_VERSION_PATCH)
+    set(META_VERSION_PATCH 0)
 endif()
 
 # provide variables for other projects built as part of the same subdirs project
@@ -113,3 +140,5 @@ if(QML_HEADER_FILES OR QML_SRC_FILES)
 else()
     set(QUICK_GUI OFF)
 endif()
+
+set(BASIC_PROJECT_CONFIG_DONE YES)

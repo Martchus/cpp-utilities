@@ -1,4 +1,9 @@
-# before including this module, BasicConfig must be included
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the AppTarget module, the BasicConfig module must be included.")
+endif()
+if(TEST_CONFIG_DONE)
+    message(FATAL_ERROR "Can not include TestTarget module when tests are already configured.")
+endif()
 
 # always link test applications against c++utilities and cppunit
 find_library(CPP_UNIT_LIB cppunit)
@@ -78,5 +83,6 @@ if(CPP_UNIT_LIB)
 
 else()
     message(WARNING "Unable to add test target because cppunit could not be located.")
-
 endif()
+
+set(TEST_CONFIG_DONE YES)

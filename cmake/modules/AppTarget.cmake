@@ -1,4 +1,9 @@
-# before including this module, BasicConfig must be included
+if(NOT BASIC_PROJECT_CONFIG_DONE)
+    message(FATAL_ERROR "Before including the AppTarget module, the BasicConfig module must be included.")
+endif()
+if(TARGET_CONFIG_DONE)
+    message(FATAL_ERROR "Can not include AppTarget module when targets are already configured.")
+endif()
 
 # check whether project type is set correctly
 if(NOT "${META_PROJECT_TYPE}" STREQUAL "application")
@@ -186,3 +191,5 @@ function(add_desktop_file)
         "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
     )
 endfunction()
+
+set(TARGET_CONFIG_DONE YES)
