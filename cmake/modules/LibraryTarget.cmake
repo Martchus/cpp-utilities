@@ -8,7 +8,10 @@ if(TARGET_CONFIG_DONE)
 endif()
 
 # check whether project type is set correctly
-if((NOT "${META_PROJECT_TYPE}" STREQUAL "library") AND (NOT "${META_PROJECT_TYPE}" STREQUAL ""))
+if(("${META_PROJECT_TYPE}" STREQUAL "plugin") OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin"))
+    set(META_IS_PLUGIN YES)
+endif()
+if((NOT "${META_PROJECT_TYPE}" STREQUAL "library") AND (NOT "${META_PROJECT_TYPE}" STREQUAL "") AND NOT META_IS_PLUGIN)
     message(FATAL_ERROR "The LibraryTarget CMake module is intended to be used for building library projects only (and not for applications).")
 endif()
 
@@ -34,6 +37,7 @@ endif()
 set(HEADER_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
 set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
+set(QT_PLUGIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}/qt/plugins")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${META_PROJECT_NAME}/cmake")
 
@@ -77,14 +81,14 @@ configure_file(
 list(APPEND HEADER_FILES global.h)
 
 # determine SOVERSION
-if(NOT META_SOVERSION)
+if(NOT META_SOVERSION AND NOT META_IS_PLUGIN)
     if(META_VERSION_EXACT_SONAME)
         set(META_SOVERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}")
     else()
         set(META_SOVERSION "${META_VERSION_MAJOR}")
     endif()
 endif()
-
+message(STATUS "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}: BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}")
 # add target for building the library
 if(BUILD_SHARED_LIBS)
     if(STATIC_LIBRARY_LINKAGE)
@@ -92,8 +96,13 @@ if(BUILD_SHARED_LIBS)
     else()
         set(ACTUAL_ADDITIONAL_LINK_FLAGS ${META_ADDITIONAL_SHARED_LINK_FLAGS})
     endif()
+    if(META_IS_PLUGIN)
+        set(META_SHARED_OBJECT_TYPE MODULE)
+    else()
+        set(META_SHARED_OBJECT_TYPE SHARED)
+    endif()
     # add library to be created, set libs to link against, set version and C++ standard
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
+    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${META_SHARED_OBJECT_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
     target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
         PRIVATE "${PRIVATE_LIBRARIES}"
@@ -251,6 +260,20 @@ if(NOT TARGET install-binary-strip)
     )
 endif()
 
+# determine install dir for Qt plugins
+if("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
+    if(QT_PLUGIN_DIR)
+        set(LIBRARY_DESTINATION ${QT_PLUGIN_DIR})
+    else()
+        set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX}/qt/plugins)
+    endif()
+    if(META_PLUGIN_CATEGORY)
+        set(LIBRARY_DESTINATION ${LIBRARY_DESTINATION}/${META_PLUGIN_CATEGORY})
+    endif()
+else()
+    set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX})
+endif()
+
 # add install target for dynamic libs
 if(BUILD_SHARED_LIBS)
     install(
@@ -258,9 +281,9 @@ if(BUILD_SHARED_LIBS)
         EXPORT ${META_PROJECT_NAME}SharedTargets
         RUNTIME DESTINATION bin
         COMPONENT binary
-        LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
+        LIBRARY DESTINATION ${LIBRARY_DESTINATION}
         COMPONENT binary
-        ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
+        ARCHIVE DESTINATION ${LIBRARY_DESTINATION}
         COMPONENT binary
     )
     install(EXPORT ${META_PROJECT_NAME}SharedTargets
@@ -279,9 +302,9 @@ if(BUILD_STATIC_LIBS)
         EXPORT ${META_PROJECT_NAME}StaticTargets
         RUNTIME DESTINATION bin
         COMPONENT binary
-        LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
+        LIBRARY DESTINATION ${LIBRARY_DESTINATION}
         COMPONENT binary
-        ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
+        ARCHIVE DESTINATION ${LIBRARY_DESTINATION}
         COMPONENT binary
     )
     install(EXPORT ${META_PROJECT_NAME}StaticTargets
@@ -294,18 +317,20 @@ if(BUILD_STATIC_LIBS)
 endif()
 
 # add install target for header files
-foreach(HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
-    get_filename_component(HEADER_DIR "${HEADER_FILE}" DIRECTORY)
-    install(
-        FILES "${HEADER_FILE}"
-        DESTINATION "include/${META_PROJECT_NAME}/${HEADER_DIR}"
-        COMPONENT header
-    )
-endforeach()
-if(NOT TARGET install-header)
-    add_custom_target(install-header
-        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=header -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-    )
+if(NOT META_IS_PLUGIN)
+    foreach(HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
+        get_filename_component(HEADER_DIR "${HEADER_FILE}" DIRECTORY)
+        install(
+            FILES "${HEADER_FILE}"
+            DESTINATION "include/${META_PROJECT_NAME}/${HEADER_DIR}"
+            COMPONENT header
+        )
+    endforeach()
+    if(NOT TARGET install-header)
+        add_custom_target(install-header
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=header -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
 endif()
 
 # add install target for CMake modules

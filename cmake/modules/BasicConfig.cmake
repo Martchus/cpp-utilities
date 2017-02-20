@@ -96,7 +96,7 @@ if(LOGGING_ENABLED)
 endif()
 
 # options for deciding whether to build static and/or shared libraries
-if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
+if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL "plugin") OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
     option(ENABLE_STATIC_LIBS "whether building static libraries is enabled (disabled by default)" OFF)
     option(DISABLE_SHARED_LIBS "whether building dynamic libraries is disabled (enabled by default)" OFF)
     if(DISABLE_SHARED_LIBS)
@@ -112,7 +112,7 @@ if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQU
 endif()
 
 # options for forcing static linkage when building applications or dynamic libraries
-if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
+if(("${META_PROJECT_TYPE}" STREQUAL "library") OR ("${META_PROJECT_TYPE}" STREQUAL "plugin") OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin") OR ("${META_PROJECT_TYPE}" STREQUAL ""))
     option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
 elseif("${META_PROJECT_TYPE}" STREQUAL "application")
     option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
