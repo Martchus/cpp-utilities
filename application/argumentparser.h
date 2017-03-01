@@ -423,9 +423,9 @@ inline const std::vector<const char *> &Argument::valueNames() const
  * \brief Sets the names of the requried values. These names will be used
  *        when printing information about the argument.
  *
- * If the number of value names is higher then the number of requried values
+ * If the number of value names is higher than the number of requried values
  * the additional value names will be ignored.
- * If the number of value names is lesser then the number of requried values
+ * If the number of value names is lesser than the number of requried values
  * generic values will be used for the missing names.
  *
  * \sa appendValueName()
