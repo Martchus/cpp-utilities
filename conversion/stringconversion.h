@@ -258,9 +258,10 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
     for(auto n = number; n; n /= base, ++resSize);
     StringType res;
     res.reserve(resSize);
-    for(; number; number /= base) {
+    do {
         res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
-    }
+        number /= base;
+    } while(number);
     return res;
 }
 
@@ -283,9 +284,10 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
     for(auto n = number; n; n /= base, ++resSize);
     StringType res;
     res.reserve(resSize);
-    for(; number; number /= base) {
+    do {
         res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
-    }
+        number /= base;
+    } while(number);
     if(negative) {
         res.insert(res.begin(), '-');
     }

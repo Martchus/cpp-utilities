@@ -81,9 +81,10 @@ template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<
 void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
 {
     const auto start = target.begin() + target.size();
-    for(; number; number /= base) {
+    do {
         target.insert(start, digitToChar<typename StringType::value_type>(number % base));
-    }
+        number /= base;
+    } while(number);
 }
 
 template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType> >, std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
@@ -94,9 +95,10 @@ void append(StringType &target, IntegralType number, typename StringType::value_
         number = -number;
     }
     const auto start = target.begin() + target.size();
-    for(; number; number /= base) {
+    do {
         target.insert(start, digitToChar<typename StringType::value_type>(number % base));
-    }
+        number /= base;
+    } while(number);
 }
 
 template<class StringType, class Tuple, std::size_t N>

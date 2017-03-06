@@ -231,7 +231,9 @@ void ConversionTests::testStringEncodingConversions()
  */
 void ConversionTests::testStringConversions()
 {
-    // stringToNumber() / numberToString() with random numbers
+    // stringToNumber() / numberToString() with zero and random numbers
+    CPPUNIT_ASSERT_EQUAL(string("0"), numberToString<unsigned int>(0));
+    CPPUNIT_ASSERT_EQUAL(string("0"), numberToString<signed int>(0));
     uniform_int_distribution<int64> randomDistSigned(numeric_limits<int64>::min());
     uniform_int_distribution<uint64> randomDistUnsigned(0);
     for(byte b = 1; b < 100; ++b) {
@@ -310,6 +312,7 @@ void ConversionTests::testStringBuilder()
     const tuple<const char *, string, int, const char *> tuple("string1", "string2", 1234, "string3");
     CPPUNIT_ASSERT_EQUAL(string("string1string21234string3"), tupleToString(tuple));
     CPPUNIT_ASSERT_EQUAL(string("foobarfoo2bar2"), tupleToString(string("foo") % "bar" % string("foo2") % "bar2"));
+    CPPUNIT_ASSERT_EQUAL(string("v2.3.0"), argsToString("v2.", 3, '.', 0));
 
     // construction of string-tuple and final conversion to string works
     CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string"s, "123456789"s, functionTakingString("12" % string("34") % '5' % 67 + "89"));
