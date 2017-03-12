@@ -37,8 +37,5 @@ Makefile*
 # Dolphin
 .directory
 
-# documentation
-/doc
-
 # tests
 testfiles/output.*
