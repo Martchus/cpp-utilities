@@ -105,6 +105,8 @@ endif()
 
 set(DOC_FILES
     README.md
+    doc/buildvariables.md
+    doc/testapplication.md
 )
 
 # required to include CMake modules from own project directory
