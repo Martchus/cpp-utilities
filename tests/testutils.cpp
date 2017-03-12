@@ -157,7 +157,13 @@ string TestApplication::testFilePath(const string &name) const
     }
 
     // file still not found -> return default path
-    return "./testfiles/" + name;
+    path = "./testfiles/" + name;
+    file.clear();
+    file.open(path = m_testFilesPathEnvValue + name, ios_base::in);
+    if(!file.good()) {
+        cerr << "Warning: The testfile \"" << path << "\" can not be located." << endl;
+    }
+    return path;
 }
 
 #ifdef PLATFORM_UNIX
