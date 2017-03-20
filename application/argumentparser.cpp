@@ -880,7 +880,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     size_t openingLen, compoundOpeningStartLen = 0;
     unsigned char openingDenotationType = Value;
     if(argc && nextArgumentOrValue) {
-        if(currentWordIndex < argc) {
+        if(currentWordIndex < static_cast<unsigned int>(argc)) {
             opening = argv[currentWordIndex];
             // For some reason completions for eg. "set --values disk=1 tag=a" are splitted so the
             // equation sign is an own argument ("set --values disk = 1 tag = a").
