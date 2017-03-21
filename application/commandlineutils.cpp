@@ -69,6 +69,7 @@ void startConsole()
     setvbuf(stderr, NULL, _IONBF, 0);
 #ifdef CPP_UTILITIES_FORCE_UTF8_CODEPAGE
     // set console to handle UTF-8 IO correctly
+    // however, this doesn't work as intended and is therefore disabled by default
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
 #endif
@@ -92,14 +93,14 @@ pair<vector<unique_ptr<char[]> >, vector<char *> > convertArgsToUtf8()
 
     res.first.reserve(static_cast<size_t>(argc));
     res.second.reserve(static_cast<size_t>(argc));
-    for(; argv_w; ++argv_w) {
-        int requiredSize = WideCharToMultiByte(CP_UTF8, 0, *argv_w, -1, nullptr, 0, 0, 0);
+    for(LPWSTR *i = argv_w, *end = argv_w + argc; i != end; ++i) {
+        int requiredSize = WideCharToMultiByte(CP_UTF8, 0, *i, -1, nullptr, 0, 0, 0);
         if(requiredSize <= 0) {
             break; // just stop on error
         }
 
         auto argv = make_unique<char[]>(static_cast<size_t>(requiredSize));
-        requiredSize = WideCharToMultiByte(CP_UTF8, 0, *argv_w, -1, argv.get(), requiredSize, 0, 0);
+        requiredSize = WideCharToMultiByte(CP_UTF8, 0, *i, -1, argv.get(), requiredSize, 0, 0);
         if(requiredSize <= 0) {
             break;
         }
