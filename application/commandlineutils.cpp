@@ -43,12 +43,9 @@ bool confirmPrompt(const char *message, Response defaultResponse)
  */
 void startConsole()
 {
-    AttachConsole(ATTACH_PARENT_PROCESS);
-    CONSOLE_SCREEN_BUFFER_INFO coninfo;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-    coninfo.dwSize.X = 200;
-    coninfo.dwSize.Y = 500;
-    SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+    if(!AttachConsole(ATTACH_PARENT_PROCESS) && !AllocConsole()) {
+        return;
+    }
     // redirect stdout
     auto stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
     auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
