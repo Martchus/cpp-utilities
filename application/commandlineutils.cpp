@@ -38,8 +38,26 @@ bool confirmPrompt(const char *message, Response defaultResponse)
 
 #ifdef PLATFORM_WINDOWS
 /*!
+ * \brief Closes stdout, stdin and stderr and stops the console.
+ * \remarks Interanlly used by startConsole() to close the console when the application exits.
+ */
+void stopConsole()
+{
+    fclose(stdout);
+    fclose(stdin);
+    fclose(stderr);
+    if(auto *consoleWindow = GetConsoleWindow()) {
+        PostMessage(consoleWindow, WM_KEYUP, VK_RETURN, 0);
+        FreeConsole();
+    }
+}
+
+/*!
  * \brief Starts the console and sets the console output code page to UTF-8 if this is configured.
- * \remarks This method is only available on Windows and used to start a console from a GUI application.
+ * \remarks
+ * - only available under Windows
+ * - used to start a console from a GUI application
+ * - closes the console automatically when the application exists
  */
 void startConsole()
 {
@@ -72,6 +90,8 @@ void startConsole()
 #endif
     // sync
     ios::sync_with_stdio(true);
+    // ensure the console prompt is shown again when app terminates
+    atexit(stopConsole);
 }
 
 /*!
