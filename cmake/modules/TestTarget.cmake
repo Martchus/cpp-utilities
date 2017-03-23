@@ -5,6 +5,8 @@ if(TEST_CONFIG_DONE)
     message(FATAL_ERROR "Can not include TestTarget module when tests are already configured.")
 endif()
 
+option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the \"all\" target (enabled by default)" ON)
+
 # always link test applications against c++utilities and cppunit
 find_library(CPP_UNIT_LIB cppunit)
 
@@ -27,7 +29,12 @@ if(CPP_UNIT_LIB)
     endif()
 
     # add test executable, but exclude it from the "all target"
-    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests EXCLUDE_FROM_ALL ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
+    if(EXCLUDE_TESTS_FROM_ALL)
+        set(TESTS_EXCLUSION EXCLUDE_FROM_ALL)
+    else()
+        unset(TESTS_EXCLUSION)
+    endif()
+    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${TESTS_EXCLUSION} ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
 
     # test applications of my projects always use c++utilities and cppunit
     if(NOT META_PROJECT_TYPE OR "${META_PROJECT_TYPE}" STREQUAL "library") # default project type is library

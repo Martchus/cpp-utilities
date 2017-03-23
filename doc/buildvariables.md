@@ -36,6 +36,8 @@ None of these are enabled or set by default, unless stated otherwise.
 * `LOGGING_ENABLED=ON/OFF`: enables further loggin in some applications
 * `FORCE_OLD_ABI=ON/OFF`: forces use of old C++ ABI
   (sets `_GLIBCXX_USE_CXX11_ABI=0`)
+* `EXCLUDE_TESTS_FROM_ALL=ON/OFF`: excludes tests from the all target
+  (enabled by default)
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
