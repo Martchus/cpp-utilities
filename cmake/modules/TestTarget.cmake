@@ -50,12 +50,30 @@ if(CPP_UNIT_LIB)
     if("${META_PROJECT_TYPE}" STREQUAL "application")
         # the test application might need the path of the application to be tested
         set(APPLICATION_PATH "-a ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}")
+        # using functions directly from the tests might be required -> also create a 'testlib' and link tests against it
         if(LINK_TESTS_AGAINST_APP_TARGET)
-            # linking tests against the application target might be required
-            # somehow this doesn't work when just specifying the applications target, so we need to specify the full path of the
-            # target executable
-            list(APPEND TEST_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-            add_dependencies(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+            # create target for 'testlib'
+            set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
+            list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
+            add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib SHARED ${TESTLIB_FILES})
+            target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+                PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+                PRIVATE "${PRIVATE_LIBRARIES}"
+            )
+            target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+                PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+                PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
+            )
+            set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib PROPERTIES
+                CXX_STANDARD "${META_CXX_STANDARD}"
+                LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+            )
+            # link tests against it
+            list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib)
+            # ensure all symbols are visible (man gcc: "Despite the nomenclature, default always means public")
+            set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib PROPERTIES CXX_VISIBILITY_PRESET default)
         endif()
     endif()
     target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
