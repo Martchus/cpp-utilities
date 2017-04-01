@@ -47,59 +47,61 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPE
     AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
 )
 
-# add install target for binary
-install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-    RUNTIME DESTINATION bin
-    COMPONENT binary
-)
-if(NOT TARGET install-binary)
-    add_custom_target(install-binary
-        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+if(NOT META_NO_INSTALL_TARGETS)
+    # add install target for binary
+    install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        RUNTIME DESTINATION bin
+        COMPONENT binary
     )
-endif()
-add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    if(NOT TARGET install-binary)
+        add_custom_target(install-binary
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
+    add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
-# add install target for localization
-if(NOT TARGET install-mingw-w64)
-    add_custom_target(install-mingw-w64)
-    add_dependencies(install-mingw-w64 install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
-endif()
+    # add install target for localization
+    if(NOT TARGET install-mingw-w64)
+        add_custom_target(install-mingw-w64)
+        add_dependencies(install-mingw-w64 install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    endif()
 
-# add install target for desktop entries and icons
-foreach(DESKTOP_FILE ${DESKTOP_FILES})
-    install(
-        FILES "${DESKTOP_FILE}"
-        DESTINATION "share/applications"
-        COMPONENT desktop
-    )
-endforeach()
+    # add install target for desktop entries and icons
+    foreach(DESKTOP_FILE ${DESKTOP_FILES})
+        install(
+            FILES "${DESKTOP_FILE}"
+            DESTINATION "share/applications"
+            COMPONENT desktop
+        )
+    endforeach()
 
-foreach(ICON_FILE ${ICON_FILES})
-    install(
-        FILES "${ICON_FILE}"
-        DESTINATION "share/icons/hicolor/scalable/apps"
-        COMPONENT desktop
-    )
-endforeach()
-if(NOT TARGET install-desktop)
-    add_custom_target(install-desktop
-        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=desktop -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-    )
-endif()
-add_dependencies(install-desktop ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    foreach(ICON_FILE ${ICON_FILES})
+        install(
+            FILES "${ICON_FILE}"
+            DESTINATION "share/icons/hicolor/scalable/apps"
+            COMPONENT desktop
+        )
+    endforeach()
+    if(NOT TARGET install-desktop)
+        add_custom_target(install-desktop
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=desktop -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
+    add_dependencies(install-desktop ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
-# add install target for stripped binaries
-if(NOT TARGET install-binary-strip)
-    add_custom_target(install-binary-strip
-        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-    )
-endif()
-add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    # add install target for stripped binaries
+    if(NOT TARGET install-binary-strip)
+        add_custom_target(install-binary-strip
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
+    add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
-# add mingw-w64 specific install target
-if(NOT TARGET install-mingw-w64-strip)
-    add_custom_target(install-mingw-w64-strip)
-    add_dependencies(install-mingw-w64-strip install-binary-strip ${LOCALIZATION_TARGET})
+    # add mingw-w64 specific install target
+    if(NOT TARGET install-mingw-w64-strip)
+        add_custom_target(install-mingw-w64-strip)
+        add_dependencies(install-mingw-w64-strip install-binary-strip ${LOCALIZATION_TARGET})
+    endif()
 endif()
 
 # add target for launching application with wine ensuring the WINEPATH is set correctly so wine is able to find all required *.dll files
