@@ -63,8 +63,9 @@ if(NOT META_NO_INSTALL_TARGETS)
     # add install target for localization
     if(NOT TARGET install-mingw-w64)
         add_custom_target(install-mingw-w64)
-        add_dependencies(install-mingw-w64 install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+        add_dependencies(install-mingw-w64 install-binary)
     endif()
+    add_dependencies(install-mingw-w64 ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
     # add install target for desktop entries and icons
     foreach(DESKTOP_FILE ${DESKTOP_FILES})
