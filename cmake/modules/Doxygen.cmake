@@ -51,10 +51,14 @@ if(NOT NO_DOXYGEN)
         )
 
         # add target for generating API documentation
-        add_custom_target(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_apidoc
+        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_apidoc"
             COMMAND "${DOXYGEN_BIN}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config"
             SOURCES ${DOXY_INPUT_FILES}
         )
+        if(NOT TARGET apidoc)
+            add_custom_target(apidoc)
+        endif()
+        add_dependencies(apidoc "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_apidoc")
 
         # add install target for API documentation
         install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc"
@@ -62,7 +66,6 @@ if(NOT NO_DOXYGEN)
                 COMPONENT api-doc
                 OPTIONAL
         )
-
         if(NOT TARGET install-api-doc)
             add_custom_target(install-api-doc
                 COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=api-doc -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"

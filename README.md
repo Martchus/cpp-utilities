@@ -45,7 +45,7 @@ cd "path/to/build/directory"
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/projectdirectory"
 make
 make check # build and run unit tests (optional)
-make c++utilities_apidoc # build API documentation (optional)
+make apidoc # build API documentation (optional)
 make DESTDIR="/temporary/install/location" install
 ```
 
