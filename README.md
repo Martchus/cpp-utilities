@@ -31,6 +31,7 @@ The library utilizes:
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
 * Graphviz for diagrams in the API documentation (optional)
+* clang-format for tidying (optional)
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
@@ -43,6 +44,7 @@ Just run:
 ```
 cd "path/to/build/directory"
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/projectdirectory"
+make tidy # format source files (optional)
 make
 make check # build and run unit tests (optional)
 make apidoc # build API documentation (optional)
