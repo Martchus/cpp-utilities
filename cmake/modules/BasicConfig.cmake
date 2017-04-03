@@ -161,4 +161,38 @@ else()
     set(QUICK_GUI OFF)
 endif()
 
+# find coding style (use style from c++utilities if none included in own project dir)
+set(CLANG_FORMAT_RULES "${CMAKE_CURRENT_SOURCE_DIR}/coding-style.clang-format")
+if(CPP_UTILITIES_SOURCE_DIR AND NOT EXISTS "${CLANG_FORMAT_RULES}")
+    set(CLANG_FORMAT_RULES "${CPP_UTILITIES_SOURCE_DIR}/coding-style.clang-format")
+endif()
+if(NOT EXISTS "${CLANG_FORMAT_RULES}")
+    set(CLANG_FORMAT_RULES "${CPP_UTILITIES_CONFIG_DIRS}/codingstyle.clang-format")
+endif()
+
+# add target for tidying with clang-format
+if(EXISTS "${CLANG_FORMAT_RULES}")
+    find_program(CLANG_FORMAT_BIN clang-format)
+    if(CLANG_FORMAT_BIN)
+        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+            COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+        )
+        if(NOT TARGET tidy)
+            add_custom_target(tidy)
+        endif()
+        add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle"
+            COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+            COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
+        )
+        add_dependencies("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy" "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle")
+    else()
+        message(WARNING "clang-format not found; unable to add tidy target")
+    endif()
+else()
+    message(WARNING "No rules to invoke clang-format for ${META_PROJECT_NAME} present")
+endif()
+
 set(BASIC_PROJECT_CONFIG_DONE YES)
