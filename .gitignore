@@ -39,3 +39,6 @@ Makefile*
 
 # tests
 testfiles/output.*
+
+# clang-format
+/.clang-format
