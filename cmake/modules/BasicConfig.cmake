@@ -208,6 +208,15 @@ if(EXISTS "${CLANG_FORMAT_RULES}")
                 COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
             )
             add_dependencies("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy" "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle")
+
+            # also add a test to verify whether sources are tidy
+            add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+                COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            )
+            set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
+                FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+            )
         endif()
     else()
         message(WARNING "clang-format not found; unable to add tidy target")
