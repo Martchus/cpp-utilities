@@ -170,6 +170,22 @@ if(NOT EXISTS "${CLANG_FORMAT_RULES}")
     set(CLANG_FORMAT_RULES "${CPP_UTILITIES_CONFIG_DIRS}/codingstyle.clang-format")
 endif()
 
+# add autotools-style check target
+if(NOT TARGET check)
+    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
+    add_custom_target(check
+        COMMAND ${CMAKE_CTEST_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
+
+# enable testing
+enable_testing()
+get_directory_property(HAS_PARENT PARENT_DIRECTORY)
+if(HAS_PARENT)
+    message(STATUS "For the check target to work, it is required to call enable_testing() on the source directory root.")
+endif()
+
 # add target for tidying with clang-format
 if(EXISTS "${CLANG_FORMAT_RULES}")
     find_program(CLANG_FORMAT_BIN clang-format)

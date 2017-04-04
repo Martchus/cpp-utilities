@@ -22,22 +22,6 @@ if(CPP_UNIT_LIB)
         set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS} ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
     endif()
 
-    # add autotools-style check target and enable testing
-    if(NOT TARGET check)
-        set(CMAKE_CTEST_COMMAND ctest -V)
-        add_custom_target(check
-            COMMAND ${CMAKE_CTEST_COMMAND}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        )
-    endif()
-
-    # enable testing
-    enable_testing()
-    get_directory_property(HAS_PARENT PARENT_DIRECTORY)
-    if(HAS_PARENT)
-        message(STATUS "For the check target to work, it is required to call enable_testing() on the source directory root.")
-    endif()
-
     # add target for test executable, but exclude it from the "all target" when EXCLUDE_TESTS_FROM_ALL is set
     if(EXCLUDE_TESTS_FROM_ALL)
         set(TESTS_EXCLUSION EXCLUDE_FROM_ALL)
