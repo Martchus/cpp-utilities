@@ -190,20 +190,25 @@ endif()
 if(EXISTS "${CLANG_FORMAT_RULES}")
     find_program(CLANG_FORMAT_BIN clang-format)
     if(CLANG_FORMAT_BIN)
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
-            COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES}
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-        )
-        if(NOT TARGET tidy)
-            add_custom_target(tidy)
+        set(FORMATABLE_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES} ${QML_HEADER_FILES} ${QML_SRC_FILES})
+        if(FORMATABLE_FILES)
+            list(REMOVE_ITEM FORMATABLE_FILES "")
+
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+                COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+            )
+            if(NOT TARGET tidy)
+                add_custom_target(tidy)
+            endif()
+            add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle"
+                COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
+            )
+            add_dependencies("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy" "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle")
         endif()
-        add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle"
-            COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-            COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
-        )
-        add_dependencies("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy" "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle")
     else()
         message(WARNING "clang-format not found; unable to add tidy target")
     endif()
