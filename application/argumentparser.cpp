@@ -251,7 +251,7 @@ void ArgumentReader::read(ArgumentVector &args)
                         ++index, ++argv, argDenotation = nullptr;
                         break;
                     case UnknownArgumentBehavior::Fail:
-                        throw Failure("The specified argument \""s % *argv + "\" is unknown and will be ignored."s);
+                        throw Failure(argsToString("The specified argument \"", *argv, "\" is unknown."));
                     }
                 }
             } // if(!matchingArg)

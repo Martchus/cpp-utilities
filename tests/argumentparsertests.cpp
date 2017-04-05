@@ -169,7 +169,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(6, argv3);
         CPPUNIT_FAIL("Exception expected.");
     } catch(const Failure &e) {
-        CPPUNIT_ASSERT(!strcmp(e.what(), "The specified argument \"album\" is unknown and will be ignored."));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown."s, string(e.what()));
     }
 
     // warning about unknown argument
@@ -272,7 +272,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch(const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT(!strcmp(e.what(), "The specified argument \"-f\" is unknown and will be ignored."));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown."s, string(e.what()));
     }
 
     // equation sign syntax
