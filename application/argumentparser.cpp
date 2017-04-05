@@ -731,18 +731,22 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
  *  - The same argument has not been added twice to the same parent.
  *  - Only one argument within a parent is default or implicit.
  *  - Only main arguments denote operations.
- *  - Argument abbreviations are unique within one parent.
- *  - Argument names are unique within one parent.
+ *  - Argument abbreviations are unique within each level.
+ *  - Argument names are unique within within each level.
  *
  * \remarks
  *  - Verifies the sub arguments, too.
  *  - For debugging purposes only; hence only available in debug builds.
+ *
+ * \todo Remove unused parameter \a abbreviations and \a names in next major release.
  */
-void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args, vector<char> abbreviations, vector<const char *> names)
+void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args, vector<char>, vector<const char *>)
 {
     vector<const Argument *> verifiedArgs;
     verifiedArgs.reserve(args.size());
+    vector<char> abbreviations;
     abbreviations.reserve(abbreviations.size() + args.size());
+    vector<const char *> names;
     names.reserve(names.size() + args.size());
     bool hasImplicit = false;
     for(const Argument *arg : args) {
@@ -758,7 +762,7 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
         names.emplace_back(arg->name());
     }
     for(const Argument *arg : args) {
-        verifyArgs(arg->subArguments(), abbreviations, names);
+        verifyArgs(arg->subArguments(), vector<char>(), vector<const char *>());
     }
 }
 #endif
