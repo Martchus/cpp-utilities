@@ -340,6 +340,25 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"));
     }
+
+    // nested operations
+    const char *argv14[] = {"tageditor", "get", "fields", "album=test", "-f", "somefile"};
+    parser.resetArgs();
+    fieldsArg.setRequiredValueCount(-1);
+    fieldsArg.setDenotesOperation(true);
+    parser.parseArgs(6, argv14);
+    CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(fieldsArg.isPresent());
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album=test"));
+
+    // implicit flag still works when argument doesn't denote operation
+    parser.resetArgs();
+    fieldsArg.setDenotesOperation(false);
+    parser.parseArgs(6, argv14);
+    CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(fieldsArg.isPresent());
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "fields"));
+    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "album=test"));
 }
 
 /*!
@@ -453,10 +472,21 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--values' )\n"s, buffer.str());
 
+        // nested operations should be proposed as operations
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        filesArg.setDenotesOperation(true);
+        reader.reset(argv2, argv2 + 1).read();
+        parser.printBashCompletion(1, argv2, 1, reader);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('files' '--values' )\n"s, buffer.str());
+
         // specifying no args should propose all main arguments
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
+        filesArg.setDenotesOperation(false);
         reader.reset(nullptr, nullptr).read();
         parser.printBashCompletion(0, nullptr, 0, reader);
         cout.rdbuf(regularCoutBuffer);

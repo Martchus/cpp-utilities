@@ -195,14 +195,12 @@ void ArgumentReader::read(ArgumentVector &args)
                 }
 
                 // first value might denote "operation"
-                if(!index) {
-                    for(Argument *arg : args) {
-                        if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
-                            (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
-                            lastArgDenotation = argv;
-                            ++index, ++argv;
-                            break;
-                        }
+                for(Argument *arg : args) {
+                    if(arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
+                        (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
+                        lastArgDenotation = argv;
+                        ++index, ++argv;
+                        break;
                     }
                 }
 
@@ -731,8 +729,8 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
  *  - The same argument has not been added twice to the same parent.
  *  - Only one argument within a parent is default or implicit.
  *  - Only main arguments denote operations.
- *  - Argument abbreviations are unique within each level.
- *  - Argument names are unique within within each level.
+ *  - Argument abbreviations are unique within the same level.
+ *  - Argument names are unique within within the same level.
  *
  * \remarks
  *  - Verifies the sub arguments, too.
@@ -752,7 +750,6 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
     for(const Argument *arg : args) {
         assert(find(verifiedArgs.cbegin(), verifiedArgs.cend(), arg) == verifiedArgs.cend());
         verifiedArgs.push_back(arg);
-        assert(arg->isMainArgument() || !arg->denotesOperation());
         assert(!arg->isImplicit() || !hasImplicit);
         hasImplicit |= arg->isImplicit();
         assert(!arg->abbreviation() || find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) == abbreviations.cend());
@@ -1026,7 +1023,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             if(reader.argv == reader.end) {
                 cout << '\'' << *(reader.argv - 1) << '\'' << ' ';
             }
-        } else if(arg->denotesOperation() && (!actualArgumentCount() || (currentWordIndex == 0 && (!lastDetectedArg || (lastDetectedArg->isPresent() && lastDetectedArgIndex == 0))))) {
+        } else if(arg->denotesOperation()) {
             cout << '\'' << arg->name() << '\'' << ' ';
         } else {
             cout << '\'' << '-' << '-' << arg->name() << '\'' << ' ';
