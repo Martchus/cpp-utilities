@@ -15,6 +15,14 @@ if((NOT "${META_PROJECT_TYPE}" STREQUAL "library") AND (NOT "${META_PROJECT_TYPE
     message(FATAL_ERROR "The LibraryTarget CMake module is intended to be used for building library projects only (and not for applications).")
 endif()
 
+# determine whether library is header-only
+if(SRC_FILES OR WIDGETS_FILES OR QML_FILES OR RES_FILES)
+    set(META_HEADER_ONLY_LIB NO)
+else()
+    message(STATUS "Project ${META_PROJECT_NAME} is header-only library.")
+    set(META_HEADER_ONLY_LIB YES)
+endif()
+
 # include for configure_package_config_file and write_basic_package_version_file
 include(CMakePackageConfigHelpers)
 
@@ -102,49 +110,84 @@ if(BUILD_SHARED_LIBS)
         set(META_SHARED_OBJECT_TYPE SHARED)
     endif()
     # add library to be created, set libs to link against, set version and C++ standard
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${META_SHARED_OBJECT_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-        PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
-        PRIVATE "${PRIVATE_LIBRARIES}"
-    )
-    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-        PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
-        PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
-    )
-    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
-        VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
-        SOVERSION "${META_SOVERSION}"
-        CXX_STANDARD "${META_CXX_STANDARD}"
-        LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
-        LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
-        AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
-    )
+    if(META_HEADER_ONLY_LIB)
+        add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} INTERFACE)
+        foreach(HEADER_FILE IN LISTS HEADER_FILES)
+            target_sources(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+                INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER_FILE}"
+            )
+        endforeach()
+        target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            INTERFACE ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}" "${PRIVATE_LIBRARIES}"
+        )
+        target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            INTERFACE "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}" "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
+        )
+    else()
+        add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${META_SHARED_OBJECT_TYPE} ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
+        target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+            PRIVATE "${PRIVATE_LIBRARIES}"
+        )
+        target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+            PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
+        )
+        set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPERTIES
+            VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+            SOVERSION "${META_SOVERSION}"
+            CXX_STANDARD "${META_CXX_STANDARD}"
+            LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+            LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+            AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+        )
+    endif()
 endif()
 
 # add target for building a static version of the library
 if(BUILD_STATIC_LIBS)
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
-    # add target link libraries for the static lib also because otherwise Qt header files can not be located
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
-        PUBLIC "${PUBLIC_STATIC_LIBRARIES}"
-        PRIVATE "${PRIVATE_STATIC_LIBRARIES}"
-    )
-    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
-        PUBLIC "${META_PUBLIC_STATIC_LIB_COMPILE_DEFINITIONS}"
-        PRIVATE "${META_PRIVATE_STATIC_LIB_COMPILE_DEFINITIONS}"
-    )
-    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static PROPERTIES
-        VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
-        SOVERSION "${META_SOVERSION}"
-        OUTPUT_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
-        CXX_STANDARD "${META_CXX_STANDARD}"
-        AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
-    )
-    foreach(DEPENDENCY ${${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_LIB_DEPENDS})
+    # add library to be created, set required libs, set version and C++ standard
+    if(META_HEADER_ONLY_LIB)
+        add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static INTERFACE)
+        foreach(HEADER_FILE IN LISTS HEADER_FILES)
+            target_sources(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
+                INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER_FILE}"
+            )
+        endforeach()
+        target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
+            INTERFACE ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_STATIC_LIBRARIES}" "${PRIVATE_STATIC_LIBRARIES}"
+        )
+        target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
+            INTERFACE "${META_PUBLIC_STATIC_LIB_COMPILE_DEFINITIONS}" "${META_PRIVATE_STATIC_LIB_COMPILE_DEFINITIONS}"
+        )
+    else()
+        add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES} ${WINDOWS_ICON_PATH})
+        target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
+            PUBLIC "${PUBLIC_STATIC_LIBRARIES}"
+            PRIVATE "${PRIVATE_STATIC_LIBRARIES}"
+        )
+        target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
+            PUBLIC "${META_PUBLIC_STATIC_LIB_COMPILE_DEFINITIONS}"
+            PRIVATE "${META_PRIVATE_STATIC_LIB_COMPILE_DEFINITIONS}"
+        )
+        set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static PROPERTIES
+            VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+            SOVERSION "${META_SOVERSION}"
+            OUTPUT_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
+            CXX_STANDARD "${META_CXX_STANDARD}"
+            AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+        )
+    endif()
+    foreach(DEPENDENCY ${PUBLIC_STATIC_LIBRARIES} ${PRIVATE_STATIC_LIBRARIES})
         if(NOT ${DEPENDENCY} IN_LIST META_PUBLIC_STATIC_LIB_DEPENDS)
             list(APPEND META_PRIVATE_STATIC_LIB_DEPENDS ${DEPENDENCY})
         endif()
     endforeach()
+endif()
+
+# Qt Creator does not show INTERFACE_SOURCES in project tree, so create a custom target as workaround
+if(META_HEADER_ONLY_LIB)
+    add_custom_target(interface_sources_for_qtcreator EXCLUDE_FROM_ALL SOURCES ${HEADER_FILES})
 endif()
 
 # create the CMake package config file from template
@@ -178,7 +221,6 @@ macro(depends_for_pc LIB_TYPE DEPENDS OUTPUT_VAR_PKGS OUTPUT_VAR_LIBS)
             continue()
         endif()
         string(REPLACE "::" "_" DEPENDENCY_VARNAME "${DEPENDENCY}")
-        message(STATUS "PC_PKG_${LIB_TYPE}_${DEPENDENCY_VARNAME}: ${PC_PKG_${LIB_TYPE}_${DEPENDENCY_VARNAME}}")
         if(PC_PKG_${LIB_TYPE}_${DEPENDENCY_VARNAME})
             set(${OUTPUT_VAR_PKGS} "${${OUTPUT_VAR_PKGS}} ${PC_PKG_${LIB_TYPE}_${DEPENDENCY_VARNAME}}")
         else()
@@ -186,7 +228,7 @@ macro(depends_for_pc LIB_TYPE DEPENDS OUTPUT_VAR_PKGS OUTPUT_VAR_LIBS)
         endif()
     endforeach()
 endmacro()
-macro(comple_defs_for_pc LIB_TYPE)
+macro(compile_defs_for_pc LIB_TYPE)
     foreach(COMPILE_DEFINITION ${META_PUBLIC_${LIB_TYPE}_LIB_COMPILE_DEFINITIONS})
         set(META_COMPILE_DEFINITIONS_FOR_PC "${META_COMPILE_DEFINITIONS_FOR_PC} -D${COMPILE_DEFINITION}")
     endforeach()
@@ -195,29 +237,29 @@ unset(PC_FILES)
 if(BUILD_SHARED_LIBS)
     set(META_PROJECT_NAME_FOR_PC "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
     depends_for_pc(SHARED META_PUBLIC_SHARED_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC)
-    comple_defs_for_pc(SHARED)
-    configure_file(
-        "${PKGCONFIG_TEMPLATE_FILE}"
-        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME_FOR_PC}.pc"
-        @ONLY
-    )
-    list(APPEND PC_FILES ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}.pc)
+    depends_for_pc(SHARED META_PRIVATE_SHARED_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC)
+    compile_defs_for_pc(SHARED)
 endif()
 if(BUILD_STATIC_LIBS)
     set(META_PROJECT_NAME_FOR_PC "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static")
     depends_for_pc(STATIC META_PUBLIC_STATIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC)
     depends_for_pc(STATIC META_PRIVATE_STATIC_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC)
-    comple_defs_for_pc(STATIC)
-    configure_file(
-        "${PKGCONFIG_TEMPLATE_FILE}"
-        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME_FOR_PC}.pc"
-        @ONLY
-    )
-    list(APPEND PC_FILES ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static.pc)
+    compile_defs_for_pc(STATIC)
 endif()
+if(NOT META_HEADER_ONLY_LIB)
+    set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -l${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
+endif()
+if(META_PUBLIC_LIB_DEPENDS_FOR_PC)
+    set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -L\${libdir}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
+endif()
+configure_file(
+    "${PKGCONFIG_TEMPLATE_FILE}"
+    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME_FOR_PC}.pc"
+    @ONLY
+)
+list(APPEND PC_FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME_FOR_PC}.pc")
 
 if(NOT META_NO_INSTALL_TARGETS)
-
     # add install target for the CMake config files
     install(
         FILES
@@ -276,7 +318,7 @@ if(NOT META_NO_INSTALL_TARGETS)
         set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX})
     endif()
 
-    # add install target for dynamic libs
+    # add install targets and export targets
     if(BUILD_SHARED_LIBS)
         install(
             TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
@@ -288,16 +330,15 @@ if(NOT META_NO_INSTALL_TARGETS)
             ARCHIVE DESTINATION ${LIBRARY_DESTINATION}
             COMPONENT binary
         )
+        add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+        add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+        # export shared lib
         install(EXPORT ${META_PROJECT_NAME}SharedTargets
             DESTINATION "share/${META_PROJECT_NAME}/cmake"
             EXPORT_LINK_INTERFACE_LIBRARIES
             COMPONENT cmake-config
         )
-        add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
-        add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
     endif()
-
-    # add install for static libs when building with mingw-w64
     if(BUILD_STATIC_LIBS)
         install(
             TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
@@ -309,13 +350,14 @@ if(NOT META_NO_INSTALL_TARGETS)
             ARCHIVE DESTINATION ${LIBRARY_DESTINATION}
             COMPONENT binary
         )
+        add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static)
+        add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static)
+        # export static target
         install(EXPORT ${META_PROJECT_NAME}StaticTargets
             DESTINATION "share/${META_PROJECT_NAME}/cmake"
             EXPORT_LINK_INTERFACE_LIBRARIES
             COMPONENT cmake-config
         )
-        add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static)
-        add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static)
     endif()
 
     # add install target for header files
