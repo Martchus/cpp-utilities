@@ -61,9 +61,29 @@ if(HAS_PARENT)
     endif()
 endif()
 
+# determine version
+set(META_APP_VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH})
+option(APPEND_GIT_REVISION "whether the build script should attempt to append the git revision and latest commit to the version displayed via --help" ON)
+if(APPEND_GIT_REVISION)
+    execute_process(
+        COMMAND git rev-list --count HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE META_GIT_REV_COUNT
+    )
+    execute_process(
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE META_GIT_LAST_COMMIT_ID
+    )
+    string(REPLACE "\n" "" META_GIT_REV_COUNT "${META_GIT_REV_COUNT}")
+    string(REPLACE "\n" "" META_GIT_LAST_COMMIT_ID "${META_GIT_LAST_COMMIT_ID}")
+    if(META_GIT_REV_COUNT AND META_GIT_LAST_COMMIT_ID)
+        set(META_APP_VERSION ${META_APP_VERSION}-${META_GIT_REV_COUNT}.${META_GIT_LAST_COMMIT_ID})
+    endif()
+endif()
+
 # stringify the meta data
 set(META_PROJECT_NAME_STR "\"${META_PROJECT_NAME}\"")
-set(META_APP_VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH})
 set(META_APP_NAME_STR "\"${META_APP_NAME}\"")
 set(META_APP_AUTHOR_STR "\"${META_APP_AUTHOR}\"")
 set(META_APP_URL_STR "\"${META_APP_URL}\"")

@@ -38,6 +38,10 @@ None of these are enabled or set by default, unless stated otherwise.
   (sets `_GLIBCXX_USE_CXX11_ABI=0`)
 * `EXCLUDE_TESTS_FROM_ALL=ON/OFF`: excludes tests from the all target
   (enabled by default)
+* `APPEND_GIT_REVISION=ON/OFF`: whether the build script should attempt to
+  append the Git revision and the latest commit ID to the version displayed
+  via --help (enabled by default but has no effect when the source directory is
+  no Git checkout or Git is not installed)
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
