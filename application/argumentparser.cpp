@@ -265,6 +265,8 @@ const char *applicationAuthor = nullptr;
 const char *applicationVersion = nullptr;
 /// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
 const char *applicationUrl = nullptr;
+/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
+std::initializer_list<const char *> dependencyVersions;
 
 /*!
  * \brief Specifies a function quit the application.
@@ -603,7 +605,18 @@ void ArgumentParser::printHelp(ostream &os) const
     if(applicationVersion && *applicationVersion) {
         os << "version " << applicationVersion;
     }
-    if((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
+    if(dependencyVersions.size()) {
+        if((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
+            os << '\n';
+            EscapeCodes::setStyle(os);
+        }
+        auto i = dependencyVersions.begin(), end = dependencyVersions.end();
+        os << "Linked against: " << *i;
+        for(++i; i != end; ++i) {
+            os << ',' << ' ' << *i;
+        }
+    }
+    if((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions.size()) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);

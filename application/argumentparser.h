@@ -18,17 +18,33 @@ CPP_UTILITIES_EXPORT extern const char *applicationName;
 CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
 CPP_UTILITIES_EXPORT extern const char *applicationVersion;
 CPP_UTILITIES_EXPORT extern const char *applicationUrl;
+CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersions;
+
+/*!
+ * \macro SET_DEPENDENCY_INFO
+ * \brief Sets meta data about the dependencies the application was linked against which is
+ *        used by ArgumentParser::printHelp().
+ * \remarks Reads those data from the config header so "config.h" must be included.
+ */
+#ifndef APP_STATICALLY_LINKED
+#define SET_DEPENDENCY_INFO \
+    ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
+#else
+#define SET_DEPENDENCY_INFO \
+    ::ApplicationUtilities::dependencyVersions = STATIC_DEPENCENCY_VERSIONS
+#endif
 
 /*!
  * \macro SET_APPLICATION_INFO
- * \brief Sets application meta data used by ArgumentParser::printHelp().
+ * \brief Sets application meta data (including SET_DEPENDENCY_INFO) used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #define SET_APPLICATION_INFO \
     ::ApplicationUtilities::applicationName = APP_NAME; \
     ::ApplicationUtilities::applicationAuthor = APP_AUTHOR; \
     ::ApplicationUtilities::applicationVersion = APP_VERSION; \
-    ::ApplicationUtilities::applicationUrl = APP_URL
+    ::ApplicationUtilities::applicationUrl = APP_URL; \
+    SET_DEPENDENCY_INFO \
 
 CPP_UTILITIES_EXPORT extern void(*exitFunction)(int);
 
