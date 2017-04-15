@@ -34,6 +34,8 @@ foreach(LINKAGE IN ITEMS "" "STATIC_")
                 endif()
                 set(DEPENDENCY_VER "${${DEPENDENCY_VARNAME}_VERSION}")
             else()
+                unset(DEPENDENCY_DISPLAY_NAME)
+                unset(DEPENDENCY_VER)
                 # FIXME: provide meta-data for other libs, too
             endif()
             if(DEPENDENCY_VER AND NOT "${DEPENDENCY_VER}" STREQUAL "DEPENDENCY_VER-NOTFOUND")
