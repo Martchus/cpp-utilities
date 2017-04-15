@@ -9,27 +9,35 @@ endif()
 include(TemplateFinder)
 find_template_file("config.h" CPP_UTILITIES CONFIG_H_TEMPLATE_FILE)
 
-# create list of dependency versions present at link time
+# create list of dependency versions present at link time (one list for shared library and another for
+# the static library since the lists might differ)
 include(ListToString)
 foreach(LINKAGE IN ITEMS "" "STATIC_")
     unset(DEPENCENCY_VERSIONS)
     unset(${LINKAGE}DEPENCENCY_VERSIONS_ARRAY)
+    # iterate through public and private libraries of shared/static library
     foreach(DEPENDENCY IN LISTS PUBLIC_${LINKAGE}LIBRARIES PRIVATE_${LINKAGE}LIBRARIES)
         if(TARGET ${DEPENDENCY})
+            # find version and display name for target
             string(SUBSTRING "${DEPENDENCY}" 0 5 DEPENDENCY_PREFIX)
             if("${DEPENDENCY_PREFIX}" STREQUAL "Qt5::")
+                # read meta-data of Qt module
                 string(SUBSTRING "${DEPENDENCY}" 5 -1 DEPENDENCY_MODULE_NAME)
-                set(DEPENDENCY "Qt ${DEPENDENCY_MODULE_NAME}")
+                set(DEPENDENCY_DISPLAY_NAME "Qt ${DEPENDENCY_MODULE_NAME}")
                 set(DEPENDENCY_VER "${Qt5${DEPENDENCY_MODULE_NAME}_VERSION_STRING}")
-            else()
-                get_target_property(DEPENDENCY_APP_NAME "${DEPENDENCY}" APP_NAME)
-                get_target_property(DEPENDENCY_VER "${DEPENDENCY}" VERSION)
-                if(DEPENDENCY_APP_NAME AND NOT "${DEPENDENCY_APP_NAME}" STREQUAL "DEPENDENCY_APP_NAME-NOTFOUND")
-                    set(DEPENDENCY "${DEPENDENCY_APP_NAME}")
+            elseif(${DEPENDENCY}_varname)
+                # read meta-data of one of my own libraries
+                set(DEPENDENCY_VARNAME "${${DEPENDENCY}_varname}")
+                set(DEPENDENCY_DISPLAY_NAME "${DEPENDENCY}")
+                if(${DEPENDENCY_VARNAME}_DISPLAY_NAME)
+                    set(DEPENDENCY_DISPLAY_NAME "${${DEPENDENCY_VARNAME}_DISPLAY_NAME}")
                 endif()
+                set(DEPENDENCY_VER "${${DEPENDENCY_VARNAME}_VERSION}")
+            else()
+                # FIXME: provide meta-data for other libs, too
             endif()
             if(DEPENDENCY_VER AND NOT "${DEPENDENCY_VER}" STREQUAL "DEPENDENCY_VER-NOTFOUND")
-                list(APPEND DEPENCENCY_VERSIONS "${DEPENDENCY}: ${DEPENDENCY_VER}")
+                list(APPEND DEPENCENCY_VERSIONS "${DEPENDENCY_DISPLAY_NAME}: ${DEPENDENCY_VER}")
             endif()
         endif()
     endforeach()
