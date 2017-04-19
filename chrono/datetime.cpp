@@ -71,13 +71,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
  */
 DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 {
-    if(timeStamp) {
-        struct tm *timeinfo = gmtime(&timeStamp);
-        return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
-                        timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
-    } else {
-        return DateTime();
-    }
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::ticksPerSecond);
 }
 
 /*!
