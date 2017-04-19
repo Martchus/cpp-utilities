@@ -89,8 +89,12 @@ public:
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
 
     static constexpr DateTime eternity();
+    static constexpr DateTime unixEpochStart();
     static DateTime now();
     static DateTime gmtNow();
+#if defined(PLATFORM_UNIX)
+    static DateTime exactGmtNow();
+#endif
     constexpr static bool isLeapYear(int year);
     static int daysInMonth(int year, int month);
 
@@ -353,7 +357,16 @@ constexpr inline DateTime DateTime::eternity()
 }
 
 /*!
+ * \brief Returns the DateTime object for the "1970-01-01T00:00:00Z".
+ */
+constexpr inline DateTime DateTime::unixEpochStart()
+{
+    return DateTime(621355968000000000);
+}
+
+/*!
  * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the local time.
+ * \remarks The time might be rounded to full seconds. Use exactGmtNow() for better precision.
  */
 inline DateTime DateTime::now()
 {
@@ -362,6 +375,7 @@ inline DateTime DateTime::now()
 
 /*!
  * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
+ * \remarks The time might be rounded to full seconds. Use exactGmtNow() for better precision.
  */
 inline DateTime DateTime::gmtNow()
 {

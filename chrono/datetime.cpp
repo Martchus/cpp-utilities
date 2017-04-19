@@ -7,6 +7,10 @@
 #include <iomanip>
 #include <stdexcept>
 
+#if defined(PLATFORM_UNIX)
+# include <time.h>
+#endif
+
 using namespace std;
 using namespace ChronoUtilities;
 using namespace ConversionUtilities;
@@ -49,7 +53,7 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
  */
 
 /*!
- * \brief Constructs a new DateTime object with the local time from the specified \a timeStamp.
+ * \brief Constructs a new DateTime object with the local time from the specified UNIX \a timeStamp.
  */
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
 {
@@ -63,7 +67,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
 }
 
 /*!
- * \brief Constructs a new DateTime object with the GMT time from the specified \a timeStamp.
+ * \brief Constructs a new DateTime object with the GMT time from the specified UNIX \a timeStamp.
  */
 DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 {
@@ -285,6 +289,19 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
     }
     return "";
 }
+
+#if defined(PLATFORM_UNIX)
+/*!
+ * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
+ * \remarks
+ */
+DateTime DateTime::exactGmtNow()
+{
+    struct timespec t;
+    clock_gettime(CLOCK_REALTIME, &t);
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
+}
+#endif
 
 /*!
  * \brief Converts the given date expressed in \a year, \a month and \a day to ticks.

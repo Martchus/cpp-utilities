@@ -71,6 +71,12 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2012-02-29 15:34:34:20.033"), ConversionException);
     const auto test3 = DateTime::fromIsoString("2016-08-29T21:32:31.125+02:00");
     CPPUNIT_ASSERT_EQUAL("2016-08-29T21:32:31.125+02:00"s, test3.first.toIsoString(test3.second));
+
+    // test now() and exactNow() (or at least whether both behave the same)
+#if defined(PLATFORM_UNIX)
+    const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
+    CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2) && delta > TimeSpan::fromSeconds(-2));
+#endif
 }
 
 /*!
