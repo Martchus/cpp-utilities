@@ -5,12 +5,12 @@
 
 #include <ostream>
 
-inline std::ostream &operator<< (std::ostream &out, const ChronoUtilities::DateTime &value)
+inline std::ostream &operator<<(std::ostream &out, const ChronoUtilities::DateTime &value)
 {
     return out << value.toString(ChronoUtilities::DateTimeOutputFormat::DateAndTime, false);
 }
 
-inline std::ostream &operator<< (std::ostream &out, const ChronoUtilities::TimeSpan &value)
+inline std::ostream &operator<<(std::ostream &out, const ChronoUtilities::TimeSpan &value)
 {
     return out << value.toString(ChronoUtilities::TimeSpanOutputFormat::Normal, false);
 }

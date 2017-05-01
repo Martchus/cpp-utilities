@@ -1,11 +1,11 @@
 #include "./random.h"
 
-#include <iomanip>
-#include <string>
-#include <sstream>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <cassert>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -28,9 +28,10 @@ const char symbols[24] = "!\"$%&/()=?'#*+~-_><.:,;";
  * \brief Generates a random character sequence using the given \a randomizer.
  * \deprecated Might be removed in future release because API is bad and it is not used anymore anyways.
  */
-void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int ()> randomizer, int highestRandomNumber, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
+void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int()> randomizer, int highestRandomNumber,
+    bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
-    if(length) {
+    if (length) {
         return;
     }
     signed char categoryCount = 0;
@@ -38,73 +39,73 @@ void generateRandomCharacterSequence(char *result, unsigned int length, std::fun
     bool needCapitalLetter = false;
     bool needNumber = false;
     bool needSymbol = false;
-    if(useSmallLetters) {
+    if (useSmallLetters) {
         needSmallLetter = useAtLeastOneOfEachCategory;
         ++categoryCount;
     }
-    if(useCapitalLetters) {
+    if (useCapitalLetters) {
         needCapitalLetter = useAtLeastOneOfEachCategory;
         ++categoryCount;
     }
-    if(useNumbers) {
+    if (useNumbers) {
         needNumber = useAtLeastOneOfEachCategory;
         ++categoryCount;
     }
-    if(useSymbols) {
+    if (useSymbols) {
         needSymbol = useAtLeastOneOfEachCategory;
         ++categoryCount;
     }
     signed char neededCharacters = useAtLeastOneOfEachCategory ? categoryCount : 0;
-    if(!categoryCount) {
+    if (!categoryCount) {
         *result = '\0';
         return;
     }
-    for(char *i = result, *end = result + length; i < end; ++i) {
+    for (char *i = result, *end = result + length; i < end; ++i) {
         int category = -1;
-        if((neededCharacters > 0 && (randomizer() < (highestRandomNumber / 2.0))) || ((end - i) >= neededCharacters)) {
-            if(needSmallLetter)
+        if ((neededCharacters > 0 && (randomizer() < (highestRandomNumber / 2.0))) || ((end - i) >= neededCharacters)) {
+            if (needSmallLetter)
                 category = 0;
-            if(needCapitalLetter && ((category == -1) || (randomizer() < (highestRandomNumber / 2.0))))
+            if (needCapitalLetter && ((category == -1) || (randomizer() < (highestRandomNumber / 2.0))))
                 category = 1;
-            if(needNumber && ((category == -1) || (randomizer() < (highestRandomNumber / 4.0))))
+            if (needNumber && ((category == -1) || (randomizer() < (highestRandomNumber / 4.0))))
                 category = 2;
-            if(needSymbol && ((category == -1) || (randomizer() < (highestRandomNumber / 8.0))))
-                category =  3;
+            if (needSymbol && ((category == -1) || (randomizer() < (highestRandomNumber / 8.0))))
+                category = 3;
         } else {
-            if(useSmallLetters)
+            if (useSmallLetters)
                 category = 0;
-            if(useCapitalLetters && ((category == -1) || (randomizer() < (highestRandomNumber / 2.0))))
+            if (useCapitalLetters && ((category == -1) || (randomizer() < (highestRandomNumber / 2.0))))
                 category = 1;
-            if(useNumbers && ((category == -1) || (randomizer() < (highestRandomNumber / 4.0))))
+            if (useNumbers && ((category == -1) || (randomizer() < (highestRandomNumber / 4.0))))
                 category = 2;
-            if(useSymbols && ((category == -1) || (randomizer() < (highestRandomNumber / 8.0))))
-                category =  3;
+            if (useSymbols && ((category == -1) || (randomizer() < (highestRandomNumber / 8.0))))
+                category = 3;
         }
-        switch(category) {
+        switch (category) {
         case 0:
             *i = letters[rand() % 26];
-            if(needSmallLetter) {
+            if (needSmallLetter) {
                 needSmallLetter = false;
                 --neededCharacters;
             }
             break;
         case 1:
             *i = capitalLetters[rand() % 26];
-            if(needCapitalLetter) {
+            if (needCapitalLetter) {
                 needCapitalLetter = false;
                 --neededCharacters;
             }
             break;
         case 2:
             *i = numbers[rand() % 9];
-            if(needNumber) {
+            if (needNumber) {
                 needNumber = false;
                 --neededCharacters;
             }
             break;
         case 3:
             *i = symbols[rand() % 22];
-            if(needSymbol) {
+            if (needSymbol) {
                 needSymbol = false;
                 --neededCharacters;
             }
@@ -117,10 +118,10 @@ void generateRandomCharacterSequence(char *result, unsigned int length, std::fun
  * \brief Generates a random character sequence using std::rand().
  * \deprecated Might be removed in future release because API is bad and it is not used anymore anyways.
  */
-void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers, bool useSymbols, bool useAtLeastOneOfEachCategory)
+void generateRandomCharacterSequence(char *result, unsigned int length, bool useSmallLetters, bool useCapitalLetters, bool useNumbers,
+    bool useSymbols, bool useAtLeastOneOfEachCategory)
 {
-    generateRandomCharacterSequence(result, length, rand, RAND_MAX, useSmallLetters, useCapitalLetters, useNumbers, useSymbols, useAtLeastOneOfEachCategory);
+    generateRandomCharacterSequence(
+        result, length, rand, RAND_MAX, useSmallLetters, useCapitalLetters, useNumbers, useSymbols, useAtLeastOneOfEachCategory);
 }
-
 }
-

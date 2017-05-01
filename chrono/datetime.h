@@ -5,19 +5,17 @@
 
 #include "../conversion/types.h"
 
-#include <string>
-#include <limits>
 #include <ctime>
+#include <limits>
+#include <string>
 
-namespace ChronoUtilities
-{
+namespace ChronoUtilities {
 
 /*!
  * \brief Specifies the output format.
  * \sa DateTime::toString()
  */
-enum class DateTimeOutputFormat
-{
+enum class DateTimeOutputFormat {
     DateAndTime, /**< date and time */
     DateOnly, /**< date only */
     TimeOnly, /**< time only */
@@ -29,8 +27,7 @@ enum class DateTimeOutputFormat
  * \brief Specifies the day of the week.
  * \sa DateTime::dayOfWeek()
  */
-enum class DayOfWeek
-{
+enum class DayOfWeek {
     Monday, /**< Monday */
     Tuesday, /**< Tuesday */
     Wednesday, /**< Wednesday */
@@ -44,16 +41,14 @@ enum class DayOfWeek
  * \brief Specifies the date part.
  * \sa DateTime::getDatePart()
  */
-enum class DatePart
-{
+enum class DatePart {
     Year, /**< year */
     Month, /**< month */
     DayOfYear, /**< day of year */
     Day /**< day */
 };
 
-class CPP_UTILITIES_EXPORT DateTime
-{
+class CPP_UTILITIES_EXPORT DateTime {
 public:
     explicit constexpr DateTime();
     explicit constexpr DateTime(uint64 ticks);
@@ -98,18 +93,18 @@ public:
     constexpr static bool isLeapYear(int year);
     static int daysInMonth(int year, int month);
 
-    constexpr bool operator ==(const DateTime &other) const;
-    constexpr bool operator !=(const DateTime &other) const;
-    constexpr bool operator <(const DateTime &other) const;
-    constexpr bool operator >(const DateTime &other) const;
-    constexpr bool operator <=(const DateTime &other) const;
-    constexpr bool operator >=(const DateTime &other) const;
-    constexpr DateTime operator +(const TimeSpan &timeSpan) const;
-    constexpr DateTime operator -(const TimeSpan &timeSpan) const;
-    constexpr TimeSpan operator +(const DateTime &other) const;
-    constexpr TimeSpan operator -(const DateTime &other) const;
-    DateTime &operator +=(const TimeSpan &timeSpan);
-    DateTime &operator -=(const TimeSpan &timeSpan);
+    constexpr bool operator==(const DateTime &other) const;
+    constexpr bool operator!=(const DateTime &other) const;
+    constexpr bool operator<(const DateTime &other) const;
+    constexpr bool operator>(const DateTime &other) const;
+    constexpr bool operator<=(const DateTime &other) const;
+    constexpr bool operator>=(const DateTime &other) const;
+    constexpr DateTime operator+(const TimeSpan &timeSpan) const;
+    constexpr DateTime operator-(const TimeSpan &timeSpan) const;
+    constexpr TimeSpan operator+(const DateTime &other) const;
+    constexpr TimeSpan operator-(const DateTime &other) const;
+    DateTime &operator+=(const TimeSpan &timeSpan);
+    DateTime &operator-=(const TimeSpan &timeSpan);
 
 private:
     static uint64 dateToTicks(int year, int month, int day);
@@ -130,21 +125,21 @@ private:
     static const int m_daysInMonth366[12];
 };
 
-
-
 /*!
  * \brief Constructs a DateTime.
  */
-constexpr inline DateTime::DateTime() :
-    m_ticks(0)
-{}
+constexpr inline DateTime::DateTime()
+    : m_ticks(0)
+{
+}
 
 /*!
  * \brief Constructs a DateTime with the specified number of \a ticks.
  */
-constexpr inline DateTime::DateTime(uint64 ticks) :
-    m_ticks(ticks)
-{}
+constexpr inline DateTime::DateTime(uint64 ticks)
+    : m_ticks(ticks)
+{
+}
 
 /*!
  * \brief Constructs a DateTime to the specified \a year, \a month, and \a day.
@@ -167,7 +162,7 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
-    if(uint64 ticks = dateToTicks(year, month, day)) {
+    if (uint64 ticks = dateToTicks(year, month, day)) {
         return DateTime(ticks + timeToTicks(hour, minute, second, millisecond));
     }
     return DateTime();
@@ -321,11 +316,7 @@ constexpr inline bool DateTime::isEternity() const
  */
 constexpr inline bool DateTime::isLeapYear(int year)
 {
-    return (year % 4 != 0)
-            ? false
-            : ((year % 100 == 0)
-               ? (year % 400 == 0)
-               : true);
+    return (year % 4 != 0) ? false : ((year % 100 == 0) ? (year % 400 == 0) : true);
 }
 
 /*!
@@ -333,11 +324,7 @@ constexpr inline bool DateTime::isLeapYear(int year)
  */
 inline int DateTime::daysInMonth(int year, int month)
 {
-    return (month >= 1 && month <= 12)
-            ? (isLeapYear(year)
-               ? m_daysInMonth366[month - 1]
-               : m_daysInMonth365[month - 1])
-            : (0);
+    return (month >= 1 && month <= 12) ? (isLeapYear(year) ? m_daysInMonth366[month - 1] : m_daysInMonth365[month - 1]) : (0);
 }
 
 /*!
@@ -385,7 +372,7 @@ inline DateTime DateTime::gmtNow()
 /*!
  * \brief Indicates whether two DateTime instances are equal.
  */
-constexpr inline bool DateTime::operator ==(const DateTime &other) const
+constexpr inline bool DateTime::operator==(const DateTime &other) const
 {
     return m_ticks == other.m_ticks;
 }
@@ -393,7 +380,7 @@ constexpr inline bool DateTime::operator ==(const DateTime &other) const
 /*!
  * \brief Indicates whether two DateTime instances are not equal.
  */
-constexpr inline bool DateTime::operator !=(const DateTime &other) const
+constexpr inline bool DateTime::operator!=(const DateTime &other) const
 {
     return m_ticks != other.m_ticks;
 }
@@ -401,7 +388,7 @@ constexpr inline bool DateTime::operator !=(const DateTime &other) const
 /*!
  * \brief Indicates whether a specified DateTime is less than another specified DateTime.
  */
-constexpr inline bool DateTime::operator <(const DateTime &other) const
+constexpr inline bool DateTime::operator<(const DateTime &other) const
 {
     return m_ticks < other.m_ticks;
 }
@@ -409,7 +396,7 @@ constexpr inline bool DateTime::operator <(const DateTime &other) const
 /*!
  * \brief Indicates whether a specified DateTime is greater than another specified DateTime.
  */
-constexpr inline bool DateTime::operator >(const DateTime &other) const
+constexpr inline bool DateTime::operator>(const DateTime &other) const
 {
     return m_ticks > other.m_ticks;
 }
@@ -417,7 +404,7 @@ constexpr inline bool DateTime::operator >(const DateTime &other) const
 /*!
  * \brief Indicates whether a specified DateTime is less or equal than another specified DateTime.
  */
-constexpr inline bool DateTime::operator <=(const DateTime &other) const
+constexpr inline bool DateTime::operator<=(const DateTime &other) const
 {
     return m_ticks <= other.m_ticks;
 }
@@ -425,7 +412,7 @@ constexpr inline bool DateTime::operator <=(const DateTime &other) const
 /*!
  * \brief Indicates whether a specified DateTime is greater or equal than another specified DateTime.
  */
-constexpr inline bool DateTime::operator >=(const DateTime &other) const
+constexpr inline bool DateTime::operator>=(const DateTime &other) const
 {
     return m_ticks >= other.m_ticks;
 }
@@ -434,7 +421,7 @@ constexpr inline bool DateTime::operator >=(const DateTime &other) const
  * \brief Adds another instance.
  * \returns The result is another DateTime.
  */
-constexpr inline DateTime DateTime::operator +(const TimeSpan &timeSpan) const
+constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
 {
     return DateTime(m_ticks + timeSpan.m_ticks);
 }
@@ -443,7 +430,7 @@ constexpr inline DateTime DateTime::operator +(const TimeSpan &timeSpan) const
  * \brief Substracts another instance.
  * \returns The result is another DateTime.
  */
-constexpr inline DateTime DateTime::operator -(const TimeSpan &timeSpan) const
+constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
 {
     return DateTime(m_ticks - timeSpan.m_ticks);
 }
@@ -452,7 +439,7 @@ constexpr inline DateTime DateTime::operator -(const TimeSpan &timeSpan) const
  * \brief Adds two instances.
  * \returns The result is a TimeSpan.
  */
-constexpr inline TimeSpan DateTime::operator +(const DateTime &other) const
+constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
 {
     return TimeSpan(m_ticks + other.m_ticks);
 }
@@ -461,7 +448,7 @@ constexpr inline TimeSpan DateTime::operator +(const DateTime &other) const
  * \brief Substracts two DateTime instances.
  * \returns The result is a TimeSpan.
  */
-constexpr inline TimeSpan DateTime::operator -(const DateTime &other) const
+constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
 {
     return TimeSpan(m_ticks - other.m_ticks);
 }
@@ -469,7 +456,7 @@ constexpr inline TimeSpan DateTime::operator -(const DateTime &other) const
 /*!
  * \brief Adds a TimeSpan to the current instance.
  */
-inline DateTime &DateTime::operator +=(const TimeSpan &timeSpan)
+inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
 {
     m_ticks += timeSpan.m_ticks;
     return *this;
@@ -478,20 +465,18 @@ inline DateTime &DateTime::operator +=(const TimeSpan &timeSpan)
 /*!
  * \brief Substracts a TimeSpan from the current instance.
  */
-inline DateTime &DateTime::operator -=(const TimeSpan &timeSpan)
+inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
 {
     m_ticks -= timeSpan.m_ticks;
     return *this;
 }
-
 }
 
 namespace std {
-template<> struct hash<ChronoUtilities::DateTime>
-{
+template <> struct hash<ChronoUtilities::DateTime> {
     inline size_t operator()(const ChronoUtilities::DateTime &dateTime) const
     {
-        return hash<decltype (dateTime.totalTicks())>()(dateTime.totalTicks());
+        return hash<decltype(dateTime.totalTicks())>()(dateTime.totalTicks());
     }
 };
 }

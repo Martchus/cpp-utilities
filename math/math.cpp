@@ -1,7 +1,7 @@
 #include "./math.h"
 
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
 
 /*!
  * \namespace MathUtilities
@@ -24,7 +24,7 @@ int MathUtilities::random(int lowerbounds, int upperbounds)
 int MathUtilities::digitsum(int number, int base)
 {
     int res = 0;
-    while(number > 0) {
+    while (number > 0) {
         res += number % base;
         number /= base;
     }
@@ -37,7 +37,7 @@ int MathUtilities::digitsum(int number, int base)
 int MathUtilities::factorial(int number)
 {
     int res = 1;
-    for(int i = 1; i <= number; ++i) {
+    for (int i = 1; i <= number; ++i) {
         res *= i;
     }
     return res;
@@ -49,11 +49,11 @@ int MathUtilities::factorial(int number)
 uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module)
 {
     uint64 res = 1;
-    for(uint64 mask = 0x8000000000000000; mask; mask >>= 1) {
-        if(mask & exponent) {
+    for (uint64 mask = 0x8000000000000000; mask; mask >>= 1) {
+        if (mask & exponent) {
             res *= base;
         }
-        if(mask != 1) {
+        if (mask != 1) {
             res *= res;
         }
         res %= module;
@@ -67,7 +67,7 @@ uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module
 int64 inverseModulo(int64 number, int64 module)
 {
     int64 y1 = 0, y2 = 1, tmp;
-    while(number != 1) {
+    while (number != 1) {
         tmp = y1 - (module / number) * y2;
         y1 = y2;
         y2 = tmp;
@@ -84,6 +84,7 @@ int64 inverseModulo(int64 number, int64 module)
 uint64 orderModulo(const uint64 number, const uint64 module)
 {
     uint64 order = 1;
-    for(; powerModulo(number, order, module) != 1; ++order);
+    for (; powerModulo(number, order, module) != 1; ++order)
+        ;
     return order;
 }

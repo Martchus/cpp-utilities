@@ -3,14 +3,13 @@
 
 #include "../global.h"
 
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 namespace IoUtilities {
 
-class CPP_UTILITIES_EXPORT IniFile
-{
+class CPP_UTILITIES_EXPORT IniFile {
 public:
     IniFile();
 
@@ -27,7 +26,8 @@ private:
  * \brief Constructs an empty ini file.
  */
 inline IniFile::IniFile()
-{}
+{
+}
 
 /*!
  * \brief Returns the data of the file.

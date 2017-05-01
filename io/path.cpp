@@ -1,25 +1,25 @@
 #include "./path.h"
 
-#include <string>
-#include <sstream>
-#include <fstream>
 #include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <string>
 #if defined(PLATFORM_UNIX)
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <pwd.h>
-# include <dirent.h>
+#include <dirent.h>
+#include <pwd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #elif defined(PLATFORM_WINDOWS)
-# ifdef UNICODE
-#  undef UNICODE
-# endif
-# ifdef _UNICODE
-#  undef _UNICODE
-# endif
-# include <windows.h>
+#ifdef UNICODE
+#undef UNICODE
+#endif
+#ifdef _UNICODE
+#undef _UNICODE
+#endif
+#include <windows.h>
 #else
-# error Platform not supported.
+#error Platform not supported.
 #endif
 
 using namespace std;
@@ -34,11 +34,11 @@ string fileName(const string &path)
     size_t lastSlash = path.rfind('/');
     size_t lastBackSlash = path.rfind('\\');
     size_t lastSeparator;
-    if(lastSlash == string::npos && lastBackSlash == string::npos) {
+    if (lastSlash == string::npos && lastBackSlash == string::npos) {
         return path;
-    } else if(lastSlash == string::npos) {
+    } else if (lastSlash == string::npos) {
         lastSeparator = lastBackSlash;
-    } else if(lastBackSlash == string::npos) {
+    } else if (lastBackSlash == string::npos) {
         lastSeparator = lastSlash;
     } else {
         lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
@@ -54,11 +54,11 @@ string directory(const string &path)
     size_t lastSlash = path.rfind('/');
     size_t lastBackSlash = path.rfind('\\');
     size_t lastSeparator;
-    if(lastSlash == string::npos && lastBackSlash == string::npos) {
+    if (lastSlash == string::npos && lastBackSlash == string::npos) {
         return string();
-    } else if(lastSlash == string::npos) {
+    } else if (lastSlash == string::npos) {
         lastSeparator = lastBackSlash;
-    } else if(lastBackSlash == string::npos) {
+    } else if (lastBackSlash == string::npos) {
         lastSeparator = lastSlash;
     } else {
         lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
@@ -74,10 +74,10 @@ string directory(const string &path)
 void removeInvalidChars(std::string &fileName)
 {
     size_t startPos = 0;
-    static const char invalidPathChars[] = {'\"', '<', '>', '?', '!', '*', '|', '/', ':', '\\', '\n'};
-    for(const char *i = invalidPathChars, *end = invalidPathChars + sizeof(invalidPathChars); i != end; ++i) {
+    static const char invalidPathChars[] = { '\"', '<', '>', '?', '!', '*', '|', '/', ':', '\\', '\n' };
+    for (const char *i = invalidPathChars, *end = invalidPathChars + sizeof(invalidPathChars); i != end; ++i) {
         startPos = fileName.find(*i);
-        while(startPos != string::npos) {
+        while (startPos != string::npos) {
             fileName.replace(startPos, 1, string());
             startPos = fileName.find(*i, startPos);
         }
@@ -97,18 +97,18 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
     result.clear();
     // FIXME: this kind of configuration is not actually used so get rid of it, maybe just read env variable instead
     fstream pathConfigFile("path.config", ios_base::in);
-    if(pathConfigFile.good()) {
-        for(string line; getline(pathConfigFile, line); ) {
+    if (pathConfigFile.good()) {
+        for (string line; getline(pathConfigFile, line);) {
             string::size_type p = line.find('=');
-            if((p != string::npos) && (p + 1 < line.length())) {
+            if ((p != string::npos) && (p + 1 < line.length())) {
                 string fieldName = line.substr(0, p);
-                if(fieldName == "settings") {
+                if (fieldName == "settings") {
                     result.assign(line.substr(p + 1));
                 }
             }
         }
     }
-    if(!result.empty()) {
+    if (!result.empty()) {
 #if defined(PLATFORM_UNIX)
         struct stat sb;
         return (stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
@@ -118,11 +118,11 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
 #endif
     } else {
-        if(!applicationDirectoryName.empty()) {
+        if (!applicationDirectoryName.empty()) {
             removeInvalidChars(applicationDirectoryName);
         }
 #if defined(PLATFORM_UNIX) || defined(PLATFORM_MAC)
-        if(char *homeDir = getenv("HOME")) {
+        if (char *homeDir = getenv("HOME")) {
             result = homeDir;
         } else {
             struct passwd *pw = getpwuid(getuid());
@@ -130,35 +130,35 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
         }
         struct stat sb;
         result += "/.config";
-        if(createApplicationDirectory && !(stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
-            if(mkdir(result.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+        if (createApplicationDirectory && !(stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+            if (mkdir(result.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
                 return false;
             }
         }
-        if(!applicationDirectoryName.empty()) {
+        if (!applicationDirectoryName.empty()) {
             result += '/';
             result += applicationDirectoryName;
-            if(createApplicationDirectory && !(stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
-                if(mkdir(result.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+            if (createApplicationDirectory && !(stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+                if (mkdir(result.c_str(), S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
                     return false;
                 }
             }
         }
 #else // PLATFORM_WINDOWS
-        if(char *appData = getenv("appdata")) {
+        if (char *appData = getenv("appdata")) {
             result = appData;
-            if(!applicationDirectoryName.empty()) {
+            if (!applicationDirectoryName.empty()) {
                 result += '\\';
                 result += applicationDirectoryName;
-                if(createApplicationDirectory) {
+                if (createApplicationDirectory) {
                     // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
                     DWORD ftyp = GetFileAttributesA(result.c_str());
-                    if(ftyp == INVALID_FILE_ATTRIBUTES) {
+                    if (ftyp == INVALID_FILE_ATTRIBUTES) {
                         return false;
-                    } else if(ftyp & FILE_ATTRIBUTE_DIRECTORY) {
+                    } else if (ftyp & FILE_ATTRIBUTE_DIRECTORY) {
                         return true;
                     } else {
-                        if(CreateDirectory(result.c_str(), NULL) == 0) {
+                        if (CreateDirectory(result.c_str(), NULL) == 0) {
                             return false;
                         } else {
                             return true;
@@ -182,10 +182,10 @@ std::list<std::string> directoryEntries(const char *path, DirectoryEntryType typ
 {
 #ifdef PLATFORM_UNIX
     list<string> entries;
-    if(auto dir = opendir(path)) {
-        while(auto dirEntry = readdir(dir)) {
+    if (auto dir = opendir(path)) {
+        while (auto dirEntry = readdir(dir)) {
             bool filter = false;
-            switch(dirEntry->d_type) {
+            switch (dirEntry->d_type) {
             case DT_REG:
                 filter = (types & DirectoryEntryType::File) != DirectoryEntryType::None;
                 break;
@@ -198,7 +198,7 @@ std::list<std::string> directoryEntries(const char *path, DirectoryEntryType typ
             default:
                 filter = (types & DirectoryEntryType::All) != DirectoryEntryType::None;
             }
-            if(filter) {
+            if (filter) {
                 entries.emplace_back(dirEntry->d_name);
             }
         }
@@ -209,5 +209,4 @@ std::list<std::string> directoryEntries(const char *path, DirectoryEntryType typ
     return list<string>(); // TODO
 #endif
 }
-
 }

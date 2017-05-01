@@ -1,22 +1,21 @@
 #ifndef CONVERSION_UTILITIES_STRINGCONVERSION_H
 #define CONVERSION_UTILITIES_STRINGCONVERSION_H
 
-#include "./conversionexception.h"
 #include "./binaryconversion.h"
+#include "./conversionexception.h"
 
 #include "../misc/traits.h"
 
-#include <string>
 #include <cstring>
-#include <sstream>
-#include <iomanip>
 #include <initializer_list>
+#include <iomanip>
 #include <list>
-#include <vector>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
-namespace ConversionUtilities
-{
+namespace ConversionUtilities {
 
 /*!
  * \brief The StringDataDeleter struct deletes the data of a StringData instance.
@@ -28,7 +27,7 @@ struct CPP_UTILITIES_EXPORT StringDataDeleter {
      */
     void operator()(char *stringData)
     {
-      std::free(stringData);
+        std::free(stringData);
     }
 };
 
@@ -38,7 +37,8 @@ struct CPP_UTILITIES_EXPORT StringDataDeleter {
 typedef std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t> StringData;
 //typedef std::pair<std::unique_ptr<char>, std::size_t> StringData; // might work too
 
-CPP_UTILITIES_EXPORT StringData convertString(const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
+CPP_UTILITIES_EXPORT StringData convertString(
+    const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
 CPP_UTILITIES_EXPORT StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize);
 CPP_UTILITIES_EXPORT StringData convertUtf16LEToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
 CPP_UTILITIES_EXPORT StringData convertUtf8ToUtf16BE(const char *inputBuffer, std::size_t inputBufferSize);
@@ -62,23 +62,26 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
  * \returns Returns the joined string.
  */
 template <class Container = std::initializer_list<std::string> >
-typename Container::value_type joinStrings(const Container &strings, const typename Container::value_type &delimiter = typename Container::value_type(), bool omitEmpty = false, const typename Container::value_type &leftClosure = typename Container::value_type(), const typename Container::value_type &rightClosure = typename Container::value_type())
+typename Container::value_type joinStrings(const Container &strings,
+    const typename Container::value_type &delimiter = typename Container::value_type(), bool omitEmpty = false,
+    const typename Container::value_type &leftClosure = typename Container::value_type(),
+    const typename Container::value_type &rightClosure = typename Container::value_type())
 {
     typename Container::value_type res;
-    if(strings.size()) {
+    if (strings.size()) {
         size_t entries = 0, size = 0;
-        for(const auto &str : strings) {
-            if(!omitEmpty || !str.empty()) {
+        for (const auto &str : strings) {
+            if (!omitEmpty || !str.empty()) {
                 size += str.size();
                 ++entries;
             }
         }
-        if(entries) {
+        if (entries) {
             size += (entries * leftClosure.size()) + (entries * rightClosure.size()) + ((entries - 1) * delimiter.size());
             res.reserve(size);
-            for(const auto &str : strings) {
-                if(!omitEmpty || !str.empty()) {
-                    if(!res.empty()) {
+            for (const auto &str : strings) {
+                if (!omitEmpty || !str.empty()) {
+                    if (!res.empty()) {
                         res.append(delimiter);
                     }
                     res.append(leftClosure);
@@ -94,8 +97,7 @@ typename Container::value_type joinStrings(const Container &strings, const typen
 /*!
  * \brief Specifies the role of empty parts when splitting strings.
  */
-enum class EmptyPartsTreat
-{
+enum class EmptyPartsTreat {
     Keep, /**< empty parts are kept */
     Omit, /**< empty parts are omitted */
     Merge /**< empty parts are omitted but cause the adjacent parts being joined using the delimiter */
@@ -111,35 +113,36 @@ enum class EmptyPartsTreat
  * \returns Returns the parts.
  */
 template <class Container = std::list<std::string> >
-Container splitString(const typename Container::value_type &string, const typename Container::value_type &delimiter, EmptyPartsTreat emptyPartsRole = EmptyPartsTreat::Keep, int maxParts = -1)
+Container splitString(const typename Container::value_type &string, const typename Container::value_type &delimiter,
+    EmptyPartsTreat emptyPartsRole = EmptyPartsTreat::Keep, int maxParts = -1)
 {
     --maxParts;
     Container res;
     bool merge = false;
-    for(typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
+    for (typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
         delimPos = string.find(delimiter, i);
-        if(!merge && maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
-            if(delimPos == i && emptyPartsRole == EmptyPartsTreat::Merge) {
-                if(!res.empty()) {
+        if (!merge && maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
+            if (delimPos == i && emptyPartsRole == EmptyPartsTreat::Merge) {
+                if (!res.empty()) {
                     merge = true;
                     continue;
                 }
             }
             delimPos = Container::value_type::npos;
         }
-        if(delimPos == Container::value_type::npos) {
+        if (delimPos == Container::value_type::npos) {
             delimPos = string.size();
         }
-        if(emptyPartsRole == EmptyPartsTreat::Keep || i != delimPos) {
-            if(merge) {
+        if (emptyPartsRole == EmptyPartsTreat::Keep || i != delimPos) {
+            if (merge) {
                 res.back().append(delimiter);
                 res.back().append(string.substr(i, delimPos - i));
                 merge = false;
             } else {
                 res.emplace_back(string.substr(i, delimPos - i));
             }
-        } else if(emptyPartsRole == EmptyPartsTreat::Merge) {
-            if(!res.empty()) {
+        } else if (emptyPartsRole == EmptyPartsTreat::Merge) {
+            if (!res.empty()) {
                 merge = true;
             }
         }
@@ -150,16 +153,15 @@ Container splitString(const typename Container::value_type &string, const typena
 /*!
  * \brief Returns whether \a str starts with \a phrase.
  */
-template <typename StringType>
-bool startsWith(const StringType &str, const StringType &phrase)
+template <typename StringType> bool startsWith(const StringType &str, const StringType &phrase)
 {
-    if(str.size() < phrase.size()) {
+    if (str.size() < phrase.size()) {
         return false;
     }
-    for(auto stri = str.cbegin(), strend = str.cend(), phrasei = phrase.cbegin(), phraseend = phrase.cend(); stri != strend; ++stri, ++phrasei) {
-        if(phrasei == phraseend) {
+    for (auto stri = str.cbegin(), strend = str.cend(), phrasei = phrase.cbegin(), phraseend = phrase.cend(); stri != strend; ++stri, ++phrasei) {
+        if (phrasei == phraseend) {
             return true;
-        } else if(*stri != *phrasei) {
+        } else if (*stri != *phrasei) {
             return false;
         }
     }
@@ -169,13 +171,12 @@ bool startsWith(const StringType &str, const StringType &phrase)
 /*!
  * \brief Returns whether \a str starts with \a phrase.
  */
-template <typename StringType>
-bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
+template <typename StringType> bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
 {
-    for(auto stri = str.cbegin(), strend = str.cend(); stri != strend; ++stri, ++phrase) {
-        if(!*phrase) {
+    for (auto stri = str.cbegin(), strend = str.cend(); stri != strend; ++stri, ++phrase) {
+        if (!*phrase) {
             return true;
-        } else if(*stri != *phrase) {
+        } else if (*stri != *phrase) {
             return false;
         }
     }
@@ -186,12 +187,11 @@ bool startsWith(const StringType &str, const typename StringType::value_type *ph
  * \brief Returns whether \a str contains the specified \a substrings.
  * \remarks The \a substrings must occur in the specified order.
  */
-template <typename StringType>
-bool containsSubstrings(const StringType &str, std::initializer_list<StringType> substrings)
+template <typename StringType> bool containsSubstrings(const StringType &str, std::initializer_list<StringType> substrings)
 {
     typename StringType::size_type currentPos = 0;
-    for(const auto &substr : substrings) {
-        if((currentPos = str.find(substr, currentPos)) == StringType::npos) {
+    for (const auto &substr : substrings) {
+        if ((currentPos = str.find(substr, currentPos)) == StringType::npos) {
             return false;
         }
         currentPos += substr.size();
@@ -207,8 +207,8 @@ template <typename StringType>
 bool containsSubstrings(const StringType &str, std::initializer_list<const typename StringType::value_type *> substrings)
 {
     typename StringType::size_type currentPos = 0;
-    for(const auto *substr : substrings) {
-        if((currentPos = str.find(substr, currentPos)) == StringType::npos) {
+    for (const auto *substr : substrings) {
+        if ((currentPos = str.find(substr, currentPos)) == StringType::npos) {
             return false;
         }
         currentPos += std::strlen(substr);
@@ -219,10 +219,9 @@ bool containsSubstrings(const StringType &str, std::initializer_list<const typen
 /*!
  * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
  */
-template <typename StringType>
-void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
+template <typename StringType> void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
 {
-    for(typename StringType::size_type i = 0; (i = str.find(find, i)) != StringType::npos; i += replace.size()) {
+    for (typename StringType::size_type i = 0; (i = str.find(find, i)) != StringType::npos; i += replace.size()) {
         str.replace(i, find.size(), replace);
     }
 }
@@ -233,11 +232,10 @@ void findAndReplace(StringType &str, const StringType &find, const StringType &r
  * - Uses capital letters.
  * - Valid values for \a digit: 0 <= \a digit <= 35
  */
-template <typename CharType>
-CharType digitToChar(CharType digit)
+template <typename CharType> CharType digitToChar(CharType digit)
 {
     CharType res;
-    if(digit <= 9) {
+    if (digit <= 9) {
         res = digit + '0';
     } else {
         res = digit + 'A' - 10;
@@ -251,17 +249,19 @@ CharType digitToChar(CharType digit)
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \sa stringToNumber()
  */
-template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+template <typename IntegralType, class StringType = std::string,
+    Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t resSize = 0;
-    for(auto n = number; n; n /= base, ++resSize);
+    for (auto n = number; n; n /= base, ++resSize)
+        ;
     StringType res;
     res.reserve(resSize);
     do {
         res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
         number /= base;
-    } while(number);
+    } while (number);
     return res;
 }
 
@@ -276,19 +276,20 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
 {
     const bool negative = number < 0;
     std::size_t resSize;
-    if(negative) {
+    if (negative) {
         number = -number, resSize = 1;
     } else {
         resSize = 0;
     }
-    for(auto n = number; n; n /= base, ++resSize);
+    for (auto n = number; n; n /= base, ++resSize)
+        ;
     StringType res;
     res.reserve(resSize);
     do {
         res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
         number /= base;
-    } while(number);
-    if(negative) {
+    } while (number);
+    if (negative) {
         res.insert(res.begin(), '-');
     }
     return res;
@@ -314,20 +315,19 @@ StringType numberToString(FloatingType number, typename StringType::value_type b
  * \brief Returns number/digit of the specified \a character representation using the specified \a base.
  * \throws A ConversionException will be thrown if the provided \a character does not represent a valid digit for the specified \a base.
  */
-template <typename CharType>
-CharType charToDigit(CharType character, CharType base)
+template <typename CharType> CharType charToDigit(CharType character, CharType base)
 {
     CharType res;
-    if(character >= '0' && character <= '9') {
+    if (character >= '0' && character <= '9') {
         res = character - '0';
-    } else if(character >= 'a' && character <= 'z') {
+    } else if (character >= 'a' && character <= 'z') {
         res = character - 'a' + 10;
-    } else if(character >= 'A' && character <= 'Z') {
+    } else if (character >= 'A' && character <= 'Z') {
         res = character - 'A' + 10;
     } else {
         throw ConversionException("The string is no valid number");
     }
-    if(res >= base) {
+    if (res >= base) {
         throw ConversionException("The string is no valid number");
     }
     return res;
@@ -344,8 +344,8 @@ template <typename IntegralType, class StringType, Traits::EnableIf<std::is_inte
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     IntegralType result = 0;
-    for(const auto &c : string) {
-        if(c == ' ') {
+    for (const auto &c : string) {
+        if (c == ' ') {
             continue;
         }
         result *= base;
@@ -366,16 +366,16 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
 {
     auto i = string.begin();
     auto end = string.end();
-    if(i == end) {
+    if (i == end) {
         return 0;
     }
     const bool negative = (*i == '-');
-    if(negative) {
+    if (negative) {
         ++i;
     }
     IntegralType result = 0;
-    for(; i != end; ++i) {
-        if(*i == ' ') {
+    for (; i != end; ++i) {
+        if (*i == ' ') {
             continue;
         }
         result *= base;
@@ -399,7 +399,7 @@ FloatingType stringToNumber(const StringType &string, typename StringType::value
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << string;
     FloatingType result;
-    if((ss >> result) && ss.eof()) {
+    if ((ss >> result) && ss.eof()) {
         return result;
     } else {
         throw ConversionException("The string is no valid number.");
@@ -417,8 +417,8 @@ template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integr
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
     IntegralType result = 0;
-    for(; *string; ++string) {
-        if(*string == ' ') {
+    for (; *string; ++string) {
+        if (*string == ' ') {
             continue;
         }
         result *= base;
@@ -437,16 +437,16 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
-    if(!*string) {
+    if (!*string) {
         return 0;
     }
     const bool negative = (*string == '-');
-    if(negative) {
+    if (negative) {
         ++string;
     }
     IntegralType result = 0;
-    for(; *string; ++string) {
-        if(*string == ' ') {
+    for (; *string; ++string) {
+        if (*string == ' ') {
             continue;
         }
         result *= base;
@@ -464,8 +464,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  *
  * \tparam T The data type of the integer to be interpreted.
  */
-template <typename T>
-std::string interpretIntegerAsString(T integer, int startOffset = 0)
+template <typename T> std::string interpretIntegerAsString(T integer, int startOffset = 0)
 {
     char buffer[sizeof(T)];
     ConversionUtilities::BE::getBytes(integer, buffer);
@@ -476,7 +475,6 @@ CPP_UTILITIES_EXPORT std::string dataSizeToString(uint64 sizeInByte, bool includ
 CPP_UTILITIES_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
 CPP_UTILITIES_EXPORT std::string encodeBase64(const byte *data, uint32 dataSize);
 CPP_UTILITIES_EXPORT std::pair<std::unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize);
-
 }
 
 #endif // CONVERSION_UTILITIES_STRINGCONVERSION_H

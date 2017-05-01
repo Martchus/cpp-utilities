@@ -18,10 +18,10 @@ namespace IoUtilities {
  */
 void BitReader::skipBits(std::size_t bitCount)
 {
-    if(bitCount <= m_bitsAvail) {
+    if (bitCount <= m_bitsAvail) {
         m_bitsAvail -= bitCount;
     } else {
-        if((m_buffer += 1 + (bitCount -= m_bitsAvail) / 8) >= m_end) {
+        if ((m_buffer += 1 + (bitCount -= m_bitsAvail) / 8) >= m_end) {
             throwIoFailure("end of buffer exceeded");
         }
         m_bitsAvail = 8 - (bitCount % 8);
@@ -29,4 +29,3 @@ void BitReader::skipBits(std::size_t bitCount)
 }
 
 } // namespace IoUtilities
-

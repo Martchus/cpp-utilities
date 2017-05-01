@@ -3,8 +3,8 @@
 
 #include "../global.h"
 
-#include <iostream>
 #include <functional>
+#include <iostream>
 
 namespace IoUtilities {
 
@@ -13,14 +13,14 @@ namespace IoUtilities {
  * \brief The CopyHelper class helps to copy bytes from one stream to another.
  * \tparam Specifies the buffer size.
  */
-template<std::size_t bufferSize>
-class CPP_UTILITIES_EXPORT CopyHelper
-{
+template <std::size_t bufferSize> class CPP_UTILITIES_EXPORT CopyHelper {
 public:
     CopyHelper();
     void copy(std::istream &input, std::ostream &output, std::size_t count);
-    void callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool (void)> &isAborted, const std::function<void (double)> &callback);
+    void callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool(void)> &isAborted,
+        const std::function<void(double)> &callback);
     char *buffer();
+
 private:
     char m_buffer[bufferSize];
 };
@@ -28,19 +28,18 @@ private:
 /*!
  * \brief Constructs a new copy helper.
  */
-template<std::size_t bufferSize>
-CopyHelper<bufferSize>::CopyHelper()
-{}
+template <std::size_t bufferSize> CopyHelper<bufferSize>::CopyHelper()
+{
+}
 
 /*!
  * \brief Copies \a count bytes from \a input to \a output.
  * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *          when an IO error occurs.
  */
-template<std::size_t bufferSize>
-void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std::size_t count)
+template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std::size_t count)
 {
-    while(count > bufferSize) {
+    while (count > bufferSize) {
         input.read(m_buffer, bufferSize);
         output.write(m_buffer, bufferSize);
         count -= bufferSize;
@@ -48,7 +47,6 @@ void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std
     input.read(m_buffer, count);
     output.write(m_buffer, count);
 }
-
 
 /*!
  * \brief Copies \a count bytes from \a input to \a output. The procedure might be aborted and
@@ -60,15 +58,16 @@ void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std
  * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *          when an IO error occurs.
  */
-template<std::size_t bufferSize>
-void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool (void)> &isAborted, const std::function<void (double)> &callback)
+template <std::size_t bufferSize>
+void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool(void)> &isAborted,
+    const std::function<void(double)> &callback)
 {
     const std::size_t totalBytes = count;
-    while(count > bufferSize) {
+    while (count > bufferSize) {
         input.read(m_buffer, bufferSize);
         output.write(m_buffer, bufferSize);
         count -= bufferSize;
-        if(isAborted()) {
+        if (isAborted()) {
             return;
         }
         callback(static_cast<double>(totalBytes - count) / totalBytes);
@@ -81,12 +80,10 @@ void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &out
 /*!
  * \brief Returns the internal buffer.
  */
-template<std::size_t bufferSize>
-char *CopyHelper<bufferSize>::buffer()
+template <std::size_t bufferSize> char *CopyHelper<bufferSize>::buffer()
 {
     return m_buffer;
 }
-
 }
 
 #endif // IOUTILITIES_COPY_H

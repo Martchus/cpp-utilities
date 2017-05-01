@@ -5,13 +5,13 @@
 
 namespace ChronoUtilities {
 
-class CPP_UTILITIES_EXPORT Period
-{
+class CPP_UTILITIES_EXPORT Period {
 public:
     Period(const DateTime &beg, const DateTime &end);
     int years() const;
     int months() const;
     int days() const;
+
 private:
     int m_years;
     int m_months;
@@ -41,7 +41,6 @@ inline int Period::days() const
 {
     return m_days;
 }
-
 }
 
 #endif // CHRONO_UTILITIES_PERIOD_H

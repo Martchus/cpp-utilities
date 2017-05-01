@@ -4,12 +4,12 @@
 #include "../global.h"
 
 #ifndef PLATFORM_MINGW
-# include <fstream>
+#include <fstream>
 #else
-# include <memory>
-# include <string>
-# include <iostream>
-# include <ext/stdio_filebuf.h>
+#include <ext/stdio_filebuf.h>
+#include <iostream>
+#include <memory>
+#include <string>
 #endif
 
 namespace IoUtilities {
@@ -20,8 +20,7 @@ typedef std::fstream NativeFileStream;
 
 #else
 
-class CPP_UTILITIES_EXPORT NativeFileStream : public std::iostream
-{
+class CPP_UTILITIES_EXPORT NativeFileStream : public std::iostream {
 public:
     NativeFileStream();
     ~NativeFileStream();
@@ -41,8 +40,6 @@ inline bool NativeFileStream::is_open() const
 }
 
 #endif
-
 }
 
 #endif // IOUTILITIES_NATIVE_FILE_STREAM
-

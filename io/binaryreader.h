@@ -3,19 +3,17 @@
 
 #include "../conversion/binaryconversion.h"
 
-#include <vector>
-#include <string>
 #include <istream>
+#include <string>
+#include <vector>
 
-namespace IoUtilities
-{
-class CPP_UTILITIES_EXPORT BinaryReader
-{
+namespace IoUtilities {
+class CPP_UTILITIES_EXPORT BinaryReader {
 
 public:
     BinaryReader(std::istream *stream);
     BinaryReader(const BinaryReader &other);
-    BinaryReader & operator=(const BinaryReader & rhs) = delete;
+    BinaryReader &operator=(const BinaryReader &rhs) = delete;
     ~BinaryReader();
 
     const std::istream *stream() const;
@@ -127,7 +125,7 @@ inline bool BinaryReader::hasOwnership() const
  */
 inline void BinaryReader::giveOwnership()
 {
-    if(m_stream) {
+    if (m_stream) {
         m_ownership = true;
     }
 }
@@ -219,7 +217,7 @@ inline int32 BinaryReader::readInt24BE()
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
     auto val = ConversionUtilities::BE::toInt32(m_buffer);
-    if(val >= 0x800000) {
+    if (val >= 0x800000) {
         val = -(0x1000000 - val);
     }
     return val;
@@ -261,7 +259,7 @@ inline int64 BinaryReader::readInt40BE()
     *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
     auto val = ConversionUtilities::BE::toInt64(m_buffer);
-    if(val >= 0x8000000000) {
+    if (val >= 0x8000000000) {
         val = -(0x10000000000 - val);
     }
     return val;
@@ -285,7 +283,7 @@ inline int64 BinaryReader::readInt56BE()
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 7);
     auto val = ConversionUtilities::BE::toInt64(m_buffer);
-    if(val >= 0x80000000000000) {
+    if (val >= 0x80000000000000) {
         val = -(0x100000000000000 - val);
     }
     return val;
@@ -363,7 +361,7 @@ inline int32 BinaryReader::readInt24LE()
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
     auto val = ConversionUtilities::LE::toInt32(m_buffer);
-    if(val >= 0x800000) {
+    if (val >= 0x800000) {
         val = -(0x1000000 - val);
     }
     return val;
@@ -405,7 +403,7 @@ inline int64 BinaryReader::readInt40LE()
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
     auto val = ConversionUtilities::LE::toInt64(m_buffer);
-    if(val >= 0x8000000000) {
+    if (val >= 0x8000000000) {
         val = -(0x10000000000 - val);
     }
     return val;
@@ -429,7 +427,7 @@ inline int64 BinaryReader::readInt56LE()
     *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 7);
     auto val = ConversionUtilities::LE::toInt64(m_buffer);
-    if(val >= 0x80000000000000) {
+    if (val >= 0x80000000000000) {
         val = -(0x100000000000000 - val);
     }
     return val;
@@ -559,7 +557,6 @@ inline float32 BinaryReader::readFixed16LE()
 {
     return ConversionUtilities::toFloat32(readUInt32LE());
 }
-
 }
 
 #endif // IOUTILITIES_BINERYREADER_H

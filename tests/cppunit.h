@@ -3,9 +3,9 @@
 
 #include "./testutils.h"
 
+#include <cppunit/TestPath.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
-#include <cppunit/TestPath.h>
 
 #include <iostream>
 
@@ -19,20 +19,20 @@ using namespace CPPUNIT_NS;
 int main(int argc, char **argv)
 {
     TestApplication testApp(argc, argv);
-    if(testApp) {
+    if (testApp) {
         // run tests
         TextUi::TestRunner runner;
         TestFactoryRegistry &registry = TestFactoryRegistry::getRegistry();
-        if(!testApp.unitsSpecified() || testApp.units().empty()) {
+        if (!testApp.unitsSpecified() || testApp.units().empty()) {
             // no units specified -> test all
             runner.addTest(registry.makeTest());
         } else {
             // pick specified units from overall test
             Test *overallTest = registry.makeTest();
-            for(const char *unit : testApp.units()) {
+            for (const char *unit : testApp.units()) {
                 try {
                     runner.addTest(overallTest->findTest(unit));
-                } catch(const invalid_argument &) {
+                } catch (const invalid_argument &) {
                     cerr << "The specified test unit \"" << unit << "\" is not available and will be ignored." << endl;
                 }
             }

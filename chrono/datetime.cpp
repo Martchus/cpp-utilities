@@ -1,14 +1,14 @@
 #include "./datetime.h"
 
-#include "../conversion/stringconversion.h"
 #include "../conversion/stringbuilder.h"
+#include "../conversion/stringconversion.h"
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 #if defined(PLATFORM_UNIX)
-# include <time.h>
+#include <time.h>
 #endif
 
 using namespace std;
@@ -22,21 +22,19 @@ const int DateTime::m_daysPer400Years = 146097;
 const int DateTime::m_daysTo1601 = 584388;
 const int DateTime::m_daysTo1899 = 693593;
 const int DateTime::m_daysTo10000 = 3652059;
-const int DateTime::m_daysToMonth365[13] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-const int DateTime::m_daysToMonth366[13] = {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
-const int DateTime::m_daysInMonth365[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-const int DateTime::m_daysInMonth366[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+const int DateTime::m_daysToMonth365[13] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+const int DateTime::m_daysToMonth366[13] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+const int DateTime::m_daysInMonth365[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+const int DateTime::m_daysInMonth366[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-template<typename num1, typename num2, typename num3>
-inline bool inRangeInclMax(num1 val, num2 min, num3 max)
+template <typename num1, typename num2, typename num3> inline bool inRangeInclMax(num1 val, num2 min, num3 max)
 {
     return (val) >= (min) && (val) <= (max);
 }
 
-template<typename num1, typename num2, typename num3>
-inline bool inRangeExclMax(num1 val, num2 min, num3 max)
+template <typename num1, typename num2, typename num3> inline bool inRangeExclMax(num1 val, num2 min, num3 max)
 {
-    return (val) >= (min) && (val) <  (max);
+    return (val) >= (min) && (val) < (max);
 }
 
 /*!
@@ -57,10 +55,10 @@ inline bool inRangeExclMax(num1 val, num2 min, num3 max)
  */
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
 {
-    if(timeStamp) {
+    if (timeStamp) {
         struct tm *timeinfo = localtime(&timeStamp);
-        return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
-                        timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
+        return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min,
+            timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
     } else {
         return DateTime();
     }
@@ -79,30 +77,30 @@ DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
  */
 DateTime DateTime::fromString(const char *str)
 {
-    int values[6] = {0};
+    int values[6] = { 0 };
     int *const dayIndex = values + 2;
     int *const secondsIndex = values + 5;
     int *valueIndex = values;
     int *const valuesEnd = values + 7;
     double miliSecondsFact = 100.0, miliSeconds = 0.0;
-    for(const char *strIndex = str; ; ++strIndex) {
+    for (const char *strIndex = str;; ++strIndex) {
         const char c = *strIndex;
-        if(c <= '9' && c >= '0') {
-            if(valueIndex > secondsIndex) {
-                 miliSeconds += (c - '0') * miliSecondsFact;
-                 miliSecondsFact /= 10;
+        if (c <= '9' && c >= '0') {
+            if (valueIndex > secondsIndex) {
+                miliSeconds += (c - '0') * miliSecondsFact;
+                miliSecondsFact /= 10;
             } else {
                 *valueIndex *= 10;
                 *valueIndex += c - '0';
             }
-        } else if((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex)) || (c == ' ' && (valueIndex == dayIndex))) {
-            if(++valueIndex == valuesEnd) {
+        } else if ((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex)) || (c == ' ' && (valueIndex == dayIndex))) {
+            if (++valueIndex == valuesEnd) {
                 break; // just ignore further values for now
             }
-        } else if(c == '\0') {
+        } else if (c == '\0') {
             break;
         } else {
-            throw ConversionException("unexpected "s + c);
+            throw ConversionException(argsToString("unexpected ", c));
         }
     }
     return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, miliSeconds);
@@ -117,7 +115,7 @@ DateTime DateTime::fromString(const char *str)
  */
 std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
 {
-    int values[9] = {0};
+    int values[9] = { 0 };
     int *const dayIndex = values + 2;
     int *const hourIndex = values + 3;
     int *const secondsIndex = values + 5;
@@ -126,52 +124,53 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
     int *valueIndex = values;
     bool deltaNegative = false;
     double miliSecondsFact = 100.0, miliSeconds = 0.0;
-    for(const char *strIndex = str; ; ++strIndex) {
+    for (const char *strIndex = str;; ++strIndex) {
         const char c = *strIndex;
-        if(c <= '9' && c >= '0') {
-            if(valueIndex == miliSecondsIndex) {
+        if (c <= '9' && c >= '0') {
+            if (valueIndex == miliSecondsIndex) {
                 miliSeconds += (c - '0') * miliSecondsFact;
                 miliSecondsFact /= 10;
             } else {
                 *valueIndex *= 10;
                 *valueIndex += c - '0';
             }
-        } else if(c == 'T') {
-            if(++valueIndex != hourIndex) {
+        } else if (c == 'T') {
+            if (++valueIndex != hourIndex) {
                 throw ConversionException("\"T\" expected before hour");
             }
-        } else if(c == '-') {
-            if(valueIndex < dayIndex) {
+        } else if (c == '-') {
+            if (valueIndex < dayIndex) {
                 ++valueIndex;
             } else {
                 throw ConversionException("unexpected \"-\" after day");
             }
-        } else if(c == '.') {
-            if(valueIndex != secondsIndex) {
+        } else if (c == '.') {
+            if (valueIndex != secondsIndex) {
                 throw ConversionException("unexpected \".\"");
             } else {
                 ++valueIndex;
             }
-        } else if(c == ':') {
-            if(valueIndex < hourIndex) {
+        } else if (c == ':') {
+            if (valueIndex < hourIndex) {
                 throw ConversionException("unexpected \":\" before hour");
-            } else if(valueIndex == secondsIndex) {
+            } else if (valueIndex == secondsIndex) {
                 throw ConversionException("unexpected \":\" after second");
             } else {
                 ++valueIndex;
             }
-        } else if((c == '+') && (++valueIndex == deltaHourIndex)) {
+        } else if ((c == '+') && (++valueIndex == deltaHourIndex)) {
             deltaNegative = false;
-        } else if((c == '-') && (++valueIndex == deltaHourIndex)) {
+        } else if ((c == '-') && (++valueIndex == deltaHourIndex)) {
             deltaNegative = true;
-        } else if(c == '\0') {
+        } else if (c == '\0') {
             break;
         } else {
-            throw ConversionException("unexpected \""s % c + '\"');
+            throw ConversionException(argsToString("unexpected \"", c, '\"'));
         }
     }
     deltaNegative && (*deltaHourIndex = -*deltaHourIndex);
-    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
+    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds),
+        TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
 }
 
 /*!
@@ -195,25 +194,19 @@ void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMill
 {
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
-    if(format == DateTimeOutputFormat::DateTimeAndWeekday
-            || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
+    if (format == DateTimeOutputFormat::DateTimeAndWeekday || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
         s << printDayOfWeek(dayOfWeek(), format == DateTimeOutputFormat::DateTimeAndShortWeekday) << ' ';
-    if(format == DateTimeOutputFormat::DateOnly
-            || format == DateTimeOutputFormat::DateAndTime
-            || format == DateTimeOutputFormat::DateTimeAndWeekday
-            || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
+    if (format == DateTimeOutputFormat::DateOnly || format == DateTimeOutputFormat::DateAndTime || format == DateTimeOutputFormat::DateTimeAndWeekday
+        || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
         s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day();
-    if(format == DateTimeOutputFormat::DateAndTime
-            || format == DateTimeOutputFormat::DateTimeAndWeekday
-            || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
+    if (format == DateTimeOutputFormat::DateAndTime || format == DateTimeOutputFormat::DateTimeAndWeekday
+        || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
         s << " ";
-    if(format == DateTimeOutputFormat::TimeOnly
-            || format == DateTimeOutputFormat::DateAndTime
-            || format == DateTimeOutputFormat::DateTimeAndWeekday
-            || format == DateTimeOutputFormat::DateTimeAndShortWeekday) {
+    if (format == DateTimeOutputFormat::TimeOnly || format == DateTimeOutputFormat::DateAndTime || format == DateTimeOutputFormat::DateTimeAndWeekday
+        || format == DateTimeOutputFormat::DateTimeAndShortWeekday) {
         s << setw(2) << hour() << ':' << setw(2) << minute() << ':' << setw(2) << second();
         int ms = millisecond();
-        if(!noMilliseconds && ms > 0) {
+        if (!noMilliseconds && ms > 0) {
             s << '.' << setw(3) << ms;
         }
     }
@@ -228,9 +221,9 @@ string DateTime::toIsoString(TimeSpan timeZoneDelta) const
 {
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
-    s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day()
-      << 'T' << setw(2) << hour() << ':' << setw(2) << minute() << ':' << setw(2) << second() << '.' << setw(3) << millisecond();
-    if(!timeZoneDelta.isNull()) {
+    s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day() << 'T' << setw(2) << hour() << ':' << setw(2) << minute() << ':'
+      << setw(2) << second() << '.' << setw(3) << millisecond();
+    if (!timeZoneDelta.isNull()) {
         s << (timeZoneDelta.isNegative() ? '-' : '+');
         s << setw(2) << timeZoneDelta.hours() << ':' << setw(2) << timeZoneDelta.minutes();
     }
@@ -246,8 +239,8 @@ string DateTime::toIsoString(TimeSpan timeZoneDelta) const
  */
 const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
 {
-    if(abbreviation) {
-        switch(dayOfWeek) {
+    if (abbreviation) {
+        switch (dayOfWeek) {
         case DayOfWeek::Monday:
             return "Mon";
         case DayOfWeek::Tuesday:
@@ -264,7 +257,7 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
             return "Sun";
         }
     } else {
-        switch(dayOfWeek) {
+        switch (dayOfWeek) {
         case DayOfWeek::Monday:
             return "Monday";
         case DayOfWeek::Tuesday:
@@ -293,7 +286,8 @@ DateTime DateTime::exactGmtNow()
 {
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
-    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
+    return DateTime(
+        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
 }
 #endif
 
@@ -302,14 +296,15 @@ DateTime DateTime::exactGmtNow()
  */
 uint64 DateTime::dateToTicks(int year, int month, int day)
 {
-    if(inRangeInclMax(year, 1, 9999)) {
-        if(inRangeInclMax(month, 1, 12)) {
+    if (inRangeInclMax(year, 1, 9999)) {
+        if (inRangeInclMax(month, 1, 12)) {
             const int *daysToMonth = isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365;
             int passedMonth = month - 1;
-            if(inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
+            if (inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
                 int passedYears = year - 1;
                 int passedDays = day - 1;
-                return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays) * TimeSpan::ticksPerDay;
+                return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays)
+                    * TimeSpan::ticksPerDay;
             } else {
                 throw ConversionException("day is out of range");
             }
@@ -327,19 +322,20 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
  */
 uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
 {
-    if(!inRangeExclMax(hour, 0, 24)) {
+    if (!inRangeExclMax(hour, 0, 24)) {
         throw ConversionException("hour is out of range");
     }
-    if(!inRangeExclMax(minute, 0, 60)) {
+    if (!inRangeExclMax(minute, 0, 60)) {
         throw ConversionException("minute is out of range");
     }
-    if(!inRangeExclMax(second, 0, 60)) {
+    if (!inRangeExclMax(second, 0, 60)) {
         throw ConversionException("second is out of range");
     }
-    if(!inRangeExclMax(millisecond, 0.0, 1000.0)) {
+    if (!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return (hour * TimeSpan::ticksPerHour) + (minute * TimeSpan::ticksPerMinute) + (second * TimeSpan::ticksPerSecond) + (uint64)(millisecond * (double)TimeSpan::ticksPerMillisecond);
+    return (hour * TimeSpan::ticksPerHour) + (minute * TimeSpan::ticksPerMinute) + (second * TimeSpan::ticksPerSecond)
+        + (uint64)(millisecond * (double)TimeSpan::ticksPerMillisecond);
 }
 
 /*!
@@ -352,31 +348,31 @@ int DateTime::getDatePart(DatePart part) const
     int full400YearBlocks = fullDays / m_daysPer400Years;
     int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
     int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;
-    if(full100YearBlocks == 4) {
+    if (full100YearBlocks == 4) {
         full100YearBlocks = 3;
     }
     int daysMinusFull100YearBlocks = daysMinusFull400YearBlocks - full100YearBlocks * m_daysPer100Years;
     int full4YearBlocks = daysMinusFull100YearBlocks / m_daysPer4Years;
     int daysMinusFull4YearBlocks = daysMinusFull100YearBlocks - full4YearBlocks * m_daysPer4Years;
     int full1YearBlocks = daysMinusFull4YearBlocks / m_daysPerYear;
-    if(full1YearBlocks == 4) {
+    if (full1YearBlocks == 4) {
         full1YearBlocks = 3;
     }
-    if(part == DatePart::Year) {
+    if (part == DatePart::Year) {
         return full400YearBlocks * 400 + full100YearBlocks * 100 + full4YearBlocks * 4 + full1YearBlocks + 1;
     }
     int restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
-    if(part == DatePart::DayOfYear) { // day
+    if (part == DatePart::DayOfYear) { // day
         return restDays + 1;
     }
     const int *daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
     int month = 1;
-    while(restDays >= daysToMonth[month]) {
+    while (restDays >= daysToMonth[month]) {
         ++month;
     }
-    if(part == DatePart::Month) {
+    if (part == DatePart::Month) {
         return month;
-    } else if(part == DatePart::Day) {
+    } else if (part == DatePart::Day) {
         return restDays - daysToMonth[month - 1] + 1;
     }
     return 0;

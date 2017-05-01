@@ -3,8 +3,7 @@
 
 namespace ApplicationUtilities {
 
-struct CPP_UTILITIES_EXPORT ArgumentReader
-{
+struct CPP_UTILITIES_EXPORT ArgumentReader {
     ArgumentReader(ArgumentParser &parser, const char *const *argv, const char *const *end, bool completionMode = false);
     ApplicationUtilities::ArgumentReader &reset(const char *const *argv, const char *const *end);
     void read();
@@ -31,7 +30,6 @@ struct CPP_UTILITIES_EXPORT ArgumentReader
     /// \brief Whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
     bool completionMode;
 };
-
 }
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H

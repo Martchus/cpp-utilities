@@ -1,5 +1,5 @@
 #ifndef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-# error "Do not include binaryconversionprivate.h directly."
+#error "Do not include binaryconversionprivate.h directly."
 #else
 
 #include "./types.h"
@@ -12,11 +12,9 @@
 CPP_UTILITIES_EXPORT inline int16 toInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<int16>(value[0]) << 8 & 0xFF00)
-            | (static_cast<int16>(value[1])      & 0x00FF);
+    return (static_cast<int16>(value[0]) << 8 & 0xFF00) | (static_cast<int16>(value[1]) & 0x00FF);
 #else
-    return    (static_cast<int16>(value[1]) << 8 & 0xFF00)
-            | (static_cast<int16>(value[0])      & 0x00FF);
+    return (static_cast<int16>(value[1]) << 8 & 0xFF00) | (static_cast<int16>(value[0]) & 0x00FF);
 #endif
 }
 
@@ -26,11 +24,9 @@ CPP_UTILITIES_EXPORT inline int16 toInt16(const char *value)
 CPP_UTILITIES_EXPORT inline uint16 toUInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<uint16>(value[0]) << 8 & 0xFF00)
-            | (static_cast<uint16>(value[1])      & 0x00FF);
+    return (static_cast<uint16>(value[0]) << 8 & 0xFF00) | (static_cast<uint16>(value[1]) & 0x00FF);
 #else
-    return    (static_cast<uint16>(value[1]) << 8 & 0xFF00)
-            | (static_cast<uint16>(value[0])      & 0x00FF);
+    return (static_cast<uint16>(value[1]) << 8 & 0xFF00) | (static_cast<uint16>(value[0]) & 0x00FF);
 #endif
 }
 
@@ -40,15 +36,11 @@ CPP_UTILITIES_EXPORT inline uint16 toUInt16(const char *value)
 CPP_UTILITIES_EXPORT inline int32 toInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<int32>(value[0]) << 24 & 0xFF000000)
-            | (static_cast<int32>(value[1]) << 16 & 0x00FF0000)
-            | (static_cast<int32>(value[2]) <<  8 & 0x0000FF00)
-            | (static_cast<int32>(value[3])       & 0x000000FF);
+    return (static_cast<int32>(value[0]) << 24 & 0xFF000000) | (static_cast<int32>(value[1]) << 16 & 0x00FF0000)
+        | (static_cast<int32>(value[2]) << 8 & 0x0000FF00) | (static_cast<int32>(value[3]) & 0x000000FF);
 #else
-    return    (static_cast<int32>(value[3]) << 24 & 0xFF000000)
-            | (static_cast<int32>(value[2]) << 16 & 0x00FF0000)
-            | (static_cast<int32>(value[1]) <<  8 & 0x0000FF00)
-            | (static_cast<int32>(value[0])       & 0x000000FF);
+    return (static_cast<int32>(value[3]) << 24 & 0xFF000000) | (static_cast<int32>(value[2]) << 16 & 0x00FF0000)
+        | (static_cast<int32>(value[1]) << 8 & 0x0000FF00) | (static_cast<int32>(value[0]) & 0x000000FF);
 #endif
 }
 
@@ -58,13 +50,11 @@ CPP_UTILITIES_EXPORT inline int32 toInt32(const char *value)
 CPP_UTILITIES_EXPORT inline uint32 toUInt24(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<uint32>(value[0]) << 16 & 0x00FF0000)
-            | (static_cast<uint32>(value[1]) <<  8 & 0x0000FF00)
-            | (static_cast<uint32>(value[2])       & 0x000000FF);
+    return (static_cast<uint32>(value[0]) << 16 & 0x00FF0000) | (static_cast<uint32>(value[1]) << 8 & 0x0000FF00)
+        | (static_cast<uint32>(value[2]) & 0x000000FF);
 #else
-    return    (static_cast<uint32>(value[2]) << 16 & 0x00FF0000)
-            | (static_cast<uint32>(value[1]) <<  8 & 0x0000FF00)
-            | (static_cast<uint32>(value[0])       & 0x000000FF);
+    return (static_cast<uint32>(value[2]) << 16 & 0x00FF0000) | (static_cast<uint32>(value[1]) << 8 & 0x0000FF00)
+        | (static_cast<uint32>(value[0]) & 0x000000FF);
 #endif
 }
 
@@ -74,15 +64,11 @@ CPP_UTILITIES_EXPORT inline uint32 toUInt24(const char *value)
 CPP_UTILITIES_EXPORT inline uint32 toUInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<uint32>(value[0]) << 24 & 0xFF000000)
-            | (static_cast<uint32>(value[1]) << 16 & 0x00FF0000)
-            | (static_cast<uint32>(value[2]) <<  8 & 0x0000FF00)
-            | (static_cast<uint32>(value[3])       & 0x000000FF);
+    return (static_cast<uint32>(value[0]) << 24 & 0xFF000000) | (static_cast<uint32>(value[1]) << 16 & 0x00FF0000)
+        | (static_cast<uint32>(value[2]) << 8 & 0x0000FF00) | (static_cast<uint32>(value[3]) & 0x000000FF);
 #else
-    return    (static_cast<uint32>(value[3]) << 24 & 0xFF000000)
-            | (static_cast<uint32>(value[2]) << 16 & 0x00FF0000)
-            | (static_cast<uint32>(value[1]) <<  8 & 0x0000FF00)
-            | (static_cast<uint32>(value[0])       & 0x000000FF);
+    return (static_cast<uint32>(value[3]) << 24 & 0xFF000000) | (static_cast<uint32>(value[2]) << 16 & 0x00FF0000)
+        | (static_cast<uint32>(value[1]) << 8 & 0x0000FF00) | (static_cast<uint32>(value[0]) & 0x000000FF);
 #endif
 }
 
@@ -92,23 +78,15 @@ CPP_UTILITIES_EXPORT inline uint32 toUInt32(const char *value)
 CPP_UTILITIES_EXPORT inline int64 toInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<int64>(value[0]) << 56 & 0xFF00000000000000)
-            | (static_cast<int64>(value[1]) << 48 & 0x00FF000000000000)
-            | (static_cast<int64>(value[2]) << 40 & 0x0000FF0000000000)
-            | (static_cast<int64>(value[3]) << 32 & 0x000000FF00000000)
-            | (static_cast<int64>(value[4]) << 24 & 0x00000000FF000000)
-            | (static_cast<int64>(value[5]) << 16 & 0x0000000000FF0000)
-            | (static_cast<int64>(value[6]) <<  8 & 0x000000000000FF00)
-            | (static_cast<int64>(value[7])       & 0x00000000000000FF);
+    return (static_cast<int64>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<int64>(value[1]) << 48 & 0x00FF000000000000)
+        | (static_cast<int64>(value[2]) << 40 & 0x0000FF0000000000) | (static_cast<int64>(value[3]) << 32 & 0x000000FF00000000)
+        | (static_cast<int64>(value[4]) << 24 & 0x00000000FF000000) | (static_cast<int64>(value[5]) << 16 & 0x0000000000FF0000)
+        | (static_cast<int64>(value[6]) << 8 & 0x000000000000FF00) | (static_cast<int64>(value[7]) & 0x00000000000000FF);
 #else
-    return    (static_cast<int64>(value[7]) << 56 & 0xFF00000000000000)
-            | (static_cast<int64>(value[6]) << 48 & 0x00FF000000000000)
-            | (static_cast<int64>(value[5]) << 40 & 0x0000FF0000000000)
-            | (static_cast<int64>(value[4]) << 32 & 0x000000FF00000000)
-            | (static_cast<int64>(value[3]) << 24 & 0x00000000FF000000)
-            | (static_cast<int64>(value[2]) << 16 & 0x0000000000FF0000)
-            | (static_cast<int64>(value[1]) <<  8 & 0x000000000000FF00)
-            | (static_cast<int64>(value[0])       & 0x00000000000000FF);
+    return (static_cast<int64>(value[7]) << 56 & 0xFF00000000000000) | (static_cast<int64>(value[6]) << 48 & 0x00FF000000000000)
+        | (static_cast<int64>(value[5]) << 40 & 0x0000FF0000000000) | (static_cast<int64>(value[4]) << 32 & 0x000000FF00000000)
+        | (static_cast<int64>(value[3]) << 24 & 0x00000000FF000000) | (static_cast<int64>(value[2]) << 16 & 0x0000000000FF0000)
+        | (static_cast<int64>(value[1]) << 8 & 0x000000000000FF00) | (static_cast<int64>(value[0]) & 0x00000000000000FF);
 #endif
 }
 
@@ -118,23 +96,15 @@ CPP_UTILITIES_EXPORT inline int64 toInt64(const char *value)
 CPP_UTILITIES_EXPORT inline uint64 toUInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return    (static_cast<uint64>(value[0]) << 56 & 0xFF00000000000000)
-            | (static_cast<uint64>(value[1]) << 48 & 0x00FF000000000000)
-            | (static_cast<uint64>(value[2]) << 40 & 0x0000FF0000000000)
-            | (static_cast<uint64>(value[3]) << 32 & 0x000000FF00000000)
-            | (static_cast<uint64>(value[4]) << 24 & 0x00000000FF000000)
-            | (static_cast<uint64>(value[5]) << 16 & 0x0000000000FF0000)
-            | (static_cast<uint64>(value[6]) <<  8 & 0x000000000000FF00)
-            | (static_cast<uint64>(value[7])       & 0x00000000000000FF);
+    return (static_cast<uint64>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<uint64>(value[1]) << 48 & 0x00FF000000000000)
+        | (static_cast<uint64>(value[2]) << 40 & 0x0000FF0000000000) | (static_cast<uint64>(value[3]) << 32 & 0x000000FF00000000)
+        | (static_cast<uint64>(value[4]) << 24 & 0x00000000FF000000) | (static_cast<uint64>(value[5]) << 16 & 0x0000000000FF0000)
+        | (static_cast<uint64>(value[6]) << 8 & 0x000000000000FF00) | (static_cast<uint64>(value[7]) & 0x00000000000000FF);
 #else
-    return    (static_cast<uint64>(value[7]) << 56 & 0xFF00000000000000)
-            | (static_cast<uint64>(value[6]) << 48 & 0x00FF000000000000)
-            | (static_cast<uint64>(value[5]) << 40 & 0x0000FF0000000000)
-            | (static_cast<uint64>(value[4]) << 32 & 0x000000FF00000000)
-            | (static_cast<uint64>(value[3]) << 24 & 0x00000000FF000000)
-            | (static_cast<uint64>(value[2]) << 16 & 0x0000000000FF0000)
-            | (static_cast<uint64>(value[1]) <<  8 & 0x000000000000FF00)
-            | (static_cast<uint64>(value[0])       & 0x00000000000000FF);
+    return (static_cast<uint64>(value[7]) << 56 & 0xFF00000000000000) | (static_cast<uint64>(value[6]) << 48 & 0x00FF000000000000)
+        | (static_cast<uint64>(value[5]) << 40 & 0x0000FF0000000000) | (static_cast<uint64>(value[4]) << 32 & 0x000000FF00000000)
+        | (static_cast<uint64>(value[3]) << 24 & 0x00000000FF000000) | (static_cast<uint64>(value[2]) << 16 & 0x0000000000FF0000)
+        | (static_cast<uint64>(value[1]) << 8 & 0x000000000000FF00) | (static_cast<uint64>(value[0]) & 0x00000000000000FF);
 #endif
 }
 
@@ -162,7 +132,7 @@ CPP_UTILITIES_EXPORT inline float64 toFloat64(const char *value)
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     int64 val = toInt64(value);
     char *c = reinterpret_cast<char *>(&val);
-    return *reinterpret_cast<float64*>(c);
+    return *reinterpret_cast<float64 *>(c);
 #else
     int64 val = toInt64(value);
     char *c = reinterpret_cast<char *>(&val);
@@ -177,10 +147,10 @@ CPP_UTILITIES_EXPORT inline void getBytes(int16 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value     ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value     ) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -191,10 +161,10 @@ CPP_UTILITIES_EXPORT inline void getBytes(uint16 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value     ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value     ) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -206,12 +176,12 @@ CPP_UTILITIES_EXPORT inline void getBytes24(uint32 value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[2] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -223,13 +193,13 @@ CPP_UTILITIES_EXPORT inline void getBytes(int32 value, char *outputbuffer)
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[1] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[2] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[3] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -241,13 +211,13 @@ CPP_UTILITIES_EXPORT inline void getBytes(uint32 value, char *outputbuffer)
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[1] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[2] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[3] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -263,8 +233,8 @@ CPP_UTILITIES_EXPORT inline void getBytes(int64 value, char *outputbuffer)
     outputbuffer[3] = static_cast<char>((value >> 32) & 0xFF);
     outputbuffer[4] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[5] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[7] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[6] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[7] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[7] = static_cast<char>((value >> 56) & 0xFF);
     outputbuffer[6] = static_cast<char>((value >> 48) & 0xFF);
@@ -272,8 +242,8 @@ CPP_UTILITIES_EXPORT inline void getBytes(int64 value, char *outputbuffer)
     outputbuffer[4] = static_cast<char>((value >> 32) & 0xFF);
     outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 
@@ -289,8 +259,8 @@ CPP_UTILITIES_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
     outputbuffer[3] = static_cast<char>((value >> 32) & 0xFF);
     outputbuffer[4] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[5] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[7] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[6] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[7] = static_cast<char>((value)&0xFF);
 #else
     outputbuffer[7] = static_cast<char>((value >> 56) & 0xFF);
     outputbuffer[6] = static_cast<char>((value >> 48) & 0xFF);
@@ -298,8 +268,8 @@ CPP_UTILITIES_EXPORT inline void getBytes(uint64 value, char *outputbuffer)
     outputbuffer[4] = static_cast<char>((value >> 32) & 0xFF);
     outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >>  8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value      ) & 0xFF);
+    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
+    outputbuffer[0] = static_cast<char>((value)&0xFF);
 #endif
 }
 

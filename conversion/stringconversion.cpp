@@ -1,12 +1,12 @@
 #include "./stringconversion.h"
 
+#include <cstdlib>
+#include <iomanip>
 #include <memory>
 #include <sstream>
-#include <iomanip>
-#include <cstdlib>
 
-#include <iconv.h>
 #include <errno.h>
+#include <iconv.h>
 
 using namespace std;
 
@@ -17,38 +17,54 @@ using namespace std;
  * binaryconversion.h declares functions which convert base data types to an array of bytes and vice versa.
  * stringconversion.h declares different functions around string conversion such as converting a number to a string and vice versa.
  */
-namespace ConversionUtilities
-{
+namespace ConversionUtilities {
 
 /// \cond
 
-struct Keep { size_t operator()(size_t value) { return value; } };
-struct Double { size_t operator()(size_t value) { return value + value; } };
-struct Half { size_t operator()(size_t value) { return value / 2; } };
+struct Keep {
+    size_t operator()(size_t value)
+    {
+        return value;
+    }
+};
+struct Double {
+    size_t operator()(size_t value)
+    {
+        return value + value;
+    }
+};
+struct Half {
+    size_t operator()(size_t value)
+    {
+        return value / 2;
+    }
+};
 struct Factor {
-    Factor(float factor) : factor(factor) {};
-    size_t operator()(size_t value) { return value * factor; }
+    Factor(float factor)
+        : factor(factor){};
+    size_t operator()(size_t value)
+    {
+        return value * factor;
+    }
     float factor;
 };
 
-template<class OutputSizeHint>
-class ConversionDescriptor
-{
+template <class OutputSizeHint> class ConversionDescriptor {
 public:
-    ConversionDescriptor(const char *fromCharset, const char *toCharset) :
-        m_ptr(iconv_open(toCharset, fromCharset)),
-        m_outputSizeHint(OutputSizeHint())
+    ConversionDescriptor(const char *fromCharset, const char *toCharset)
+        : m_ptr(iconv_open(toCharset, fromCharset))
+        , m_outputSizeHint(OutputSizeHint())
     {
-        if(m_ptr == reinterpret_cast<iconv_t>(-1)) {
+        if (m_ptr == reinterpret_cast<iconv_t>(-1)) {
             throw ConversionException("Unable to allocate descriptor for character set conversion.");
         }
     }
 
-    ConversionDescriptor(const char *fromCharset, const char *toCharset, OutputSizeHint outputSizeHint) :
-        m_ptr(iconv_open(toCharset, fromCharset)),
-        m_outputSizeHint(outputSizeHint)
+    ConversionDescriptor(const char *fromCharset, const char *toCharset, OutputSizeHint outputSizeHint)
+        : m_ptr(iconv_open(toCharset, fromCharset))
+        , m_outputSizeHint(outputSizeHint)
     {
-        if(m_ptr == reinterpret_cast<iconv_t>(-1)) {
+        if (m_ptr == reinterpret_cast<iconv_t>(-1)) {
             throw ConversionException("Unable to allocate descriptor for character set conversion.");
         }
     }
@@ -69,14 +85,14 @@ public:
         size_t bytesWritten;
 
         char *currentOutputOffset = outputBuffer;
-        for(; ; currentOutputOffset = outputBuffer + bytesWritten) {
+        for (;; currentOutputOffset = outputBuffer + bytesWritten) {
             bytesWritten = iconv(m_ptr, const_cast<char **>(&inputBuffer), &inputBytesLeft, &currentOutputOffset, &outputBytesLeft);
-            if(bytesWritten == static_cast<size_t>(-1)) {
-                if(errno == EINVAL) {
+            if (bytesWritten == static_cast<size_t>(-1)) {
+                if (errno == EINVAL) {
                     // ignore incomplete multibyte sequence in the input
                     bytesWritten = currentOutputOffset - outputBuffer;
                     break;
-                } else if(errno == E2BIG) {
+                } else if (errno == E2BIG) {
                     // output buffer has no more room for next converted character
                     bytesWritten = currentOutputOffset - outputBuffer;
                     outputBytesLeft = (outputSize += m_outputSizeHint(inputBytesLeft)) - bytesWritten;
@@ -110,7 +126,8 @@ private:
  *   to reduce buffer reallocations during the conversion (eg. for the conversion from Latin-1 to UTF-16
  *   the factor would be 2, for the conversion from UTF-16 to Latin-1 the factor would be 0.5).
  */
-StringData convertString(const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor)
+StringData convertString(
+    const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor)
 {
     return ConversionDescriptor<Factor>(fromCharset, toCharset, outputBufferSizeFactor).convertString(inputBuffer, inputBufferSize);
 }
@@ -176,7 +193,7 @@ StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferS
 void truncateString(string &str, char terminationChar)
 {
     string::size_type firstNullByte = str.find(terminationChar);
-    if(firstNullByte != string::npos) {
+    if (firstNullByte != string::npos) {
         str.resize(firstNullByte);
     }
 }
@@ -202,7 +219,7 @@ string dataSizeToString(uint64 sizeInByte, bool includeByte)
     } else {
         res << (static_cast<double>(sizeInByte) / 1099511627776.0) << " TiB";
     }
-    if(includeByte && sizeInByte > 1024LL) {
+    if (includeByte && sizeInByte > 1024LL) {
         res << ' ' << '(' << sizeInByte << " byte)";
     }
     return res.str();
@@ -260,16 +277,16 @@ string encodeBase64(const byte *data, uint32 dataSize)
     byte mod = dataSize % 3;
     encoded.reserve(((dataSize / 3) + (mod > 0)) * 4);
     uint32 temp;
-    for(const byte *end = --data + dataSize - mod; data != end; ) {
+    for (const byte *end = --data + dataSize - mod; data != end;) {
         temp = *++data << 16;
         temp |= *++data << 8;
         temp |= *++data;
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
         encoded.push_back(base64Chars[(temp & 0x0003F000) >> 12]);
-        encoded.push_back(base64Chars[(temp & 0x00000FC0) >> 6 ]);
-        encoded.push_back(base64Chars[(temp & 0x0000003F)      ]);
+        encoded.push_back(base64Chars[(temp & 0x00000FC0) >> 6]);
+        encoded.push_back(base64Chars[(temp & 0x0000003F)]);
     }
-    switch(mod) {
+    switch (mod) {
     case 1:
         temp = *++data << 16;
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
@@ -282,7 +299,7 @@ string encodeBase64(const byte *data, uint32 dataSize)
         temp |= *++data << 8;
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
         encoded.push_back(base64Chars[(temp & 0x0003F000) >> 12]);
-        encoded.push_back(base64Chars[(temp & 0x00000FC0) >> 6 ]);
+        encoded.push_back(base64Chars[(temp & 0x00000FC0) >> 6]);
         encoded.push_back(base64Pad);
         break;
     }
@@ -295,40 +312,40 @@ string encodeBase64(const byte *data, uint32 dataSize)
  */
 pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize)
 {
-    if(strSize % 4) {
+    if (strSize % 4) {
         throw ConversionException("invalid size of base64");
     }
     uint32 decodedSize = (strSize / 4) * 3;
     const char *const end = encodedStr + strSize;
-    if(strSize) {
-        if(*(end - 1) == base64Pad) {
+    if (strSize) {
+        if (*(end - 1) == base64Pad) {
             --decodedSize;
         }
-        if(*(end - 2) == base64Pad) {
+        if (*(end - 2) == base64Pad) {
             --decodedSize;
         }
     }
     auto buffer = make_unique<byte[]>(decodedSize);
     auto *iter = buffer.get() - 1;
-    while(encodedStr < end) {
+    while (encodedStr < end) {
         uint32 temp = 0;
-        for(byte quantumPos = 0; quantumPos < 4; ++quantumPos, ++encodedStr) {
+        for (byte quantumPos = 0; quantumPos < 4; ++quantumPos, ++encodedStr) {
             temp <<= 6;
-            if(*encodedStr >= 'A' && *encodedStr <= 'Z') {
+            if (*encodedStr >= 'A' && *encodedStr <= 'Z') {
                 temp |= *encodedStr - 'A';
-            } else if(*encodedStr >= 'a' && *encodedStr <= 'z') {
+            } else if (*encodedStr >= 'a' && *encodedStr <= 'z') {
                 temp |= *encodedStr - 'a' + 26;
-            } else if(*encodedStr >= '0' && *encodedStr <= '9') {
+            } else if (*encodedStr >= '0' && *encodedStr <= '9') {
                 temp |= *encodedStr - '0' + 2 * 26;
-            } else if(*encodedStr == '+') {
+            } else if (*encodedStr == '+') {
                 temp |= 2 * 26 + 10;
-            } else if(*encodedStr == '/') {
+            } else if (*encodedStr == '/') {
                 temp |= 2 * 26 + 10 + 1;
-            } else if(*encodedStr == base64Pad) {
-                switch(end - encodedStr) {
+            } else if (*encodedStr == base64Pad) {
+                switch (end - encodedStr) {
                 case 1:
                     *++iter = (temp >> 16) & 0xFF;
-                    *++iter = (temp >>  8) & 0xFF;
+                    *++iter = (temp >> 8) & 0xFF;
                     return make_pair(move(buffer), decodedSize);
                 case 2:
                     *++iter = (temp >> 10) & 0xFF;
@@ -341,10 +358,9 @@ pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint
             }
         }
         *++iter = (temp >> 16) & 0xFF;
-        *++iter = (temp >>  8) & 0xFF;
-        *++iter = (temp      ) & 0xFF;
+        *++iter = (temp >> 8) & 0xFF;
+        *++iter = (temp)&0xFF;
     }
     return make_pair(move(buffer), decodedSize);
 }
-
 }

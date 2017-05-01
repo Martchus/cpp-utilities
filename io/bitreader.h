@@ -2,8 +2,8 @@
 #define IOUTILITIES_BITREADER_H
 
 #include "../conversion/types.h"
-#include "../io/catchiofailure.h"
 #include "../global.h"
+#include "../io/catchiofailure.h"
 
 #include <ios>
 #include <iostream>
@@ -11,17 +11,16 @@
 
 namespace IoUtilities {
 
-class CPP_UTILITIES_EXPORT BitReader
-{
+class CPP_UTILITIES_EXPORT BitReader {
 public:
     BitReader(const char *buffer, std::size_t bufferSize);
     BitReader(const char *buffer, const char *end);
 
-    template<typename intType> intType readBits(byte bitCount);
+    template <typename intType> intType readBits(byte bitCount);
     byte readBit();
-    template<typename intType> intType readUnsignedExpGolombCodedBits();
-    template<typename intType> intType readSignedExpGolombCodedBits();
-    template<typename intType> intType showBits(byte bitCount);
+    template <typename intType> intType readUnsignedExpGolombCodedBits();
+    template <typename intType> intType readSignedExpGolombCodedBits();
+    template <typename intType> intType showBits(byte bitCount);
     void skipBits(std::size_t bitCount);
     void align();
     std::size_t bitsAvailable();
@@ -40,9 +39,10 @@ private:
  *  - Does not take ownership over the specified \a buffer.
  *  - bufferSize must be equal or greather than 1.
  */
-inline BitReader::BitReader(const char *buffer, std::size_t bufferSize) :
-    BitReader(buffer, buffer + bufferSize)
-{}
+inline BitReader::BitReader(const char *buffer, std::size_t bufferSize)
+    : BitReader(buffer, buffer + bufferSize)
+{
+}
 
 /*!
  * \brief Constructs a new BitReader.
@@ -50,11 +50,12 @@ inline BitReader::BitReader(const char *buffer, std::size_t bufferSize) :
  *  - Does not take ownership over the specified \a buffer.
  *  - \a end must be greather than \a buffer.
  */
-inline BitReader::BitReader(const char *buffer, const char *end) :
-    m_buffer(reinterpret_cast<const byte *>(buffer)),
-    m_end(reinterpret_cast<const byte *>(end)),
-    m_bitsAvail(8)
-{}
+inline BitReader::BitReader(const char *buffer, const char *end)
+    : m_buffer(reinterpret_cast<const byte *>(buffer))
+    , m_end(reinterpret_cast<const byte *>(end))
+    , m_bitsAvail(8)
+{
+}
 
 /*!
  * \brief Reads the specified number of bits from the buffer advancing the current position by \a bitCount bits.
@@ -64,13 +65,12 @@ inline BitReader::BitReader(const char *buffer, const char *end) :
  * \throws Throws ios_base::failure if the end of the buffer is exceeded.
  *         The reader becomes invalid in that case.
  */
-template<typename intType>
-intType BitReader::readBits(byte bitCount)
+template <typename intType> intType BitReader::readBits(byte bitCount)
 {
     intType val = 0;
-    for(byte readAtOnce; bitCount; bitCount -= readAtOnce) {
-        if(!m_bitsAvail) {
-            if(++m_buffer >= m_end) {
+    for (byte readAtOnce; bitCount; bitCount -= readAtOnce) {
+        if (!m_bitsAvail) {
+            if (++m_buffer >= m_end) {
                 throwIoFailure("end of buffer exceeded");
             }
             m_bitsAvail = 8;
@@ -99,11 +99,10 @@ inline byte BitReader::readBit()
  *         The reader becomes invalid in that case.
  * \sa https://en.wikipedia.org/wiki/Exponential-Golomb_coding
  */
-template<typename intType>
-intType BitReader::readUnsignedExpGolombCodedBits()
+template <typename intType> intType BitReader::readUnsignedExpGolombCodedBits()
 {
     byte count = 0;
-    while(!readBit()) {
+    while (!readBit()) {
         ++count;
     }
     return count ? (((1 << count) | readBits<intType>(count)) - 1) : 0;
@@ -117,8 +116,7 @@ intType BitReader::readUnsignedExpGolombCodedBits()
  *         The reader becomes invalid in that case.
  * \sa https://en.wikipedia.org/wiki/Exponential-Golomb_coding
  */
-template<typename intType>
-intType BitReader::readSignedExpGolombCodedBits()
+template <typename intType> intType BitReader::readSignedExpGolombCodedBits()
 {
     auto value = readUnsignedExpGolombCodedBits<typename std::make_unsigned<intType>::type>();
     return (value % 2) ? static_cast<intType>((value + 1) / 2) : (-static_cast<intType>(value / 2));
@@ -127,8 +125,7 @@ intType BitReader::readSignedExpGolombCodedBits()
 /*!
  * \brief Reads the specified number of bits from the buffer without advancing the current position.
  */
-template<typename intType>
-intType BitReader::showBits(byte bitCount)
+template <typename intType> intType BitReader::showBits(byte bitCount)
 {
     auto tmp = *this;
     return tmp.readBits<intType>(bitCount);

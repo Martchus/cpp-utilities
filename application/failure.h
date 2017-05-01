@@ -8,8 +8,7 @@
 
 namespace ApplicationUtilities {
 
-class CPP_UTILITIES_EXPORT Failure : public std::exception
-{
+class CPP_UTILITIES_EXPORT Failure : public std::exception {
 public:
     Failure();
     Failure(const std::string &what);
@@ -20,7 +19,6 @@ public:
 private:
     std::string m_what;
 };
-
 }
 
 #endif // APPLICATION_UTILITIES_FAILURE_H

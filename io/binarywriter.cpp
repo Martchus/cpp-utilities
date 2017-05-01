@@ -19,26 +19,28 @@ using namespace ConversionUtilities;
  * \brief Constructs a new BinaryWriter.
  * \param stream Specifies the stream to write to.
  */
-BinaryWriter::BinaryWriter(ostream *stream) :
-    m_stream(stream),
-    m_ownership(false)
-{}
+BinaryWriter::BinaryWriter(ostream *stream)
+    : m_stream(stream)
+    , m_ownership(false)
+{
+}
 
 /*!
  * \brief Copies the specified BinaryWriter.
  * \remarks The copy will not take ownership over the stream.
  */
-BinaryWriter::BinaryWriter(const BinaryWriter &other) :
-    m_stream(other.m_stream),
-    m_ownership(false)
-{}
+BinaryWriter::BinaryWriter(const BinaryWriter &other)
+    : m_stream(other.m_stream)
+    , m_ownership(false)
+{
+}
 
 /*!
  * \brief Destroys the BinaryWriter.
  */
 BinaryWriter::~BinaryWriter()
 {
-    if(m_ownership) {
+    if (m_ownership) {
         delete m_stream;
     }
 }
@@ -56,10 +58,10 @@ BinaryWriter::~BinaryWriter()
  */
 void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
 {
-    if(m_ownership) {
+    if (m_ownership) {
         delete m_stream;
     }
-    if(stream) {
+    if (stream) {
         m_stream = stream;
         m_ownership = giveOwnership;
     } else {
@@ -76,16 +78,16 @@ void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
 void BinaryWriter::writeLengthPrefixedString(const string &value)
 {
     size_t length = value.length();
-    if(length < 0x80) {
+    if (length < 0x80) {
         m_buffer[0] = 0x80 | length;
         m_stream->write(m_buffer, 1);
-    } else if(length < 0x4000) {
+    } else if (length < 0x4000) {
         BE::getBytes(static_cast<uint16>(0x4000 | length), m_buffer);
         m_stream->write(m_buffer, 2);
-    } else if(length < 0x200000) {
+    } else if (length < 0x200000) {
         BE::getBytes(static_cast<uint32>(0x200000 | length), m_buffer);
         m_stream->write(m_buffer + 1, 3);
-    } else if(length < 0x10000000) {
+    } else if (length < 0x10000000) {
         BE::getBytes(static_cast<uint32>(0x10000000 | length), m_buffer);
         m_stream->write(m_buffer, 4);
     } else {

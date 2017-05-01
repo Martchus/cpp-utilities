@@ -19,7 +19,7 @@ const char *catchIoFailure()
 {
     try {
         throw;
-    } catch(const ios_base::failure &e) {
+    } catch (const ios_base::failure &e) {
         return e.what();
     }
 }
@@ -31,6 +31,4 @@ void throwIoFailure(const char *what)
 {
     throw ios_base::failure(what);
 }
-
 }
-

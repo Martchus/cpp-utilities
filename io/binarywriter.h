@@ -1,22 +1,20 @@
 #ifndef IOUTILITIES_BINARYWRITER_H
 #define IOUTILITIES_BINARYWRITER_H
 
-#include "../conversion/types.h"
 #include "../conversion/binaryconversion.h"
+#include "../conversion/types.h"
 
-#include <vector>
-#include <string>
 #include <ostream>
+#include <string>
+#include <vector>
 
-namespace IoUtilities
-{
+namespace IoUtilities {
 
-class CPP_UTILITIES_EXPORT BinaryWriter
-{
+class CPP_UTILITIES_EXPORT BinaryWriter {
 public:
     BinaryWriter(std::ostream *stream);
     BinaryWriter(const BinaryWriter &other);
-    BinaryWriter & operator=(const BinaryWriter & rhs) = delete;
+    BinaryWriter &operator=(const BinaryWriter &rhs) = delete;
     ~BinaryWriter();
 
     const std::ostream *stream() const;
@@ -117,7 +115,7 @@ inline bool BinaryWriter::hasOwnership() const
  */
 inline void BinaryWriter::giveOwnership()
 {
-    if(m_stream) {
+    if (m_stream) {
         m_ownership = true;
     }
 }
@@ -527,7 +525,6 @@ inline void BinaryWriter::writeFixed16LE(float32 valueToConvertAndWrite)
 {
     writeUInt32LE(ConversionUtilities::toFixed16(valueToConvertAndWrite));
 }
-
 }
 
 #endif // IO_UTILITIES_BINARYWRITER_H

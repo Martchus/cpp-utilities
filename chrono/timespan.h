@@ -1,17 +1,16 @@
 #ifndef CHRONO_UTILITIES_TIMESPAN_H
 #define CHRONO_UTILITIES_TIMESPAN_H
 
-#include "../global.h"
 #include "../conversion/types.h"
+#include "../global.h"
 
-#include <string>
 #include <limits>
+#include <string>
 
 /*!
  * \brief Contains classes providing a means for handling date and time information.
  */
-namespace ChronoUtilities
-{
+namespace ChronoUtilities {
 
 class DateTime;
 
@@ -19,15 +18,14 @@ class DateTime;
  * \brief Specifies the output format.
  * \sa TimeSpan::toString()
  */
-enum class TimeSpanOutputFormat
-{
+enum class TimeSpanOutputFormat {
     Normal, /**< the normal form of specifing a time interval: hh:mm:ss */
     WithMeasures /**< measures are used, eg.: 34 d 5 h 10 min 7 s 31 ms */
 };
 
-class CPP_UTILITIES_EXPORT TimeSpan
-{
+class CPP_UTILITIES_EXPORT TimeSpan {
     friend class DateTime;
+
 public:
     explicit constexpr TimeSpan();
     explicit constexpr TimeSpan(int64 ticks);
@@ -86,14 +84,18 @@ private:
 /*!
  * \brief Constructs a new instance of the TimeSpan class with zero ticks.
  */
-constexpr inline TimeSpan::TimeSpan() : m_ticks(0)
-{}
+constexpr inline TimeSpan::TimeSpan()
+    : m_ticks(0)
+{
+}
 
 /*!
  * \brief Constructs a new instance of the TimeSpan class with the specified number of ticks.
  */
-constexpr inline TimeSpan::TimeSpan(int64 ticks) : m_ticks(ticks)
-{}
+constexpr inline TimeSpan::TimeSpan(int64 ticks)
+    : m_ticks(ticks)
+{
+}
 
 /*!
  * \brief Constructs a new instance of the TimeSpan class with the specified number of miliseconds.
@@ -250,7 +252,7 @@ constexpr inline int TimeSpan::days() const
 /*!
  * \brief Indicates whether two TimeSpan instances are equal.
  */
-constexpr inline bool TimeSpan::operator ==(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator==(const TimeSpan &other) const
 {
     return m_ticks == other.m_ticks;
 }
@@ -258,7 +260,7 @@ constexpr inline bool TimeSpan::operator ==(const TimeSpan &other) const
 /*!
  * \brief Indicates whether two TimeSpan instances are not equal.
  */
-constexpr inline bool TimeSpan::operator !=(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator!=(const TimeSpan &other) const
 {
     return m_ticks != other.m_ticks;
 }
@@ -266,7 +268,7 @@ constexpr inline bool TimeSpan::operator !=(const TimeSpan &other) const
 /*!
  * \brief Indicates whether a specified TimeSpan is less than another specified TimeSpan.
  */
-constexpr inline bool TimeSpan::operator <(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator<(const TimeSpan &other) const
 {
     return m_ticks < other.m_ticks;
 }
@@ -274,7 +276,7 @@ constexpr inline bool TimeSpan::operator <(const TimeSpan &other) const
 /*!
  * \brief Indicates whether a specified TimeSpan is greater than another specified TimeSpan.
  */
-constexpr inline bool TimeSpan::operator >(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator>(const TimeSpan &other) const
 {
     return m_ticks > other.m_ticks;
 }
@@ -282,7 +284,7 @@ constexpr inline bool TimeSpan::operator >(const TimeSpan &other) const
 /*!
  * \brief Indicates whether a specified TimeSpan is less or equal than another specified TimeSpan.
  */
-constexpr inline bool TimeSpan::operator <=(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator<=(const TimeSpan &other) const
 {
     return m_ticks <= other.m_ticks;
 }
@@ -290,7 +292,7 @@ constexpr inline bool TimeSpan::operator <=(const TimeSpan &other) const
 /*!
  * \brief Indicates whether a specified TimeSpan is greater or equal than another specified TimeSpan.
  */
-constexpr inline bool TimeSpan::operator >=(const TimeSpan &other) const
+constexpr inline bool TimeSpan::operator>=(const TimeSpan &other) const
 {
     return m_ticks >= other.m_ticks;
 }
@@ -298,7 +300,7 @@ constexpr inline bool TimeSpan::operator >=(const TimeSpan &other) const
 /*!
  * \brief Adds two TimeSpan instances.
  */
-constexpr inline TimeSpan TimeSpan::operator +(const TimeSpan &other) const
+constexpr inline TimeSpan TimeSpan::operator+(const TimeSpan &other) const
 {
     return TimeSpan(m_ticks + other.m_ticks);
 }
@@ -306,7 +308,7 @@ constexpr inline TimeSpan TimeSpan::operator +(const TimeSpan &other) const
 /*!
  * \brief Substracts two TimeSpan instances.
  */
-constexpr inline TimeSpan TimeSpan::operator -(const TimeSpan &other) const
+constexpr inline TimeSpan TimeSpan::operator-(const TimeSpan &other) const
 {
     return TimeSpan(m_ticks - other.m_ticks);
 }
@@ -314,7 +316,7 @@ constexpr inline TimeSpan TimeSpan::operator -(const TimeSpan &other) const
 /*!
  * \brief Adds another TimeSpan to the current instance.
  */
-inline TimeSpan &TimeSpan::operator +=(const TimeSpan &other)
+inline TimeSpan &TimeSpan::operator+=(const TimeSpan &other)
 {
     m_ticks += other.m_ticks;
     return *this;
@@ -323,7 +325,7 @@ inline TimeSpan &TimeSpan::operator +=(const TimeSpan &other)
 /*!
  * \brief Substracts another TimeSpan from the current instance.
  */
-inline TimeSpan &TimeSpan::operator -=(const TimeSpan &other)
+inline TimeSpan &TimeSpan::operator-=(const TimeSpan &other)
 {
     m_ticks -= other.m_ticks;
     return *this;
@@ -360,15 +362,13 @@ constexpr inline bool TimeSpan::isInfinity() const
 {
     return m_ticks == std::numeric_limits<decltype(m_ticks)>::max();
 }
-
 }
 
 namespace std {
-template<> struct hash<ChronoUtilities::TimeSpan>
-{
+template <> struct hash<ChronoUtilities::TimeSpan> {
     inline size_t operator()(const ChronoUtilities::TimeSpan &timeSpan) const
     {
-        return hash<decltype (timeSpan.totalTicks())>()(timeSpan.totalTicks());
+        return hash<decltype(timeSpan.totalTicks())>()(timeSpan.totalTicks());
     }
 };
 }

@@ -3,11 +3,11 @@
 
 #include "../global.h"
 
-#include <vector>
-#include <initializer_list>
 #include <functional>
+#include <initializer_list>
+#include <vector>
 #ifdef DEBUG_BUILD
-# include <cassert>
+#include <cassert>
 #endif
 
 class ArgumentParserTests;
@@ -27,11 +27,9 @@ CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersio
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #ifndef APP_STATICALLY_LINKED
-#define SET_DEPENDENCY_INFO \
-    ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
 #else
-#define SET_DEPENDENCY_INFO \
-    ::ApplicationUtilities::dependencyVersions = STATIC_DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = STATIC_DEPENCENCY_VERSIONS
 #endif
 
 /*!
@@ -39,14 +37,14 @@ CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersio
  * \brief Sets application meta data (including SET_DEPENDENCY_INFO) used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
-#define SET_APPLICATION_INFO \
-    ::ApplicationUtilities::applicationName = APP_NAME; \
-    ::ApplicationUtilities::applicationAuthor = APP_AUTHOR; \
-    ::ApplicationUtilities::applicationVersion = APP_VERSION; \
-    ::ApplicationUtilities::applicationUrl = APP_URL; \
-    SET_DEPENDENCY_INFO \
+#define SET_APPLICATION_INFO                                                                                                                         \
+    ::ApplicationUtilities::applicationName = APP_NAME;                                                                                              \
+    ::ApplicationUtilities::applicationAuthor = APP_AUTHOR;                                                                                          \
+    ::ApplicationUtilities::applicationVersion = APP_VERSION;                                                                                        \
+    ::ApplicationUtilities::applicationUrl = APP_URL;                                                                                                \
+    SET_DEPENDENCY_INFO
 
-CPP_UTILITIES_EXPORT extern void(*exitFunction)(int);
+CPP_UTILITIES_EXPORT extern void (*exitFunction)(int);
 
 class Argument;
 class ArgumentParser;
@@ -54,14 +52,13 @@ class ArgumentReader;
 
 typedef std::initializer_list<Argument *> ArgumentInitializerList;
 typedef std::vector<Argument *> ArgumentVector;
-typedef std::function<bool (Argument *)> ArgumentPredicate;
+typedef std::function<bool(Argument *)> ArgumentPredicate;
 
 /*!
  * \brief The UnknownArgumentBehavior enum specifies the behavior of the argument parser when an unknown
  *        argument is detected.
  */
-enum class UnknownArgumentBehavior
-{
+enum class UnknownArgumentBehavior {
     Ignore, /**< Unknown arguments are ignored without warnings. */
     Warn, /**< A warning is printed to std::cerr if an unknown argument is detected. */
     Fail /**< Further parsing is aborted and an ApplicationUtilities::Failure instance with an error message is thrown. */
@@ -70,8 +67,7 @@ enum class UnknownArgumentBehavior
 /*!
  * \brief The ValueCompletionBehavior enum specifies the items to be considered when generating completion for an argument value.
  */
-enum class ValueCompletionBehavior : unsigned char
-{
+enum class ValueCompletionBehavior : unsigned char {
     None = 0, /**< no auto-completion */
     PreDefinedValues = 2, /**< values assigned with Argument::setPreDefinedCompletionValues() */
     Files = 4, /**< files */
@@ -97,8 +93,7 @@ Argument CPP_UTILITIES_EXPORT *firstPresentUncombinableArg(const ArgumentVector 
 /*!
  * \brief The ArgumentOccurrence struct holds argument values for an occurrence of an argument.
  */
-struct CPP_UTILITIES_EXPORT ArgumentOccurrence
-{
+struct CPP_UTILITIES_EXPORT ArgumentOccurrence {
     ArgumentOccurrence(std::size_t index);
     ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
 
@@ -122,9 +117,10 @@ struct CPP_UTILITIES_EXPORT ArgumentOccurrence
 /*!
  * \brief Constructs an argument occurrence for the specified \a index.
  */
-inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index) :
-    index(index)
-{}
+inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index)
+    : index(index)
+{
+}
 
 /*!
  * \brief Constructs an argument occurrence.
@@ -134,22 +130,21 @@ inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index) :
  *
  * The path of the new occurrence is built from the specified \a parentPath and \a parent.
  */
-inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent) :
-    index(index),
-    path(parentPath)
+inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent)
+    : index(index)
+    , path(parentPath)
 {
-    if(parent) {
+    if (parent) {
         path.push_back(parent);
     }
 }
 
-class CPP_UTILITIES_EXPORT Argument
-{
+class CPP_UTILITIES_EXPORT Argument {
     friend ArgumentParser;
     friend ArgumentReader;
 
 public:
-    typedef std::function <void (const ArgumentOccurrence &)> CallbackFunction;
+    typedef std::function<void(const ArgumentOccurrence &)> CallbackFunction;
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
@@ -227,8 +222,7 @@ private:
     const char *m_preDefinedCompletionValues;
 };
 
-class CPP_UTILITIES_EXPORT ArgumentParser
-{
+class CPP_UTILITIES_EXPORT ArgumentParser {
     friend ArgumentParserTests;
     friend ArgumentReader;
 
@@ -254,7 +248,7 @@ public:
 
 private:
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args, std::vector<char> abbreviations, std::vector<const char *> names);)
-    void printBashCompletion(int argc, const char * const *argv, unsigned int cursorPos, const ArgumentReader &reader);
+    void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader);
     void checkConstraints(const ArgumentVector &args);
     void invokeCallbacks(const ArgumentVector &args);
 
@@ -285,9 +279,9 @@ inline const char *Argument::name() const
 inline void Argument::setName(const char *name)
 {
 #ifdef DEBUG_BUILD
-    if(name && *name) {
+    if (name && *name) {
         assert(*name != '-');
-        for(const char *c = name; *c; ++c) {
+        for (const char *c = name; *c; ++c) {
             assert(*c != ' ' && *c != '=' && *c != '\'' && *c != '\"' && *c != '\n' && *c != '\r');
         }
     }
@@ -314,8 +308,8 @@ inline char Argument::abbreviation() const
  */
 inline void Argument::setAbbreviation(char abbreviation)
 {
-    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '=' && abbreviation != '-'
-            && abbreviation != '\'' && abbreviation != '"' && abbreviation != '\n' && abbreviation != '\r'));
+    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '=' && abbreviation != '-' && abbreviation != '\'' && abbreviation != '"'
+        && abbreviation != '\n' && abbreviation != '\r'));
     m_abbreviation = abbreviation;
 }
 
@@ -470,7 +464,7 @@ inline void Argument::appendValueName(const char *valueName)
 inline bool Argument::allRequiredValuesPresent(std::size_t occurrence) const
 {
     return m_requiredValueCount == static_cast<std::size_t>(-1)
-            || (m_occurrences[occurrence].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
+        || (m_occurrences[occurrence].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
 /*!
@@ -577,8 +571,8 @@ inline bool Argument::isRequired() const
  */
 inline void Argument::setRequired(bool required)
 {
-    if(required) {
-        if(!m_minOccurrences) {
+    if (required) {
+        if (!m_minOccurrences) {
             m_minOccurrences = 1;
         }
     } else {
@@ -816,41 +810,39 @@ inline void ArgumentParser::invokeCallbacks()
     invokeCallbacks(m_mainArgs);
 }
 
-class CPP_UTILITIES_EXPORT HelpArgument : public Argument
-{
+class CPP_UTILITIES_EXPORT HelpArgument : public Argument {
 public:
     HelpArgument(ArgumentParser &parser);
 };
 
-class CPP_UTILITIES_EXPORT OperationArgument : public Argument
-{
+class CPP_UTILITIES_EXPORT OperationArgument : public Argument {
 public:
     OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
 };
 
-inline OperationArgument::OperationArgument(const char *name, char abbreviation, const char *description, const char *example) :
-    Argument(name, abbreviation, description, example)
+inline OperationArgument::OperationArgument(const char *name, char abbreviation, const char *description, const char *example)
+    : Argument(name, abbreviation, description, example)
 {
     setDenotesOperation(true);
 }
 
-class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument
-{
+class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument {
 public:
-    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
+    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr,
+        std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
 };
 
 /*!
  * \brief Constructs a new ConfigValueArgument with the specified parameter. The initial value of requiredValueCount() is set to size of specified \a valueNames.
  */
-inline ConfigValueArgument::ConfigValueArgument(const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames) :
-    Argument(name, abbreviation, description)
+inline ConfigValueArgument::ConfigValueArgument(
+    const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames)
+    : Argument(name, abbreviation, description)
 {
     setCombinable(true);
     setRequiredValueCount(valueNames.size());
     setValueNames(valueNames);
 }
-
 }
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_H

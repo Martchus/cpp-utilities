@@ -11,26 +11,11 @@
  */
 namespace EscapeCodes {
 
-enum class Color : char
-{
-    Black = '0',
-    Red,
-    Green,
-    Yellow,
-    Blue,
-    Purple,
-    Cyan,
-    White
-};
+enum class Color : char { Black = '0', Red, Green, Yellow, Blue, Purple, Cyan, White };
 
-enum class ColorContext : char
-{
-    Foreground = '3',
-    Background = '4'
-};
+enum class ColorContext : char { Foreground = '3', Background = '4' };
 
-enum class TextAttribute : char
-{
+enum class TextAttribute : char {
     Reset = '0',
     Bold = '1',
     Dim = '2',
@@ -41,33 +26,23 @@ enum class TextAttribute : char
     Concealed = '8'
 };
 
-enum class Direction : char
-{
-    Up = 'A',
-    Down = 'B',
-    Forward = 'C',
-    Backward = 'D'
-};
+enum class Direction : char { Up = 'A', Down = 'B', Forward = 'C', Backward = 'D' };
 
 inline void setStyle(std::ostream &stream, TextAttribute displayAttribute = TextAttribute::Reset)
 {
     stream << '\e' << '[' << static_cast<char>(displayAttribute) << 'm';
 }
 
-inline void setStyle(std::ostream &stream, Color color,
-                 ColorContext context = ColorContext::Foreground,
-                 TextAttribute displayAttribute = TextAttribute::Reset)
+inline void setStyle(
+    std::ostream &stream, Color color, ColorContext context = ColorContext::Foreground, TextAttribute displayAttribute = TextAttribute::Reset)
 {
-    stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';'
-           << static_cast<char>(context) << static_cast<char>(color) << 'm';
+    stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(context) << static_cast<char>(color) << 'm';
 }
 
-inline void setStyle(std::ostream &stream, Color foregroundColor, Color backgroundColor,
-                 TextAttribute displayAttribute = TextAttribute::Reset)
+inline void setStyle(std::ostream &stream, Color foregroundColor, Color backgroundColor, TextAttribute displayAttribute = TextAttribute::Reset)
 {
-    stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';'
-           << static_cast<char>(ColorContext::Foreground) << static_cast<char>(foregroundColor) << ';'
-           << static_cast<char>(ColorContext::Foreground) << static_cast<char>(backgroundColor) << 'm';
+    stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(ColorContext::Foreground)
+           << static_cast<char>(foregroundColor) << ';' << static_cast<char>(ColorContext::Foreground) << static_cast<char>(backgroundColor) << 'm';
 }
 
 inline void resetStyle(std::ostream &stream)
@@ -104,8 +79,6 @@ inline void eraseLine(std::ostream &stream)
 {
     stream << "\33[2K";
 }
-
 }
 
 #endif // IOUTILITIES_ANSIESCAPECODES
-

@@ -5,8 +5,7 @@
 
 namespace ApplicationUtilities {
 
-class CPP_UTILITIES_EXPORT FakeQtConfigArguments
-{
+class CPP_UTILITIES_EXPORT FakeQtConfigArguments {
 public:
     FakeQtConfigArguments();
 
@@ -47,7 +46,7 @@ inline bool FakeQtConfigArguments::areQtGuiArgsPresent() const
 } // namespace ApplicationUtilities
 
 #ifndef QT_CONFIG_ARGUMENTS
-# define QT_CONFIG_ARGUMENTS ApplicationUtilities::FakeQtConfigArguments
+#define QT_CONFIG_ARGUMENTS ApplicationUtilities::FakeQtConfigArguments
 #endif
 
 #endif // APPLICATIONUTILITIES_FAKEQTCONFIGARGUMENTS_H

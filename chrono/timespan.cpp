@@ -2,9 +2,9 @@
 
 #include "../conversion/stringconversion.h"
 
-#include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <sstream>
 #include <vector>
 
 using namespace std;
@@ -24,16 +24,16 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
 {
     vector<double> parts;
     size_t partsSize = 1;
-    for(const char *i = str; *i; ++i) {
+    for (const char *i = str; *i; ++i) {
         *i == separator && ++partsSize;
     }
     parts.reserve(partsSize);
 
-    for(const char *i = str; ;) {
-        if(*i == separator) {
+    for (const char *i = str;;) {
+        if (*i == separator) {
             parts.emplace_back(stringToNumber<double>(string(str, i)));
             str = ++i;
-        } else if(*i == '\0') {
+        } else if (*i == '\0') {
             parts.emplace_back(stringToNumber<double>(string(str, i)));
             break;
         } else {
@@ -41,7 +41,7 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
         }
     }
 
-    switch(parts.size()) {
+    switch (parts.size()) {
     case 0:
         return TimeSpan();
     case 1:
@@ -79,31 +79,31 @@ string TimeSpan::toString(TimeSpanOutputFormat format, bool noMilliseconds) cons
 void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool noMilliseconds) const
 {
     stringstream s(stringstream::in | stringstream::out);
-    if(isNegative())
+    if (isNegative())
         s << "- ";
-    switch(format) {
+    switch (format) {
     case TimeSpanOutputFormat::Normal:
         s << setfill('0') << setw(2) << floor(fabs(totalHours())) << ":" << setw(2) << minutes() << ":" << setw(2) << seconds() << " ";
         break;
     case TimeSpanOutputFormat::WithMeasures:
-        if(isNull()) {
+        if (isNull()) {
             s << "0 s ";
-        } else if(totalMilliseconds() < 1.0) {
+        } else if (totalMilliseconds() < 1.0) {
             s << setprecision(2) << (m_ticks / 10.0) << " µs ";
         } else {
-            if(days()) {
+            if (days()) {
                 s << days() << " d ";
             }
-            if(hours()) {
+            if (hours()) {
                 s << hours() << " h ";
             }
-            if(minutes()) {
+            if (minutes()) {
                 s << minutes() << " min ";
             }
-            if(seconds()) {
+            if (seconds()) {
                 s << seconds() << " s ";
             }
-            if(!noMilliseconds && milliseconds()) {
+            if (!noMilliseconds && milliseconds()) {
                 s << milliseconds() << " ms ";
             }
         }
@@ -111,5 +111,3 @@ void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool noMill
     }
     result = s.str().substr(0, static_cast<string::size_type>(s.tellp()) - 1);
 }
-
-

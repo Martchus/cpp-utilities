@@ -3,38 +3,37 @@
 
 #include "../global.h"
 
-#include <string>
-#include <vector>
-#include <locale>
 #include <functional>
 #include <iostream>
+#include <locale>
+#include <string>
+#include <vector>
 
-namespace ConversionUtilities
-{
+namespace ConversionUtilities {
 
 /*!
  * \brief Converts a std::string to a wide string using the specified locale.
  * \deprecated Might be removed in future release because not used anymore. Use iconv based string converion functions instead.
  */
-template<class E, class T = std::char_traits<E>, class A = std::allocator<E> >
-class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> >
-{
+template <class E, class T = std::char_traits<E>, class A = std::allocator<E> >
+class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> > {
 public:
     /*!
      * \brief Constructs a new instance with the specified \a locale.
      */
-    Widen(const std::locale &locale = std::locale()) :
-        m_loc(locale),
-        m_pctype(&std::use_facet<std::ctype<E> >(locale))
-    {}
+    Widen(const std::locale &locale = std::locale())
+        : m_loc(locale)
+        , m_pctype(&std::use_facet<std::ctype<E> >(locale))
+    {
+    }
 
     Widen(const Widen &) = delete;
-    Widen& operator= (const Widen &) = delete;
+    Widen &operator=(const Widen &) = delete;
 
     /*!
      * \brief Performs the conversation for the provided \a string.
      */
-    std::basic_string<E, T, A> operator() (const std::string &string) const
+    std::basic_string<E, T, A> operator()(const std::string &string) const
     {
         typename std::basic_string<E, T, A>::size_type srcLen = string.length();
         const char *srcBeg = string.c_str();
@@ -45,9 +44,8 @@ public:
 
 private:
     std::locale m_loc;
-    const std::ctype<E>* m_pctype;
+    const std::ctype<E> *m_pctype;
 };
-
 }
 
 #endif // CONVERSION_UTILITIES_WIDEN_H

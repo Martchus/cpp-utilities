@@ -3,22 +3,20 @@
 
 #include "../application/argumentparser.h"
 
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace TestUtilities {
 
 /*!
  * \brief The WorkingCopyMode enum specifies additional options to influence behavior of TestApplication::workingCopyPathMode().
  */
-enum class WorkingCopyMode
-{
+enum class WorkingCopyMode {
     CreateCopy, /**< a working copy of the test file is created */
     NoCopy /**< only the directory for the working copy is created but not the test file itself */
 };
 
-class CPP_UTILITIES_EXPORT TestApplication
-{
+class CPP_UTILITIES_EXPORT TestApplication {
 public:
     TestApplication(int argc, char **argv);
     ~TestApplication();
@@ -130,11 +128,13 @@ inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &ou
  * \brief The AsHexNumber class allows printing values asserted with cppunit (or similar test framework) using the
  *        hex system in the error case.
  */
-template <typename T> class AsHexNumber
-{
+template <typename T> class AsHexNumber {
 public:
     /// \brief Constructs a new instance; use asHexNumber() for convenience instead.
-    AsHexNumber(const T &value) : value(value) {}
+    AsHexNumber(const T &value)
+        : value(value)
+    {
+    }
     const T &value;
 };
 
@@ -149,7 +149,7 @@ template <typename T> bool operator==(const AsHexNumber<T> &lhs, const AsHexNumb
 /*!
  * \brief Provides the actual formatting of the output for AsHexNumber class.
  */
-template <typename T> std::ostream &operator<< (std::ostream &out, const AsHexNumber<T> &value)
+template <typename T> std::ostream &operator<<(std::ostream &out, const AsHexNumber<T> &value)
 {
     return out << std::hex << '0' << 'x' << unsigned(value.value) << std::dec;
 }
@@ -168,10 +168,8 @@ template <typename T> AsHexNumber<T> asHexNumber(const T &value)
  * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
  * \remarks Requires cppunit.
  */
-# define TESTUTILS_ASSERT_EXEC(args) \
-    CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
+#define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
 #endif
-
 }
 
 #endif // TESTUTILS_H

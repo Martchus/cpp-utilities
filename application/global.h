@@ -2,59 +2,59 @@
 #define APPLICATION_UTILITIES_GLOBAL_H
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-# ifndef PLATFORM_WINDOWS
+#ifndef PLATFORM_WINDOWS
 /// \brief Defined when compiling for Windows.
-#  define PLATFORM_WINDOWS
-# endif
+#define PLATFORM_WINDOWS
+#endif
 #endif
 #if defined(__CYGWIN__)
-# ifndef PLATFORM_CYGWIN
+#ifndef PLATFORM_CYGWIN
 /// \brief Defined when compiling for Cygwin.
-#  define PLATFORM_CYGWIN
-# endif
+#define PLATFORM_CYGWIN
 #endif
-# if defined(__MINGW32__) || defined(__MINGW64__)
-#  ifndef PLATFORM_MINGW
+#endif
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#ifndef PLATFORM_MINGW
 /// \brief Defined when compiling with mingw(-w64).
-#   define PLATFORM_MINGW
-#  endif
-# endif
+#define PLATFORM_MINGW
+#endif
+#endif
 #if defined(__linux__) || defined(__linux) || defined(__gnu_linux__)
-# ifndef PLATFORM_LINUX
+#ifndef PLATFORM_LINUX
 /// \brief Defined when compiling for Linux.
-#  define PLATFORM_LINUX
-# endif
-# if defined(__ANDROID__) || defined(ANDROID)
-#  ifndef PLATFORM_ANDROID
+#define PLATFORM_LINUX
+#endif
+#if defined(__ANDROID__) || defined(ANDROID)
+#ifndef PLATFORM_ANDROID
 /// \brief Defined when compiling for Android.
-#   define PLATFORM_ANDROID
-#  endif
-# endif
+#define PLATFORM_ANDROID
+#endif
+#endif
 #endif
 #if defined(__APPLE__)
-# include <TargetConditionals.h>
-# if defined(TARGET_OS_MAC) && TARGET_OS_MAC
-#  ifndef PLATFORM_MAC
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+#ifndef PLATFORM_MAC
 /// \brief Defined when compiling for Mac/Darwin.
-#   define PLATFORM_MAC
-#  endif
-#  ifndef PLATFORM_BSD4
+#define PLATFORM_MAC
+#endif
+#ifndef PLATFORM_BSD4
 /// \brief Defined when compiling for BSD 4.
-#   define PLATFORM_BSD4
-#  endif
-# endif
+#define PLATFORM_BSD4
+#endif
+#endif
 #endif
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__FreeBSD_kernel__)
-# ifndef PLATFORM_FREE_BSD
+#ifndef PLATFORM_FREE_BSD
 /// \brief Defined when compiling for FreeBSD
-#  define PLATFORM_FREE_BSD
-# endif
+#define PLATFORM_FREE_BSD
+#endif
 #endif
 #if defined(__unix__) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREE_BSD) || defined(PLATFORM_MAC)
-# ifndef PLATFORM_UNIX
+#ifndef PLATFORM_UNIX
 /// \brief Defined when compiling for any UNIX (like) system.
-#  define PLATFORM_UNIX
-# endif
+#define PLATFORM_UNIX
+#endif
 #endif
 
 /*!
@@ -75,13 +75,13 @@
  */
 
 #ifdef PLATFORM_WINDOWS
-# define LIB_EXPORT __declspec(dllexport)
-# define LIB_IMPORT __declspec(dllimport)
-# define LIB_HIDDEN
+#define LIB_EXPORT __declspec(dllexport)
+#define LIB_IMPORT __declspec(dllimport)
+#define LIB_HIDDEN
 #else
-# define LIB_EXPORT __attribute__((visibility("default")))
-# define LIB_IMPORT __attribute__((visibility("default")))
-# define LIB_HIDDEN __attribute__((visibility("hidden")))
+#define LIB_EXPORT __attribute__((visibility("default")))
+#define LIB_IMPORT __attribute__((visibility("default")))
+#define LIB_HIDDEN __attribute__((visibility("hidden")))
 #endif
 
 /*!
@@ -91,11 +91,11 @@
  */
 
 #ifndef USE_NOTHROW
-# if __cplusplus >= 201103L
-#  define USE_NOTHROW noexcept
-# else
-#  define USE_NOTHROW throw()
-# endif
+#if __cplusplus >= 201103L
+#define USE_NOTHROW noexcept
+#else
+#define USE_NOTHROW throw()
+#endif
 #endif
 
 /*!
@@ -125,9 +125,9 @@
  */
 
 #ifdef DEBUG_BUILD
-# define IF_DEBUG_BUILD(x) x
+#define IF_DEBUG_BUILD(x) x
 #else
-# define IF_DEBUG_BUILD(x)
+#define IF_DEBUG_BUILD(x)
 #endif
 
 /*!
@@ -137,9 +137,9 @@
  */
 
 #ifdef __clang__
-# define FALLTHROUGH [[clang::fallthrough]]
-# else
-# define FALLTHROUGH
+#define FALLTHROUGH [[clang::fallthrough]]
+#else
+#define FALLTHROUGH
 #endif
 
 #endif // APPLICATION_UTILITIES_GLOBAL_H

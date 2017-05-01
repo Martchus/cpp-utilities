@@ -1,11 +1,11 @@
 #include "./commandlineutils.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #ifdef PLATFORM_WINDOWS
-# include <windows.h>
-# include <fcntl.h>
+#include <fcntl.h>
+#include <windows.h>
 #endif
 
 using namespace std;
@@ -23,11 +23,11 @@ bool confirmPrompt(const char *message, Response defaultResponse)
     cout << '/' << (defaultResponse == Response::No ? 'N' : 'n');
     cout << ']' << ' ';
     cout.flush();
-    for(string line; ;) {
+    for (string line;;) {
         getline(cin, line);
-        if(line == "y" || line == "Y" || (defaultResponse == Response::Yes && line.empty())) {
+        if (line == "y" || line == "Y" || (defaultResponse == Response::Yes && line.empty())) {
             return true;
-        } else if(line == "n" || line == "N" || (defaultResponse == Response::No && line.empty())) {
+        } else if (line == "n" || line == "N" || (defaultResponse == Response::No && line.empty())) {
             return false;
         } else {
             cout << "Please enter [y] or [n]: ";
@@ -46,7 +46,7 @@ void stopConsole()
     fclose(stdout);
     fclose(stdin);
     fclose(stderr);
-    if(auto *consoleWindow = GetConsoleWindow()) {
+    if (auto *consoleWindow = GetConsoleWindow()) {
         PostMessage(consoleWindow, WM_KEYUP, VK_RETURN, 0);
         FreeConsole();
     }
@@ -61,7 +61,7 @@ void stopConsole()
  */
 void startConsole()
 {
-    if(!AttachConsole(ATTACH_PARENT_PROCESS) && !AllocConsole()) {
+    if (!AttachConsole(ATTACH_PARENT_PROCESS) && !AllocConsole()) {
         return;
     }
     // redirect stdout
@@ -104,21 +104,21 @@ pair<vector<unique_ptr<char[]> >, vector<char *> > convertArgsToUtf8()
     int argc;
 
     LPWSTR *argv_w = CommandLineToArgvW(GetCommandLineW(), &argc);
-    if(!argv_w || argc <= 0) {
+    if (!argv_w || argc <= 0) {
         return res;
     }
 
     res.first.reserve(static_cast<size_t>(argc));
     res.second.reserve(static_cast<size_t>(argc));
-    for(LPWSTR *i = argv_w, *end = argv_w + argc; i != end; ++i) {
+    for (LPWSTR *i = argv_w, *end = argv_w + argc; i != end; ++i) {
         int requiredSize = WideCharToMultiByte(CP_UTF8, 0, *i, -1, nullptr, 0, 0, 0);
-        if(requiredSize <= 0) {
+        if (requiredSize <= 0) {
             break; // just stop on error
         }
 
         auto argv = make_unique<char[]>(static_cast<size_t>(requiredSize));
         requiredSize = WideCharToMultiByte(CP_UTF8, 0, *i, -1, argv.get(), requiredSize, 0, 0);
-        if(requiredSize <= 0) {
+        if (requiredSize <= 0) {
             break;
         }
 
