@@ -30,7 +30,7 @@ public:
     void close();
 
 private:
-    std::unique_ptr<__gnu_cxx::stdio_filebuf<char> > m_filebuf;
+    std::unique_ptr<__gnu_cxx::stdio_filebuf<char>> m_filebuf;
     std::__c_file m_cfile;
 };
 

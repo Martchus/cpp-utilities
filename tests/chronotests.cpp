@@ -1,11 +1,11 @@
 #include "../chrono/datetime.h"
-#include "../chrono/timespan.h"
-#include "../chrono/period.h"
 #include "../chrono/format.h"
+#include "../chrono/period.h"
+#include "../chrono/timespan.h"
 #include "../conversion/conversionexception.h"
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include <iostream>
 
@@ -18,8 +18,7 @@ using namespace CPPUNIT_NS;
 /*!
  * \brief The ChronoTests class tests classes and methods of the ChronoUtilities namespace.
  */
-class ChronoTests : public TestFixture
-{
+class ChronoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ChronoTests);
     CPPUNIT_TEST(testDateTime);
     CPPUNIT_TEST(testTimeSpan);
@@ -28,8 +27,12 @@ class ChronoTests : public TestFixture
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    void setUp() {}
-    void tearDown() {}
+    void setUp()
+    {
+    }
+    void tearDown()
+    {
+    }
 
     void testDateTime();
     void testTimeSpan();
@@ -74,7 +77,7 @@ void ChronoTests::testDateTime()
     const auto test3 = DateTime::fromIsoString("2016-08-29T21:32:31.125+02:00");
     CPPUNIT_ASSERT_EQUAL("2016-08-29T21:32:31.125+02:00"s, test3.first.toIsoString(test3.second));
 
-    // test now() and exactNow() (or at least whether both behave the same)
+// test now() and exactNow() (or at least whether both behave the same)
 #if defined(PLATFORM_UNIX)
     const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
     CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2) && delta > TimeSpan::fromSeconds(-2));

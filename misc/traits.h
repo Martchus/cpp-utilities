@@ -21,12 +21,12 @@ template <typename T> using Not = Bool<!T::value>;
 
 template <typename... T> struct Any : Bool<false> {
 };
-template <typename Head, typename... Tail> struct Any<Head, Tail...> : Conditional<Head, Bool<true>, Any<Tail...> > {
+template <typename Head, typename... Tail> struct Any<Head, Tail...> : Conditional<Head, Bool<true>, Any<Tail...>> {
 };
 
 template <typename... T> struct All : Bool<true> {
 };
-template <typename Head, typename... Tail> struct All<Head, Tail...> : Conditional<Head, All<Tail...>, Bool<false> > {
+template <typename Head, typename... Tail> struct All<Head, Tail...> : Conditional<Head, All<Tail...>, Bool<false>> {
 };
 
 template <typename... Condition> using EnableIf = typename std::enable_if<All<Condition...>::value, Detail::Enabler>::type;

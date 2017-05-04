@@ -61,7 +61,7 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
  * \tparam Container The STL-container used to provide the \a strings.
  * \returns Returns the joined string.
  */
-template <class Container = std::initializer_list<std::string> >
+template <class Container = std::initializer_list<std::string>>
 typename Container::value_type joinStrings(const Container &strings,
     const typename Container::value_type &delimiter = typename Container::value_type(), bool omitEmpty = false,
     const typename Container::value_type &leftClosure = typename Container::value_type(),
@@ -112,7 +112,7 @@ enum class EmptyPartsTreat {
  * \tparam Container The STL-container used to return the parts.
  * \returns Returns the parts.
  */
-template <class Container = std::list<std::string> >
+template <class Container = std::list<std::string>>
 Container splitString(const typename Container::value_type &string, const typename Container::value_type &delimiter,
     EmptyPartsTreat emptyPartsRole = EmptyPartsTreat::Keep, int maxParts = -1)
 {
@@ -250,7 +250,7 @@ template <typename CharType> CharType digitToChar(CharType digit)
  * \sa stringToNumber()
  */
 template <typename IntegralType, class StringType = std::string,
-    Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+    Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t resSize = 0;
@@ -271,7 +271,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \sa stringToNumber()
  */
-template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     const bool negative = number < 0;
@@ -303,7 +303,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  *          \a base and types).
  * \sa stringToNumber()
  */
-template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType> >...>
+template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
 StringType numberToString(FloatingType number, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
@@ -340,7 +340,7 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     IntegralType result = 0;
@@ -361,7 +361,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     auto i = string.begin();
@@ -393,7 +393,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  *          \a base and types).
  * \sa numberToString()
  */
-template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType> >...>
+template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
 FloatingType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
@@ -413,7 +413,7 @@ FloatingType stringToNumber(const StringType &string, typename StringType::value
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType> > >...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
     IntegralType result = 0;
@@ -434,7 +434,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType> >...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
     if (!*string) {

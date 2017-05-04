@@ -98,9 +98,9 @@ void startConsole()
  * \brief Convert command line arguments to UTF-8.
  * \remarks Only available on Windows (on other platforms we can assume passed arguments are already UTF-8 encoded).
  */
-pair<vector<unique_ptr<char[]> >, vector<char *> > convertArgsToUtf8()
+pair<vector<unique_ptr<char[]>>, vector<char *>> convertArgsToUtf8()
 {
-    pair<vector<unique_ptr<char[]> >, vector<char *> > res;
+    pair<vector<unique_ptr<char[]>>, vector<char *>> res;
     int argc;
 
     LPWSTR *argv_w = CommandLineToArgvW(GetCommandLineW(), &argc);

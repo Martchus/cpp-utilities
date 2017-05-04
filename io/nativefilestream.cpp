@@ -58,7 +58,7 @@ void NativeFileStream::open(const string &path, ios_base::openmode flags)
     if (fd == -1) {
         ::IoUtilities::throwIoFailure("_wopen failed");
     }
-    m_filebuf = make_unique<__gnu_cxx::stdio_filebuf<char> >(fd, flags);
+    m_filebuf = make_unique<__gnu_cxx::stdio_filebuf<char>>(fd, flags);
     rdbuf(m_filebuf.get());
 }
 

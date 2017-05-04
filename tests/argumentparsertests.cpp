@@ -11,11 +11,11 @@
 
 #include "resources/config.h"
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
 using namespace ApplicationUtilities;
@@ -26,8 +26,7 @@ using namespace CPPUNIT_NS;
 /*!
  * \brief The ArgumentParserTests class tests the ArgumentParser and Argument classes.
  */
-class ArgumentParserTests : public TestFixture
-{
+class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ArgumentParserTests);
     CPPUNIT_TEST(testArgument);
     CPPUNIT_TEST(testParsing);
@@ -51,10 +50,12 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(ArgumentParserTests);
 
 void ArgumentParserTests::setUp()
-{}
+{
+}
 
 void ArgumentParserTests::tearDown()
-{}
+{
+}
 
 /*!
  * \brief Tests the behaviour of the argument class.
@@ -71,7 +72,7 @@ void ArgumentParserTests::testArgument()
     CPPUNIT_ASSERT(!subArg.conflictsWithArgument());
     CPPUNIT_ASSERT(!argument.firstValue());
     argument.setEnvironmentVariable("PATH");
-    if(getenv("PATH")) {
+    if (getenv("PATH")) {
         CPPUNIT_ASSERT(argument.firstValue());
         CPPUNIT_ASSERT(!strcmp(argument.firstValue(), getenv("PATH")));
     } else {
@@ -92,14 +93,14 @@ void ArgumentParserTests::testParsing()
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
     Argument fileArg("file", 'f', "specifies the path of the file to be opened");
-    fileArg.setValueNames({"path"});
+    fileArg.setValueNames({ "path" });
     fileArg.setRequiredValueCount(1);
     fileArg.setEnvironmentVariable("PATH");
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
-    filesArg.setValueNames({"path 1", "path 2"});
+    filesArg.setValueNames({ "path 1", "path 2" });
     filesArg.setRequiredValueCount(-1);
     Argument outputFileArg("output-file", 'o', "specifies the path of the output file");
-    outputFileArg.setValueNames({"path"});
+    outputFileArg.setValueNames({ "path" });
     outputFileArg.setRequiredValueCount(1);
     outputFileArg.setRequired(true);
     outputFileArg.setCombinable(true);
@@ -107,23 +108,23 @@ void ArgumentParserTests::testParsing()
     Argument displayFileInfoArg("display-file-info", 'i', "displays general file information");
     Argument notAlbumArg("album", 'a', "should not be confused with album value");
     displayFileInfoArg.setDenotesOperation(true);
-    displayFileInfoArg.setSubArguments({&fileArg, &verboseArg, &notAlbumArg});
+    displayFileInfoArg.setSubArguments({ &fileArg, &verboseArg, &notAlbumArg });
     Argument fieldsArg("fields", '\0', "specifies the fields");
     fieldsArg.setRequiredValueCount(-1);
-    fieldsArg.setValueNames({"title", "album", "artist", "trackpos"});
+    fieldsArg.setValueNames({ "title", "album", "artist", "trackpos" });
     fieldsArg.setImplicit(true);
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
-    displayTagInfoArg.setSubArguments({&fieldsArg, &filesArg, &verboseArg, &notAlbumArg});
-    parser.setMainArguments({&qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg});
+    displayTagInfoArg.setSubArguments({ &fieldsArg, &filesArg, &verboseArg, &notAlbumArg });
+    parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg });
 
     // error about uncombinable arguments
-    const char *argv[] = {"tageditor", "get", "album", "title", "diskpos", "-f", "somefile"};
+    const char *argv[] = { "tageditor", "get", "album", "title", "diskpos", "-f", "somefile" };
     // try to parse, this should fail
     try {
         parser.parseArgs(7, argv);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"files\" can not be combined with \"fields\"."));
     }
 
@@ -144,7 +145,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
 
     // skip empty args
-    const char *argv2[] = {"tageditor", "", "-p", "album", "title", "diskpos", "", "--files", "somefile"};
+    const char *argv2[] = { "tageditor", "", "-p", "album", "title", "diskpos", "", "--files", "somefile" };
     // reparse the args
     parser.resetArgs();
     parser.parseArgs(9, argv2);
@@ -163,12 +164,12 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
 
     // error about unknown argument: forget get/-p
-    const char *argv3[] = {"tageditor", "album", "title", "diskpos", "--files", "somefile"};
+    const char *argv3[] = { "tageditor", "album", "title", "diskpos", "--files", "somefile" };
     try {
         parser.resetArgs();
         parser.parseArgs(6, argv3);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown."s, string(e.what()));
     }
 
@@ -180,7 +181,7 @@ void ArgumentParserTests::testParsing()
     parser.resetArgs();
     try {
         parser.parseArgs(6, argv3);
-    } catch(...) {
+    } catch (...) {
         cerr.rdbuf(regularCerrBuffer);
         throw;
     }
@@ -190,7 +191,7 @@ void ArgumentParserTests::testParsing()
                          "The specified argument \"diskpos\" is unknown and will be ignored.\n"s
                          "The specified argument \"--files\" is unknown and will be ignored.\n"s
                          "The specified argument \"somefile\" is unknown and will be ignored.\n"s,
-                         buffer.str());
+        buffer.str());
     // none of the arguments should be present now
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -199,7 +200,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!filesArg.isPresent());
 
     // combined abbreviations like "-vf"
-    const char *argv4[] = {"tageditor", "-i", "-vf", "test"};
+    const char *argv4[] = { "tageditor", "-i", "-vf", "test" };
     parser.setUnknownArgumentBehavior(UnknownArgumentBehavior::Fail);
     parser.resetArgs();
     parser.parseArgs(4, argv4);
@@ -217,7 +218,7 @@ void ArgumentParserTests::testParsing()
     try {
         parser.parseArgs(4, argv4);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" mustn't be specified more than 1 time."));
     }
@@ -235,19 +236,19 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // contraint checking: error about missing mandatory argument
-    const char *argv5[] = {"tageditor", "-i", "-f", "test"};
+    const char *argv5[] = { "tageditor", "-i", "-f", "test" };
     displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
     try {
         parser.parseArgs(4, argv5);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" must be specified at least 1 time."));
     }
     verboseArg.setRequired(false);
 
     // combined abbreviation with nesting "-pf"
-    const char *argv10[] = {"tageditor", "-pf", "test"};
+    const char *argv10[] = { "tageditor", "-pf", "test" };
     parser.resetArgs();
     parser.parseArgs(3, argv10);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
@@ -259,24 +260,24 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // constraint checking: no complains about missing -i
-    const char *argv6[] = {"tageditor", "-g"};
+    const char *argv6[] = { "tageditor", "-g" };
     parser.resetArgs();
     parser.parseArgs(2, argv6);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // constraint checking: dependend arguments (-f requires -i or -p)
-    const char *argv7[] = {"tageditor", "-f", "test"};
+    const char *argv7[] = { "tageditor", "-f", "test" };
     parser.resetArgs();
     try {
         parser.parseArgs(3, argv7);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown."s, string(e.what()));
     }
 
     // equation sign syntax
-    const char *argv11[] = {"tageditor", "-if=test"};
+    const char *argv11[] = { "tageditor", "-if=test" };
     parser.resetArgs();
     parser.parseArgs(2, argv11);
     CPPUNIT_ASSERT(!filesArg.isPresent());
@@ -285,7 +286,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
 
     // specifying value directly after abbreviation
-    const char *argv12[] = {"tageditor", "-iftest"};
+    const char *argv12[] = { "tageditor", "-iftest" };
     parser.resetArgs();
     parser.parseArgs(2, argv12);
     CPPUNIT_ASSERT(!filesArg.isPresent());
@@ -294,7 +295,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
 
     // default argument
-    const char *argv8[] = {"tageditor"};
+    const char *argv8[] = { "tageditor" };
     parser.resetArgs();
     parser.parseArgs(1, argv8);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
@@ -303,7 +304,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(!fileArg.isPresent());
-    if(getenv("PATH")) {
+    if (getenv("PATH")) {
         CPPUNIT_ASSERT(fileArg.firstValue());
         CPPUNIT_ASSERT(!strcmp(fileArg.firstValue(), getenv("PATH")));
     } else {
@@ -311,7 +312,7 @@ void ArgumentParserTests::testParsing()
     }
 
     // constraint checking: required value count with sufficient number of provided parameters
-    const char *argv13[] = {"tageditor", "get", "--fields", "album=test", "title", "diskpos", "--files", "somefile"};
+    const char *argv13[] = { "tageditor", "get", "--fields", "album=test", "title", "diskpos", "--files", "somefile" };
     verboseArg.setRequired(false);
     parser.resetArgs();
     parser.parseArgs(8, argv13);
@@ -330,19 +331,20 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!notAlbumArg.isPresent());
 
     // constraint checking: required value count with insufficient number of provided parameters
-    const char *argv9[] = {"tageditor", "-p", "album", "title", "diskpos"};
+    const char *argv9[] = { "tageditor", "-p", "album", "title", "diskpos" };
     fieldsArg.setRequiredValueCount(4);
     parser.resetArgs();
     try {
         parser.parseArgs(5, argv9);
         CPPUNIT_FAIL("Exception expected.");
-    } catch(const Failure &e) {
+    } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT(!strcmp(e.what(), "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"));
+        CPPUNIT_ASSERT(!strcmp(e.what(),
+            "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"));
     }
 
     // nested operations
-    const char *argv14[] = {"tageditor", "get", "fields", "album=test", "-f", "somefile"};
+    const char *argv14[] = { "tageditor", "get", "fields", "album=test", "-f", "somefile" };
     parser.resetArgs();
     fieldsArg.setRequiredValueCount(-1);
     fieldsArg.setDenotesOperation(true);
@@ -369,7 +371,7 @@ void ArgumentParserTests::testCallbacks()
     ArgumentParser parser;
     Argument callbackArg("with-callback", 't', "callback test");
     callbackArg.setRequiredValueCount(2);
-    callbackArg.setCallback([] (const ArgumentOccurrence &occurrence) {
+    callbackArg.setCallback([](const ArgumentOccurrence &occurrence) {
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), occurrence.index);
         CPPUNIT_ASSERT(occurrence.path.empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), occurrence.values.size());
@@ -379,19 +381,19 @@ void ArgumentParserTests::testCallbacks()
     });
     Argument noCallbackArg("no-callback", 'l', "callback test");
     noCallbackArg.setRequiredValueCount(2);
-    parser.setMainArguments({&callbackArg, &noCallbackArg});
+    parser.setMainArguments({ &callbackArg, &noCallbackArg });
 
     // test whether callback is invoked when argument with callback is specified
-    const char *argv[] = {"test", "-t", "val1", "val2"};
+    const char *argv[] = { "test", "-t", "val1", "val2" };
     try {
         parser.parseArgs(4, argv);
-    } catch(int i) {
+    } catch (int i) {
         CPPUNIT_ASSERT_EQUAL(i, 42);
     }
 
     // test whether callback is not invoked when argument with callback is not specified
     callbackArg.reset();
-    const char *argv2[] = {"test", "-l", "val1", "val2"};
+    const char *argv2[] = { "test", "-l", "val1", "val2" };
     parser.parseArgs(4, argv2);
 }
 
@@ -411,10 +413,10 @@ void ArgumentParserTests::testBashCompletion()
     filesArg.setCombinable(true);
     Argument nestedSubArg("nested-sub", '\0', "nested sub arg");
     Argument subArg("sub", '\0', "sub arg");
-    subArg.setSubArguments({&nestedSubArg});
+    subArg.setSubArguments({ &nestedSubArg });
     Argument displayFileInfoArg("display-file-info", 'i', "displays general file information");
     displayFileInfoArg.setDenotesOperation(true);
-    displayFileInfoArg.setSubArguments({&filesArg, &verboseArg, &subArg});
+    displayFileInfoArg.setSubArguments({ &filesArg, &verboseArg, &subArg });
     Argument fieldsArg("fields", '\0', "specifies the fields");
     fieldsArg.setRequiredValueCount(-1);
     fieldsArg.setPreDefinedCompletionValues("title album artist trackpos");
@@ -425,11 +427,11 @@ void ArgumentParserTests::testBashCompletion()
     valuesArg.setImplicit(true);
     valuesArg.setValueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::AppendEquationSign);
     Argument getArg("get", 'g', "gets tag values");
-    getArg.setSubArguments({&fieldsArg, &filesArg});
+    getArg.setSubArguments({ &fieldsArg, &filesArg });
     Argument setArg("set", 's', "sets tag values");
-    setArg.setSubArguments({&valuesArg, &filesArg});
+    setArg.setSubArguments({ &valuesArg, &filesArg });
 
-    parser.setMainArguments({&helpArg, &displayFileInfoArg, &getArg, &setArg});
+    parser.setMainArguments({ &helpArg, &displayFileInfoArg, &getArg, &setArg });
 
     // redirect cout to custom buffer
     stringstream buffer;
@@ -437,7 +439,7 @@ void ArgumentParserTests::testBashCompletion()
 
     try {
         // fail due to operation flags not set
-        const char *const argv1[] = {"se"};
+        const char *const argv1[] = { "se" };
         ArgumentReader reader(parser, argv1, argv1 + 1, true);
         reader.read();
         parser.printBashCompletion(1, argv1, 0, reader);
@@ -454,7 +456,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('set' )\n"s, buffer.str());
 
         // argument at current cursor position already specified -> the completion should just return the argument
-        const char *const argv2[] = {"set"};
+        const char *const argv2[] = { "set" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -493,7 +495,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"s, buffer.str());
 
         // pre-defined values
-        const char *const argv3[] = {"get", "--fields"};
+        const char *const argv3[] = { "get", "--fields" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -503,7 +505,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"s, buffer.str());
 
         // pre-defined values with equation sign, one letter already present
-        const char *const argv4[] = {"set", "--values", "a"};
+        const char *const argv4[] = { "set", "--values", "a" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -518,7 +520,7 @@ void ArgumentParserTests::testBashCompletion()
         string mkvFilePath = TestUtilities::testFilePath("test 'with quote'.mkv");
         mkvFilePath.resize(mkvFilePath.size() - 17);
         TestUtilities::testFilePath("t.aac");
-        const char *const argv5[] = {"get", "--files", iniFilePath.c_str()};
+        const char *const argv5[] = { "get", "--files", iniFilePath.c_str() };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -527,14 +529,16 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         // order for file names is not specified
         const string res(buffer.str());
-        if(res.find(".mkv") < res.find(".ini")) {
-            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
+        if (res.find(".mkv") < res.find(".ini")) {
+            CPPUNIT_ASSERT_EQUAL(
+                "COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
         } else {
-            CPPUNIT_ASSERT_EQUAL("COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
+            CPPUNIT_ASSERT_EQUAL(
+                "COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
         }
 
         // sub arguments
-        const char *const argv6[] = {"set", "--"};
+        const char *const argv6[] = { "set", "--" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -544,7 +548,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--values' )\n"s, buffer.str());
 
         // nested sub arguments
-        const char *const argv7[] = {"-i", "--sub", "--"};
+        const char *const argv7[] = { "-i", "--sub", "--" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -554,7 +558,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"s, buffer.str());
 
         // started pre-defined values with equation sign, one letter already present, last value matches
-        const char *const argv8[] = {"set", "--values", "t"};
+        const char *const argv8[] = { "set", "--values", "t" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -564,7 +568,7 @@ void ArgumentParserTests::testBashCompletion()
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title=' 'trackpos=' ); compopt -o nospace\n"s, buffer.str());
 
         // combined abbreviations
-        const char *const argv9[] = {"-gf"};
+        const char *const argv9[] = { "-gf" };
         buffer.str(string());
         cout.rdbuf(buffer.rdbuf());
         parser.resetArgs();
@@ -581,7 +585,7 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(static_cast<string::size_type>(0), buffer.str().find("COMPREPLY=('--fields' "));
 
-    } catch(...) {
+    } catch (...) {
         cout.rdbuf(regularCoutBuffer);
         throw;
     }

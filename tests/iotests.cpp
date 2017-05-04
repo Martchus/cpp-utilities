@@ -3,17 +3,17 @@
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
-#include "../io/path.h"
-#include "../io/inifile.h"
-#include "../io/copy.h"
 #include "../io/catchiofailure.h"
+#include "../io/copy.h"
+#include "../io/inifile.h"
+#include "../io/path.h"
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <algorithm>
 
 using namespace std;
 using namespace IoUtilities;
@@ -23,8 +23,7 @@ using namespace CPPUNIT_NS;
 /*!
  * \brief The IoTests class tests classes and methods of the IoUtilities namespace.
  */
-class IoTests : public TestFixture
-{
+class IoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(IoTests);
     CPPUNIT_TEST(testFailure);
     CPPUNIT_TEST(testBinaryReader);
@@ -51,10 +50,12 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
 
 void IoTests::setUp()
-{}
+{
+}
 
 void IoTests::tearDown()
-{}
+{
+}
 
 /*!
  * \brief Tests for GCC Bug 66145.
@@ -77,7 +78,7 @@ void IoTests::testFailure()
         fstream stream;
         stream.exceptions(ios_base::failbit | ios_base::badbit);
         stream.open("path/to/file/which/does/not/exist", ios_base::in);
-    } catch(...) {
+    } catch (...) {
         catchIoFailure();
     }
 }
@@ -160,9 +161,9 @@ void IoTests::testBinaryWriter()
     writer.writeUInt64BE(0x0102030405060708u);
 
     // test written values
-    for(char c : testData) {
+    for (char c : testData) {
         CPPUNIT_ASSERT(c == static_cast<char>(testFile.get()));
-        if(testFile.tellg() >= 58) {
+        if (testFile.tellg() >= 58) {
             break;
         }
     }
@@ -193,7 +194,7 @@ void IoTests::testBinaryWriter()
     writer.writeTerminatedString("def");
 
     // test written values
-    for(char c : testData) {
+    for (char c : testData) {
         CPPUNIT_ASSERT(c == static_cast<char>(testFile.get()));
     }
 }
@@ -203,7 +204,7 @@ void IoTests::testBinaryWriter()
  */
 void IoTests::testBitReader()
 {
-    const byte testData[] = {0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20};
+    const byte testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20 };
     BitReader reader(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT(reader.readBit() == 1);
     reader.skipBits(6);
@@ -218,10 +219,9 @@ void IoTests::testBitReader()
     CPPUNIT_ASSERT(reader.readBit() == 0);
     try {
         reader.readBit();
-    } catch(...) {
+    } catch (...) {
         catchIoFailure();
     }
-
 }
 
 /*!
@@ -312,7 +312,7 @@ void IoTests::testCopy()
 
     // test
     testFile.seekg(0);
-    for(byte i = 0; i < 50; ++i) {
+    for (byte i = 0; i < 50; ++i) {
         CPPUNIT_ASSERT(testFile.get() == outputStream.get());
     }
 }

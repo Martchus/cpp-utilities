@@ -15,15 +15,15 @@ namespace ConversionUtilities {
  * \brief Converts a std::string to a wide string using the specified locale.
  * \deprecated Might be removed in future release because not used anymore. Use iconv based string converion functions instead.
  */
-template <class E, class T = std::char_traits<E>, class A = std::allocator<E> >
-class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A> > {
+template <class E, class T = std::char_traits<E>, class A = std::allocator<E>>
+class CPP_UTILITIES_EXPORT Widen : public std::unary_function<const std::string &, std::basic_string<E, T, A>> {
 public:
     /*!
      * \brief Constructs a new instance with the specified \a locale.
      */
     Widen(const std::locale &locale = std::locale())
         : m_loc(locale)
-        , m_pctype(&std::use_facet<std::ctype<E> >(locale))
+        , m_pctype(&std::use_facet<std::ctype<E>>(locale))
     {
     }
 

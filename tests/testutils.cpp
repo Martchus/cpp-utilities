@@ -188,7 +188,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     }
 
     // ensure subdirectory exists
-    const auto parts = splitString<vector<string> >(name, string("/"), EmptyPartsTreat::Omit);
+    const auto parts = splitString<vector<string>>(name, string("/"), EmptyPartsTreat::Omit);
     if (!parts.empty()) {
         string currentLevel = m_workingDir;
         for (auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {

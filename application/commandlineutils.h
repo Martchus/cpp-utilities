@@ -21,7 +21,7 @@ bool CPP_UTILITIES_EXPORT confirmPrompt(const char *message, Response defaultRes
 
 #ifdef PLATFORM_WINDOWS
 void CPP_UTILITIES_EXPORT startConsole();
-std::pair<std::vector<std::unique_ptr<char[]> >, std::vector<char *> > CPP_UTILITIES_EXPORT convertArgsToUtf8();
+std::pair<std::vector<std::unique_ptr<char[]>>, std::vector<char *>> CPP_UTILITIES_EXPORT convertArgsToUtf8();
 #define CMD_UTILS_START_CONSOLE ::ApplicationUtilities::startConsole();
 #define CMD_UTILS_CONVERT_ARGS_TO_UTF8                                                                                                               \
     auto utf8Args = ::ApplicationUtilities::convertArgsToUtf8();                                                                                     \
