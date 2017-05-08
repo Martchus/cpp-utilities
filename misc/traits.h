@@ -1,6 +1,7 @@
 #ifndef CPP_UTILITIES_TRAITS_H
 #define CPP_UTILITIES_TRAITS_H
 
+#include <iterator>
 #include <type_traits>
 
 /// \brief Contains traits for conveniently exploiting SFINAE.
@@ -39,6 +40,28 @@ template <typename T, template <typename...> class Template> struct IsSpecializa
 };
 template <template <typename...> class Template, typename... Args> struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {
 };
+
+/// \cond
+namespace Detail {
+// allow ADL with custom begin/end
+using std::begin;
+using std::end;
+template <typename T>
+auto isIteratableImpl(int) -> decltype(
+    // begin/end and operator !=
+    begin(std::declval<T &>()) != end(std::declval<T &>()),
+    // operator ,
+    void(),
+    // operator ++
+    ++std::declval<decltype(begin(std::declval<T &>())) &>(),
+    // operator*
+    void(*begin(std::declval<T &>())), Bool<true>{});
+
+template <typename T> Bool<false> isIteratableImpl(...);
+}
+/// \endcond
+
+template <typename T> using IsIteratable = decltype(Detail::isIteratableImpl<T>(0));
 }
 
 #endif // CPP_UTILITIES_TRAITS_H
