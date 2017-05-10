@@ -31,3 +31,15 @@ static_assert(IsIteratable<vector<int>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<list<string>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<map<string, string>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<initializer_list<double>>::value, "IsIterator: positive case");
+
+static_assert(!IsCString<string>::value, "IsCString: negative case");
+static_assert(!IsCString<int[]>::value, "IsCString: negative case");
+static_assert(!IsCString<int *>::value, "IsCString: negative case");
+static_assert(IsCString<char[]>::value, "IsCString: positive case");
+static_assert(IsCString<char *>::value, "IsCString: positive case");
+static_assert(IsCString<const char *>::value, "IsCString: positive case");
+static_assert(!IsString<int *>::value, "IsString: negative case");
+static_assert(!IsString<stringstream>::value, "IsString: negative case");
+static_assert(IsString<const char *>::value, "IsString: positive case");
+static_assert(IsString<string>::value, "IsCString: positive case");
+static_assert(IsString<u16string>::value, "IsCString: positive case");

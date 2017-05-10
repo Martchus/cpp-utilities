@@ -41,6 +41,13 @@ template <typename T, template <typename...> class Template> struct IsSpecializa
 template <template <typename...> class Template, typename... Args> struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {
 };
 
+template <typename T>
+struct IsCString
+    : Bool<std::is_same<char const *, typename std::decay<T>::type>::value || std::is_same<char *, typename std::decay<T>::type>::value> {
+};
+template <typename T> struct IsString : Bool<IsCString<T>::value || IsSpecializationOf<T, std::basic_string>::value> {
+};
+
 /// \cond
 namespace Detail {
 // allow ADL with custom begin/end
