@@ -2,6 +2,7 @@
 #define TESTUTILS_H
 
 #include "../application/argumentparser.h"
+#include "../misc/traits.h"
 
 #include <ostream>
 #include <string>
@@ -170,6 +171,17 @@ template <typename T> AsHexNumber<T> asHexNumber(const T &value)
  */
 #define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
 #endif
+
+/*!
+ * \brief Allows printing iteratable objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
+ */
+template <typename Iteratable, Traits::EnableIf<Traits::IsIteratable<Iteratable>, Traits::Not<Traits::IsString<Iteratable>>>...>
+inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
+{
+    for (const auto &item : iteratable)
+        out << item << '\n';
+    return out;
+}
 }
 
 #endif // TESTUTILS_H
