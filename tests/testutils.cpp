@@ -237,7 +237,12 @@ string TestApplication::workingCopyPath(const string &name) const
  *  - Currently only supported under UNIX.
  *  - \a stdout and \a stderr are cleared before.
  */
-int TestApplication::execApp(const char *const *args, string &stdout, string &stderr, bool suppressLogging, int timeout) const
+int TestApplication::execApp(const char *const *args, string &output, string &errors, bool suppressLogging, int timeout) const
+{
+    return execHelperApp(m_applicationPathArg.firstValue(), args, output, errors, suppressLogging, timeout);
+}
+
+int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
 {
     // print log message
     if (!suppressLogging) {
@@ -248,7 +253,6 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
         cout << endl;
     }
     // determine application path
-    const char *appPath = m_applicationPathArg.firstValue();
     if (!appPath || !*appPath) {
         throw runtime_error("Unable to execute application to be tested: no application path specified");
     }
@@ -276,7 +280,7 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
             // init variables for reading
             char buffer[512];
             ssize_t count;
-            stdout.clear(), stderr.clear();
+            output.clear(), errors.clear();
 
             // poll as long as at least one pipe is open
             do {
@@ -285,7 +289,7 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
                     // poll succeeds
                     if (fileDescriptorSet[0].revents & POLLIN) {
                         if ((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
-                            stdout.append(buffer, count);
+                            output.append(buffer, count);
                         }
                     } else if (fileDescriptorSet[0].revents & POLLHUP) {
                         close(readCoutPipe);
@@ -293,7 +297,7 @@ int TestApplication::execApp(const char *const *args, string &stdout, string &st
                     }
                     if (fileDescriptorSet[1].revents & POLLIN) {
                         if ((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
-                            stderr.append(buffer, count);
+                            errors.append(buffer, count);
                         }
                     } else if (fileDescriptorSet[1].revents & POLLHUP) {
                         close(readCerrPipe);
