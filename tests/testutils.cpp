@@ -9,6 +9,7 @@
 #include <fstream>
 #include <initializer_list>
 #include <iostream>
+#include <limits>
 
 #ifdef PLATFORM_UNIX
 #include <poll.h>
@@ -67,7 +68,7 @@ TestApplication::TestApplication(int argc, char **argv)
         arg->setValueNames({ "path" });
         arg->setCombinable(true);
     }
-    m_unitsArg.setRequiredValueCount(-1);
+    m_unitsArg.setRequiredValueCount(Argument::varValueCount);
     m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
     m_unitsArg.setCombinable(true);
     m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg });

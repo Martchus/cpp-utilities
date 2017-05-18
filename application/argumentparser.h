@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <limits>
 #include <vector>
 #ifdef DEBUG_BUILD
 #include <cassert>
@@ -199,6 +200,12 @@ public:
     Argument *wouldConflictWithArgument() const;
     void reset();
     void resetRecursively();
+
+    /*!
+     * \brief Denotes a variable number of values.
+     * \sa setRequiredValueCount()
+     */
+    static constexpr std::size_t varValueCount = std::numeric_limits<std::size_t>::max();
 
 private:
     const char *m_name;
@@ -405,7 +412,8 @@ inline std::size_t Argument::requiredValueCount() const
  *        for this argument.
  *
  * The parser will expect that many values when parsing command line arguments.
- * A negative value indicates a variable number of arguments to be expected.
+ * Pass Argument::varValueCount for a variable number of arguments
+ * to be expected.
  *
  * \sa requiredValueCount()
  * \sa valueNames()
