@@ -9,9 +9,24 @@ option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the \"all
 
 # find and link against cppunit if required (used by all my projects, so it is required by default)
 if(NOT META_NO_CPP_UNIT)
-    find_library(CPP_UNIT_LIB cppunit)
+    if(NOT META_REQUIRED_CPP_UNIT_VERSION)
+        set(META_REQUIRED_CPP_UNIT_VERSION 1.13.0)
+    endif()
+
+    include(FindPkgConfig)
+    pkg_search_module(CPP_UNIT_CONFIG_${META_PROJECT_NAME} cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
+    if(CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
+        set(CPP_UNIT_LIB "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}" "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}")
+        link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
+    elseif(NOT CPP_UNIT_LIB)
+        find_library(CPP_UNIT_LIB cppunit)
+    endif()
+
     if(CPP_UNIT_LIB)
         list(APPEND TEST_LIBRARIES ${CPP_UNIT_LIB})
+        if(NOT CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
+            message(WARNING "Unable to find cppunit via pkg-config so the version couldn't be checked. Required version for ${META_PROJECT_NAME} is ${META_REQUIRED_CPP_UNIT_VERSION}.")
+        endif()
     endif()
 endif()
 
@@ -72,6 +87,14 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                 LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                 AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
             )
+            if(CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
+                target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+                    PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}"
+                )
+                target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+                    PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}"
+                )
+            endif()
             # link tests against it
             list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib)
             # ensure all symbols are visible (man gcc: "Despite the nomenclature, default always means public")
