@@ -7,12 +7,17 @@ endif()
 
 option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the \"all\" target (enabled by default)" ON)
 
-# find cppunit (I always use it for tests of my libs/applications but maybe this should be made optional in the future)
-find_library(CPP_UNIT_LIB cppunit)
+# find and link against cppunit if required (used by all my projects, so it is required by default)
+if(NOT META_NO_CPP_UNIT)
+    find_library(CPP_UNIT_LIB cppunit)
+    if(CPP_UNIT_LIB)
+        list(APPEND TEST_LIBRARIES ${CPP_UNIT_LIB})
+    endif()
+endif()
 
-if(CPP_UNIT_LIB)
-    # always link test applications against c++utilities and cppunit
-    list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB} ${CPP_UNIT_LIB})
+if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
+    # always link test applications against c++utilities
+    list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB})
 
     # set compile definitions
     if(NOT META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS)
@@ -110,8 +115,11 @@ if(CPP_UNIT_LIB)
         endif()
     endif()
 
+    set(META_HAVE_TESTS YES)
+
 else()
     message(WARNING "Unable to add test target because cppunit could not be located.")
+    set(META_HAVE_TESTS NO)
 endif()
 
 set(TEST_CONFIG_DONE YES)
