@@ -116,7 +116,7 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
         # internally used by use_external_library_from_package to find dynamic libraries
         configure_dynamic_library_suffixes()
         find_package(${PKGNAME} ${COMPAT_VERSION})
-        include_directories(${${INCLUDE_VAR}})
+        set(${NAME}_DYNAMIC_INCLUDE_DIR ${${INCLUDE_VAR}} PARENT_SCOPE)
         set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}} PARENT_SCOPE)
     endfunction()
 
@@ -124,7 +124,7 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
         # internally used by use_external_library_from_package to find static libraries
         configure_static_library_suffixes()
         find_package(${PKGNAME} ${COMPAT_VERSION})
-        include_directories(${${INCLUDE_VAR}})
+        set(${NAME}_STATIC_INCLUDE_DIR ${${INCLUDE_VAR}} PARENT_SCOPE)
         set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}} PARENT_SCOPE)
     endfunction()
 
