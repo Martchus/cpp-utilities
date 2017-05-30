@@ -190,6 +190,20 @@ inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
         out << item << '\n';
     return out;
 }
+
+/*!
+ * \brief Contains literals to ease asserting with CPPUNIT_ASSERT_EQUAL.
+ */
+namespace Literals {
+/*!
+ * \brief Literal for std::size_t to ease asserting std::size_t with CPPUNIT_ASSERT_EQUAL.
+ * \remarks Just using "ul"-suffix does not compile under 32-bit architecture!
+ */
+constexpr std::size_t operator"" _st(unsigned long long size)
+{
+    return static_cast<std::size_t>(size);
+}
+}
 }
 
 #endif // TESTUTILS_H

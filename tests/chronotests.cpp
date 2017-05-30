@@ -3,6 +3,7 @@
 #include "../chrono/period.h"
 #include "../chrono/timespan.h"
 #include "../conversion/conversionexception.h"
+#include "../tests/testutils.h"
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -12,6 +13,7 @@
 using namespace std;
 using namespace ConversionUtilities;
 using namespace ChronoUtilities;
+using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
@@ -131,11 +133,11 @@ void ChronoTests::testHashing()
     dateTimes.emplace(DateTime::fromDate(2500, 2, 1));
     dateTimes.emplace(DateTime::fromDate(2500, 2, 2));
     dateTimes.emplace(DateTime::fromDate(2500, 2, 1));
-    CPPUNIT_ASSERT_EQUAL(2ul, dateTimes.size());
+    CPPUNIT_ASSERT_EQUAL(2_st, dateTimes.size());
 
     set<TimeSpan> timeSpans;
     timeSpans.emplace(TimeSpan::fromDays(5));
     timeSpans.emplace(TimeSpan::fromDays(10));
     timeSpans.emplace(TimeSpan::fromDays(5));
-    CPPUNIT_ASSERT_EQUAL(2ul, timeSpans.size());
+    CPPUNIT_ASSERT_EQUAL(2_st, timeSpans.size());
 }
