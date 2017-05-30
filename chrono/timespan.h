@@ -4,6 +4,7 @@
 #include "../conversion/types.h"
 #include "../global.h"
 
+#include <functional>
 #include <limits>
 #include <string>
 
