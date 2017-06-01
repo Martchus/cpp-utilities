@@ -172,15 +172,6 @@ if(NOT META_NO_TIDY)
     endif()
 endif()
 
-# add autotools-style check target
-if(NOT TARGET check)
-    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
-    add_custom_target(check
-        COMMAND ${CMAKE_CTEST_COMMAND}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-endif()
-
 # enable testing
 enable_testing()
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
@@ -201,28 +192,31 @@ if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
         if(FORMATABLE_FILES)
             list(REMOVE_ITEM FORMATABLE_FILES "")
 
+             add_custom_command(
+                OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
+            )
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
                 COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+                DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
             )
             if(NOT TARGET tidy)
                 add_custom_target(tidy)
             endif()
             add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
-            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle"
-                COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
-            )
-            add_dependencies("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy" "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_link_codingstyle")
 
             # also add a test to verify whether sources are tidy
             add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
                 COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             )
+            list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
             set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
                 FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+                REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
             )
         endif()
     else()
@@ -230,6 +224,16 @@ if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
     endif()
 else()
     message(WARNING "No rules to invoke clang-format for ${META_PROJECT_NAME} present")
+endif()
+
+# add autotools-style check target
+if(NOT TARGET check)
+    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
+    add_custom_target(check
+        COMMAND ${CMAKE_CTEST_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS "${CHECK_TARGET_DEPENDS}"
+    )
 endif()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)
