@@ -152,7 +152,7 @@ CPP_UTILITIES_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
  */
 CPP_UTILITIES_EXPORT constexpr uint16 swapOrder(uint16 value)
 {
-    return (value >> 8) | (value << 8);
+    return ((value >> 8) & 0x00FF) | ((value << 8) & 0xFF00);
 }
 
 /*!
