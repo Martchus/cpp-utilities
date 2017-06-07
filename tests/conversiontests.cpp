@@ -249,16 +249,18 @@ void ConversionTests::testStringConversions()
         }
     }
 
-    // stringToNumber() with leading zeroes and different types
-    int32 res = stringToNumber<int32, string>("01");
-    CPPUNIT_ASSERT_EQUAL(1, res);
-    res = stringToNumber<int32, wstring>(L"01");
-    CPPUNIT_ASSERT_EQUAL(1, res);
-    res = stringToNumber<int32, u16string>(u"01");
-    CPPUNIT_ASSERT_EQUAL(1, res);
+    // stringToNumber() with spaces at the beginning, leading zeroes and different types
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>("01"));
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(L"01"s));
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(u"01"s));
+    CPPUNIT_ASSERT_EQUAL(-23, stringToNumber<int32>(" - 023"s));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>("01"));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(L"01"s));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(u"01"s));
+    CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<uint32>("  023"s));
 
     // interpretIntegerAsString()
-    CPPUNIT_ASSERT(interpretIntegerAsString<uint32>(0x54455354) == "TEST");
+    CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<uint32>(0x54455354));
 
     // splitString() / joinStrings()
     string splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, false, "("s, ")"s);

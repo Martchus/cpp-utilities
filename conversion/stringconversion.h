@@ -366,6 +366,8 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
 {
     auto i = string.begin();
     auto end = string.end();
+    for (; i != end && *i == ' '; ++i)
+        ;
     if (i == end) {
         return 0;
     }
@@ -437,6 +439,11 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
+    if (!*string) {
+        return 0;
+    }
+    for (; *string && *string == ' '; ++string)
+        ;
     if (!*string) {
         return 0;
     }
