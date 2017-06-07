@@ -228,24 +228,27 @@ void ConversionTests::testStringEncodingConversions()
 void ConversionTests::testStringConversions()
 {
     // stringToNumber() / numberToString() with zero and random numbers
-    CPPUNIT_ASSERT_EQUAL(string("0"), numberToString<unsigned int>(0));
-    CPPUNIT_ASSERT_EQUAL(string("0"), numberToString<signed int>(0));
+    CPPUNIT_ASSERT_EQUAL("0"s, numberToString<unsigned int>(0));
+    CPPUNIT_ASSERT_EQUAL("0"s, numberToString<signed int>(0));
     uniform_int_distribution<int64> randomDistSigned(numeric_limits<int64>::min());
     uniform_int_distribution<uint64> randomDistUnsigned(0);
+    const string stringMsg("string"), wideStringMsg("wide string"), bufferMsg("buffer");
     for (byte b = 1; b < 100; ++b) {
         auto signedRandom = randomDistSigned(m_randomEngine);
         auto unsignedRandom = randomDistUnsigned(m_randomEngine);
         for (const auto base : initializer_list<byte>{ 2, 8, 10, 16 }) {
-            auto resultString = stringToNumber<uint64, string>(numberToString<uint64, string>(unsignedRandom, base), base);
-            auto resultWideString = stringToNumber<uint64, wstring>(numberToString<uint64, wstring>(unsignedRandom, base), base);
-            CPPUNIT_ASSERT_EQUAL(unsignedRandom, resultString);
-            CPPUNIT_ASSERT_EQUAL(unsignedRandom, resultWideString);
+            const auto asString = numberToString<uint64, string>(unsignedRandom, static_cast<string::value_type>(base));
+            const auto asWideString = numberToString<uint64, wstring>(unsignedRandom, base);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, unsignedRandom, stringToNumber<uint64>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, unsignedRandom, stringToNumber<uint64>(asWideString, base));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, unsignedRandom, bufferToNumber<uint64>(asString.data(), asString.size(), base));
         }
         for (const auto base : initializer_list<byte>{ 10 }) {
-            auto resultString = stringToNumber<int64, string>(numberToString<int64, string>(signedRandom, base), base);
-            auto resultWideString = stringToNumber<int64, wstring>(numberToString<int64, wstring>(signedRandom, base), base);
-            CPPUNIT_ASSERT_EQUAL(signedRandom, resultString);
-            CPPUNIT_ASSERT_EQUAL(signedRandom, resultWideString);
+            const auto asString = numberToString<int64, string>(signedRandom, static_cast<string::value_type>(base));
+            const auto asWideString = numberToString<int64, wstring>(signedRandom, base);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, signedRandom, stringToNumber<int64>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, signedRandom, stringToNumber<int64>(asWideString, base));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, signedRandom, bufferToNumber<int64>(asString.data(), asString.size(), base));
         }
     }
 
@@ -254,10 +257,12 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(L"01"s));
     CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(u"01"s));
     CPPUNIT_ASSERT_EQUAL(-23, stringToNumber<int32>(" - 023"s));
+    CPPUNIT_ASSERT_EQUAL(-23, bufferToNumber<int32>(" - 023", 6));
     CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>("01"));
     CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(L"01"s));
     CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(u"01"s));
     CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<uint32>("  023"s));
+    CPPUNIT_ASSERT_EQUAL(23u, bufferToNumber<uint32>("  023", 5));
 
     // interpretIntegerAsString()
     CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<uint32>(0x54455354));

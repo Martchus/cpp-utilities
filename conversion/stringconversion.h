@@ -301,7 +301,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
  *          \a base and types).
- * \sa stringToNumber()
+ * \sa stringToNumber(), bufferToNumber()
  */
 template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
 StringType numberToString(FloatingType number, typename StringType::value_type base = 10)
@@ -334,11 +334,11 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
 }
 
 /*!
- * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
+ * \brief Converts the given \a string to an unsigned number assuming \a string uses the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \sa numberToString()
+ * \sa numberToString(), bufferToNumber()
  */
 template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
@@ -355,11 +355,11 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
 }
 
 /*!
- * \brief Converts the given \a string to a number assuming \a string uses the specified \a base.
+ * \brief Converts the given \a string to a signed number assuming \a string uses the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \sa numberToString()
+ * \sa numberToString(), bufferToNumber()
  */
 template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
@@ -393,7 +393,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
  *          \a base and types).
- * \sa numberToString()
+ * \sa numberToString(), bufferToNumber()
  */
 template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
 FloatingType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
@@ -409,11 +409,11 @@ FloatingType stringToNumber(const StringType &string, typename StringType::value
 }
 
 /*!
- * \brief Converts the given null-terminated \a string to a numeric value using the specified \a base.
+ * \brief Converts the given null-terminated \a string to an unsigned numeric value using the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \sa numberToString()
+ * \sa numberToString(), bufferToNumber()
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
@@ -430,11 +430,32 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 }
 
 /*!
- * \brief Converts the given null-terminated \a string to a numeric value using the specified \a base.
+ * \brief Converts the given \a string of \a size characters to an unsigned numeric value using the specified \a base.
  * \tparam NumberType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \sa numberToString()
+ * \sa numberToString(), stringToNumber()
+ */
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
+IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
+{
+    IntegralType result = 0;
+    for (const CharType *end = string + size; string != end; ++string) {
+        if (*string == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<CharType>(*string, base);
+    }
+    return result;
+}
+
+/*!
+ * \brief Converts the given null-terminated \a string to a signed numeric value using the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \sa numberToString(), bufferToNumber()
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
@@ -453,6 +474,40 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
     }
     IntegralType result = 0;
     for (; *string; ++string) {
+        if (*string == ' ') {
+            continue;
+        }
+        result *= base;
+        result += charToDigit<CharType>(*string, base);
+    }
+    return negative ? -result : result;
+}
+
+/*!
+ * \brief Converts the given \a string of \a size characters to a signed numeric value using the specified \a base.
+ * \tparam NumberType The data type used to store the converted value.
+ * \tparam StringType The string type (should be an instantiation of the basic_string class template).
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \sa numberToString(), stringToNumber()
+ */
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
+{
+    if (!size) {
+        return 0;
+    }
+    const CharType *end = string + size;
+    for (; string != end && *string == ' '; ++string)
+        ;
+    if (string == end) {
+        return 0;
+    }
+    const bool negative = (*string == '-');
+    if (negative) {
+        ++string;
+    }
+    IntegralType result = 0;
+    for (; string != end; ++string) {
         if (*string == ' ') {
             continue;
         }
