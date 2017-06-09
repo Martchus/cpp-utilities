@@ -38,7 +38,7 @@ Makefile*
 .directory
 
 # tests
-testfiles/output.*
+testfiles/workingdir/
 
 # clang-format
 /.clang-format

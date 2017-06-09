@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace IoUtilities;
+using namespace TestUtilities;
 
 using namespace CPPUNIT_NS;
 
@@ -283,12 +284,12 @@ void IoTests::testIniFile()
     // write values to another file
     fstream outputFile;
     outputFile.exceptions(ios_base::failbit | ios_base::badbit);
-    outputFile.open(TestUtilities::testFilePath("output.ini"), ios_base::out | ios_base::trunc);
+    outputFile.open(workingCopyPathMode("output.ini", WorkingCopyMode::NoCopy), ios_base::out | ios_base::trunc);
     ini.make(outputFile);
 
     // parse written values (again)
     outputFile.close();
-    outputFile.open(TestUtilities::testFilePath("output.ini"), ios_base::in);
+    outputFile.open(workingCopyPathMode("output.ini", WorkingCopyMode::NoCopy), ios_base::in);
     IniFile ini2;
     ini2.parse(outputFile);
     CPPUNIT_ASSERT(ini.data() == ini2.data());
