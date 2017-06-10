@@ -3,7 +3,8 @@
 
 namespace ApplicationUtilities {
 
-struct CPP_UTILITIES_EXPORT ArgumentReader {
+class CPP_UTILITIES_EXPORT ArgumentReader {
+public:
     ArgumentReader(ArgumentParser &parser, const char *const *argv, const char *const *end, bool completionMode = false);
     ApplicationUtilities::ArgumentReader &reset(const char *const *argv, const char *const *end);
     void read();
