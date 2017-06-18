@@ -124,12 +124,79 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
         LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
     )
+
+    # make a test recognized by ctest
     add_test(NAME ${META_PROJECT_NAME}_run_tests COMMAND
         ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
         -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
         ${APPLICATION_PATH}
     )
+
+    # enable source code based coverage analysis using clang
+    if(CLANG_SOURCE_BASED_COVERAGE_ENABLED)
+        # specify where to store raw clang profiling data via environment variable
+        set_tests_properties(${META_PROJECT_NAME}_run_tests
+            PROPERTIES
+            ENVIRONMENT "LLVM_PROFILE_FILE=${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw"
+        )
+        add_custom_command(
+            OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw"
+            COMMAND "${CMAKE_COMMAND}"
+                    -E env "LLVM_PROFILE_FILE=${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw"
+                    $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>
+                        -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
+                        -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
+                        ${APPLICATION_PATH}
+            COMMENT "Executing ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests to generate raw profiling data for source-based coverage report"
+            DEPENDS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+        )
+        find_program(LLVM_PROFDATA_BIN llvm-profdata)
+        find_program(LLVM_COV_BIN llvm-cov)
+        if(LLVM_PROFDATA_BIN AND LLVM_COV_BIN)
+            add_custom_command(
+                OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+                COMMAND "${LLVM_PROFDATA_BIN}" merge
+                        -sparse "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw"
+                        -o "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+                COMMENT "Generating profiling data for source-based coverage report"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw"
+            )
+            add_custom_command(
+                OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+                COMMAND "${LLVM_COV_BIN}" report
+                    -instr-profile "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+                    -format=text
+                    $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
+                    > "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+                COMMENT "Generating HTML coverage report"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+            )
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_summary"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+            )
+            add_custom_command(
+                OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+                COMMAND "${LLVM_COV_BIN}" show
+                    -project-title="${META_APP_NAME}"
+                    -instr-profile "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+                    -format=html
+                    $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
+                    > "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+                COMMENT "Generating HTML coverage report"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata"
+            )
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_html"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+            )
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+            )
+        else()
+            message(WARNING "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available.")
+        endif()
+    endif()
 
     # add the test executable to the dependencies of the check target
     add_dependencies(check ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
