@@ -64,9 +64,6 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
 
     # handle testing an application
     if("${META_PROJECT_TYPE}" STREQUAL "application")
-        # the test application might need the path of the application to be tested
-        set(APPLICATION_PATH "-a ${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}")
-
         # using functions directly from the tests might be required -> also create a 'testlib' and link tests against it
         if(LINK_TESTS_AGAINST_APP_TARGET)
             # create target for the 'testlib'
@@ -130,7 +127,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
         -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-        ${APPLICATION_PATH}
+        -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>"
     )
 
     # enable source code based coverage analysis using clang
@@ -147,7 +144,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                     $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>
                         -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
                         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-                        ${APPLICATION_PATH}
+                        -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>"
             COMMENT "Executing ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests to generate raw profiling data for source-based coverage report"
             DEPENDS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
         )
