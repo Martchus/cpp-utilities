@@ -193,6 +193,10 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
                 DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
             )
+            if(NOT TARGET coverage)
+                add_custom_target(coverage)
+            endif()
+            add_dependencies(coverage "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage")
         else()
             message(WARNING "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available.")
         endif()
