@@ -124,11 +124,6 @@ inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &ou
     return TestApplication::instance()->execApp(args, output, errors);
 }
 
-/*!
- * \brief Executes an application with the specified \a args.
- * \remarks Intended to invoke helper applications (eg. to setup test files). Use execApp() to invoke the application
- *          to be tested itself.
- */
 CPP_UTILITIES_EXPORT int execHelperApp(
     const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
 #endif

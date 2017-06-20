@@ -1,6 +1,7 @@
 #include "./testutils.h"
 
 #include "../application/failure.h"
+#include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 #include "../io/catchiofailure.h"
 
@@ -76,10 +77,14 @@ TestApplication::TestApplication(int argc, char **argv)
     // parse arguments
     try {
         m_parser.parseArgs(argc, argv);
+
+        // print help
         if (m_helpArg.isPresent()) {
             m_valid = false;
             exit(0);
         }
+
+        // handle path for testfiles and working-copy
         cerr << "Directories used to search for testfiles:" << endl;
         if (m_testFilesPathArg.isPresent()) {
             if (*m_testFilesPathArg.values().front()) {
@@ -115,6 +120,11 @@ TestApplication::TestApplication(int argc, char **argv)
             }
         }
         cerr << m_workingDir << endl << endl;
+
+        // clear list of all additional profiling files created when forking the test application
+        if (const char *profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
+            ofstream(profrawListFile, ios_base::trunc);
+        }
 
         m_valid = true;
         cerr << "Executing test cases ..." << endl;
@@ -229,20 +239,11 @@ string TestApplication::workingCopyPath(const string &name) const
 }
 
 /*!
- * \brief Executes the application to be tested with the specified \a args and stores the standard output and
- *        errors in \a stdout and \a stderr.
- * \throws Throws std::runtime_error when the application can not be executed.
- * \remarks
- *  - The specified \a args must be 0 terminated. The first argument is the application name.
- *  - Currently only supported under UNIX.
- *  - \a stdout and \a stderr are cleared before.
+ * \brief Executes an application with the specified \a args.
+ * \remarks Provides internal implementation of execApp() and execHelperApp().
  */
-int TestApplication::execApp(const char *const *args, string &output, string &errors, bool suppressLogging, int timeout) const
-{
-    return execHelperApp(m_applicationPathArg.firstValue(), args, output, errors, suppressLogging, timeout);
-}
-
-int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
+int execAppInternal(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout,
+    const std::string &newProfilingPath)
 {
     // print log message
     if (!suppressLogging) {
@@ -252,15 +253,13 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
         }
         cout << endl;
     }
-    // determine application path
-    if (!appPath || !*appPath) {
-        throw runtime_error("Unable to execute application to be tested: no application path specified");
-    }
+
     // create pipes
     int coutPipes[2], cerrPipes[2];
     pipe(coutPipes), pipe(cerrPipes);
     int readCoutPipe = coutPipes[0], writeCoutPipe = coutPipes[1];
     int readCerrPipe = cerrPipes[0], writeCerrPipe = cerrPipes[1];
+
     // create child process
     if (int child = fork()) {
         // parent process: read stdout and stderr from child
@@ -322,13 +321,75 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
         waitpid(child, &childReturnCode, 0);
         return childReturnCode;
     } else {
-        // child process: set pipes to be used for stdout/stderr, execute application
+        // child process
+        // -> set pipes to be used for stdout/stderr
         dup2(writeCoutPipe, STDOUT_FILENO), dup2(writeCerrPipe, STDERR_FILENO);
         close(readCoutPipe), close(writeCoutPipe), close(readCerrPipe), close(writeCerrPipe);
+
+        // -> modify environment variable LLVM_PROFILE_FILE to apply new path for profiling output
+        if (!newProfilingPath.empty()) {
+            setenv("LLVM_PROFILE_FILE", newProfilingPath.data(), true);
+        }
+
+        // -> execute application
         execv(appPath, const_cast<char *const *>(args));
         cerr << "Unable to execute \"" << appPath << "\": execv() failed" << endl;
         exit(-101);
     }
+}
+
+/*!
+ * \brief Executes the application to be tested with the specified \a args and stores the standard output and
+ *        errors in \a stdout and \a stderr.
+ * \throws Throws std::runtime_error when the application can not be executed.
+ * \remarks
+ *  - The specified \a args must be 0 terminated. The first argument is the application name.
+ *  - Currently only supported under UNIX.
+ *  - \a stdout and \a stderr are cleared before.
+ */
+int TestApplication::execApp(const char *const *args, string &output, string &errors, bool suppressLogging, int timeout) const
+{
+    // increase counter used for giving profiling files unique names
+    static unsigned int invocationCount = 0;
+    ++invocationCount;
+
+    // determine application path
+    const char *const appPath = m_applicationPathArg.firstValue();
+    if (!appPath || !*appPath) {
+        throw runtime_error("Unable to execute application to be tested: no application path specified");
+    }
+
+    // determine new path for profiling output (to not override profiling output of parent and previous invocations)
+    string newProfilingPath;
+    if (const char *llvmProfileFile = getenv("LLVM_PROFILE_FILE")) {
+        // replace eg. "/some/path/tageditor_tests.profraw" with "/some/path/tageditor0.profraw"
+        if (const char *llvmProfileFileEnd = strstr(llvmProfileFile, ".profraw")) {
+            const string llvmProfileFileWithoutExtension(llvmProfileFile, llvmProfileFileEnd);
+            // extract application name from path
+            const char *appName = strrchr(appPath, '/');
+            appName = appName ? appName + 1 : appPath;
+            // concat new path
+            newProfilingPath = argsToString(llvmProfileFileWithoutExtension, '_', appName, invocationCount, ".profraw");
+            // append path to profiling list file
+            if (const char *profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
+                ofstream(profrawListFile, ios_base::app) << newProfilingPath << endl;
+            }
+        }
+    }
+
+    return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, newProfilingPath);
+}
+
+/*!
+ * \brief Executes an application with the specified \a args.
+ * \remarks
+ * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
+ *   invoke the application to be tested itself.
+ * - Currently only supported under UNIX.
+ */
+int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
+{
+    return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, string());
 }
 #endif
 }
