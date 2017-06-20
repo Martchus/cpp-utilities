@@ -39,9 +39,19 @@ None of these are enabled or set by default, unless stated otherwise.
 * `EXCLUDE_TESTS_FROM_ALL=ON/OFF`: excludes tests from the all target
   (enabled by default)
 * `APPEND_GIT_REVISION=ON/OFF`: whether the build script should attempt to
-  append the Git revision and the latest commit ID to the version displayed
-  via --help (enabled by default but has no effect when the source directory is
-  no Git checkout or Git is not installed)
+  append the Git revision and the latest commit ID to the version
+    * displayed via --help
+    * enabled by default but has no effect when the source directory is
+      no Git checkout or Git is not installed
+* `CLANG_FORMAT_ENABLED=ON/OFF`: enables tidy target for code formatting via
+  `clang-format`
+    * can be made unavailable by setting `META_NO_TIDY` in the project file
+    * only available if format rules are available
+    * also enables tidy check executed via `check` target
+* `CLANG_SOURCE_BASED_COVERAGE_ENABLED=ON/OFF`: enables `coverage` target to
+  determine source-based test coverage using Clang/llvm
+    * only available when building with Clang under UNIX
+    * coverage report is stored in build directory
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
@@ -95,6 +105,8 @@ and qtutilities.
 * `META_PROJECT_TYPE=application/library/plugin/qtplugin`: specifies whether
   to build an application, a library or a plugin
 * `META_CXX_STANDARD=11/14/..`: specifies the C++ version, default is 14
+* `META_NO_TIDY`: disables availability of enabling formatting via
+  `CLANG_FORMAT_ENABLED` for this project
 
 ### Files
 * `HEADER_FILES`/`SRC_FILES`: specifies C++ header/source files

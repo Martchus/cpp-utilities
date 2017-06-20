@@ -181,49 +181,50 @@ endif()
 
 # add target for tidying with clang-format
 if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
-    find_program(CLANG_FORMAT_BIN clang-format)
-    if(CLANG_FORMAT_BIN)
-        set(FORMATABLE_FILES
-            ${HEADER_FILES} ${SRC_FILES}
-            ${TEST_HEADER_FILES} ${TEST_SRC_FILES}
-            ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES}
-            ${QML_HEADER_FILES} ${QML_SRC_FILES}
-        )
-        if(FORMATABLE_FILES)
-            list(REMOVE_ITEM FORMATABLE_FILES "")
+    option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" OFF)
+    if(CLANG_FORMAT_ENABLED)
+        find_program(CLANG_FORMAT_BIN clang-format)
+        if(CLANG_FORMAT_BIN)
+            set(FORMATABLE_FILES
+                ${HEADER_FILES} ${SRC_FILES}
+                ${TEST_HEADER_FILES} ${TEST_SRC_FILES}
+                ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES}
+                ${QML_HEADER_FILES} ${QML_SRC_FILES}
+            )
+            if(FORMATABLE_FILES)
+                list(REMOVE_ITEM FORMATABLE_FILES "")
 
-             add_custom_command(
-                OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
-            )
-            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
-                COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-                DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-            )
-            if(NOT TARGET tidy)
-                add_custom_target(tidy)
+                 add_custom_command(
+                    OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                    COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
+                )
+                add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+                    COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                    COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+                    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                )
+                if(NOT TARGET tidy)
+                    add_custom_target(tidy)
+                endif()
+                add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+
+                # also add a test to verify whether sources are tidy
+                add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+                    COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                )
+                list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+                set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
+                    FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+                    REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                )
             endif()
-            add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
-
-            # also add a test to verify whether sources are tidy
-            add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
-                COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            )
-            list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-            set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
-                FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
-                REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-            )
+        else()
+            message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
         endif()
-    else()
-        message(WARNING "clang-format not found; unable to add tidy target")
     endif()
-else()
-    message(WARNING "No rules to invoke clang-format for ${META_PROJECT_NAME} present")
 endif()
 
 # add autotools-style check target
@@ -237,13 +238,18 @@ if(NOT TARGET check)
 endif()
 
 # enable source code based coverage analysis using clang
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CLANG_SOURCE_BASED_COVERAGE_ENABLED YES)
-    set(CLANG_SOURCE_BASED_COVERAGE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-    list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_PRIVATE_STATIC_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_SHARED_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+option(CLANG_SOURCE_BASED_COVERAGE_ENABLED "enables creation of coverage targets for source-based coverage with clang" OFF)
+if(CLANG_SOURCE_BASED_COVERAGE_ENABLED)
+    if(CMAKE_HOST_UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE YES)
+        set(CLANG_SOURCE_BASED_COVERAGE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+        list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+        list(APPEND META_PRIVATE_STATIC_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+        list(APPEND META_ADDITIONAL_SHARED_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+        list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+    else()
+        message(FATAL_ERROR "Source-based coverage only available under UNIX with Clang")
+    endif()
 endif()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)

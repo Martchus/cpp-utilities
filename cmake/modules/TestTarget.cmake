@@ -131,7 +131,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
     )
 
     # enable source code based coverage analysis using clang
-    if(CLANG_SOURCE_BASED_COVERAGE_ENABLED)
+    if(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         # specify where to store raw clang profiling data via environment variable
         set(LLVM_PROFILE_RAW_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw")
         set(LLVM_PROFILE_RAW_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw.list")
@@ -204,7 +204,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
             endif()
             add_dependencies(coverage "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage")
         else()
-            message(WARNING "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available.")
+            message(FATAL_ERROR "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available.")
         endif()
     endif()
 
