@@ -3,30 +3,31 @@ Common C++ classes and routines used by my applications such as argument parser,
 
 ## Features
 The library utilizes:
+
 * parsing command-line arguments and providing Bash completion
 * dealing with dates and times
 * conversion of primitive data types to byte-buffers and vice versa (litte-endian and big-endian)
 * common string conversions/operations, eg.
- - character set conversion via iconv
- - split, join, find and replace
- - conversion from number to string and vice verca
- - encoding/decoding base-64
- - building string without multiple heap allocations (string builder)
+    - character set conversion via iconv
+    - split, join, find and replace
+    - conversion from number to string and vice verca
+    - encoding/decoding base-64
+    - building string without multiple heap allocations (string builder)
 * IO
- - reading/writing primitive data types of various sizes (little-endian and big-endian)
- - reading/writing terminated strings and size-prefixed strings
- - reading/writing INI files
- - reading bitwise
+    - reading/writing primitive data types of various sizes (little-endian and big-endian)
+    - reading/writing terminated strings and size-prefixed strings
+    - reading/writing INI files
+    - reading bitwise
 * building with CMake by providing some modules and templates
 
 ## Build instructions
 ### Requirements
 #### Build-only dependencies
 * C++ compiler supporting C++14, tested with
- - GNU g++
- - Clang
- - mingw-w64 g++
- - Cygwin g++
+    - Clang
+    - regular GNU g++
+    - mingw-w64 g++
+    - Cygwin g++
 * CMake (at least 3.3.0)
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
