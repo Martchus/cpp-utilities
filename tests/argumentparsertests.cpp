@@ -32,6 +32,7 @@ class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST(testParsing);
     CPPUNIT_TEST(testCallbacks);
     CPPUNIT_TEST(testBashCompletion);
+    CPPUNIT_TEST(testHelp);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -42,6 +43,7 @@ public:
     void testParsing();
     void testCallbacks();
     void testBashCompletion();
+    void testHelp();
 
 private:
     void callback();
@@ -589,4 +591,70 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         throw;
     }
+}
+
+/*!
+ * \brief Tests --help output.
+ */
+void ArgumentParserTests::testHelp()
+{
+    // redirect cout to custom buffer
+    stringstream buffer;
+    streambuf *regularCoutBuffer = cout.rdbuf(buffer.rdbuf());
+
+    // setup parser
+    ArgumentParser parser;
+    HelpArgument helpArg(parser);
+    helpArg.setRequired(true);
+    OperationArgument verboseArg("verbose", 'v', "be verbose", "actually not an operation");
+    verboseArg.setCombinable(true);
+    ConfigValueArgument nestedSubArg("nested-sub", '\0', "nested sub arg", { "value1", "value2" });
+    nestedSubArg.setRequiredValueCount(-1);
+    Argument subArg("sub", '\0', "sub arg");
+    subArg.setRequired(true);
+    subArg.addSubArgument(&nestedSubArg);
+    Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
+    filesArg.setCombinable(true);
+    filesArg.addSubArgument(&subArg);
+    Argument envArg("env", '\0', "env");
+    envArg.setEnvironmentVariable("FILES");
+    envArg.setRequiredValueCount(2);
+    envArg.setValueNames({ "file" });
+    parser.addMainArgument(&helpArg);
+    parser.addMainArgument(&verboseArg);
+    parser.addMainArgument(&filesArg);
+    parser.addMainArgument(&envArg);
+
+    // parse args
+    const char *const argv[] = { "app", "-h" };
+    buffer.str(string());
+    cout.rdbuf(buffer.rdbuf());
+    parser.parseArgs(2, argv);
+    cout.rdbuf(regularCoutBuffer);
+    CPPUNIT_ASSERT_EQUAL("\e[1m" APP_NAME ", version " APP_VERSION "\n"
+                         "\n\e[0m"
+                         "Available arguments:\n"
+                         "\e[1m--help, -h\e[0m\n"
+                         "  shows this information\n"
+                         "  particularities: mandatory\n"
+                         "\n"
+                         "\e[1m--verbose, -v\e[0m\n"
+                         "  be verbose\n"
+                         "  \n"
+                         "usage: actually not an operation\n"
+                         "\n"
+                         "\e[1m--files, -f\e[0m\n"
+                         "  specifies the path of the file(s) to be opened\n"
+                         "  \e[1m--sub\e[0m\n"
+                         "    sub arg\n"
+                         "    particularities: mandatory if parent argument is present\n"
+                         "    \e[1m--nested-sub\e[0m [value1] [value2] ...\n"
+                         "      nested sub arg\n"
+                         "\n"
+                         "\e[1m--env\e[0m [file] [value 2]\n"
+                         "  env\n"
+                         "  default environment variable: FILES\n"
+                         "\n"
+                         "Project website: " APP_URL "\n"s,
+        buffer.str());
 }
