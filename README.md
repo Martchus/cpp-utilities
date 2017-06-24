@@ -32,6 +32,7 @@ The library utilizes:
 * Doxygen for API documentation (optional)
 * Graphviz for diagrams in the API documentation (optional)
 * clang-format for tidying (optional)
+* llvm-profdata, llvm-cov and cppunit for source-based code coverage analysis (optional)
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
