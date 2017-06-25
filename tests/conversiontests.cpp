@@ -3,6 +3,8 @@
 #include "../conversion/stringconversion.h"
 #include "../tests/testutils.h"
 
+using namespace TestUtilities;
+
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -13,7 +15,6 @@
 
 using namespace std;
 using namespace ConversionUtilities;
-using namespace TestUtilities;
 
 using namespace CPPUNIT_NS;
 
@@ -22,6 +23,7 @@ using namespace CPPUNIT_NS;
  */
 class ConversionTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ConversionTests);
+    CPPUNIT_TEST(testConversionException);
     CPPUNIT_TEST(testEndianness);
     CPPUNIT_TEST(testBinaryConversions);
     CPPUNIT_TEST(testSwapOrderFunctions);
@@ -40,6 +42,7 @@ public:
     {
     }
 
+    void testConversionException();
     void testEndianness();
     void testBinaryConversions();
     void testSwapOrderFunctions();
@@ -62,6 +65,11 @@ ConversionTests::ConversionTests()
     : m_randomDevice()
     , m_randomEngine(m_randomDevice())
 {
+}
+
+void ConversionTests::testConversionException()
+{
+    CPPUNIT_ASSERT(!strcmp("unable to convert", ConversionException().what()));
 }
 
 /*!
@@ -220,6 +228,7 @@ void ConversionTests::testStringEncodingConversions()
         convertUtf8ToUtf16BE(reinterpret_cast<const char *>(simpleString), 4));
     assertEqual("UTF-8 to UFT-16BE", reinterpret_cast<const byte *>(BE_STR_FOR_ENDIANNESS(utf16)), 10,
         convertUtf8ToUtf16BE(reinterpret_cast<const char *>(utf8String), 6));
+    CPPUNIT_ASSERT_THROW(convertString("invalid charset", "UTF-8", "foo", 3, 1.0f), ConversionException);
 }
 
 /*!
@@ -252,7 +261,7 @@ void ConversionTests::testStringConversions()
         }
     }
 
-    // stringToNumber() with spaces at the beginning, leading zeroes and different types
+    // stringToNumber() with spaces at the beginning, leading zeroes, different types and other corner cases
     CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>("01"));
     CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(L"01"s));
     CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(u"01"s));
@@ -263,11 +272,20 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(u"01"s));
     CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<uint32>("  023"s));
     CPPUNIT_ASSERT_EQUAL(23u, bufferToNumber<uint32>("  023", 5));
+    CPPUNIT_ASSERT_EQUAL(255u, stringToNumber<uint32>("fF", 16));
+    CPPUNIT_ASSERT_THROW(stringToNumber<uint32>("fF", 15), ConversionException);
+    CPPUNIT_ASSERT_THROW(stringToNumber<uint32>("(", 15), ConversionException);
 
     // interpretIntegerAsString()
     CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<uint32>(0x54455354));
 
     // splitString() / joinStrings()
+    vector<string> splitTestExpected({ "1", "2,3" });
+    vector<string> splitTestActual = splitString<vector<string>>("1,2,3"s, ","s, EmptyPartsTreat::Keep, 2);
+    CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
+    splitTestExpected = { "1", "2,3", "4,,5" };
+    splitTestActual = splitString<vector<string>>("1,2,,3,4,,5"s, ","s, EmptyPartsTreat::Merge, 3);
+    CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
     string splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, false, "("s, ")"s);
     CPPUNIT_ASSERT_EQUAL("() (a) () (ab) (ABC) (s)"s, splitJoinTest);
     splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, true, "("s, ")"s);
@@ -290,6 +308,11 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT(containsSubstrings<string>("this string contains foo and bar", { "foo", "bar" }));
     CPPUNIT_ASSERT(!containsSubstrings<string>("this string contains foo and bar", { "bar", "foo" }));
 
+    // truncateString()
+    string truncateTest("foo  bar        ");
+    truncateString(truncateTest, ' ');
+    CPPUNIT_ASSERT_EQUAL("foo"s, truncateTest);
+
     // encodeBase64() / decodeBase64() with random data
     uniform_int_distribution<byte> randomDistChar;
     byte originalBase64Data[4047];
@@ -302,6 +325,9 @@ void ConversionTests::testStringConversions()
     for (unsigned int i = 0; i < sizeof(originalBase64Data); ++i) {
         CPPUNIT_ASSERT(decodedBase64Data.first[i] == originalBase64Data[i]);
     }
+
+    // dataSizeToString(), bitrateToString()
+    // TODO
 }
 
 string functionTakingString(const string &str)
