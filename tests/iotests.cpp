@@ -6,6 +6,7 @@
 #include "../io/catchiofailure.h"
 #include "../io/copy.h"
 #include "../io/inifile.h"
+#include "../io/misc.h"
 #include "../io/path.h"
 
 #include <cppunit/TestFixture.h>
@@ -18,6 +19,7 @@
 using namespace std;
 using namespace IoUtilities;
 using namespace TestUtilities;
+using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
@@ -33,6 +35,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testPathUtilities);
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testCopy);
+    CPPUNIT_TEST(testMisc);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -46,6 +49,7 @@ public:
     void testPathUtilities();
     void testIniFile();
     void testCopy();
+    void testMisc();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
@@ -94,6 +98,7 @@ void IoTests::testBinaryReader()
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
+    CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(95));
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt16BE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt24LE() == 0x010203u);
@@ -128,6 +133,14 @@ void IoTests::testBinaryReader()
     CPPUNIT_ASSERT(reader.readString(3) == "abc");
     CPPUNIT_ASSERT(reader.readLengthPrefixedString() == "ABC");
     CPPUNIT_ASSERT(reader.readTerminatedString() == "def");
+    // test ownership
+    reader.setStream(nullptr, true);
+    reader.setStream(new fstream(), true);
+    BinaryReader reader2(reader);
+    CPPUNIT_ASSERT(reader2.stream() == reader.stream());
+    CPPUNIT_ASSERT(!reader2.hasOwnership());
+    reader.setStream(&testFile, false);
+    reader.setStream(new fstream(), true);
 }
 
 /*!
@@ -205,7 +218,7 @@ void IoTests::testBinaryWriter()
  */
 void IoTests::testBitReader()
 {
-    const byte testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20 };
+    const byte testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20, 0xFF, 0xFA };
     BitReader reader(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT(reader.readBit() == 1);
     reader.skipBits(6);
@@ -218,11 +231,23 @@ void IoTests::testBitReader()
     CPPUNIT_ASSERT(reader.readSignedExpGolombCodedBits<sbyte>() == 4);
     CPPUNIT_ASSERT(reader.readBit() == 0);
     CPPUNIT_ASSERT(reader.readBit() == 0);
+    reader.skipBits(8 + 4);
+    CPPUNIT_ASSERT_EQUAL(4_st, reader.bitsAvailable());
+    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0xA), reader.readBits<byte>(4));
     try {
         reader.readBit();
+        CPPUNIT_FAIL("no exception");
     } catch (...) {
         catchIoFailure();
     }
+    try {
+        reader.skipBits(1);
+        CPPUNIT_FAIL("no exception");
+    } catch (...) {
+        catchIoFailure();
+    }
+    reader.reset(reinterpret_cast<const char *>(testData), sizeof(testData));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(8 * sizeof(testData)), reader.bitsAvailable());
 }
 
 /*!
@@ -315,5 +340,32 @@ void IoTests::testCopy()
     testFile.seekg(0);
     for (byte i = 0; i < 50; ++i) {
         CPPUNIT_ASSERT(testFile.get() == outputStream.get());
+    }
+}
+
+/*!
+ * \brief Tests misc IO utilities.
+ */
+void IoTests::testMisc()
+{
+    const string iniFilePath(testFilePath("test.ini"));
+    CPPUNIT_ASSERT_EQUAL("# file for testing INI parser\n"
+                         "key0=value 0\n"
+                         "\n"
+                         "[scope 1]\n"
+                         "key1=value 1 # comment\n"
+                         "key2=value=2\n"
+                         "key3=value 3\n"
+                         "\n"
+                         "[scope 2]\n"
+                         "key4=value 4\n"
+                         "#key5=value 5\n"
+                         "key6=value 6\n"s,
+        readFile(iniFilePath));
+    try {
+        readFile(iniFilePath, 10);
+        CPPUNIT_FAIL("no exception");
+    } catch (...) {
+        catchIoFailure();
     }
 }
