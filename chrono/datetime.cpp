@@ -69,7 +69,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
  */
 DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 {
-    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::ticksPerSecond);
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::m_ticksPerSecond);
 }
 
 /*!
@@ -287,7 +287,7 @@ DateTime DateTime::exactGmtNow()
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
     return DateTime(
-        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
+        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::m_ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
 }
 #endif
 
@@ -296,25 +296,21 @@ DateTime DateTime::exactGmtNow()
  */
 uint64 DateTime::dateToTicks(int year, int month, int day)
 {
-    if (inRangeInclMax(year, 1, 9999)) {
-        if (inRangeInclMax(month, 1, 12)) {
-            const int *daysToMonth = isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365;
-            int passedMonth = month - 1;
-            if (inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
-                int passedYears = year - 1;
-                int passedDays = day - 1;
-                return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays)
-                    * TimeSpan::ticksPerDay;
-            } else {
-                throw ConversionException("day is out of range");
-            }
-        } else {
-            throw ConversionException("month is out of range");
-        }
-    } else {
+    if (!inRangeInclMax(year, 1, 9999)) {
         throw ConversionException("year is out of range");
     }
-    return 0;
+    if (!inRangeInclMax(month, 1, 12)) {
+        throw ConversionException("month is out of range");
+    }
+    const int *daysToMonth = isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365;
+    int passedMonth = month - 1;
+    if (!inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
+        throw ConversionException("day is out of range");
+    }
+    int passedYears = year - 1;
+    int passedDays = day - 1;
+    return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays)
+        * TimeSpan::m_ticksPerDay;
 }
 
 /*!
@@ -334,8 +330,8 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
     if (!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return (hour * TimeSpan::ticksPerHour) + (minute * TimeSpan::ticksPerMinute) + (second * TimeSpan::ticksPerSecond)
-        + (uint64)(millisecond * (double)TimeSpan::ticksPerMillisecond);
+    return (hour * TimeSpan::m_ticksPerHour) + (minute * TimeSpan::m_ticksPerMinute) + (second * TimeSpan::m_ticksPerSecond)
+        + (uint64)(millisecond * (double)TimeSpan::m_ticksPerMillisecond);
 }
 
 /*!
@@ -344,7 +340,7 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
  */
 int DateTime::getDatePart(DatePart part) const
 {
-    int fullDays = m_ticks / TimeSpan::ticksPerDay;
+    int fullDays = m_ticks / TimeSpan::m_ticksPerDay;
     int full400YearBlocks = fullDays / m_daysPer400Years;
     int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
     int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;

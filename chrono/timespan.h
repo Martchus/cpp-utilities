@@ -72,11 +72,19 @@ public:
     constexpr bool isNegativeInfinity() const;
     constexpr bool isInfinity() const;
 
+    // TODO: make those public constants signed in next major release and remove private ones then
     static constexpr uint64 ticksPerMillisecond = 10000uL;
     static constexpr uint64 ticksPerSecond = 10000000uL;
     static constexpr uint64 ticksPerMinute = 600000000uL;
     static constexpr uint64 ticksPerHour = 36000000000uL;
     static constexpr uint64 ticksPerDay = 864000000000uL;
+
+private:
+    static constexpr int64 m_ticksPerMillisecond = 10000L;
+    static constexpr int64 m_ticksPerSecond = 10000000L;
+    static constexpr int64 m_ticksPerMinute = 600000000L;
+    static constexpr int64 m_ticksPerHour = 36000000000L;
+    static constexpr int64 m_ticksPerDay = 864000000000L;
 
 private:
     int64 m_ticks;
@@ -103,7 +111,7 @@ constexpr inline TimeSpan::TimeSpan(int64 ticks)
  */
 constexpr inline TimeSpan TimeSpan::fromMilliseconds(double milliseconds)
 {
-    return TimeSpan(static_cast<int64>(milliseconds * static_cast<double>(ticksPerMillisecond)));
+    return TimeSpan(static_cast<int64>(milliseconds * static_cast<double>(m_ticksPerMillisecond)));
 }
 
 /*!
@@ -111,7 +119,7 @@ constexpr inline TimeSpan TimeSpan::fromMilliseconds(double milliseconds)
  */
 constexpr inline TimeSpan TimeSpan::fromSeconds(double seconds)
 {
-    return TimeSpan(static_cast<int64>(seconds * static_cast<double>(ticksPerSecond)));
+    return TimeSpan(static_cast<int64>(seconds * static_cast<double>(m_ticksPerSecond)));
 }
 
 /*!
@@ -119,7 +127,7 @@ constexpr inline TimeSpan TimeSpan::fromSeconds(double seconds)
  */
 constexpr inline TimeSpan TimeSpan::fromMinutes(double minutes)
 {
-    return TimeSpan(static_cast<int64>(minutes * static_cast<double>(ticksPerMinute)));
+    return TimeSpan(static_cast<int64>(minutes * static_cast<double>(m_ticksPerMinute)));
 }
 
 /*!
@@ -127,7 +135,7 @@ constexpr inline TimeSpan TimeSpan::fromMinutes(double minutes)
  */
 constexpr inline TimeSpan TimeSpan::fromHours(double hours)
 {
-    return TimeSpan(static_cast<int64>(hours * static_cast<double>(ticksPerHour)));
+    return TimeSpan(static_cast<int64>(hours * static_cast<double>(m_ticksPerHour)));
 }
 
 /*!
@@ -135,7 +143,7 @@ constexpr inline TimeSpan TimeSpan::fromHours(double hours)
  */
 constexpr inline TimeSpan TimeSpan::fromDays(double days)
 {
-    return TimeSpan(static_cast<int64>(days * static_cast<double>(ticksPerDay)));
+    return TimeSpan(static_cast<int64>(days * static_cast<double>(m_ticksPerDay)));
 }
 
 /*!
@@ -175,7 +183,7 @@ constexpr inline int64 TimeSpan::totalTicks() const
  */
 constexpr inline double TimeSpan::totalMilliseconds() const
 {
-    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerMillisecond);
+    return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerMillisecond);
 }
 
 /*!
@@ -183,7 +191,7 @@ constexpr inline double TimeSpan::totalMilliseconds() const
  */
 constexpr inline double TimeSpan::totalSeconds() const
 {
-    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerSecond);
+    return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerSecond);
 }
 
 /*!
@@ -191,7 +199,7 @@ constexpr inline double TimeSpan::totalSeconds() const
  */
 constexpr inline double TimeSpan::totalMinutes() const
 {
-    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerMinute);
+    return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerMinute);
 }
 
 /*!
@@ -199,7 +207,7 @@ constexpr inline double TimeSpan::totalMinutes() const
  */
 constexpr inline double TimeSpan::totalHours() const
 {
-    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerHour);
+    return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerHour);
 }
 
 /*!
@@ -207,7 +215,7 @@ constexpr inline double TimeSpan::totalHours() const
  */
 constexpr inline double TimeSpan::totalDays() const
 {
-    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerDay);
+    return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerDay);
 }
 
 /*!
@@ -215,7 +223,7 @@ constexpr inline double TimeSpan::totalDays() const
  */
 constexpr inline int TimeSpan::milliseconds() const
 {
-    return (m_ticks / ticksPerMillisecond) % 1000l;
+    return (m_ticks / m_ticksPerMillisecond) % 1000l;
 }
 
 /*!
@@ -223,7 +231,7 @@ constexpr inline int TimeSpan::milliseconds() const
  */
 constexpr inline int TimeSpan::seconds() const
 {
-    return (m_ticks / ticksPerSecond) % 60l;
+    return (m_ticks / m_ticksPerSecond) % 60l;
 }
 
 /*!
@@ -231,7 +239,7 @@ constexpr inline int TimeSpan::seconds() const
  */
 constexpr inline int TimeSpan::minutes() const
 {
-    return (m_ticks / ticksPerMinute) % 60l;
+    return (m_ticks / m_ticksPerMinute) % 60l;
 }
 
 /*!
@@ -239,7 +247,7 @@ constexpr inline int TimeSpan::minutes() const
  */
 constexpr inline int TimeSpan::hours() const
 {
-    return (m_ticks / ticksPerHour) % 24l;
+    return (m_ticks / m_ticksPerHour) % 24l;
 }
 
 /*!
@@ -247,7 +255,7 @@ constexpr inline int TimeSpan::hours() const
  */
 constexpr inline int TimeSpan::days() const
 {
-    return (m_ticks / ticksPerDay);
+    return (m_ticks / m_ticksPerDay);
 }
 
 /*!

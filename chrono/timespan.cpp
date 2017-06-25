@@ -22,6 +22,10 @@ using namespace ConversionUtilities;
  */
 TimeSpan TimeSpan::fromString(const char *str, char separator)
 {
+    if (!*str) {
+        return TimeSpan();
+    }
+
     vector<double> parts;
     size_t partsSize = 1;
     for (const char *i = str; *i; ++i) {
@@ -42,8 +46,6 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
     }
 
     switch (parts.size()) {
-    case 0:
-        return TimeSpan();
     case 1:
         return TimeSpan::fromSeconds(parts.front());
     case 2:
@@ -79,32 +81,40 @@ string TimeSpan::toString(TimeSpanOutputFormat format, bool noMilliseconds) cons
 void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool noMilliseconds) const
 {
     stringstream s(stringstream::in | stringstream::out);
-    if (isNegative())
-        s << "- ";
+    TimeSpan positive(m_ticks);
+    if (positive.isNegative()) {
+        s << '-';
+        positive.m_ticks = -positive.m_ticks;
+    }
     switch (format) {
     case TimeSpanOutputFormat::Normal:
-        s << setfill('0') << setw(2) << floor(fabs(totalHours())) << ":" << setw(2) << minutes() << ":" << setw(2) << seconds() << " ";
+        s << setfill('0') << setw(2) << floor(positive.totalHours()) << ":" << setw(2) << positive.minutes() << ":" << setw(2) << positive.seconds()
+          << " ";
         break;
     case TimeSpanOutputFormat::WithMeasures:
         if (isNull()) {
             s << "0 s ";
-        } else if (totalMilliseconds() < 1.0) {
-            s << setprecision(2) << (m_ticks / 10.0) << " µs ";
         } else {
-            if (days()) {
-                s << days() << " d ";
-            }
-            if (hours()) {
-                s << hours() << " h ";
-            }
-            if (minutes()) {
-                s << minutes() << " min ";
-            }
-            if (seconds()) {
-                s << seconds() << " s ";
-            }
-            if (!noMilliseconds && milliseconds()) {
-                s << milliseconds() << " ms ";
+            if (positive.totalMilliseconds() < 1.0) {
+                s << setprecision(2) << (m_ticks / 10.0) << " µs ";
+            } else {
+                if (const int days = positive.days()) {
+                    s << days << " d ";
+                }
+                if (const int hours = positive.hours()) {
+                    s << hours << " h ";
+                }
+                if (const int minutes = positive.minutes()) {
+                    s << minutes << " min ";
+                }
+                if (const int seconds = positive.seconds()) {
+                    s << seconds << " s ";
+                }
+                if (!noMilliseconds) {
+                    if (const int milliseconds = positive.milliseconds()) {
+                        s << milliseconds << " ms ";
+                    }
+                }
             }
         }
         break;
