@@ -1,12 +1,12 @@
-// include libstd++ specific header <bits/c++config.h> containing _GLIBCXX_RELEASE
+#define _GLIBCXX_USE_CXX11_ABI 0
+// include libstd++ specific header <bits/c++config.h> containing __GLIBCXX__
 // without including ios already (must be included after setting _GLIBCXX_USE_CXX11_ABI)
-#include <cctype>
+#include <cstddef>
 
 // ensure the old ABI is used under libstd++ < 7 and the new ABI under libstd++ >= 7
-#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 7
+#if __GLIBCXX__ >= 20170502
+#undef _GLIBCXX_USE_CXX11_ABI
 #define _GLIBCXX_USE_CXX11_ABI 1
-#else
-#define _GLIBCXX_USE_CXX11_ABI 0
 #endif
 
 #include "./catchiofailure.h"
