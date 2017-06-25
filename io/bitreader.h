@@ -136,7 +136,7 @@ template <typename intType> intType BitReader::showBits(byte bitCount)
  */
 inline std::size_t BitReader::bitsAvailable()
 {
-    return ((m_end - m_buffer) * 8) + m_bitsAvail;
+    return m_buffer != m_end ? static_cast<std::size_t>(((m_end - m_buffer - 1) * 8) + m_bitsAvail) : static_cast<std::size_t>(0);
 }
 
 /*!
