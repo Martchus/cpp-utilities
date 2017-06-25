@@ -143,6 +143,7 @@ inline ArgumentOccurrence::ArgumentOccurrence(std::size_t index, const std::vect
 class CPP_UTILITIES_EXPORT Argument {
     friend ArgumentParser;
     friend ArgumentReader;
+    friend ArgumentParserTests;
 
 public:
     typedef std::function<void(const ArgumentOccurrence &)> CallbackFunction;

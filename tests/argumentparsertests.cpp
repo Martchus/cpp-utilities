@@ -4,6 +4,7 @@
 
 #include "../application/argumentparser.h"
 #include "../application/argumentparserprivate.h"
+#include "../application/commandlineutils.h"
 #include "../application/failure.h"
 #include "../application/fakeqtconfigarguments.h"
 
@@ -33,6 +34,7 @@ class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST(testCallbacks);
     CPPUNIT_TEST(testBashCompletion);
     CPPUNIT_TEST(testHelp);
+    CPPUNIT_TEST(testSetMainArguments);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,6 +46,7 @@ public:
     void testCallbacks();
     void testBashCompletion();
     void testHelp();
+    void testSetMainArguments();
 
 private:
     void callback();
@@ -73,13 +76,13 @@ void ArgumentParserTests::testArgument()
     CPPUNIT_ASSERT_EQUAL(subArg.parents().at(0), &argument);
     CPPUNIT_ASSERT(!subArg.conflictsWithArgument());
     CPPUNIT_ASSERT(!argument.firstValue());
-    argument.setEnvironmentVariable("PATH");
-    if (getenv("PATH")) {
-        CPPUNIT_ASSERT(argument.firstValue());
-        CPPUNIT_ASSERT(!strcmp(argument.firstValue(), getenv("PATH")));
-    } else {
-        CPPUNIT_ASSERT(!argument.firstValue());
-    }
+    argument.setEnvironmentVariable("FOO_ENV_VAR");
+    setenv("FOO_ENV_VAR", "foo", true);
+    CPPUNIT_ASSERT(!strcmp(argument.firstValue(), "foo"));
+    ArgumentOccurrence occurrence(0, vector<Argument *>(), nullptr);
+    occurrence.values.emplace_back("bar");
+    argument.m_occurrences.emplace_back(move(occurrence));
+    CPPUNIT_ASSERT(!strcmp(argument.firstValue(), "bar"));
 }
 
 /*!
@@ -598,6 +601,11 @@ void ArgumentParserTests::testBashCompletion()
  */
 void ArgumentParserTests::testHelp()
 {
+    // identation
+    Indentation indent;
+    indent = indent + 3;
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned char>(4 + 3), indent.level);
+
     // redirect cout to custom buffer
     stringstream buffer;
     streambuf *regularCoutBuffer = cout.rdbuf(buffer.rdbuf());
@@ -616,10 +624,11 @@ void ArgumentParserTests::testHelp()
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
     filesArg.setCombinable(true);
     filesArg.addSubArgument(&subArg);
+    filesArg.setSubArguments({ &subArg }); // test re-assignment btw
     Argument envArg("env", '\0', "env");
     envArg.setEnvironmentVariable("FILES");
     envArg.setRequiredValueCount(2);
-    envArg.setValueNames({ "file" });
+    envArg.appendValueName("file");
     parser.addMainArgument(&helpArg);
     parser.addMainArgument(&verboseArg);
     parser.addMainArgument(&filesArg);
@@ -657,4 +666,24 @@ void ArgumentParserTests::testHelp()
                          "\n"
                          "Project website: " APP_URL "\n"s,
         buffer.str());
+}
+
+/*!
+ * \brief Tests some corner cases in setMainArguments() which are not already checked in the other tests.
+ */
+void ArgumentParserTests::testSetMainArguments()
+{
+    ArgumentParser parser;
+    HelpArgument helpArg(parser);
+    Argument subArg("sub-arg", 's', "mandatory sub arg");
+    subArg.setRequired(true);
+    helpArg.addSubArgument(&subArg);
+    parser.addMainArgument(&helpArg);
+    parser.setMainArguments({});
+    CPPUNIT_ASSERT_MESSAGE("clear main args", parser.mainArguments().empty());
+    parser.setMainArguments({ &helpArg });
+    CPPUNIT_ASSERT_MESSAGE("no default due to required sub arg", !parser.defaultArgument());
+    subArg.setConstraints(0, 20);
+    parser.setMainArguments({ &helpArg });
+    CPPUNIT_ASSERT_MESSAGE("default if no required sub arg", &helpArg == parser.defaultArgument());
 }
