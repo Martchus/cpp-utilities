@@ -232,15 +232,9 @@ template <typename StringType> void findAndReplace(StringType &str, const String
  * - Uses capital letters.
  * - Valid values for \a digit: 0 <= \a digit <= 35
  */
-template <typename CharType> CharType digitToChar(CharType digit)
+template <typename CharType> constexpr CharType digitToChar(CharType digit)
 {
-    CharType res;
-    if (digit <= 9) {
-        res = digit + '0';
-    } else {
-        res = digit + 'A' - 10;
-    }
-    return res;
+    return digit <= 9 ? (digit + '0') : (digit + 'A' - 10);
 }
 
 /*!
