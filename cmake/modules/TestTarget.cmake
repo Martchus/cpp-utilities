@@ -136,10 +136,17 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
 
     # enable source code based coverage analysis using clang
     if(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
-        # specify where to store raw clang profiling data via environment variable
+        # define path of raw profile data
         set(LLVM_PROFILE_RAW_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw")
+        # define path of list with additional raw profile data from fork processes spawned during tests
         set(LLVM_PROFILE_RAW_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw.list")
+        # define path of merged profile data generated from raw profiling data
         set(LLVM_PROFILE_DATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata")
+        # define paths of output files
+        set(COVERAGE_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt")
+        set(COVERAGE_OVERALL_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall.txt")
+        set(COVERAGE_HTML_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html")
+        # specify where to store raw clang profiling data via environment variable
         set_tests_properties(${META_PROJECT_NAME}_run_tests
             PROPERTIES ENVIRONMENT
                 "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE};LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}"
@@ -156,11 +163,12 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
                         -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>"
             COMMENT "Executing ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests to generate raw profiling data for source-based coverage report"
-            DEPENDS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+            DEPENDS "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests"
         )
         find_program(LLVM_PROFDATA_BIN llvm-profdata)
         find_program(LLVM_COV_BIN llvm-cov)
         if(LLVM_PROFDATA_BIN AND LLVM_COV_BIN)
+            # merge profiling data
             add_custom_command(
                 OUTPUT "${LLVM_PROFILE_DATA_FILE}"
                 COMMAND cat "${LLVM_PROFILE_RAW_LIST_FILE}" | xargs
@@ -172,37 +180,66 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                 DEPENDS "${LLVM_PROFILE_RAW_FILE}"
                         "${LLVM_PROFILE_RAW_LIST_FILE}"
             )
+            # generate coverage report (statistics, for each file a table)
             add_custom_command(
-                OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+                OUTPUT "${COVERAGE_REPORT_FILE}"
                 COMMAND "${LLVM_COV_BIN}" report
-                    -instr-profile "${LLVM_PROFILE_DATA_FILE}"
                     -format=text
+                    -stats
+                    -instr-profile "${LLVM_PROFILE_DATA_FILE}"
                     $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
-                    > "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
-                COMMENT "Generating HTML coverage report"
+                    ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES} ${QML_SOURCE_FILES}
+                    > "${COVERAGE_REPORT_FILE}"
+                COMMENT "Generating coverage report (statistics as table)"
                 DEPENDS "${LLVM_PROFILE_DATA_FILE}"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             )
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_summary"
-                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
+                DEPENDS "${COVERAGE_REPORT_FILE}"
             )
+            # generate coverage overall report (total region/line coverage)
+            set(OVERALL_COVERAGE_AKW_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
+            if(CPP_UTILITIES_SOURCE_DIR AND NOT EXISTS "${OVERALL_COVERAGE_AKW_SCRIPT}")
+                set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
+            endif()
+            if(NOT EXISTS "${OVERALL_COVERAGE_AKW_SCRIPT}")
+                set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_CONFIG_DIRS}/tests/calculateoverallcoverage.awk")
+            endif()
             add_custom_command(
-                OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+                OUTPUT "${COVERAGE_OVERALL_REPORT_FILE}"
+                COMMAND awk
+                    -f "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}"
+                    > "${COVERAGE_OVERALL_REPORT_FILE}"
+                COMMENT "Generating coverage report (overall figures)"
+                DEPENDS "${COVERAGE_REPORT_FILE}"
+            )
+            add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall_summary"
+                DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
+            )
+            # generate HTML document showing covered/uncovered code
+            add_custom_command(
+                OUTPUT "${COVERAGE_HTML_REPORT_FILE}"
                 COMMAND "${LLVM_COV_BIN}" show
                     -project-title="${META_APP_NAME}"
-                    -instr-profile "${LLVM_PROFILE_DATA_FILE}"
                     -format=html
+                    -instr-profile "${LLVM_PROFILE_DATA_FILE}"
                     $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
-                    > "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
-                COMMENT "Generating HTML coverage report"
+                    ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES}
+                    > "${COVERAGE_HTML_REPORT_FILE}"
+                COMMENT "Generating HTML document showing covered/uncovered code"
                 DEPENDS "${LLVM_PROFILE_DATA_FILE}"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             )
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_html"
-                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+                DEPENDS "${COVERAGE_HTML_REPORT_FILE}"
             )
+            # create target for all coverage docs
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage"
-                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt"
-                DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html"
+                DEPENDS "${COVERAGE_REPORT_FILE}"
+                DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
+                DEPENDS "${COVERAGE_HTML_REPORT_FILE}"
             )
+            # add targets to global coverage target
             if(NOT TARGET coverage)
                 add_custom_target(coverage)
             endif()
