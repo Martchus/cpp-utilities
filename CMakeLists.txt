@@ -94,7 +94,8 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/global.h.in
     cmake/templates/template.pc.in
 )
-set(SCRIPT_FILES)
+set(SCRIPT_FILES
+)
 if(MINGW)
     list(APPEND CMAKE_TEMPLATE_FILES
         cmake/templates/windows.rc.in
@@ -108,6 +109,10 @@ set(DOC_FILES
     README.md
     doc/buildvariables.md
     doc/testapplication.md
+)
+set(EXTRA_FILES
+    tests/calculateoverallcoverage.awk
+    coding-style.clang-format
 )
 
 # required to include CMake modules from own project directory

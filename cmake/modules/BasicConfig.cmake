@@ -252,4 +252,19 @@ if(CLANG_SOURCE_BASED_COVERAGE_ENABLED)
     endif()
 endif()
 
+# add install target for extra files
+foreach(EXTRA_FILE ${EXTRA_FILES})
+    get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
+    install(
+        FILES ${EXTRA_FILE}
+        DESTINATION "share/${META_PROJECT_NAME}/${EXTRA_DIR}"
+        COMPONENT extra-files
+    )
+endforeach()
+if(NOT TARGET install-extra-files)
+    add_custom_target(install-extra-files
+        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+    )
+endif()
+
 set(BASIC_PROJECT_CONFIG_DONE YES)
