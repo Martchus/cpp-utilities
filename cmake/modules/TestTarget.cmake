@@ -74,6 +74,14 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                 PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                 PRIVATE "${PRIVATE_LIBRARIES}"
             )
+            target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+                PUBLIC
+                    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                    $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
+                    ${PUBLIC_SHARED_INCLUDE_DIRS}
+                PRIVATE
+                    "${PRIVATE_SHARED_INCLUDE_DIRS}"
+            )
             target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
                 PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
                 PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
@@ -109,8 +117,12 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}"
     )
     target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
-        PUBLIC "${PUBLIC_SHARED_INCLUDE_DIRS}"
-        PRIVATE "${PRIVATE_SHARED_INCLUDE_DIRS}"
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+            $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
+            ${PUBLIC_SHARED_INCLUDE_DIRS}
+        PRIVATE
+            "${PRIVATE_SHARED_INCLUDE_DIRS}"
     )
     target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
         PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"

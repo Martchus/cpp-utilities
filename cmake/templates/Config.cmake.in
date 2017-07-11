@@ -63,8 +63,6 @@ endif()
 macro(use_@META_PROJECT_VARNAME@)
     # make CMake modules of the project available
     list(APPEND CMAKE_MODULE_PATH ${@META_PROJECT_VARNAME_UPPER@_MODULE_DIRS})
-    # add include directories
-    include_directories(BEFORE SYSTEM ${@META_PROJECT_VARNAME_UPPER@_INCLUDE_DIRS})
     # link against library (also "link" against header-only libs to get compile defs and interface link libs)
     link_directories(${@META_PROJECT_VARNAME_UPPER@_LIB_DIR})
     include(3rdParty)
