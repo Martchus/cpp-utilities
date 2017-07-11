@@ -46,6 +46,6 @@ diff (stringstream minus string builder): 00:00:10
 factor (stringstream / string builder): 2.42857
 ```
 
-So this basic tests show that string builder is up to 2 times faster when using full optimization
-and still 1.4 times faster when using -O2 (default under Arch Linux). However, this templating
-stuff completely relies on optimization (as expected). Results with clang++ where similar.
+So this basic tests show that string builder is up to 3 times faster when using full optimization
+and still 2 times faster when using -O2 (default under Arch Linux). However, without optimization it way
+slower. Results with clang++ were similar.
