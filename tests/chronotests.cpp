@@ -20,6 +20,9 @@ using namespace CPPUNIT_NS;
 
 /*!
  * \brief The ChronoTests class tests classes and methods of the ChronoUtilities namespace.
+ * \remarks Before comitting any changes to this test, run with different timezones to prevent
+ *          mistakes like timezone-dependent checks. (Eg. set environment variable TZ to different
+ *          values like 'UTC' or 'America/Los_Angeles'.)
  */
 class ChronoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ChronoTests);
