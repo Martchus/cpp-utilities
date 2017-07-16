@@ -8,6 +8,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -63,8 +64,9 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_EQUAL("Wed 2012-02-29 15:34:20.033"s, test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
 
     // test fromTimeStamp()
-    CPPUNIT_ASSERT_EQUAL("Tue 2016-01-26 20:32:11"s, DateTime::fromTimeStampGmt(1453840331).toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
-    CPPUNIT_ASSERT_EQUAL("Tuesday 2016-01-26 21:32:11"s, DateTime::fromTimeStamp(1453840331).toString(DateTimeOutputFormat::DateTimeAndWeekday));
+    const auto fromTimeStampGmt = DateTime::fromTimeStampGmt(1453840331), fromTimeStamp = DateTime::fromTimeStamp(1453840331);
+    CPPUNIT_ASSERT_EQUAL("Tue 2016-01-26 20:32:11"s, fromTimeStampGmt.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
+    CPPUNIT_ASSERT(fabs((fromTimeStamp - fromTimeStampGmt).totalDays()) <= 1.0);
     CPPUNIT_ASSERT_EQUAL(DateTime(), DateTime::fromTimeStamp(0));
 
     // test whether ConversionException() is thrown when invalid values are specified
