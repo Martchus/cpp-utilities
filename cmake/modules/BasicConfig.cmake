@@ -252,19 +252,29 @@ if(CLANG_SOURCE_BASED_COVERAGE_ENABLED)
     endif()
 endif()
 
+# configure creation of install targets
+if(NOT META_NO_INSTALL_TARGETS)
+    # install targets have not been disabled on project level
+    # check whether install targets are disabled by the user
+    # this might be useful since install targets seem to cause problems under MacOS
+    option(ENABLE_INSTALL_TARGETS "enables creation of install targets" ON)
+endif()
+
 # add install target for extra files
-foreach(EXTRA_FILE ${EXTRA_FILES})
-    get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
-    install(
-        FILES ${EXTRA_FILE}
-        DESTINATION "share/${META_PROJECT_NAME}/${EXTRA_DIR}"
-        COMPONENT extra-files
-    )
-endforeach()
-if(NOT TARGET install-extra-files)
-    add_custom_target(install-extra-files
-        COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-    )
+if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
+    foreach(EXTRA_FILE ${EXTRA_FILES})
+        get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
+        install(
+            FILES ${EXTRA_FILE}
+            DESTINATION "share/${META_PROJECT_NAME}/${EXTRA_DIR}"
+            COMPONENT extra-files
+        )
+    endforeach()
+    if(NOT TARGET install-extra-files)
+        add_custom_target(install-extra-files
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
 endif()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)

@@ -305,7 +305,7 @@ configure_file(
 )
 list(APPEND PC_FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME_FOR_PC}.pc")
 
-if(NOT META_NO_INSTALL_TARGETS)
+if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for the CMake config files
     install(
         FILES
