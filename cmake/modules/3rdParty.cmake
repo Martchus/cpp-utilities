@@ -144,13 +144,13 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
         if(NOT ${NAME}_DYNAMIC_LIB)
             configure_dynamic_library_suffixes()
             find_library(DETECTED_${NAME}_DYNAMIC_LIB ${NAME})
-            set(${NAME}_DYNAMIC_LIB ${DETECTED_${NAME}_DYNAMIC_LIB} CACHE FILEPATH "${NAME} lib (dynamic)")
+            set(${NAME}_DYNAMIC_LIB ${DETECTED_${NAME}_DYNAMIC_LIB} CACHE FILEPATH "${NAME} lib (dynamic)" FORCE)
         endif()
 
-        if(NOT ${NAME}_SHARED_LIB)
+        if(NOT ${NAME}_STATIC_LIB)
             configure_static_library_suffixes()
-            find_library(${NAME}_STATIC_LIB ${NAME})
-            set(${NAME}_STATIC_LIB ${DETECTED_${NAME}_STATIC_LIB} CACHE FILEPATH "${NAME} lib (static)")
+            find_library(DETECTED_${NAME}_STATIC_LIB ${NAME})
+            set(${NAME}_STATIC_LIB ${DETECTED_${NAME}_STATIC_LIB} CACHE FILEPATH "${NAME} lib (static)" FORCE)
         endif()
 
         restore_default_library_suffixes()
@@ -162,19 +162,19 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
     endmacro()
 
     function(use_external_library_from_package_dynamic NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
-        # internally used by use_external_library_from_package to find dynamic libraries
+        # internally used by find_external_library_from_package to find dynamic libraries
         configure_dynamic_library_suffixes()
         find_package(${PKGNAME} ${COMPAT_VERSION})
-        set(${NAME}_DYNAMIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (dynamic)")
-        set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (dynamic)")
+        set(${NAME}_DYNAMIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (dynamic)" FORCE)
+        set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (dynamic)" FORCE)
     endfunction()
 
     function(use_external_library_from_package_static NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
-        # internally used by use_external_library_from_package to find static libraries
+        # internally used by find_external_library_from_package to find static libraries
         configure_static_library_suffixes()
         find_package(${PKGNAME} ${COMPAT_VERSION})
-        set(${NAME}_STATIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (static)")
-        set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (static)")
+        set(${NAME}_STATIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (static)" FORCE)
+        set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (static)" FORCE)
     endfunction()
 
     macro(find_external_library_from_package NAME PKGNAME VERSION INCLUDE_VAR LIBRARY_VAR LINKAGE REQUIRED)
@@ -186,6 +186,8 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
         endif()
 
         # use the find_library approach first because it is less buggy when trying to detect static libraries
+        # caveat: this way include dirs are not detected - however those are mostly the the default anyways and
+        # can also be set manually by the user in case the auto-detection is not sufficient
         find_external_library("${NAME}" "${LINKAGE}" OPTIONAL)
 
         # fall back to actual use of find_package
