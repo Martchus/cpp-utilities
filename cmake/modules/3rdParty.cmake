@@ -208,10 +208,13 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
     endmacro()
 
     macro(use_iconv LINKAGE REQUIRED)
-        # check whether iconv exists in the standard library
-        include(CheckFunctionExists)
-        check_function_exists(iconv HAS_ICONV)
-        if(HAS_ICONV)
+        set(FORCE_EXTERNAL_ICONV OFF CACHE PATH "whether to force usage of external iconv (rather than the using the one bundled with glibc)")
+        if(NOT FORCE_EXTERNAL_ICONV)
+            # check whether iconv exists in standard lib
+            include(CheckFunctionExists)
+            check_function_exists(iconv HAS_ICONV)
+        endif()
+        if(NOT FORCE_EXTERNAL_ICONV AND HAS_ICONV)
             message(STATUS "Using iconv from the standard library for ${META_PROJECT_NAME}.")
         else()
             # find external iconv library
