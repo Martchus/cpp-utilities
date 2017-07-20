@@ -20,22 +20,30 @@ and qtutilities.
 None of these are enabled or set by default, unless stated otherwise.
 
 * `LIB_SUFFIX=suffix`: suffix for library install directory
-* `LIB_SUFFIX_32=suffix`: suffix for library install directory, used when
-  building for 32-bit platforms
-* `LIB_SUFFIX_64=suffix`: suffix for library install directory, used when
-  building for 64-bit platforms
+* `LIB_SUFFIX_32=suffix`: suffix for library install directory
+    * used when building for 32-bit platforms
+    * overrides general `LIB_SUFFIX` when building for 32-bit platforms
+* `LIB_SUFFIX_64=suffix`: suffix for library install directory
+    * used when building for 64-bit platforms
+    * overrides general `LIB_SUFFIX` when building for 64-bit platforms
 * `ENABLE_STATIC_LIBS=ON/OFF`: enables building static libs
 * `DISABLE_SHARED_LIBS=ON/OFF`: disables building shared libs
-* `STATIC_LINKAGE=ON/OFF`: enables linking applications against static libraries
-* `STATIC_LIBRARY_LINKAGE=ON/OFF`: enables linking dynamic libraries against
+* `STATIC_LINKAGE=ON/OFF`: enables linking applications *preferably* against
   static libraries
+    * by default dynamic libraries are preferred
+    * only affect building applications
+* `STATIC_LIBRARY_LINKAGE=ON/OFF`: enables linking dynamic libraries *preferably*
+  against static libraries
+    * by default linking against dynamic libraries is preferred
+    * only affects building dynamic libraries
 * `SHELL_COMPLETION_ENABLED=ON/OFF`: enables shell completion in general
   (enabled by default)
 * `BASH_COMPLETION_ENABLED=ON/OFF`: enables Bash completion (enabled by
   default)
 * `LOGGING_ENABLED=ON/OFF`: enables further loggin in some applications
 * `FORCE_OLD_ABI=ON/OFF`: forces use of old C++ ABI
-  (sets `_GLIBCXX_USE_CXX11_ABI=0`)
+    * sets `_GLIBCXX_USE_CXX11_ABI=0`
+    * only relevant when using libstdc++
 * `EXCLUDE_TESTS_FROM_ALL=ON/OFF`: excludes tests from the all target
   (enabled by default)
 * `APPEND_GIT_REVISION=ON/OFF`: whether the build script should attempt to
@@ -52,6 +60,8 @@ None of these are enabled or set by default, unless stated otherwise.
   determine source-based test coverage using Clang/llvm
     * only available when building with Clang under UNIX
     * coverage report is stored in build directory
+* `ENABLE_INSTALL_TARGETS=ON/OFF`: enables creation of install targets (enabled
+  by default)
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
@@ -107,6 +117,8 @@ and qtutilities.
 * `META_CXX_STANDARD=11/14/..`: specifies the C++ version, default is 14
 * `META_NO_TIDY`: disables availability of enabling formatting via
   `CLANG_FORMAT_ENABLED` for this project
+* `META_NO_INSTALL_TARGETS`: the project is not meant to be installed, eg.
+  private test helper; prevents creation of install targets
 
 ### Files
 * `HEADER_FILES`/`SRC_FILES`: specifies C++ header/source files
@@ -136,24 +148,44 @@ and qtutilities.
   interface
 
 ## Provided modules
-Most important modules:
+c++utilities and qtutilities provide CMake modules to reduce boilerplate code
+in the CMake files of my projects. Those modules implement the functionality
+controlled by the variables documented above. Most important modules are:
+
 * `BaseConfig`: does basic configuration, reads most of the `META`-variables
+* `QtConfig`: does basic Qt-related configuration, reads most of the Qt-specific
+  variables documented above
+* `QtGuiConfig`: does Qt-related configuration for building a Qt Widgets or
+  Qt Quick based GUI application/library
+    * must be included *before* `QtConfig`
+* `WebViewProviderConfig`: configures the webview provider
+    * used by Tag Editor and Syncthing Tray to select between Qt WebEngine,
+      Qt WebKit or disabling the built-in webview
 * `LibraryTarget`: does further configuration for building dynamic and static
-  libraries and plugins; `META_PROJECT_TYPE` must be set accordingly
+  libraries and plugins; `META_PROJECT_TYPE` can be left empty or set explicitely
+  to `library`
 * `AppTarget`: does further configuration for building an application;
-  `META_PROJECT_TYPE` must be set accordingly
-* `ShellCompletion`: enables shell completion; only works when using the
-  argument parser provided by the ApplicationUtilities::ArgumentParser class
-  of course
-* `TestTarget`: adds the test target `check` which is *not* required by target
-  `all`; uses files specified in `TEST_HEADER_FILES`/`TEST_SRC_FILES` variables
+  `META_PROJECT_TYPE` must be set to `application`
+* `ShellCompletion`: enables shell completion
+    * only works when using the argument parser provided by the
+      `ApplicationUtilities::ArgumentParser` class of course
+* `TestTarget`: adds the test target `check`
+    * `check` target is *not* required by target `all`
+    * test target uses files specified in `TEST_HEADER_FILES`/`TEST_SRC_FILES`
+      variables
+    * test target will automatically link against `cppunit` which is the test
+      framework used by all my projects; set `META_NO_CPP_UNIT=OFF` in the project
+      file to prevent this
 * `Doxygen`: adds a target to generate documentation using Doxygen
-* `WindowsResources`: handles creation of windows resources to set application
-  meta data and icon
+* `WindowsResources`: handles creation of Windows resources to set application
+  meta data and icon, ignored on other platforms
 * `ConfigHeader`: generates `resources/config.h`, must be included as the last
   module (when all configuration is done)
 
-The inclusion order of the modules matters.
+Since those modules make use of the variables explained above, the modules must
+be included *after* setting those variables. The inclusion order of the modules
+matters as well.
+
 For an example, checkout the project file of c++utilities itself. The project
 files of [Syncthing Tray](https://github.com/Martchus/syncthingtray) should
 cover everything (library, plugin, application, tests, desktop file, Qt
