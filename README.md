@@ -91,7 +91,8 @@ PKGBUILD files to build for Windows using the Mingw-w64 compiler are also includ
 
 #### RPM packages
 RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
-Those files have only been tested under Tumbleweed so far.
+Packages are available for x86_64, aarch64 and armv7l. Since GCC provided by Leap is too old, only Tumbleweed packages
+are up-to-date.
 
 #### Gentoo
 Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
