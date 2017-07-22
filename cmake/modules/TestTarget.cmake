@@ -9,24 +9,38 @@ option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the \"all
 
 # find and link against cppunit if required (used by all my projects, so it is required by default)
 if(NOT META_NO_CPP_UNIT)
+    # make cppunit library/include dir configurable
+    set(CPP_UNIT_LIB NOTFOUND CACHE FILEPATH "cppunit lib" FORCE)
+    set(CPP_UNIT_INCLUDE_DIR NOTFOUND CACHE FILEPATH "cppunit include dir" FORCE)
+
+    # set default for minimum version (only checked when using pkg-config)
     if(NOT META_REQUIRED_CPP_UNIT_VERSION)
         set(META_REQUIRED_CPP_UNIT_VERSION 1.13.0)
     endif()
 
-    include(FindPkgConfig)
-    pkg_search_module(CPP_UNIT_CONFIG_${META_PROJECT_NAME} cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
-    if(CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-        set(CPP_UNIT_LIB "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}" "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}")
-        link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
-    elseif(NOT CPP_UNIT_LIB)
-        find_library(CPP_UNIT_LIB cppunit)
+    # auto-detection: try to find via pkg-config first
+    if(NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
+        include(FindPkgConfig)
+        pkg_search_module(CPP_UNIT_CONFIG_${META_PROJECT_NAME} cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
+        if(CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
+            set(CPP_UNIT_LIB "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}" "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}" CACHE FILEPATH "cppunit lib" FORCE)
+            set(CPP_UNIT_INCLUDE_DIR ${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS} CACHE FILEPATH "cppunit include dir" FORCE)
+            link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
+        else()
+            # fall back to find_library
+            find_library(DETECTED_CPP_UNIT_LIB cppunit)
+            set(CPP_UNIT_LIB "${DETECTED_CPP_UNIT_LIB}" CACHE FILEPATH "cppunit lib" FORCE)
+        endif()
     endif()
 
     if(CPP_UNIT_LIB)
-        list(APPEND TEST_LIBRARIES ${CPP_UNIT_LIB})
+        list(APPEND TEST_LIBRARIES "${CPP_UNIT_LIB}")
         if(NOT CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-            message(WARNING "Unable to find cppunit via pkg-config so the version couldn't be checked. Required version for ${META_PROJECT_NAME} is ${META_REQUIRED_CPP_UNIT_VERSION}.")
+            message(WARNING "Cppunit not detected via pkg-config so the version couldn't be checked. Required version for ${META_PROJECT_NAME} is ${META_REQUIRED_CPP_UNIT_VERSION}.")
         endif()
+    endif()
+    if(CPP_UNIT_INCLUDE_DIR)
+        list(APPEND TEST_INCLUDE_DIRS "${CPP_UNIT_INCLUDE_DIR}")
     endif()
 endif()
 
@@ -122,6 +136,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
             $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
             ${PUBLIC_SHARED_INCLUDE_DIRS}
         PRIVATE
+            ${TEST_INCLUDE_DIRS}
             "${PRIVATE_SHARED_INCLUDE_DIRS}"
     )
     target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
