@@ -154,11 +154,15 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
     )
 
     # make a test recognized by ctest
+    unset(RUN_TESTS_APPLICATION_ARG)
+    if(META_PROJECT_TYPE STREQUAL "application")
+        set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>")
+    endif()
     add_test(NAME ${META_PROJECT_NAME}_run_tests COMMAND
         ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
         -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-        -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>"
+        ${RUN_TESTS_APPLICATION_ARGS}
     )
 
     # enable source code based coverage analysis using clang
@@ -188,7 +192,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                     $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>
                         -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
                         -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-                        -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>"
+                        ${RUN_TESTS_APPLICATION_ARGS}
             COMMENT "Executing ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests to generate raw profiling data for source-based coverage report"
             DEPENDS "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests"
         )
