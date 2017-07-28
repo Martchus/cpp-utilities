@@ -87,7 +87,7 @@ public:
     static constexpr DateTime unixEpochStart();
     static DateTime now();
     static DateTime gmtNow();
-#if defined(PLATFORM_UNIX)
+#if defined(PLATFORM_UNIX) && !defined(PLATFORM_MAC)
     static DateTime exactGmtNow();
 #endif
     constexpr static bool isLeapYear(int year);
