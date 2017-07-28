@@ -599,6 +599,28 @@ void ArgumentParserTests::testBashCompletion()
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL(static_cast<string::size_type>(0), buffer.str().find("COMPREPLY=('--fields' "));
 
+        // override exit function to prevent readArgs() from terminating the test run
+        exitFunction = [](int) {};
+
+        // call completion via readArgs() with current word index
+        const char *const argv10[] = { "/some/path/tageditor", "--bash-completion-for", "0" };
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        parser.readArgs(3, argv10);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT(!strcmp("/some/path/tageditor", parser.executable()));
+        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"s, buffer.str());
+
+        // call completion via readArgs() without current word index
+        const char *const argv11[] = { "/some/path/tageditor", "--bash-completion-for", "ge" };
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        parser.readArgs(3, argv11);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('get' )\n"s, buffer.str());
+
     } catch (...) {
         cout.rdbuf(regularCoutBuffer);
         throw;

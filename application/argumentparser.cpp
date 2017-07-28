@@ -683,11 +683,11 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
                 // the first argument after "--bash-completion-for" is the index of the current word
                 try {
                     currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
+                    if (argc) {
+                        ++argv, --argc;
+                    }
                 } catch (const ConversionException &) {
-                    currentWordIndex = static_cast<unsigned int>(argc);
-                }
-                if (argc) {
-                    ++argv, --argc;
+                    currentWordIndex = static_cast<unsigned int>(argc - 1);
                 }
             }
 
