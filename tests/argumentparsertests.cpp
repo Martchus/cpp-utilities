@@ -21,8 +21,80 @@
 using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
+using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
+
+/*!
+ * \brief The StandardOutputCheck class asserts whether the standard output written in the enclosing code block matches the expected output.
+ * \remarks Only works for output printed via std::cout.
+ * \todo Could be generalized and moved to testutils.h.
+ */
+class StandardOutputCheck {
+public:
+    StandardOutputCheck(const string &expectedOutput);
+    StandardOutputCheck(string &&expectedOutput, string &&alternativeOutput);
+    StandardOutputCheck(function<void(const string &output)> &&customCheck);
+    ~StandardOutputCheck();
+
+private:
+    const function<void(const string &output)> m_customCheck;
+    const string m_expectedOutput;
+    const string m_alternativeOutput;
+    stringstream m_buffer;
+    streambuf *const m_regularCoutBuffer;
+};
+
+/*!
+ * \brief Redirects standard output to an internal buffer.
+ */
+StandardOutputCheck::StandardOutputCheck(const string &expectedOutput)
+    : m_expectedOutput(expectedOutput)
+    , m_buffer()
+    , m_regularCoutBuffer(cout.rdbuf(m_buffer.rdbuf()))
+{
+}
+
+/*!
+ * \brief Redirects standard output to an internal buffer.
+ */
+StandardOutputCheck::StandardOutputCheck(string &&expectedOutput, string &&alternativeOutput)
+    : m_expectedOutput(expectedOutput)
+    , m_alternativeOutput(alternativeOutput)
+    , m_buffer()
+    , m_regularCoutBuffer(cout.rdbuf(m_buffer.rdbuf()))
+{
+}
+
+/*!
+ * \brief Redirects standard output to an internal buffer.
+ */
+StandardOutputCheck::StandardOutputCheck(function<void(const string &)> &&customCheck)
+    : m_customCheck(customCheck)
+    , m_buffer()
+    , m_regularCoutBuffer(cout.rdbuf(m_buffer.rdbuf()))
+{
+}
+
+/*!
+ * \brief Asserts the buffered standard output and restores the regular behaviour of std::cout.
+ */
+StandardOutputCheck::~StandardOutputCheck()
+{
+    cout.rdbuf(m_regularCoutBuffer);
+    if (m_customCheck) {
+        m_customCheck(m_buffer.str());
+        return;
+    }
+    if (m_alternativeOutput.empty()) {
+        CPPUNIT_ASSERT_EQUAL(m_expectedOutput, m_buffer.str());
+        return;
+    }
+    const string actualOutput(m_buffer.str());
+    if (m_expectedOutput != actualOutput && m_alternativeOutput != actualOutput) {
+        CPPUNIT_FAIL("Output is not either \"" % m_expectedOutput % "\" or \"" % m_alternativeOutput % "\". Got instead:\n" + actualOutput);
+    }
+}
 
 /*!
  * \brief The ArgumentParserTests class tests the ArgumentParser and Argument classes.
@@ -403,9 +475,13 @@ void ArgumentParserTests::testCallbacks()
 }
 
 /*!
+ * \brief Used to check whether the exit() function is called when printing bash completion.
+ */
+static bool exitCalled = false;
+
+/*!
  * \brief Tests bash completion.
- * \remarks This tests makes assumptions about the order and the exact output format
- *          which should be improved.
+ * \remarks This tests makes assumptions about the order and the exact output format.
  */
 void ArgumentParserTests::testBashCompletion()
 {
@@ -414,7 +490,7 @@ void ArgumentParserTests::testBashCompletion()
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
-    filesArg.setRequiredValueCount(-1);
+    filesArg.setRequiredValueCount(Argument::varValueCount);
     filesArg.setCombinable(true);
     Argument nestedSubArg("nested-sub", '\0', "nested sub arg");
     Argument subArg("sub", '\0', "sub arg");
@@ -423,11 +499,11 @@ void ArgumentParserTests::testBashCompletion()
     displayFileInfoArg.setDenotesOperation(true);
     displayFileInfoArg.setSubArguments({ &filesArg, &verboseArg, &subArg });
     Argument fieldsArg("fields", '\0', "specifies the fields");
-    fieldsArg.setRequiredValueCount(-1);
+    fieldsArg.setRequiredValueCount(Argument::varValueCount);
     fieldsArg.setPreDefinedCompletionValues("title album artist trackpos");
     fieldsArg.setImplicit(true);
     Argument valuesArg("values", '\0', "specifies the fields");
-    valuesArg.setRequiredValueCount(-1);
+    valuesArg.setRequiredValueCount(Argument::varValueCount);
     valuesArg.setPreDefinedCompletionValues("title album artist trackpos");
     valuesArg.setImplicit(false);
     valuesArg.setValueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::AppendEquationSign);
@@ -438,192 +514,162 @@ void ArgumentParserTests::testBashCompletion()
 
     parser.setMainArguments({ &helpArg, &displayFileInfoArg, &getArg, &setArg });
 
-    // redirect cout to custom buffer
-    stringstream buffer;
-    streambuf *regularCoutBuffer = cout.rdbuf(buffer.rdbuf());
-
-    try {
-        // fail due to operation flags not set
-        const char *const argv1[] = { "se" };
-        ArgumentReader reader(parser, argv1, argv1 + 1, true);
+    // fail due to operation flags not set
+    const char *const argv1[] = { "se" };
+    ArgumentReader reader(parser, argv1, argv1 + 1, true);
+    {
+        const StandardOutputCheck c("COMPREPLY=()\n");
         reader.read();
         parser.printBashCompletion(1, argv1, 0, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=()\n"s, buffer.str());
+    }
 
-        // correct operation arg flags
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        getArg.setDenotesOperation(true), setArg.setDenotesOperation(true);
+    // correct operation arg flags
+    getArg.setDenotesOperation(true);
+    setArg.setDenotesOperation(true);
+    {
+        const StandardOutputCheck c("COMPREPLY=('set' )\n");
         reader.reset(argv1, argv1 + 1).read();
         parser.printBashCompletion(1, argv1, 0, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('set' )\n"s, buffer.str());
+    }
 
-        // argument at current cursor position already specified -> the completion should just return the argument
-        const char *const argv2[] = { "set" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // argument at current cursor position already specified -> the completion should just return the argument
+    const char *const argv2[] = { "set" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('set' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 0, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('set' )\n"s, buffer.str());
+    }
 
-        // advance the cursor position -> the completion should propose the next argument
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // advance the cursor position -> the completion should propose the next argument
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('--files' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--values' )\n"s, buffer.str());
+    }
 
-        // nested operations should be proposed as operations
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
-        filesArg.setDenotesOperation(true);
+    // nested operations should be proposed as operations
+    parser.resetArgs();
+    filesArg.setDenotesOperation(true);
+    {
+        const StandardOutputCheck c("COMPREPLY=('files' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('files' '--values' )\n"s, buffer.str());
+    }
 
-        // specifying no args should propose all main arguments
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
-        filesArg.setDenotesOperation(false);
+    // specifying no args should propose all main arguments
+    parser.resetArgs();
+    filesArg.setDenotesOperation(false);
+    {
+        const StandardOutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n");
         reader.reset(nullptr, nullptr).read();
         parser.printBashCompletion(0, nullptr, 0, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"s, buffer.str());
+    }
 
-        // pre-defined values
-        const char *const argv3[] = { "get", "--fields" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // pre-defined values
+    const char *const argv3[] = { "get", "--fields" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n");
         reader.reset(argv3, argv3 + 2).read();
         parser.printBashCompletion(2, argv3, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n"s, buffer.str());
+    }
 
-        // pre-defined values with equation sign, one letter already present
-        const char *const argv4[] = { "set", "--values", "a" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // pre-defined values with equation sign, one letter already present
+    const char *const argv4[] = { "set", "--values", "a" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n");
         reader.reset(argv4, argv4 + 3).read();
         parser.printBashCompletion(3, argv4, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n"s, buffer.str());
+    }
 
-        // pre-defined values for implicit argument
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // pre-defined values for implicit argument
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--fields' '--files' )\n");
         reader.reset(argv3, argv3 + 1).read();
         parser.printBashCompletion(1, argv3, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--fields' '--files' )\n"s, buffer.str());
+    }
 
-        // file names
-        string iniFilePath = TestUtilities::testFilePath("test.ini");
-        iniFilePath.resize(iniFilePath.size() - 4);
-        string mkvFilePath = TestUtilities::testFilePath("test 'with quote'.mkv");
-        mkvFilePath.resize(mkvFilePath.size() - 17);
-        TestUtilities::testFilePath("t.aac");
-        const char *const argv5[] = { "get", "--files", iniFilePath.c_str() };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // file names
+    string iniFilePath = TestUtilities::testFilePath("test.ini");
+    iniFilePath.resize(iniFilePath.size() - 4);
+    string mkvFilePath = TestUtilities::testFilePath("test 'with quote'.mkv");
+    mkvFilePath.resize(mkvFilePath.size() - 17);
+    parser.resetArgs();
+    const char *const argv5[] = { "get", "--files", iniFilePath.c_str() };
+    {
+        // order for file names is not specified
+        const StandardOutputCheck c(
+            "COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n",
+            "COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n");
         reader.reset(argv5, argv5 + 3).read();
         parser.printBashCompletion(3, argv5, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        // order for file names is not specified
-        const string res(buffer.str());
-        if (res.find(".mkv") < res.find(".ini")) {
-            CPPUNIT_ASSERT_EQUAL(
-                "COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n", buffer.str());
-        } else {
-            CPPUNIT_ASSERT_EQUAL(
-                "COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n", buffer.str());
-        }
+    }
 
-        // sub arguments
-        const char *const argv6[] = { "set", "--" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // sub arguments
+    const char *const argv6[] = { "set", "--" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('--files' '--values' )\n");
         reader.reset(argv6, argv6 + 2).read();
         parser.printBashCompletion(2, argv6, 1, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--values' )\n"s, buffer.str());
+    }
 
-        // nested sub arguments
-        const char *const argv7[] = { "-i", "--sub", "--" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // nested sub arguments
+    const char *const argv7[] = { "-i", "--sub", "--" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n");
         reader.reset(argv7, argv7 + 3).read();
         parser.printBashCompletion(3, argv7, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n"s, buffer.str());
+    }
 
-        // started pre-defined values with equation sign, one letter already present, last value matches
-        const char *const argv8[] = { "set", "--values", "t" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // started pre-defined values with equation sign, one letter already present, last value matches
+    const char *const argv8[] = { "set", "--values", "t" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('title=' 'trackpos=' ); compopt -o nospace\n");
         reader.reset(argv8, argv8 + 3).read();
         parser.printBashCompletion(3, argv8, 2, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title=' 'trackpos=' ); compopt -o nospace\n"s, buffer.str());
+    }
 
-        // combined abbreviations
-        const char *const argv9[] = { "-gf" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // combined abbreviations
+    const char *const argv9[] = { "-gf" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('-gf' )\n");
         reader.reset(argv9, argv9 + 1).read();
         parser.printBashCompletion(1, argv9, 0, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('-gf' )\n"s, buffer.str());
-
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    }
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c([](const string &actualOutput) { CPPUNIT_ASSERT_EQUAL(0_st, actualOutput.find("COMPREPLY=('--fields' ")); });
         reader.reset(argv9, argv9 + 1).read();
         parser.printBashCompletion(1, argv9, 1, reader);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL(static_cast<string::size_type>(0), buffer.str().find("COMPREPLY=('--fields' "));
+    }
 
-        // override exit function to prevent readArgs() from terminating the test run
-        exitFunction = [](int) {};
+    // override exit function to prevent readArgs() from terminating the test run
+    exitFunction = [](int) { exitCalled = true; };
 
-        // call completion via readArgs() with current word index
-        const char *const argv10[] = { "/some/path/tageditor", "--bash-completion-for", "0" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // call completion via readArgs() with current word index
+    const char *const argv10[] = { "/some/path/tageditor", "--bash-completion-for", "0" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n");
         parser.readArgs(3, argv10);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT(!strcmp("/some/path/tageditor", parser.executable()));
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n"s, buffer.str());
+    }
+    CPPUNIT_ASSERT(!strcmp("/some/path/tageditor", parser.executable()));
+    CPPUNIT_ASSERT(exitCalled);
 
-        // call completion via readArgs() without current word index
-        const char *const argv11[] = { "/some/path/tageditor", "--bash-completion-for", "ge" };
-        buffer.str(string());
-        cout.rdbuf(buffer.rdbuf());
-        parser.resetArgs();
+    // call completion via readArgs() without current word index
+    const char *const argv11[] = { "/some/path/tageditor", "--bash-completion-for", "ge" };
+    parser.resetArgs();
+    {
+        const StandardOutputCheck c("COMPREPLY=('get' )\n");
         parser.readArgs(3, argv11);
-        cout.rdbuf(regularCoutBuffer);
-        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('get' )\n"s, buffer.str());
-
-    } catch (...) {
-        cout.rdbuf(regularCoutBuffer);
-        throw;
     }
 }
 
@@ -636,10 +682,6 @@ void ArgumentParserTests::testHelp()
     Indentation indent;
     indent = indent + 3;
     CPPUNIT_ASSERT_EQUAL(static_cast<unsigned char>(4 + 3), indent.level);
-
-    // redirect cout to custom buffer
-    stringstream buffer;
-    streambuf *regularCoutBuffer = cout.rdbuf(buffer.rdbuf());
 
     // setup parser
     ArgumentParser parser;
@@ -665,38 +707,36 @@ void ArgumentParserTests::testHelp()
     parser.addMainArgument(&filesArg);
     parser.addMainArgument(&envArg);
 
-    // parse args
+    // parse args and assert output
     const char *const argv[] = { "app", "-h" };
-    buffer.str(string());
-    cout.rdbuf(buffer.rdbuf());
-    parser.parseArgs(2, argv);
-    cout.rdbuf(regularCoutBuffer);
-    CPPUNIT_ASSERT_EQUAL("\e[1m" APP_NAME ", version " APP_VERSION "\n"
-                         "\n\e[0m"
-                         "Available arguments:\n"
-                         "\e[1m--help, -h\e[0m\n"
-                         "  shows this information\n"
-                         "  particularities: mandatory\n"
-                         "\n"
-                         "\e[1m--verbose, -v\e[0m\n"
-                         "  be verbose\n"
-                         "  \n"
-                         "usage: actually not an operation\n"
-                         "\n"
-                         "\e[1m--files, -f\e[0m\n"
-                         "  specifies the path of the file(s) to be opened\n"
-                         "  \e[1m--sub\e[0m\n"
-                         "    sub arg\n"
-                         "    particularities: mandatory if parent argument is present\n"
-                         "    \e[1m--nested-sub\e[0m [value1] [value2] ...\n"
-                         "      nested sub arg\n"
-                         "\n"
-                         "\e[1m--env\e[0m [file] [value 2]\n"
-                         "  env\n"
-                         "  default environment variable: FILES\n"
-                         "\n"
-                         "Project website: " APP_URL "\n"s,
-        buffer.str());
+    {
+        const StandardOutputCheck c("\e[1m" APP_NAME ", version " APP_VERSION "\n"
+                                    "\n\e[0m"
+                                    "Available arguments:\n"
+                                    "\e[1m--help, -h\e[0m\n"
+                                    "  shows this information\n"
+                                    "  particularities: mandatory\n"
+                                    "\n"
+                                    "\e[1m--verbose, -v\e[0m\n"
+                                    "  be verbose\n"
+                                    "  \n"
+                                    "usage: actually not an operation\n"
+                                    "\n"
+                                    "\e[1m--files, -f\e[0m\n"
+                                    "  specifies the path of the file(s) to be opened\n"
+                                    "  \e[1m--sub\e[0m\n"
+                                    "    sub arg\n"
+                                    "    particularities: mandatory if parent argument is present\n"
+                                    "    \e[1m--nested-sub\e[0m [value1] [value2] ...\n"
+                                    "      nested sub arg\n"
+                                    "\n"
+                                    "\e[1m--env\e[0m [file] [value 2]\n"
+                                    "  env\n"
+                                    "  default environment variable: FILES\n"
+                                    "\n"
+                                    "Project website: " APP_URL "\n");
+        parser.parseArgs(2, argv);
+    }
 }
 
 /*!
