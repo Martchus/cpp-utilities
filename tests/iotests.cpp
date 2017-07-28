@@ -223,6 +223,15 @@ void IoTests::testBinaryWriter()
     for (char c : testData) {
         CPPUNIT_ASSERT(c == static_cast<char>(testFile.get()));
     }
+
+    // test ownership
+    writer.setStream(nullptr, true);
+    writer.setStream(new fstream(), true);
+    BinaryWriter writer2(writer);
+    CPPUNIT_ASSERT(writer2.stream() == writer.stream());
+    CPPUNIT_ASSERT(!writer2.hasOwnership());
+    writer.setStream(&testFile, false);
+    writer.setStream(new fstream(), true);
 }
 
 /*!
