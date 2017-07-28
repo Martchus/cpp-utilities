@@ -77,21 +77,18 @@ void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
  */
 void BinaryWriter::writeLengthPrefixedString(const string &value)
 {
-    size_t length = value.length();
-    if (length < 0x80) {
-        m_buffer[0] = 0x80 | length;
-        m_stream->write(m_buffer, 1);
-    } else if (length < 0x4000) {
-        BE::getBytes(static_cast<uint16>(0x4000 | length), m_buffer);
-        m_stream->write(m_buffer, 2);
-    } else if (length < 0x200000) {
-        BE::getBytes(static_cast<uint32>(0x200000 | length), m_buffer);
-        m_stream->write(m_buffer + 1, 3);
-    } else if (length < 0x10000000) {
-        BE::getBytes(static_cast<uint32>(0x10000000 | length), m_buffer);
-        m_stream->write(m_buffer, 4);
-    } else {
+    const uint64 size = value.size();
+    uint64 boundCheck = 0x80;
+    byte prefixLength = 1;
+    for (; boundCheck != 0x8000000000000000; boundCheck <<= 7, ++prefixLength) {
+        if (size < boundCheck) {
+            BE::getBytes(size | boundCheck, m_buffer);
+            break;
+        }
+    }
+    if (prefixLength == 9) {
         throw ConversionException("The size of the string exceeds the maximum.");
     }
-    m_stream->write(value.c_str(), length);
+    m_stream->write(m_buffer + 8 - prefixLength, prefixLength);
+    m_stream->write(value.data(), static_cast<streamsize>(size));
 }

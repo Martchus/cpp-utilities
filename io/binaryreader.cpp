@@ -100,7 +100,7 @@ istream::pos_type BinaryReader::readStreamsize()
  */
 string BinaryReader::readLengthPrefixedString()
 {
-    static const int maxPrefixLength = 4;
+    static constexpr int maxPrefixLength = 8;
     int prefixLength = 1;
     const byte beg = static_cast<byte>(m_stream->peek());
     byte mask = 0x80;
@@ -114,8 +114,7 @@ string BinaryReader::readLengthPrefixedString()
     memset(m_buffer, 0, maxPrefixLength);
     m_stream->read(m_buffer + (maxPrefixLength - prefixLength), prefixLength);
     *(m_buffer + (maxPrefixLength - prefixLength)) ^= mask;
-    uint32 prefix = BE::toUInt32(m_buffer);
-    return readString(prefix);
+    return readString(BE::toUInt64(m_buffer));
 }
 
 /*!

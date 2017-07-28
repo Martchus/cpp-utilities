@@ -1,5 +1,6 @@
 #include "./testutils.h"
 
+#include "../conversion/conversionexception.h"
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
@@ -20,6 +21,7 @@ using namespace std;
 using namespace IoUtilities;
 using namespace TestUtilities;
 using namespace TestUtilities::Literals;
+using namespace ConversionUtilities;
 
 using namespace CPPUNIT_NS;
 
@@ -98,7 +100,7 @@ void IoTests::testBinaryReader()
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
-    CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(95));
+    CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(398));
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt16BE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt24LE() == 0x010203u);
@@ -132,7 +134,14 @@ void IoTests::testBinaryReader()
     CPPUNIT_ASSERT(reader.readBool() == true);
     CPPUNIT_ASSERT(reader.readString(3) == "abc");
     CPPUNIT_ASSERT(reader.readLengthPrefixedString() == "ABC");
+    CPPUNIT_ASSERT(reader.readLengthPrefixedString() == "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
+                                                        "23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"
+                                                        "45678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
+                                                        "678901234567890123456789");
     CPPUNIT_ASSERT(reader.readTerminatedString() == "def");
+    CPPUNIT_ASSERT_THROW(reader.readLengthPrefixedString(), ConversionException);
+    CPPUNIT_ASSERT_MESSAGE("pos in stream not advanced on conversion error", reader.readByte() == 0);
+
     // test ownership
     reader.setStream(nullptr, true);
     reader.setStream(new fstream(), true);
@@ -156,7 +165,7 @@ void IoTests::testBinaryWriter()
     // prepare output stream
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);
-    char testData[95];
+    char testData[397];
     outputStream.rdbuf()->pubsetbuf(testData, sizeof(testData));
 
     // write test data
@@ -205,6 +214,9 @@ void IoTests::testBinaryWriter()
     writer.writeBool(true);
     writer.writeString("abc");
     writer.writeLengthPrefixedString("ABC");
+    writer.writeLengthPrefixedString("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+                                     "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
+                                     "234567890123456789012345678901234567890123456789012345678901234567890123456789");
     writer.writeTerminatedString("def");
 
     // test written values
