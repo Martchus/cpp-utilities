@@ -429,7 +429,7 @@ void ArgumentParserTests::testBashCompletion()
     Argument valuesArg("values", '\0', "specifies the fields");
     valuesArg.setRequiredValueCount(-1);
     valuesArg.setPreDefinedCompletionValues("title album artist trackpos");
-    valuesArg.setImplicit(true);
+    valuesArg.setImplicit(false);
     valuesArg.setValueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::AppendEquationSign);
     Argument getArg("get", 'g', "gets tag values");
     getArg.setSubArguments({ &fieldsArg, &filesArg });
@@ -518,6 +518,15 @@ void ArgumentParserTests::testBashCompletion()
         parser.printBashCompletion(3, argv4, 2, reader);
         cout.rdbuf(regularCoutBuffer);
         CPPUNIT_ASSERT_EQUAL("COMPREPLY=('album=' 'artist='  ); compopt -o nospace\n"s, buffer.str());
+
+        // pre-defined values for implicit argument
+        buffer.str(string());
+        cout.rdbuf(buffer.rdbuf());
+        parser.resetArgs();
+        reader.reset(argv3, argv3 + 1).read();
+        parser.printBashCompletion(1, argv3, 2, reader);
+        cout.rdbuf(regularCoutBuffer);
+        CPPUNIT_ASSERT_EQUAL("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--fields' '--files' )\n"s, buffer.str());
 
         // file names
         string iniFilePath = TestUtilities::testFilePath("test.ini");

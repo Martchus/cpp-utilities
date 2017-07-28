@@ -858,23 +858,47 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     bool nextArgumentOrValue;
     if (lastDetectedArg && lastDetectedArg->isPresent()) {
         if ((nextArgumentOrValue = (currentWordIndex > lastDetectedArgIndex))) {
-            // parameter values of the last arg are possible completions
-            auto currentValueCount = lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size();
-            if (currentValueCount) {
-                currentValueCount -= (currentWordIndex - lastDetectedArgIndex);
-            }
-            if (lastDetectedArg->requiredValueCount() == static_cast<size_t>(-1) || (currentValueCount < lastDetectedArg->requiredValueCount())) {
-                if (lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::PreDefinedValues) {
-                    relevantPreDefinedValues.push_back(lastDetectedArg);
+            // define function to add parameter values of argument as possible completions
+            const auto addValueCompletionsForArg = [&relevantPreDefinedValues, &completeFiles, &completeDirs](const Argument *arg) {
+                if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::PreDefinedValues) {
+                    relevantPreDefinedValues.push_back(arg);
                 }
-                if (!(lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)
-                    || !lastDetectedArg->preDefinedCompletionValues()) {
-                    completeFiles = completeFiles || lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::Files;
-                    completeDirs = completeDirs || lastDetectedArg->valueCompletionBehaviour() & ValueCompletionBehavior::Directories;
+                if (!(arg->valueCompletionBehaviour() & ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)
+                    || !arg->preDefinedCompletionValues()) {
+                    completeFiles = completeFiles || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Files;
+                    completeDirs = completeDirs || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Directories;
+                }
+            };
+
+            // detect number of specified values
+            auto currentValueCount = lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size();
+            // ignore values which are specified after the current word
+            if (currentValueCount) {
+                const auto currentWordIndexRelativeToLastDetectedArg = currentWordIndex - lastDetectedArgIndex;
+                if (currentValueCount > currentWordIndexRelativeToLastDetectedArg) {
+                    currentValueCount -= currentWordIndexRelativeToLastDetectedArg;
+                } else {
+                    currentValueCount = 0;
                 }
             }
 
-            if (lastDetectedArg->requiredValueCount() == static_cast<size_t>(-1)
+            // add value completions for implicit child if there are no value specified and there are no values required by the
+            // last detected argument itself
+            if (!currentValueCount && !lastDetectedArg->requiredValueCount()) {
+                for (const Argument *child : lastDetectedArg->subArguments()) {
+                    if (child->isImplicit() && child->requiredValueCount()) {
+                        addValueCompletionsForArg(child);
+                        break;
+                    }
+                }
+            }
+
+            // add value completions for last argument if there are further values required
+            if (lastDetectedArg->requiredValueCount() == Argument::varValueCount || (currentValueCount < lastDetectedArg->requiredValueCount())) {
+                addValueCompletionsForArg(lastDetectedArg);
+            }
+
+            if (lastDetectedArg->requiredValueCount() == Argument::varValueCount
                 || lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size() >= lastDetectedArg->requiredValueCount()) {
                 // sub arguments of the last arg are possible completions
                 for (const Argument *subArg : lastDetectedArg->subArguments()) {
