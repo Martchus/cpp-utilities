@@ -706,11 +706,13 @@ void ArgumentParserTests::testHelp()
     parser.addMainArgument(&verboseArg);
     parser.addMainArgument(&filesArg);
     parser.addMainArgument(&envArg);
+    dependencyVersions = { "somelib", "some other lib" };
 
     // parse args and assert output
     const char *const argv[] = { "app", "-h" };
     {
         const StandardOutputCheck c("\e[1m" APP_NAME ", version " APP_VERSION "\n"
+                                    "\e[0mLinked against: somelib, some other lib\n"
                                     "\n\e[0m"
                                     "Available arguments:\n"
                                     "\e[1m--help, -h\e[0m\n"
