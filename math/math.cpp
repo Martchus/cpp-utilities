@@ -8,11 +8,13 @@
  * \brief Contains various mathematical functions.
  */
 
+namespace MathUtilities {
+
 /*!
  * \brief Returns a pseudo random number between \a lowerbounds and \a upperbounds.
  * \remarks Might be removed since std::uniform_int_distribution does the same.
  */
-int MathUtilities::random(int lowerbounds, int upperbounds)
+int random(int lowerbounds, int upperbounds)
 {
     assert(upperbounds - lowerbounds < RAND_MAX);
     return lowerbounds + std::rand() % (upperbounds - lowerbounds + 1);
@@ -21,7 +23,7 @@ int MathUtilities::random(int lowerbounds, int upperbounds)
 /*!
  * \brief Returns the digitsum of the given \a number using the specified \a base.
  */
-int MathUtilities::digitsum(int number, int base)
+int digitsum(int number, int base)
 {
     int res = 0;
     while (number > 0) {
@@ -34,7 +36,7 @@ int MathUtilities::digitsum(int number, int base)
 /*!
  * \brief Returns the factorial of the given \a number.
  */
-int MathUtilities::factorial(int number)
+int factorial(int number)
 {
     int res = 1;
     for (int i = 1; i <= number; ++i) {
@@ -84,7 +86,8 @@ int64 inverseModulo(int64 number, int64 module)
 uint64 orderModulo(const uint64 number, const uint64 module)
 {
     uint64 order = 1;
-    for (; powerModulo(number, order, module) != 1; ++order)
+    for (; powerModulo(number, order, module) != 1 && order != module; ++order)
         ;
-    return order;
+    return order != module ? order : 0;
+}
 }
