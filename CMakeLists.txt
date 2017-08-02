@@ -70,6 +70,7 @@ set(TEST_SRC_FILES
     tests/chronotests.cpp
     tests/argumentparsertests.cpp
     tests/traitstests.cpp
+    tests/mathtests.cpp
 )
 
 set(CMAKE_MODULE_FILES
