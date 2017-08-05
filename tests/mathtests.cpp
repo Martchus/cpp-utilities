@@ -1,12 +1,10 @@
 #include "../math/math.h"
-#include "../tests/testutils.h"
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace std;
 using namespace MathUtilities;
-using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
