@@ -66,9 +66,12 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPE
 )
 
 if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
+    set(BUNDLE_INSTALL_DESTINATION bin CACHE STRING "specifies the install destination for bundles")
+
     # add install target for binary
     install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
         RUNTIME DESTINATION bin
+        BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}"
         COMPONENT binary
     )
     if(NOT TARGET install-binary)
