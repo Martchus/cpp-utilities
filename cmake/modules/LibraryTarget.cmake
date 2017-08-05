@@ -126,7 +126,7 @@ if(BUILD_SHARED_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             INTERFACE
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_SHARED_INCLUDE_DIRS}
         )
@@ -144,7 +144,7 @@ if(BUILD_SHARED_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             PUBLIC
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_SHARED_INCLUDE_DIRS}
             PRIVATE
@@ -184,7 +184,7 @@ if(BUILD_STATIC_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             INTERFACE
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_STATIC_INCLUDE_DIRS}
         )
@@ -202,7 +202,7 @@ if(BUILD_STATIC_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             PUBLIC
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_STATIC_INCLUDE_DIRS}
             PRIVATE
