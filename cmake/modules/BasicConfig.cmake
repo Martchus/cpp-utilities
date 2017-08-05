@@ -139,7 +139,10 @@ elseif("${META_PROJECT_TYPE}" STREQUAL "application")
 endif()
 
 # additional linker flags used when static linkage is enables
-list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static -static-libstdc++ -static-libgcc)
+if(NOT APPLE)
+    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static)
+endif()
+list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static-libstdc++ -static-libgcc)
 
 # options for enabling/disabling Qt GUI (if available)
 if(WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES)
