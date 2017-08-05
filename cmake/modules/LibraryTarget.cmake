@@ -197,8 +197,7 @@ if(BUILD_STATIC_LIBS)
     else()
         add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static STATIC ${ALL_FILES})
         target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
-            PUBLIC "${PUBLIC_STATIC_LIBRARIES}"
-            PRIVATE "${PRIVATE_STATIC_LIBRARIES}"
+            PUBLIC "${PUBLIC_STATIC_LIBRARIES}" "${PRIVATE_STATIC_LIBRARIES}"
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             PUBLIC
