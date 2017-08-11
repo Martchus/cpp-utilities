@@ -24,10 +24,8 @@ The library utilizes:
 ### Requirements
 #### Build-only dependencies
 * C++ compiler supporting C++14, tested with
-    - Clang
-    - regular GNU g++
-    - mingw-w64 g++
-    - Cygwin g++
+    - clang++ to compile for GNU/Linux and MacOS X
+    - g++ to compile for GNU/Linux and Windows
 * CMake (at least 3.3.0)
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
@@ -37,24 +35,28 @@ The library utilizes:
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
- - C/C++ standard library supporting C++14
- - libiconv (might be part of glibc or provided as extra library)
+    * C++ standard library supporting C++14, tested with
+        - libstdc++ under GNU/Linux, Windows and MacOS X
+        - libc++ under GNU/Linux
+    * iconv (might be part of glibc or provided as extra library)
 * For dependencies of my other projects check the README.md of these projects.
 
 ### How to build
 Just run:
 ```
 cd "path/to/build/directory"
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/projectdirectory"
-make tidy # format source files (optional)
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="/final/install/location" \
+      "path/to/projectdirectory"
+make tidy # format source files (optional, must be enabled via CLANG_FORMAT_ENABLED)
 make
-make check # build and run unit tests (optional)
+make check # build and run tests (optional)
+make coverage # build and run tests measuring test coverage (optional, must be enabled via CLANG_SOURCE_BASED_COVERAGE_ENABLED)
 make apidoc # build API documentation (optional)
 make DESTDIR="/temporary/install/location" install
 ```
 
 #### General notes
-* Building with qmake is not supported anymore.
 * The make option ```-j``` can be used for concurrent compilation.
 * ```LIB_SUFFIX```, ```LIB_SUFFIX_32``` and ```LIB_SUFFIX_64``` can be set to
   specify a suffix for the library directory, eg. lib*64* or lib*32*. The 32/64 variants are only used when building for 32/64-bit architecture.
@@ -62,17 +64,25 @@ make DESTDIR="/temporary/install/location" install
   set `DISABLE_SHARED_LIBS=ON`.
 * By default the build system will prefer *linking against* shared libraries. To force *linking against* static libraries set `STATIC_LINKAGE=ON`.
   However, this will only affect applications. To force linking statically when building shared libraries set `STATIC_LIBRARY_LINKAGE=ON`.
+* For more detailed documentation, see the documentation about build variables (in directory doc, in Doxygen version accessible via "Related Pages").
+* The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Windows and MacOS X in form
+  of Arch Linux packages. These scripts can be used example also when building under another platform.
 
 #### Building for Windows
-Building for Windows with Mingw-w64 cross compiler can be utilized using a small
-[cmake wrapper from Fedora](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
-```
-${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
-make DESTDIR="/temporary/install/location" install-mingw-w64-strip
-```
+* Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
+  [Cmake wrapper and a custom toolchain file](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
+
+  ```
+  ${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
+  make DESTDIR="/temporary/install/location" install-mingw-w64-strip
+  ```
+ 
 * To create the \*.ico file for the application icon ffmpeg/avconv is required.
-* The target ```install-mingw-w64-strip``` in the example will only install files
+* The target ```install-mingw-w64-strip``` can be used as in the example above to only install files
   suitable for creating a cross-compiler package and additionally strip the binaries.
+
+#### Building for MacOS X
+* Building for MacOS X is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
 
 #### Development builds
 During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big project.
@@ -87,7 +97,7 @@ For a debug build, just use ```-DCMAKE_BUILD_TYPE=Debug```.
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files
 for building Arch Linux packages.
 
-PKGBUILD files to build for Windows using the Mingw-w64 compiler are also included.
+PKGBUILD files to cross compile for Windows using mingw-w64 and for MacOS X using osxcross are also included.
 
 #### RPM packages
 RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
@@ -104,6 +114,3 @@ Scripts to build with Cygwin are provided by svnpenn. Checkout his
 ### General notes
 * There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
   in io/catchiofailure.h.
-
-## TODO
-- remove unused features

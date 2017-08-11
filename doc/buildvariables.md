@@ -12,6 +12,7 @@
   build
 * `CMAKE_SKIP_BUILD_RPATH=OFF`: ensures the rpath is set in the build tree
 * `CMAKE_INSTALL_RPATH=rpath`: sets the rpath used when installing
+* `CMAKE_CXX_FLAGS`: sets flags to be passed to the C++ compiler
 
 ### Custom variables
 The following variables are read by the CMake modules provided by c++utilities
@@ -35,7 +36,14 @@ None of these are enabled or set by default, unless stated otherwise.
 * `STATIC_LIBRARY_LINKAGE=ON/OFF`: enables linking dynamic libraries *preferably*
   against static libraries
     * by default linking against dynamic libraries is preferred
-    * only affects building dynamic libraries
+    * only affects building dynamic libraries (static libraries are just archives
+      of objects and hence *not linked* against their dependencies when being built)
+    * note that static libraries are always preferred to provide the dependency
+      of another static library
+        * eg. linking against static `c++utilities` requires also linking against
+          its dependency `iconv`; the static version of `iconv` is preferred
+        * this behaviour has actually nothing to do with `STATIC_LIBRARY_LINKAGE`
+          and can currently not be controlled
 * `SHELL_COMPLETION_ENABLED=ON/OFF`: enables shell completion in general
   (enabled by default)
 * `BASH_COMPLETION_ENABLED=ON/OFF`: enables Bash completion (enabled by
@@ -48,7 +56,7 @@ None of these are enabled or set by default, unless stated otherwise.
   (enabled by default)
 * `APPEND_GIT_REVISION=ON/OFF`: whether the build script should attempt to
   append the Git revision and the latest commit ID to the version
-    * displayed via --help
+    * displayed via `--help`
     * enabled by default but has no effect when the source directory is
       no Git checkout or Git is not installed
 * `CLANG_FORMAT_ENABLED=ON/OFF`: enables tidy target for code formatting via
@@ -63,12 +71,51 @@ None of these are enabled or set by default, unless stated otherwise.
 * `ENABLE_INSTALL_TARGETS=ON/OFF`: enables creation of install targets (enabled
   by default)
 
+#### Variables for specifying location of 3rd party dependencies
+The build script tries to find the required dependencies at standard loctions
+using the CMake functions
+[`find_library`](https://cmake.org/cmake/help/latest/command/find_library.html)
+and
+[`find_package`](https://cmake.org/cmake/help/latest/command/find_package.html).
+The behaviour of those functions can be controlled by setting some variables, eg.
+using a toolchain file. Checkout the CMake documentation for this.
+
+If the detection does not work as expected or a library from a non-standard
+location should be used, the following variables can be used to specify
+the location of libraries and include directories directly:
+
+* `dependency_DYNAMIC_LIB`: specifies the locations of the dynamic libraries
+  for *dependency*
+* `dependency_STATIC_LIB`: specifies the locations of the static libraries
+  for *dependency*
+* `dependency_DYNAMIC_INCLUDE_DIR`: specifies the locations of the additional
+  include directories required for using the dynamic version of the *dependency*
+* `dependency_STATIC_INCLUDE_DIR`: specifies the locations of the additional
+  include directories required for using the static version of the *dependency*
+
+Example of passing location of dynamic `iconv` to CMake:
+```
+/opt/osxcross/bin/x86_64-apple-darwin15-cmake \
+    -Diconv_DYNAMIC_LIB:FILEPATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/lib/libiconv.2.tbd \
+    -Diconv_DYNAMIC_INCLUDE_DIR:PATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/include \
+    ...
+```
+
+*Note about Qt*: Qt modules must be located via `find_package`. So using the variables
+described above to specify a custom location does not work. Instead, the
+variable `CMAKE_PREFIX_PATH` can be used to specify the install prefix of the
+Qt build to use. Set `QT_LINKAGE` to `STATIC` if it is a static build of Qt.
+
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
   to pass unicode file names correctly, changing this alters ABI
 * `FORCE_UTF8_CODEPAGE=ON/OFF`: forces use of UTF-8 codepage in terminal
 * `WINDOWS_RESOURCES_ENABLED=ON/OFF`: enables creating resources for
   application meta data and icon (enabled by default)
+
+#### MacOS specific
+* `BUNDLE_INSTALL_DESTINATION=/some/path`: specifies the install destination for
+  application bundles; if not specified, the default bin directory is used
 
 #### Qt specific
 * `WIDGETS_GUI=ON/OFF`: enables Qt Widgets GUI for projects where it is
