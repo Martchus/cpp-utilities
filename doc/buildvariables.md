@@ -93,11 +93,13 @@ the location of libraries and include directories directly:
 * `dependency_STATIC_INCLUDE_DIR`: specifies the locations of the additional
   include directories required for using the static version of the *dependency*
 
-Example of passing location of dynamic `iconv` to CMake:
+Example of passing location of dynamic `iconv` and `zlib` to CMake:
 ```
 /opt/osxcross/bin/x86_64-apple-darwin15-cmake \
     -Diconv_DYNAMIC_LIB:FILEPATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/lib/libiconv.2.tbd \
     -Diconv_DYNAMIC_INCLUDE_DIR:PATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/include \
+    -Dz_DYNAMIC_LIB:FILEPATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/lib/libz.1.tbd \
+    -Dz_DYNAMIC_INCLUDE_DIR:PATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/include \
     ...
 ```
 

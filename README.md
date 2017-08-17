@@ -12,7 +12,7 @@ The library utilizes:
     - split, join, find and replace
     - conversion from number to string and vice verca
     - encoding/decoding base-64
-    - building string without multiple heap allocations (string builder)
+    - building string without multiple heap allocations ("string builder")
 * IO
     - reading/writing primitive data types of various sizes (little-endian and big-endian)
     - reading/writing terminated strings and size-prefixed strings
