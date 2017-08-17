@@ -7,18 +7,21 @@
 
 {
     if($1 == "TOTAL") {
-        covered_regions += $2;
+        total_regions += $2;
         missed_regions += $3;
-        covered_lines += $5;
+        total_lines += $5;
         missed_lines += $6;
     }
 }
 
 END {
+    covered_regions = total_regions - missed_regions;
+    covered_lines = total_lines - missed_lines;
+
     print "Covered regions: " covered_regions;
     print "Missed regions: " missed_regions;
-    print "Region cover: " covered_regions/(covered_regions+missed_regions)*100 "%\n";
+    print "Region cover: " covered_regions/total_regions*100 "%\n";
     print "Covered lines: " covered_lines;
     print "Missed lines: " missed_lines;
-    print "Line cover: " covered_lines/(covered_lines+missed_lines)*100 "%";
+    print "Line cover: " covered_lines/total_lines*100 "%";
 }
