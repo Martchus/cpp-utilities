@@ -242,7 +242,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                     -f "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}"
                     > "${COVERAGE_OVERALL_REPORT_FILE}"
                 COMMENT "Generating coverage report (overall figures)"
-                DEPENDS "${COVERAGE_REPORT_FILE}"
+                DEPENDS "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}"
             )
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall_summary"
                 DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
