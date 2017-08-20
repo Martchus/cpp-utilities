@@ -110,7 +110,12 @@ Qt build to use. Set `QT_LINKAGE` to `STATIC` if it is a static build of Qt.
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
-  to pass unicode file names correctly, changing this alters ABI
+  to pass unicode file names correctly
+    * Changing this option alters the ABI of `c++utilities` and libraries using
+      that feature (eg. `tagparser`).
+    * This feature is implemented in `c++utilities`, so the option must be specified
+      when building `c++utilities`. Specifying it only when building eg. `tagparser`
+      has *no* effect.
 * `FORCE_UTF8_CODEPAGE=ON/OFF`: forces use of UTF-8 codepage in terminal
 * `WINDOWS_RESOURCES_ENABLED=ON/OFF`: enables creating resources for
   application meta data and icon (enabled by default)
