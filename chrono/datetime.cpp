@@ -72,7 +72,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
  */
 DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 {
-    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::m_ticksPerSecond);
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::ticksPerSecond);
 }
 
 /*!
@@ -320,7 +320,7 @@ DateTime DateTime::exactGmtNow()
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
     return DateTime(
-        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::m_ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
+        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
 }
 #endif
 
@@ -344,7 +344,7 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
     const auto passedDays = static_cast<unsigned int>(day - 1);
     return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400
                + static_cast<unsigned int>(daysToMonth[passedMonth]) + passedDays)
-        * TimeSpan::m_ticksPerDay;
+        * TimeSpan::ticksPerDay;
 }
 
 /*!
@@ -364,8 +364,8 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
     if (!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return static_cast<uint64>(hour * TimeSpan::m_ticksPerHour) + static_cast<uint64>(minute * TimeSpan::m_ticksPerMinute)
-        + static_cast<uint64>(second * TimeSpan::m_ticksPerSecond) + static_cast<uint64>(millisecond * TimeSpan::m_ticksPerMillisecond);
+    return static_cast<uint64>(hour * TimeSpan::ticksPerHour) + static_cast<uint64>(minute * TimeSpan::ticksPerMinute)
+        + static_cast<uint64>(second * TimeSpan::ticksPerSecond) + static_cast<uint64>(millisecond * TimeSpan::ticksPerMillisecond);
 }
 
 /*!
@@ -374,7 +374,7 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
  */
 int DateTime::getDatePart(DatePart part) const
 {
-    const int fullDays = m_ticks / TimeSpan::m_ticksPerDay;
+    const int fullDays = m_ticks / TimeSpan::ticksPerDay;
     const int full400YearBlocks = fullDays / m_daysPer400Years;
     const int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
     int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;

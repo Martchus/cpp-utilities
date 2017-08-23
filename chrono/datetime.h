@@ -267,7 +267,7 @@ inline int DateTime::dayOfYear() const
  */
 constexpr inline DayOfWeek DateTime::dayOfWeek() const
 {
-    return static_cast<DayOfWeek>((m_ticks / TimeSpan::m_ticksPerDay) % 7l);
+    return static_cast<DayOfWeek>((m_ticks / TimeSpan::ticksPerDay) % 7l);
 }
 
 /*!
@@ -275,7 +275,7 @@ constexpr inline DayOfWeek DateTime::dayOfWeek() const
  */
 constexpr inline int DateTime::hour() const
 {
-    return m_ticks / TimeSpan::m_ticksPerHour % 24ul;
+    return m_ticks / TimeSpan::ticksPerHour % 24ul;
 }
 
 /*!
@@ -283,7 +283,7 @@ constexpr inline int DateTime::hour() const
  */
 constexpr inline int DateTime::minute() const
 {
-    return m_ticks / TimeSpan::m_ticksPerMinute % 60ul;
+    return m_ticks / TimeSpan::ticksPerMinute % 60ul;
 }
 
 /*!
@@ -291,7 +291,7 @@ constexpr inline int DateTime::minute() const
  */
 constexpr inline int DateTime::second() const
 {
-    return m_ticks / TimeSpan::m_ticksPerSecond % 60ul;
+    return m_ticks / TimeSpan::ticksPerSecond % 60ul;
 }
 
 /*!
@@ -299,7 +299,7 @@ constexpr inline int DateTime::second() const
  */
 constexpr inline int DateTime::millisecond() const
 {
-    return m_ticks / TimeSpan::m_ticksPerMillisecond % 1000ul;
+    return m_ticks / TimeSpan::ticksPerMillisecond % 1000ul;
 }
 
 /*!
@@ -334,7 +334,7 @@ constexpr inline bool DateTime::isNull() const
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
-    return TimeSpan(m_ticks % TimeSpan::m_ticksPerDay);
+    return TimeSpan(m_ticks % TimeSpan::ticksPerDay);
 }
 
 /*!
@@ -374,7 +374,7 @@ inline int DateTime::daysInMonth(int year, int month)
  */
 constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 {
-    return (m_ticks / TimeSpan::m_ticksPerDay) == (other.m_ticks / TimeSpan::m_ticksPerDay);
+    return (m_ticks / TimeSpan::ticksPerDay) == (other.m_ticks / TimeSpan::ticksPerDay);
 }
 
 /*!
