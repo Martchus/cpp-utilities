@@ -42,12 +42,15 @@ public:
     static constexpr TimeSpan infinity();
 
     constexpr int64 totalTicks() const;
+    constexpr double totalMicroseconds() const;
     constexpr double totalMilliseconds() const;
     constexpr double totalSeconds() const;
     constexpr double totalMinutes() const;
     constexpr double totalHours() const;
     constexpr double totalDays() const;
 
+    constexpr int nanoseconds() const;
+    constexpr int microseconds() const;
     constexpr int milliseconds() const;
     constexpr int seconds() const;
     constexpr int minutes() const;
@@ -65,14 +68,16 @@ public:
     TimeSpan &operator+=(const TimeSpan &other);
     TimeSpan &operator-=(const TimeSpan &other);
 
-    std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool noMilliseconds = false) const;
-    void toString(std::string &result, TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool noMilliseconds = false) const;
+    std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
+    void toString(std::string &result, TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
     constexpr bool isNull() const;
     constexpr bool isNegative() const;
     constexpr bool isNegativeInfinity() const;
     constexpr bool isInfinity() const;
 
     // TODO: make those public constants signed in next major release and remove private ones then
+    static constexpr int64 nanosecondsPerTick = 100uL;
+    static constexpr int64 ticksPerMicrosecond = 10uL;
     static constexpr uint64 ticksPerMillisecond = 10000uL;
     static constexpr uint64 ticksPerSecond = 10000000uL;
     static constexpr uint64 ticksPerMinute = 600000000uL;
@@ -179,6 +184,14 @@ constexpr inline int64 TimeSpan::totalTicks() const
 }
 
 /*!
+ * \brief Gets the value of the current TimeSpan class expressed in whole and fractional microseconds.
+ */
+constexpr double TimeSpan::totalMicroseconds() const
+{
+    return static_cast<double>(m_ticks) / static_cast<double>(ticksPerMicrosecond);
+}
+
+/*!
  * \brief Gets the value of the current TimeSpan class expressed in whole and fractional milliseconds.
  */
 constexpr inline double TimeSpan::totalMilliseconds() const
@@ -216,6 +229,24 @@ constexpr inline double TimeSpan::totalHours() const
 constexpr inline double TimeSpan::totalDays() const
 {
     return static_cast<double>(m_ticks) / static_cast<double>(m_ticksPerDay);
+}
+
+/*!
+ * \brief Gets the nanoseconds component of the time interval represented by the current TimeSpan class.
+ * \remarks The accuracy of the TimeSpan class is 100-nanoseconds. Hence the returned value
+ *          will always have two zeros at the end (in decimal representation).
+ */
+constexpr int TimeSpan::nanoseconds() const
+{
+    return m_ticks % 10l * TimeSpan::nanosecondsPerTick;
+}
+
+/*!
+ * \brief Gets the microseconds component of the time interval represented by the current TimeSpan class.
+ */
+constexpr int TimeSpan::microseconds() const
+{
+    return (m_ticks / ticksPerMicrosecond) % 1000l;
 }
 
 /*!

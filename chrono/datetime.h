@@ -73,6 +73,8 @@ public:
     constexpr int minute() const;
     constexpr int second() const;
     constexpr int millisecond() const;
+    constexpr int microsecond() const;
+    constexpr int nanosecond() const;
     constexpr bool isNull() const;
     constexpr TimeSpan timeOfDay() const;
     bool isLeapYear() const;
@@ -276,6 +278,24 @@ constexpr inline int DateTime::second() const
 constexpr inline int DateTime::millisecond() const
 {
     return m_ticks / TimeSpan::m_ticksPerMillisecond % 1000ul;
+}
+
+/*!
+ * \brief Gets the microsecond component of the date represented by this instance.
+ */
+constexpr int DateTime::microsecond() const
+{
+    return m_ticks / TimeSpan::ticksPerMicrosecond % 1000ul;
+}
+
+/*!
+ * \brief Gets the nanosecond component of the date represented by this instance.
+ * \remarks The accuracy of the DateTime class is 100-nanoseconds. Hence the returned value
+ *          will always have two zeros at the end (in decimal representation).
+ */
+constexpr int DateTime::nanosecond() const
+{
+    return m_ticks % 10ul * TimeSpan::nanosecondsPerTick;
 }
 
 /*!

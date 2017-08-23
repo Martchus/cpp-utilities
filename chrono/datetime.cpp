@@ -222,7 +222,19 @@ string DateTime::toIsoString(TimeSpan timeZoneDelta) const
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
     s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day() << 'T' << setw(2) << hour() << ':' << setw(2) << minute() << ':'
-      << setw(2) << second() << '.' << setw(3) << millisecond();
+      << setw(2) << second();
+    const int milli(millisecond());
+    const int micro(microsecond());
+    const int nano(nanosecond());
+    if (milli || micro || nano) {
+        s << '.' << setw(3) << milli;
+        if (micro || nano) {
+            s << setw(3) << micro;
+            if (nano) {
+                s << nano / TimeSpan::nanosecondsPerTick;
+            }
+        }
+    }
     if (!timeZoneDelta.isNull()) {
         s << (timeZoneDelta.isNegative() ? '-' : '+');
         s << setw(2) << timeZoneDelta.hours() << ':' << setw(2) << timeZoneDelta.minutes();
@@ -302,13 +314,13 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
     if (!inRangeInclMax(month, 1, 12)) {
         throw ConversionException("month is out of range");
     }
-    const int *daysToMonth = isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365;
+    const auto *daysToMonth = reinterpret_cast<const unsigned int *>(isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365);
     int passedMonth = month - 1;
     if (!inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
         throw ConversionException("day is out of range");
     }
-    int passedYears = year - 1;
-    int passedDays = day - 1;
+    const auto passedYears = static_cast<unsigned int>(year - 1);
+    const auto passedDays = static_cast<unsigned int>(day - 1);
     return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays)
         * TimeSpan::m_ticksPerDay;
 }
@@ -330,8 +342,8 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
     if (!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return (hour * TimeSpan::m_ticksPerHour) + (minute * TimeSpan::m_ticksPerMinute) + (second * TimeSpan::m_ticksPerSecond)
-        + (uint64)(millisecond * (double)TimeSpan::m_ticksPerMillisecond);
+    return static_cast<uint64>(hour * TimeSpan::m_ticksPerHour) + static_cast<uint64>(minute * TimeSpan::m_ticksPerMinute)
+        + static_cast<uint64>(second * TimeSpan::m_ticksPerSecond) + static_cast<uint64>(millisecond * TimeSpan::m_ticksPerMillisecond);
 }
 
 /*!

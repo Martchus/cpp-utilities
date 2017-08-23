@@ -90,6 +90,13 @@ void ChronoTests::testDateTime()
     const auto test3 = DateTime::fromIsoString("2016-08-29T21:32:31.125+02:00");
     CPPUNIT_ASSERT_EQUAL("2016-08-29T21:32:31.125+02:00"s, test3.first.toIsoString(test3.second));
     CPPUNIT_ASSERT_THROW(DateTime::fromString("#"), ConversionException);
+    // test accuracy (of 100 nanoseconds)
+    const auto test4 = DateTime::fromIsoString("2017-08-23T19:40:15.985077682+02:00");
+    CPPUNIT_ASSERT_EQUAL(15, test4.first.second());
+    CPPUNIT_ASSERT_EQUAL(985, test4.first.millisecond());
+    CPPUNIT_ASSERT_EQUAL(77, test4.first.microsecond());
+    CPPUNIT_ASSERT_EQUAL(600, test4.first.nanosecond());
+    CPPUNIT_ASSERT_EQUAL("2017-08-23T19:40:15.9850776+02:00"s, test4.first.toIsoString(test4.second));
 
 // test now() and exactNow() (or at least whether both behave the same)
 #if defined(PLATFORM_UNIX)
@@ -124,6 +131,15 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL("-5 s"s, TimeSpan::fromSeconds(-5.0).toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("0 s"s, TimeSpan().toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("5e+02 µs"s, TimeSpan::fromMilliseconds(0.5).toString(TimeSpanOutputFormat::WithMeasures, false));
+    // test accuracy (of 100 nanoseconds)
+    const auto test2 = TimeSpan::fromString("15.985077682");
+    CPPUNIT_ASSERT_EQUAL(15.9850776, test2.totalSeconds());
+    CPPUNIT_ASSERT_EQUAL(15, test2.seconds());
+    CPPUNIT_ASSERT_EQUAL(985, test2.milliseconds());
+    CPPUNIT_ASSERT_EQUAL(77, test2.microseconds());
+    CPPUNIT_ASSERT_EQUAL(600, test2.nanoseconds());
+    CPPUNIT_ASSERT_EQUAL("00:00:15.9850776"s, test2.toString());
+    CPPUNIT_ASSERT_EQUAL("15 s 985 ms 77 µs 600 ns"s, test2.toString(TimeSpanOutputFormat::WithMeasures));
 
     // test whether ConversionException() is thrown when invalid values are specified
     CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2:34a:53:32.5"), ConversionException);

@@ -61,12 +61,12 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
  * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
  *        according the given \a format.
  *
- * If \a noMilliseconds is true the time interval will be rounded to full seconds.
+ * If \a fullSeconds is true the time interval will be rounded to full seconds.
  */
-string TimeSpan::toString(TimeSpanOutputFormat format, bool noMilliseconds) const
+string TimeSpan::toString(TimeSpanOutputFormat format, bool fullSeconds) const
 {
     string result;
-    toString(result, format, noMilliseconds);
+    toString(result, format, fullSeconds);
     return result;
 }
 
@@ -74,11 +74,11 @@ string TimeSpan::toString(TimeSpanOutputFormat format, bool noMilliseconds) cons
  * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
  *        according the given \a format.
  *
- * If \a noMilliseconds is true the time interval will be rounded to full seconds.
+ * If \a fullSeconds is true the time interval will be rounded to full seconds.
  *
  * The string representation will be stored in \a result.
  */
-void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool noMilliseconds) const
+void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool fullSeconds) const
 {
     stringstream s(stringstream::in | stringstream::out);
     TimeSpan positive(m_ticks);
@@ -88,36 +88,75 @@ void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool noMill
     }
     switch (format) {
     case TimeSpanOutputFormat::Normal:
-        s << setfill('0') << setw(2) << floor(positive.totalHours()) << ":" << setw(2) << positive.minutes() << ":" << setw(2) << positive.seconds()
-          << " ";
+        s << setfill('0') << setw(2) << floor(positive.totalHours()) << ":" << setw(2) << positive.minutes() << ":" << setw(2) << positive.seconds();
+        if (!fullSeconds) {
+            const int milli(positive.milliseconds());
+            const int micro(positive.microseconds());
+            const int nano(positive.nanoseconds());
+            if (milli || micro || nano) {
+                s << '.' << setw(3) << milli;
+                if (micro || nano) {
+                    s << setw(3) << micro;
+                    if (nano) {
+                        s << nano / TimeSpan::nanosecondsPerTick;
+                    }
+                }
+            }
+        }
         break;
     case TimeSpanOutputFormat::WithMeasures:
         if (isNull()) {
-            s << "0 s ";
+            result = "0 s";
+            return;
         } else {
-            if (positive.totalMilliseconds() < 1.0) {
-                s << setprecision(2) << (m_ticks / 10.0) << " µs ";
+            if (!fullSeconds && positive.totalMilliseconds() < 1.0) {
+                s << setprecision(2) << positive.totalMicroseconds() << " µs";
             } else {
+                bool needWhitespace = false;
                 if (const int days = positive.days()) {
-                    s << days << " d ";
+                    needWhitespace = true;
+                    s << days << " d";
                 }
                 if (const int hours = positive.hours()) {
-                    s << hours << " h ";
+                    if (needWhitespace)
+                        s << ' ';
+                    needWhitespace = true;
+                    s << hours << " h";
                 }
                 if (const int minutes = positive.minutes()) {
-                    s << minutes << " min ";
+                    if (needWhitespace)
+                        s << ' ';
+                    needWhitespace = true;
+                    s << minutes << " min";
                 }
                 if (const int seconds = positive.seconds()) {
-                    s << seconds << " s ";
+                    if (needWhitespace)
+                        s << ' ';
+                    needWhitespace = true;
+                    s << seconds << " s";
                 }
-                if (!noMilliseconds) {
+                if (!fullSeconds) {
                     if (const int milliseconds = positive.milliseconds()) {
-                        s << milliseconds << " ms ";
+                        if (needWhitespace)
+                            s << ' ';
+                        needWhitespace = true;
+                        s << milliseconds << " ms";
+                    }
+                    if (const int microseconds = positive.microseconds()) {
+                        if (needWhitespace)
+                            s << ' ';
+                        needWhitespace = true;
+                        s << microseconds << " µs";
+                    }
+                    if (const int nanoseconds = positive.nanoseconds()) {
+                        if (needWhitespace)
+                            s << ' ';
+                        s << nanoseconds << " ns";
                     }
                 }
             }
         }
         break;
     }
-    result = s.str().substr(0, static_cast<string::size_type>(s.tellp()) - 1);
+    result = s.str();
 }
