@@ -64,14 +64,15 @@ make DESTDIR="/temporary/install/location" install
   set `DISABLE_SHARED_LIBS=ON`.
 * By default the build system will prefer *linking against* shared libraries. To force *linking against* static libraries set `STATIC_LINKAGE=ON`.
   However, this will only affect applications. To force linking statically when building shared libraries set `STATIC_LIBRARY_LINKAGE=ON`.
-* For more detailed documentation, see the documentation about build variables (in directory doc, in Doxygen version accessible via "Related Pages").
+* For more detailed documentation, see the documentation about build variables (in
+  [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
+  in Doxygen version accessible via "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Windows and MacOS X in form
   of Arch Linux packages. These scripts can be used example also when building under another platform.
 
 #### Building for Windows
 * Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
   [Cmake wrapper and a custom toolchain file](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
-
   ```
   ${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
   make DESTDIR="/temporary/install/location" install-mingw-w64-strip
@@ -83,6 +84,7 @@ make DESTDIR="/temporary/install/location" install
 
 #### Building for MacOS X
 * Building for MacOS X is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
+* Here is a Homebrew formula to build Tag Editor (without GUI): https://gist.github.com/rakkesh/0b13b8fca5dd1d57d98537ef1dd2e0dd
 
 #### Development builds
 During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big project.
