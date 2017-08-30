@@ -55,7 +55,7 @@ configure_file(
 )
 
 # ensure generated include files can be included via #include "resources/config.h"
-foreach(TARGET_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+foreach(TARGET_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib)
     if(TARGET ${TARGET_NAME})
         target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
     endif()
