@@ -66,6 +66,12 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
                 endif()
             endif()
 
+            # add Qt resources of static library to be enabled
+            if(${NAME}_QT_RESOURCES)
+                message(STATUS "Adding ${${NAME}_QT_RESOURCES} to LIBRARIES_QT_RESOURCES for ${META_PROJECT_NAME}.")
+                list(APPEND LIBRARIES_QT_RESOURCES ${${NAME}_QT_RESOURCES})
+            endif()
+
         elseif((${NAME}_DYNAMIC_LIB OR ${NAME}_SHARED_LIB) AND (("${LINKAGE}" STREQUAL "AUTO_LINKAGE") OR ("${LINKAGE}" STREQUAL "SHARED")))
             set(USE_${NAME} ON)
             set(USE_SHARED_${NAME} ON)
@@ -120,6 +126,12 @@ if(NOT DEFINED THIRD_PARTY_MODULE_LOADED)
                 if(${NAME}_STATIC_INCLUDE_DIR)
                     list(APPEND PRIVATE_STATIC_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
                 endif()
+            endif()
+
+            # add Qt resources of static library for exporting it
+            if(${NAME}_QT_RESOURCES)
+                message(STATUS "Adding ${${NAME}_QT_RESOURCES} to STATIC_LIBRARIES_QT_RESOURCES for ${META_PROJECT_NAME}.")
+                list(APPEND STATIC_LIBRARIES_QT_RESOURCES ${${NAME}_QT_RESOURCES})
             endif()
 
         elseif((${NAME}_DYNAMIC_LIB OR ${NAME}_SHARED_LIB) AND (("${LINKAGE}" STREQUAL "AUTO_LINKAGE" AND (NOT ${NAME}_STATIC_LIB OR (NOT STATIC_LINKAGE AND "${META_PROJECT_TYPE}" STREQUAL "application") OR (NOT STATIC_LIBRARY_LINKAGE AND ("${META_PROJECT_TYPE}" STREQUAL "" OR "${META_PROJECT_TYPE}" STREQUAL "library")))) OR ("${LINKAGE}" STREQUAL "SHARED")))
