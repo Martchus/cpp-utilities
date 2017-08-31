@@ -88,7 +88,7 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif()
     add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
-    # add install target for localization
+    # add mingw-w64 specific install target
     if(NOT TARGET install-mingw-w64)
         add_custom_target(install-mingw-w64)
         add_dependencies(install-mingw-w64 install-binary)
@@ -126,10 +126,18 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif()
     add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
-    # add mingw-w64 specific install target
+    # add mingw-w64 specific install targets
+    if(NOT TARGET install-mingw-w64)
+        add_custom_target(install-mingw-w64)
+        add_dependencies(install-mingw-w64 install-binary)
+    endif()
     if(NOT TARGET install-mingw-w64-strip)
         add_custom_target(install-mingw-w64-strip)
-        add_dependencies(install-mingw-w64-strip install-binary-strip ${LOCALIZATION_TARGET})
+        add_dependencies(install-mingw-w64-strip install-binary-strip)
+    endif()
+    if(LOCALIZATION_TARGET)
+        add_dependencies(install-mingw-w64 ${LOCALIZATION_TARGET})
+        add_dependencies(install-mingw-w64-strip ${LOCALIZATION_TARGET})
     endif()
 endif()
 
