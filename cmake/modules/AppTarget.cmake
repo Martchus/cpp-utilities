@@ -66,14 +66,21 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} PROPE
 )
 
 if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
-    set(BUNDLE_INSTALL_DESTINATION bin CACHE STRING "specifies the install destination for bundles")
-
     # add install target for binary
-    install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-        RUNTIME DESTINATION bin
-        BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}"
-        COMPONENT binary
-    )
+    if(APPLE)
+        set(BUNDLE_INSTALL_DESTINATION bin CACHE STRING "specifies the install destination for bundles")
+        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            RUNTIME DESTINATION bin
+            BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}"
+            COMPONENT binary
+        )
+    else()
+        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            RUNTIME DESTINATION bin
+            COMPONENT binary
+        )
+    endif()
+
     if(NOT TARGET install-binary)
         add_custom_target(install-binary
             COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
