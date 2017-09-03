@@ -20,7 +20,7 @@ foreach(LINKAGE IN ITEMS "" "STATIC_")
         if(TARGET ${DEPENDENCY})
             # find version and display name for target
             string(SUBSTRING "${DEPENDENCY}" 0 5 DEPENDENCY_PREFIX)
-            if("${DEPENDENCY_PREFIX}" STREQUAL "Qt5::")
+            if("${DEPENDENCY_PREFIX}" STREQUAL "Qt5::" OR "${DEPENDENCY_PREFIX}" STREQUAL "StaticQt5::")
                 # read meta-data of Qt module
                 string(SUBSTRING "${DEPENDENCY}" 5 -1 DEPENDENCY_MODULE_NAME)
                 set(DEPENDENCY_DISPLAY_NAME "Qt ${DEPENDENCY_MODULE_NAME}")
