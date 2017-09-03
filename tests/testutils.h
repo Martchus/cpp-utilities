@@ -2,6 +2,7 @@
 #define TESTUTILS_H
 
 #include "../application/argumentparser.h"
+#include "../conversion/types.h"
 #include "../misc/traits.h"
 
 #include <ostream>
@@ -197,6 +198,24 @@ namespace Literals {
 constexpr std::size_t operator"" _st(unsigned long long size)
 {
     return static_cast<std::size_t>(size);
+}
+
+/*!
+ * \brief Literal for uint64 to ease asserting uint64 with CPPUNIT_ASSERT_EQUAL.
+ * \remarks Just using "ul"-suffix does not compile under 32-bit architecture!
+ */
+constexpr uint64 operator"" _uint64(unsigned long long size)
+{
+    return static_cast<uint64>(size);
+}
+
+/*!
+ * \brief Literal for int64 to ease asserting int64 with CPPUNIT_ASSERT_EQUAL.
+ * \remarks Just using "l"-suffix does not compile under 32-bit architecture!
+ */
+constexpr int64 operator"" _int64(unsigned long long size)
+{
+    return static_cast<int64>(size);
 }
 }
 }

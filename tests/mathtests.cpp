@@ -1,10 +1,12 @@
 #include "../math/math.h"
+#include "../tests/testutils.h"
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace std;
 using namespace MathUtilities;
+using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
@@ -58,19 +60,19 @@ void MathTests::testFactorial()
 
 void MathTests::testPowerModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(25ul, powerModulo(5, 2, 30));
-    CPPUNIT_ASSERT_EQUAL(5ul, powerModulo(5, 2, 20));
+    CPPUNIT_ASSERT_EQUAL(25_uint64, powerModulo(5, 2, 30));
+    CPPUNIT_ASSERT_EQUAL(5_uint64, powerModulo(5, 2, 20));
 }
 
 void MathTests::testInverseModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(-12l, inverseModulo(2, 25));
-    CPPUNIT_ASSERT_EQUAL(-8l, inverseModulo(3, 25));
+    CPPUNIT_ASSERT_EQUAL(-12_int64, inverseModulo(2, 25));
+    CPPUNIT_ASSERT_EQUAL(-8_int64, inverseModulo(3, 25));
 }
 
 void MathTests::testOrderModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(20ul, orderModulo(2, 25));
-    CPPUNIT_ASSERT_EQUAL(5ul, orderModulo(6, 25));
-    CPPUNIT_ASSERT_EQUAL(0ul, orderModulo(5, 25));
+    CPPUNIT_ASSERT_EQUAL(20_uint64, orderModulo(2, 25));
+    CPPUNIT_ASSERT_EQUAL(5_uint64, orderModulo(6, 25));
+    CPPUNIT_ASSERT_EQUAL(0_uint64, orderModulo(5, 25));
 }
