@@ -134,11 +134,27 @@ Qt build to use. Set `QT_LINKAGE` to `STATIC` if it is a static build of Qt.
   built-in
 * `BUILTIN_ICON_THEMES_IN_LIBRARIES=breeze;breeze-dark;...`: same as above but
   also affects libraries
-* `SVG_SUPPORT=ON/OFF`: enables SVG support if not enabled anyways by the
-  project
-* `SVG_ICON_SUPPORT=ON/OFF`: enables SVG icon support (only affect static
-  builds where the required Qt plugin will be built-in if this variable is
-  enabled)
+* `SVG_SUPPORT=ON/OFF`: enables linking against the static SVG image format
+  plugin
+    * enabled by default
+    * requires the Qt Svg module
+    * only relevant when using static Qt
+* `SVG_ICON_SUPPORT=ON/OFF`: enables linking against the static SVG icon engine
+  plugin provided by the Qt Svg module
+    * enabled by default
+    * requires the Qt Svg module
+    * only relevant when using static Qt
+    * required to use Breeze icon theme (or any other SVG icon theme)
+* `IMAGE_FORMAT_SUPPORT`: enables linking against the specified static image
+  format plugins
+    * comma-separated list
+    * by default set to "Gif;ICO;Jpeg", so support for Gif, ICO and Jpeg is
+      enabled by default
+    * note that PNG support is not provided via a plugin, so it should be
+      always available and not be affected by this option
+    * further image formats require building the plugins contained by the
+      additional `qtimageformats` repository
+    * only relevant when using static Qt
 * `WEBVIEW_PROVIDER=auto/webkit/webengine/none`: specifies the Qt module to use
   for the web view
 * `JS_PROVIDER=auto/script/qml/none`: specifies the Qt module to use
