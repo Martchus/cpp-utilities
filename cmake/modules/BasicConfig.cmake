@@ -195,7 +195,8 @@ if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
                 ${QML_HEADER_FILES} ${QML_SRC_FILES}
             )
             if(FORMATABLE_FILES)
-                list(REMOVE_ITEM FORMATABLE_FILES "")
+                # only tidy C/C++ files (and not eg. QML files)
+                list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(cpp|h)")
 
                  add_custom_command(
                     OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
