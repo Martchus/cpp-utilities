@@ -354,7 +354,10 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
     os << Indentation(indentation);
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
     if (notEmpty(name())) {
-        os << '-' << '-' << name();
+        if (!denotesOperation()) {
+            os << '-' << '-';
+        }
+        os << name();
     }
     if (notEmpty(name()) && abbreviation()) {
         os << ',' << ' ';
@@ -390,12 +393,22 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
     if (environmentVariable()) {
         os << '\n' << Indentation(indentation) << "default environment variable: " << environmentVariable();
     }
-    if (notEmpty(example())) {
-        os << '\n' << Indentation(indentation) << "\nusage: " << example();
-    }
     os << '\n';
     for (const auto *arg : subArguments()) {
         arg->printInfo(os, indentation);
+    }
+    if (notEmpty(example())) {
+        if (!subArguments().empty()) {
+            os << '\n';
+        }
+        os << Indentation(indentation) << "example: ";
+        for (const char *c = example(); *c; ++c) {
+            os << *c;
+            if (*c == '\n') {
+                os << Indentation(indentation + 9);
+            }
+        }
+        os << '\n';
     }
 }
 
@@ -1272,4 +1285,4 @@ HelpArgument::HelpArgument(ArgumentParser &parser)
  * \brief The ConfigValueArgument class is an Argument where setCombinable() is true by default.
  * \sa ConfigValueArgument::ConfigValueArgument()
  */
-}
+} // namespace ApplicationUtilities
