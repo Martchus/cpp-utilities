@@ -65,10 +65,10 @@ auto isIteratableImpl(int) -> decltype(
     void(*begin(std::declval<T &>())), Bool<true>{});
 
 template <typename T> Bool<false> isIteratableImpl(...);
-}
+} // namespace Detail
 /// \endcond
 
 template <typename T> using IsIteratable = decltype(Detail::isIteratableImpl<T>(0));
-}
+} // namespace Traits
 
 #endif // CPP_UTILITIES_TRAITS_H

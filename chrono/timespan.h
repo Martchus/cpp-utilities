@@ -402,7 +402,7 @@ constexpr inline bool TimeSpan::isInfinity() const
 {
     return m_ticks == std::numeric_limits<decltype(m_ticks)>::max();
 }
-}
+} // namespace ChronoUtilities
 
 namespace std {
 template <> struct hash<ChronoUtilities::TimeSpan> {
@@ -411,6 +411,6 @@ template <> struct hash<ChronoUtilities::TimeSpan> {
         return hash<decltype(timeSpan.totalTicks())>()(timeSpan.totalTicks());
     }
 };
-}
+} // namespace std
 
 #endif // CHRONO_UTILITIES_TIMESPAN_H

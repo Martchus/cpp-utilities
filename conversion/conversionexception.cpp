@@ -29,4 +29,4 @@ ConversionException::ConversionException(const std::string &what) USE_NOTHROW : 
 ConversionException::~ConversionException() USE_NOTHROW
 {
 }
-}
+} // namespace ConversionUtilities

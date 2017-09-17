@@ -14,6 +14,6 @@ public:
     ConversionException(const std::string &what) USE_NOTHROW;
     ~ConversionException() USE_NOTHROW;
 };
-}
+} // namespace ConversionUtilities
 
 #endif // CONVERSION_UTILITIES_CONVERSIONEXCEPTION_H

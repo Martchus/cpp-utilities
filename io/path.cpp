@@ -112,8 +112,8 @@ bool settingsDirectory(std::string &result, std::string applicationDirectoryName
 #if defined(PLATFORM_UNIX)
         struct stat sb;
         return (stat(result.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
-#else // PLATFORM_WINDOWS
-        // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
+#else // PLATFORM_WINDOWS                                                                                                                            \
+    // FIXME: use UTF-16 API to support unicode, or rewrite using fs abstraction lib
         DWORD ftyp = GetFileAttributesA(result.c_str());
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
 #endif
@@ -209,4 +209,4 @@ std::list<std::string> directoryEntries(const char *path, DirectoryEntryType typ
     return list<string>(); // TODO
 #endif
 }
-}
+} // namespace IoUtilities

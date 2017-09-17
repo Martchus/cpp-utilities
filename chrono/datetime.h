@@ -490,7 +490,7 @@ inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
     m_ticks -= timeSpan.m_ticks;
     return *this;
 }
-}
+} // namespace ChronoUtilities
 
 namespace std {
 template <> struct hash<ChronoUtilities::DateTime> {
@@ -499,6 +499,6 @@ template <> struct hash<ChronoUtilities::DateTime> {
         return hash<decltype(dateTime.totalTicks())>()(dateTime.totalTicks());
     }
 };
-}
+} // namespace std
 
 #endif // CHRONO_UTILITIES_DATETIME_H

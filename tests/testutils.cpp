@@ -392,4 +392,4 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
     return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, string());
 }
 #endif
-}
+} // namespace TestUtilities

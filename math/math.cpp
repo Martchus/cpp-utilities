@@ -90,4 +90,4 @@ uint64 orderModulo(const uint64 number, const uint64 module)
         ;
     return order != module ? order : 0;
 }
-}
+} // namespace MathUtilities

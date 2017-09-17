@@ -38,4 +38,4 @@ void throwIoFailure(const char *what)
 {
     throw ios_base::failure(what);
 }
-}
+} // namespace IoUtilities

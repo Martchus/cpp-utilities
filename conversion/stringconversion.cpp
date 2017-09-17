@@ -363,4 +363,4 @@ pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint
     }
     return make_pair(move(buffer), decodedSize);
 }
-}
+} // namespace ConversionUtilities

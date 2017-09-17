@@ -46,6 +46,6 @@ private:
     std::locale m_loc;
     const std::ctype<E> *m_pctype;
 };
-}
+} // namespace ConversionUtilities
 
 #endif // CONVERSION_UTILITIES_WIDEN_H

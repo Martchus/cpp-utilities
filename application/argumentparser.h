@@ -852,6 +852,6 @@ inline ConfigValueArgument::ConfigValueArgument(
     setRequiredValueCount(valueNames.size());
     setValueNames(valueNames);
 }
-}
+} // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_H

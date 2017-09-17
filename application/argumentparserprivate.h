@@ -31,6 +31,6 @@ public:
     /// \brief Whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
     bool completionMode;
 };
-}
+} // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H

@@ -557,6 +557,6 @@ inline float32 BinaryReader::readFixed16LE()
 {
     return ConversionUtilities::toFloat32(readUInt32LE());
 }
-}
+} // namespace IoUtilities
 
 #endif // IOUTILITIES_BINERYREADER_H

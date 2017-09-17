@@ -12,6 +12,6 @@ CPP_UTILITIES_EXPORT int factorial(int number);
 CPP_UTILITIES_EXPORT uint64 powerModulo(uint64 base, uint64 expontent, uint64 module);
 CPP_UTILITIES_EXPORT int64 inverseModulo(int64 number, int64 module);
 CPP_UTILITIES_EXPORT uint64 orderModulo(uint64 number, uint64 module);
-}
+} // namespace MathUtilities
 
 #endif // MATHUTILITIES_H

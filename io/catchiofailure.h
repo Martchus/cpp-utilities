@@ -9,6 +9,6 @@ namespace IoUtilities {
 
 CPP_UTILITIES_EXPORT const char *catchIoFailure();
 CPP_UTILITIES_EXPORT void throwIoFailure(const char *what);
-}
+} // namespace IoUtilities
 
 #endif // IOUTILITIES_CATCHIOFAILURE_H

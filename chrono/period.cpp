@@ -27,4 +27,4 @@ Period::Period(const DateTime &beg, const DateTime &end)
         --m_years;
     }
 }
-}
+} // namespace ChronoUtilities

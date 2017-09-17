@@ -35,7 +35,7 @@ template <typename _Tp> inline typename _MakeUniq<_Tp>::__array make_unique(size
 
 /// Disable std::make_unique for arrays of known bound
 template <typename _Tp, typename... _Args> inline typename _MakeUniq<_Tp>::__invalid_type make_unique(_Args &&...) = delete;
-}
+} // namespace std
 #endif
 
 /// \endcond

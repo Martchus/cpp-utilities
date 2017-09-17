@@ -29,4 +29,4 @@ string readFile(const string &path, std::string::size_type maxSize)
     res.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     return res;
 }
-}
+} // namespace IoUtilities

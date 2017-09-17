@@ -531,6 +531,6 @@ CPP_UTILITIES_EXPORT std::string dataSizeToString(uint64 sizeInByte, bool includ
 CPP_UTILITIES_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
 CPP_UTILITIES_EXPORT std::string encodeBase64(const byte *data, uint32 dataSize);
 CPP_UTILITIES_EXPORT std::pair<std::unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize);
-}
+} // namespace ConversionUtilities
 
 #endif // CONVERSION_UTILITIES_STRINGCONVERSION_H

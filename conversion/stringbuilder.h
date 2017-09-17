@@ -34,8 +34,9 @@ constexpr std::size_t computeTupleElementSize(CharType)
     return 1;
 }
 
-template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>,
-                                                       std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>...>
+template <class StringType, typename IntegralType,
+    Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
+        std::is_unsigned<IntegralType>>...>
 std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t size = 0;
@@ -44,8 +45,9 @@ std::size_t computeTupleElementSize(IntegralType number, typename StringType::va
     return size;
 }
 
-template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>,
-                                                       std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <class StringType, typename IntegralType,
+    Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
+        std::is_signed<IntegralType>>...>
 std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t size = number < 0 ? 1 : 0;
@@ -76,8 +78,9 @@ void append(StringType &target, CharType c)
     target += c;
 }
 
-template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>,
-                                                       std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>...>
+template <class StringType, typename IntegralType,
+    Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
+        std::is_unsigned<IntegralType>>...>
 void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
 {
     const auto start = target.begin() + target.size();
@@ -87,8 +90,9 @@ void append(StringType &target, IntegralType number, typename StringType::value_
     } while (number);
 }
 
-template <class StringType, typename IntegralType, Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>,
-                                                       std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <class StringType, typename IntegralType,
+    Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
+        std::is_signed<IntegralType>>...>
 void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
 {
     if (number < 0) {
@@ -126,7 +130,7 @@ template <class StringType, class Tuple> struct TupleToString<StringType, Tuple,
         Helper::append(str, std::get<0>(tuple));
     }
 };
-}
+} // namespace Helper
 /// \endcond
 
 /*!
@@ -254,6 +258,6 @@ inline std::string operator+(const Tuple &lhs, IntegralType rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
 }
-}
+} // namespace ConversionUtilities
 
 #endif // CONVERSION_UTILITIES_STRINGBUILDER_H

@@ -525,6 +525,6 @@ inline void BinaryWriter::writeFixed16LE(float32 valueToConvertAndWrite)
 {
     writeUInt32LE(ConversionUtilities::toFixed16(valueToConvertAndWrite));
 }
-}
+} // namespace IoUtilities
 
 #endif // IO_UTILITIES_BINARYWRITER_H

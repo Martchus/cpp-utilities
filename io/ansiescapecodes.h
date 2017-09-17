@@ -79,6 +79,6 @@ inline void eraseLine(std::ostream &stream)
 {
     stream << "\33[2K";
 }
-}
+} // namespace EscapeCodes
 
 #endif // IOUTILITIES_ANSIESCAPECODES

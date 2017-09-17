@@ -41,6 +41,6 @@ inline int Period::days() const
 {
     return m_days;
 }
-}
+} // namespace ChronoUtilities
 
 #endif // CHRONO_UTILITIES_PERIOD_H

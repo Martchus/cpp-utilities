@@ -19,6 +19,6 @@ public:
 private:
     std::string m_what;
 };
-}
+} // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_FAILURE_H

@@ -84,6 +84,6 @@ template <std::size_t bufferSize> char *CopyHelper<bufferSize>::buffer()
 {
     return m_buffer;
 }
-}
+} // namespace IoUtilities
 
 #endif // IOUTILITIES_COPY_H

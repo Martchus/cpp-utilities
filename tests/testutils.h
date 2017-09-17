@@ -217,7 +217,7 @@ constexpr int64 operator"" _int64(unsigned long long size)
 {
     return static_cast<int64>(size);
 }
-}
-}
+} // namespace Literals
+} // namespace TestUtilities
 
 #endif // TESTUTILS_H

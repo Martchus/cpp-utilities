@@ -12,6 +12,6 @@ CPP_UTILITIES_EXPORT void generateRandomCharacterSequence(char *result, unsigned
 CPP_UTILITIES_EXPORT void generateRandomCharacterSequence(char *result, unsigned int length, std::function<int()> randomizer, int maximalRandomNumber,
     bool useSmallLetters = true, bool useCapitalLetters = true, bool useNumbers = true, bool useSymbols = true,
     bool useAtLeastOneOfEachCategory = true);
-}
+} // namespace RandomUtilities
 
 #endif // RANDOMUTILS_H

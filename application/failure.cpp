@@ -41,4 +41,4 @@ const char *Failure::what() const USE_NOTHROW
 {
     return m_what.c_str();
 }
-}
+} // namespace ApplicationUtilities

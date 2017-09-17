@@ -46,6 +46,6 @@ CPP_UTILITIES_EXPORT void removeInvalidChars(std::string &fileName);
 CPP_UTILITIES_EXPORT bool settingsDirectory(
     std::string &result, std::string applicationDirectoryName = std::string(), bool createApplicationDirectory = false);
 CPP_UTILITIES_EXPORT std::list<std::string> directoryEntries(const char *path, DirectoryEntryType types = DirectoryEntryType::All);
-}
+} // namespace IoUtilities
 
 #endif // IOUTILITIES_PATHHELPER_H

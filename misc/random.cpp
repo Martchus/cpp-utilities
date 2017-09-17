@@ -124,4 +124,4 @@ void generateRandomCharacterSequence(char *result, unsigned int length, bool use
     generateRandomCharacterSequence(
         result, length, rand, RAND_MAX, useSmallLetters, useCapitalLetters, useNumbers, useSymbols, useAtLeastOneOfEachCategory);
 }
-}
+} // namespace RandomUtilities
