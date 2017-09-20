@@ -35,6 +35,7 @@ set(HEADER_FILES
     misc/traits.h
     tests/testutils.h
     tests/cppunit.h
+    tests/outputcheck.h
 )
 set(SRC_FILES
     application/argumentparser.cpp
