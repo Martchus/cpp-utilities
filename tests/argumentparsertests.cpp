@@ -175,7 +175,7 @@ void ArgumentParserTests::testParsing()
     fileArg.setEnvironmentVariable("PATH");
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
     filesArg.setValueNames({ "path 1", "path 2" });
-    filesArg.setRequiredValueCount(-1);
+    filesArg.setRequiredValueCount(Argument::varValueCount);
     Argument outputFileArg("output-file", 'o', "specifies the path of the output file");
     outputFileArg.setValueNames({ "path" });
     outputFileArg.setRequiredValueCount(1);
@@ -187,7 +187,7 @@ void ArgumentParserTests::testParsing()
     displayFileInfoArg.setDenotesOperation(true);
     displayFileInfoArg.setSubArguments({ &fileArg, &verboseArg, &notAlbumArg });
     Argument fieldsArg("fields", '\0', "specifies the fields");
-    fieldsArg.setRequiredValueCount(-1);
+    fieldsArg.setRequiredValueCount(Argument::varValueCount);
     fieldsArg.setValueNames({ "title", "album", "artist", "trackpos" });
     fieldsArg.setImplicit(true);
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
@@ -302,7 +302,7 @@ void ArgumentParserTests::testParsing()
 
     // constraint checking: no contraint (not resetting verboseArg on purpose)
     displayFileInfoArg.reset(), fileArg.reset();
-    verboseArg.setConstraints(0, -1);
+    verboseArg.setConstraints(0, Argument::varValueCount);
     parser.parseArgs(4, argv4);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
@@ -423,7 +423,7 @@ void ArgumentParserTests::testParsing()
     // nested operations
     const char *argv14[] = { "tageditor", "get", "fields", "album=test", "-f", "somefile" };
     parser.resetArgs();
-    fieldsArg.setRequiredValueCount(-1);
+    fieldsArg.setRequiredValueCount(Argument::varValueCount);
     fieldsArg.setDenotesOperation(true);
     parser.parseArgs(6, argv14);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
@@ -690,7 +690,7 @@ void ArgumentParserTests::testHelp()
     OperationArgument verboseArg("verbose", 'v', "be verbose", "actually not an operation");
     verboseArg.setCombinable(true);
     ConfigValueArgument nestedSubArg("nested-sub", '\0', "nested sub arg", { "value1", "value2" });
-    nestedSubArg.setRequiredValueCount(-1);
+    nestedSubArg.setRequiredValueCount(Argument::varValueCount);
     Argument subArg("sub", '\0', "sub arg");
     subArg.setRequired(true);
     subArg.addSubArgument(&nestedSubArg);
