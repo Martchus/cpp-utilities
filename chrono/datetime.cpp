@@ -314,14 +314,15 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
     if (!inRangeInclMax(month, 1, 12)) {
         throw ConversionException("month is out of range");
     }
-    const auto *daysToMonth = reinterpret_cast<const unsigned int *>(isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365);
+    const auto *daysToMonth = reinterpret_cast<const int *>(isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365);
     int passedMonth = month - 1;
     if (!inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
         throw ConversionException("day is out of range");
     }
     const auto passedYears = static_cast<unsigned int>(year - 1);
     const auto passedDays = static_cast<unsigned int>(day - 1);
-    return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400 + daysToMonth[passedMonth] + passedDays)
+    return (passedYears * m_daysPerYear + passedYears / 4 - passedYears / 100 + passedYears / 400
+               + static_cast<unsigned int>(daysToMonth[passedMonth]) + passedDays)
         * TimeSpan::m_ticksPerDay;
 }
 
