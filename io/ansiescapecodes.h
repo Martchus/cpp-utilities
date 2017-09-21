@@ -4,6 +4,7 @@
 #include "../global.h"
 
 #include <ostream>
+#include <tuple>
 
 /*!
  * \brief Encapsulates functions for formatted terminal output using ANSI escape codes.
@@ -79,6 +80,24 @@ inline void eraseLine(std::ostream &stream)
 {
     stream << "\33[2K";
 }
+
+inline std::ostream &operator<<(std::ostream &stream, TextAttribute displayAttribute)
+{
+    setStyle(stream, displayAttribute);
+    return stream;
+}
+
+inline auto color(Color foreground, Color background, TextAttribute displayAttribute = TextAttribute::Reset)
+{
+    return std::make_tuple(foreground, background, displayAttribute);
+}
+
+inline std::ostream &operator<<(std::ostream &stream, std::tuple<Color, Color, TextAttribute> displayAttribute)
+{
+    setStyle(stream, std::get<0>(displayAttribute), std::get<1>(displayAttribute), std::get<2>(displayAttribute));
+    return stream;
+}
+
 } // namespace EscapeCodes
 
 #endif // IOUTILITIES_ANSIESCAPECODES
