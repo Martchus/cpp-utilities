@@ -69,19 +69,19 @@ void startConsole()
     auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
     auto fp = _fdopen(conHandle, "w");
     *stdout = *fp;
-    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdout, nullptr, _IONBF, 0);
     // redirect stdin
     stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
     conHandle = _open_osfhandle(stdHandle, _O_TEXT);
     fp = _fdopen(conHandle, "r");
     *stdin = *fp;
-    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdin, nullptr, _IONBF, 0);
     // redirect stderr
     stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
     conHandle = _open_osfhandle(stdHandle, _O_TEXT);
     fp = _fdopen(conHandle, "w");
     *stderr = *fp;
-    setvbuf(stderr, NULL, _IONBF, 0);
+    setvbuf(stderr, nullptr, _IONBF, 0);
 #ifdef CPP_UTILITIES_FORCE_UTF8_CODEPAGE
     // set console to handle UTF-8 IO correctly
     // however, this doesn't work as intended and is therefore disabled by default
