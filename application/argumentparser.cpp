@@ -528,6 +528,20 @@ Argument *Argument::wouldConflictWithArgument() const
 }
 
 /*!
+ * \brief Returns the first operation argument specified by the user or nullptr if no operation has been specified.
+ * \remarks Only direct sub arguments of this argument are considered.
+ */
+Argument *Argument::specifiedOperation() const
+{
+    for (Argument *arg : m_subArgs) {
+        if (arg->denotesOperation() && arg->isPresent()) {
+            return arg;
+        }
+    }
+    return nullptr;
+}
+
+/*!
  * \brief Resets this argument and all sub arguments recursively.
  * \sa Argument::reset()
  */
@@ -741,6 +755,21 @@ void ArgumentParser::resetArgs()
         arg->resetRecursively();
     }
     m_actualArgc = 0;
+}
+
+/*!
+ * \brief Returns the first operation argument specified by the user or nullptr if no operation has been specified.
+ * \remarks Only main arguments are considered. See Argument::specifiedOperation() to check sub arguments of a specific
+ *          argument.
+ */
+Argument *ArgumentParser::specifiedOperation() const
+{
+    for (Argument *arg : m_mainArgs) {
+        if (arg->denotesOperation() && arg->isPresent()) {
+            return arg;
+        }
+    }
+    return nullptr;
 }
 
 /*!

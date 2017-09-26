@@ -199,6 +199,7 @@ public:
     void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
     Argument *conflictsWithArgument() const;
     Argument *wouldConflictWithArgument() const;
+    Argument *specifiedOperation() const;
     void reset();
     void resetRecursively();
 
@@ -250,6 +251,7 @@ public:
     void setUnknownArgumentBehavior(UnknownArgumentBehavior behavior);
     Argument *defaultArgument() const;
     void setDefaultArgument(Argument *argument);
+    Argument *specifiedOperation() const;
     void checkConstraints();
     void invokeCallbacks();
     bool isUncombinableMainArgPresent() const;
