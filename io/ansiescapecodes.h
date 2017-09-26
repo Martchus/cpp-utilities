@@ -98,6 +98,13 @@ inline std::ostream &operator<<(std::ostream &stream, std::tuple<Color, Color, T
     return stream;
 }
 
+enum class Phrases {
+    Error,
+    Warning,
+    End,
+};
+std::ostream &operator<<(std::ostream &stream, Phrases phrase);
+
 } // namespace EscapeCodes
 
 #endif // IOUTILITIES_ANSIESCAPECODES
