@@ -398,7 +398,7 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
         arg->printInfo(os, indentation);
     }
     if (notEmpty(example())) {
-        if (!subArguments().empty()) {
+        if (indentation == 2 && !subArguments().empty()) {
             os << '\n';
         }
         os << Indentation(indentation) << "example: ";
