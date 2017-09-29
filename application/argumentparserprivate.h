@@ -1,6 +1,9 @@
 #ifndef APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H
 #define APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H
 
+#include "./argumentparser.h"
+#include "./commandlineutils.h"
+
 namespace ApplicationUtilities {
 
 class CPP_UTILITIES_EXPORT ArgumentReader {
@@ -31,6 +34,28 @@ public:
     /// \brief Whether completion mode is enabled. In this case reading args will be continued even if an denotation is unknown (regardless of unknownArgumentBehavior()).
     bool completionMode;
 };
+
+class Wrapper;
+
+std::ostream &operator<<(std::ostream &os, const Wrapper &wrapper);
+
+class Wrapper {
+    friend std::ostream &operator<<(std::ostream &os, const Wrapper &wrapper);
+
+public:
+    Wrapper(const char *str, Indentation currentIndentation = Indentation());
+
+private:
+    const char *const m_str;
+    Indentation m_indentation;
+};
+
+Wrapper::Wrapper(const char *str, Indentation currentIndentation)
+    : m_str(str)
+    , m_indentation(currentIndentation)
+{
+}
+
 } // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H

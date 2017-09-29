@@ -260,6 +260,35 @@ void ArgumentReader::read(ArgumentVector &args)
     } // while(argv != end)
 }
 
+ostream &operator<<(ostream &os, const Wrapper &wrapper)
+{
+    // determine max. number of columns
+    static const TerminalSize termSize(determineTerminalSize());
+    const auto maxColumns = termSize.columns ? termSize.columns : numeric_limits<unsigned short>::max();
+
+    // print wrapped string considering indentation
+    unsigned short currentCol = wrapper.m_indentation.level;
+    for (const char *currentChar = wrapper.m_str; *currentChar; ++currentChar) {
+        const bool wrappingRequired = currentCol >= maxColumns;
+        if (wrappingRequired || *currentChar == '\n') {
+            // insert newline (TODO: wrap only at end of a word)
+            os << '\n';
+            // print indentation (if enough space)
+            if (wrapper.m_indentation.level < maxColumns) {
+                os << wrapper.m_indentation;
+                currentCol = wrapper.m_indentation.level;
+            } else {
+                currentCol = 0;
+            }
+        }
+        if (*currentChar != '\n' && (!wrappingRequired || *currentChar != ' ')) {
+            os << *currentChar;
+            ++currentCol;
+        }
+    }
+    return os;
+}
+
 /// \brief Specifies the name of the application (used by ArgumentParser::printHelp()).
 const char *applicationName = nullptr;
 /// \brief Specifies the author of the application (used by ArgumentParser::printHelp()).
@@ -351,7 +380,8 @@ const char *Argument::firstValue() const
  */
 void Argument::printInfo(ostream &os, unsigned char indentation) const
 {
-    os << Indentation(indentation);
+    Indentation ident(indentation);
+    os << ident;
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
     if (notEmpty(name())) {
         if (!denotesOperation()) {
@@ -372,7 +402,7 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
             os << ' ' << '[' << *i << ']';
             ++valueNamesPrint;
         }
-        if (requiredValueCount() == static_cast<size_t>(-1)) {
+        if (requiredValueCount() == Argument::varValueCount) {
             os << " ...";
         } else {
             for (; valueNamesPrint < requiredValueCount(); ++valueNamesPrint) {
@@ -380,34 +410,28 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
             }
         }
     }
-    indentation += 2;
+    ident.level += 2;
     if (notEmpty(description())) {
-        os << '\n' << Indentation(indentation) << description();
+        os << '\n' << ident << Wrapper(description(), ident);
     }
     if (isRequired()) {
-        os << '\n' << Indentation(indentation) << "particularities: mandatory";
+        os << '\n' << ident << "particularities: mandatory";
         if (!isMainArgument()) {
             os << " if parent argument is present";
         }
     }
     if (environmentVariable()) {
-        os << '\n' << Indentation(indentation) << "default environment variable: " << environmentVariable();
+        os << '\n' << ident << "default environment variable: " << Wrapper(environmentVariable(), ident + 30);
     }
     os << '\n';
     for (const auto *arg : subArguments()) {
-        arg->printInfo(os, indentation);
+        arg->printInfo(os, ident.level);
     }
     if (notEmpty(example())) {
-        if (indentation == 2 && !subArguments().empty()) {
+        if (ident.level == 2 && !subArguments().empty()) {
             os << '\n';
         }
-        os << Indentation(indentation) << "example: ";
-        for (const char *c = example(); *c; ++c) {
-            os << *c;
-            if (*c == '\n') {
-                os << Indentation(indentation + 9);
-            }
-        }
+        os << ident << "example: " << Wrapper(example(), ident + 9);
         os << '\n';
     }
 }
