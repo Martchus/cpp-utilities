@@ -671,9 +671,11 @@ void ArgumentParser::printHelp(ostream &os) const
  * \remarks
  *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
  *  - Calls the assigned callbacks if no constraints are violated.
+ *  - This method will not return in case shell completion is requested. This behavior can be altered
+ *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid or violate the constraints defined
  *         by the Argument instances.
- * \sa readArgs()
+ * \sa readArgs(), parseArgsOrExit()
  */
 void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
@@ -708,8 +710,10 @@ void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
  *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
  *  - In contrast to parseArgs() this method does not check whether constraints are violated and it
  *    does not call any callbacks.
+ *  - This method will not return in case shell completion is requested. This behavior can be altered
+ *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid.
- * \sa readArgs()
+ * \sa parseArgs(), parseArgsOrExit()
  */
 void ArgumentParser::readArgs(int argc, const char *const *argv)
 {
@@ -721,7 +725,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
 
         // check for further arguments
         if (--argc) {
-            // if the first argument (after executable name) is "--bash-completion-for" bash completion for the following arguments is requested
+            // if the first argument (after executable name) is "--bash-completion-for", bash completion for the following arguments is requested
             bool completionMode = !strcmp(*++argv, "--bash-completion-for");
             unsigned int currentWordIndex;
             if (completionMode) {
