@@ -33,6 +33,34 @@ std::pair<std::vector<std::unique_ptr<char[]>>, std::vector<char *>> CPP_UTILITI
 #endif
 
 /*!
+ * \brief The TerminalSize struct describes a terminal size.
+ * \remarks The same as the winsize structure is defined in `sys/ioctl.h`.
+ * \sa determineTerminalSize()
+ */
+struct TerminalSize {
+    TerminalSize(unsigned short rows = 0, unsigned short columns = 0, unsigned short width = 0, unsigned short height = 0);
+
+    /// \brief number of rows
+    unsigned short rows;
+    /// \brief number of columns
+    unsigned short columns;
+    /// \brief width in pixel
+    unsigned short width;
+    /// \brief height in pixel
+    unsigned short height;
+};
+
+inline TerminalSize::TerminalSize(unsigned short rows, unsigned short columns, unsigned short width, unsigned short height)
+    : rows(rows)
+    , columns(columns)
+    , width(width)
+    , height(height)
+{
+}
+
+TerminalSize determineTerminalSize();
+
+/*!
  * \brief The Indentation class allows printing indentation conveniently, eg. cout << Indentation(4) << ...
  */
 class CPP_UTILITIES_EXPORT Indentation {

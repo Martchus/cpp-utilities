@@ -3,7 +3,10 @@
 #include <iostream>
 #include <string>
 
-#ifdef PLATFORM_WINDOWS
+#ifndef PLATFORM_WINDOWS
+#include <sys/ioctl.h>
+#include <unistd.h>
+#else
 #include <fcntl.h>
 #include <windows.h>
 #endif
@@ -34,6 +37,30 @@ bool confirmPrompt(const char *message, Response defaultResponse)
             cout.flush();
         }
     }
+}
+
+/*!
+ * \brief Returns the current size of the terminal.
+ * \remarks Unknown members of the returned TerminalSize are set to zero.
+ */
+TerminalSize determineTerminalSize()
+{
+    TerminalSize size;
+#ifndef PLATFORM_WINDOWS
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, reinterpret_cast<winsize *>(&size));
+#else
+    CONSOLE_SCREEN_BUFFER_INFO consoleBufferInfo;
+    if (const HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE)) {
+        GetConsoleScreenBufferInfo(stdHandle, &consoleBufferInfo);
+        if (consoleBufferInfo.dwSize.X > 0) {
+            size.rows = static_cast<unsigned short>(consoleBufferInfo.dwSize.X);
+        }
+        if (consoleBufferInfo.dwSize.Y > 0) {
+            size.columns = static_cast<unsigned short>(consoleBufferInfo.dwSize.Y);
+        }
+    }
+#endif
+    return size;
 }
 
 #ifdef PLATFORM_WINDOWS
