@@ -1,5 +1,9 @@
 #include "./failure.h"
 
+#include "../io/ansiescapecodes.h"
+
+#include <iostream>
+
 namespace ApplicationUtilities {
 
 /*!
@@ -41,4 +45,16 @@ const char *Failure::what() const USE_NOTHROW
 {
     return m_what.c_str();
 }
+
+/*!
+ * \brief Prints an error message "Unable to parse arguments: ..." for the specified \a failure.
+ */
+std::ostream &operator<<(std::ostream &o, const Failure &failure)
+{
+    using namespace std;
+    using namespace EscapeCodes;
+    return o << Phrases::Error << "Unable to parse arguments: " << TextAttribute::Reset << failure.what() << "\nSee --help for available commands."
+             << endl;
+}
+
 } // namespace ApplicationUtilities

@@ -686,6 +686,24 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
 
 /*!
  * \brief Parses the specified command line arguments.
+ * \remarks The same as parseArgs(), except that this method will not throw an exception in the error
+ *          case. Instead, it will print an error message and terminate the application with exit
+ *          code 1.
+ * \sa parseArgs(), readArgs()
+ */
+void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
+{
+    try {
+        parseArgs(argc, argv);
+    } catch (const Failure &failure) {
+        CMD_UTILS_START_CONSOLE;
+        cerr << failure;
+        exit(1);
+    }
+}
+
+/*!
+ * \brief Parses the specified command line arguments.
  * \remarks
  *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
  *  - In contrast to parseArgs() this method does not check whether constraints are violated and it

@@ -4,6 +4,7 @@
 #include "../global.h"
 
 #include <exception>
+#include <iosfwd>
 #include <string>
 
 namespace ApplicationUtilities {
@@ -19,6 +20,9 @@ public:
 private:
     std::string m_what;
 };
+
+std::ostream &operator<<(std::ostream &o, const Failure &failure);
+
 } // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_FAILURE_H

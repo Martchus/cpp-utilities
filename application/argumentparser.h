@@ -243,6 +243,7 @@ public:
     void addMainArgument(Argument *argument);
     void printHelp(std::ostream &os) const;
     void parseArgs(int argc, const char *const *argv);
+    void parseArgsOrExit(int argc, const char *const *argv);
     void readArgs(int argc, const char *const *argv);
     void resetArgs();
     unsigned int actualArgumentCount() const;
