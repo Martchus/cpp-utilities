@@ -98,10 +98,20 @@ inline std::ostream &operator<<(std::ostream &stream, std::tuple<Color, Color, T
     return stream;
 }
 
+/*!
+ * \brief The Phrases enum contains standard phrases which can be printed to any std::ostream.
+ *
+ * Example: `std::cerr << Phrases::Error << "Something bad happened." << Phrases::End`
+ */
 enum class Phrases {
-    Error,
-    Warning,
-    End,
+    Error, /**< bold, red "Error: " */
+    Warning, /**< bold, yellow "Warning: " */
+    End, /**< resets the style */
+    PlainMessage, /**< bold, 4 spaces "    " */
+    SuccessMessage, /**< bold, green "==> " */
+    SubMessage, /**< bold, blue "  -> " */
+    ErrorMessage, /**< bold, red "==> ERROR: " */
+    WarningMessage, /**< bold, yellow "==> WARNING: " */
 };
 std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 
