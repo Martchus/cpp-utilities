@@ -74,7 +74,8 @@ enum class ValueCompletionBehavior : unsigned char {
     Files = 4, /**< files */
     Directories = 8, /**< directories */
     FileSystemIfNoPreDefinedValues = 16, /**< files and directories but only if no values have been assigned (default behavior) */
-    AppendEquationSign = 32 /**< an equation sign is appended to values which not contain an equation sign already */
+    AppendEquationSign = 32, /**< an equation sign is appended to values which not contain an equation sign already */
+    InvokeCallback = 64, /**< whether to invoke the callback before reading pre-defined values */
 };
 
 /// \cond

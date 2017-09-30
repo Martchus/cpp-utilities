@@ -1054,6 +1054,9 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     cout << "COMPREPLY=(";
     // -> completions for parameter values
     for (const Argument *arg : relevantPreDefinedValues) {
+        if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::InvokeCallback && arg->m_callbackFunction) {
+            arg->m_callbackFunction(arg->isPresent() ? arg->m_occurrences.front() : ArgumentOccurrence(Argument::varValueCount));
+        }
         if (arg->preDefinedCompletionValues()) {
             bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
             if (argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
