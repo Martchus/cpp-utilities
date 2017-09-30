@@ -67,6 +67,12 @@ enum class UnknownArgumentBehavior {
 
 /*!
  * \brief The ValueCompletionBehavior enum specifies the items to be considered when generating completion for an argument value.
+ * \remarks
+ * - The enumeration items are meant to be combined using the |-operator.
+ * - ValueCompletionBehavior::InvokeCallback is meant to initialize pre-defined values only when required in the callback assigned
+ *   via Argument::setCallback(). Hence it makes sense to combine it with ValueCompletionBehavior::PreDefinedValues.
+ * - When ValueCompletionBehavior::InvokeCallback is present, the callback assigned via Argument::setCallback() might be called
+ *   even when not all constraints are fulfilled. So, for instance, there might not be all required values present.
  */
 enum class ValueCompletionBehavior : unsigned char {
     None = 0, /**< no auto-completion */

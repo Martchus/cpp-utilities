@@ -36,10 +36,16 @@ enum ArgumentDenotationType : unsigned char {
 };
 
 /*!
- * \brief The ArgReader struct internally encapsulates the process of reading command line arguments.
+ * \class ArgumentReader
+ * \brief The ArgumentReader class internally encapsulates the process of reading command line arguments.
  * \remarks
  * - For meaning of parameter see documentation of corresponding member variables.
  * - Results are stored in specified \a args and assigned sub arguments.
+ * - This class is explicitely *not* part of the public API.
+ */
+
+/*!
+ * \brief Initializes the internal reader for the specified \a parser and arguments.
  */
 ArgumentReader::ArgumentReader(ArgumentParser &parser, const char *const *argv, const char *const *end, bool completionMode)
     : parser(parser)
@@ -259,6 +265,12 @@ void ArgumentReader::read(ArgumentVector &args)
         } // no values to read
     } // while(argv != end)
 }
+
+/*!
+ * \class Wrapper
+ * \brief The Wrapper class is internally used print text which might needs to be wrapped preserving the indentation.
+ * \remarks This class is explicitely *not* part of the public API.
+ */
 
 ostream &operator<<(ostream &os, const Wrapper &wrapper)
 {
