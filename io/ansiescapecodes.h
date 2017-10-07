@@ -113,7 +113,7 @@ enum class Phrases {
     ErrorMessage, /**< bold, red "==> ERROR: " */
     WarningMessage, /**< bold, yellow "==> WARNING: " */
 };
-std::ostream &operator<<(std::ostream &stream, Phrases phrase);
+CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 
 } // namespace EscapeCodes
 
