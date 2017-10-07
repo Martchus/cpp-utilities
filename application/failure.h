@@ -21,7 +21,7 @@ private:
     std::string m_what;
 };
 
-std::ostream &operator<<(std::ostream &o, const Failure &failure);
+CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &o, const Failure &failure);
 
 } // namespace ApplicationUtilities
 
