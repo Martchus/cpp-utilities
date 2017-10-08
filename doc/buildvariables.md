@@ -216,6 +216,10 @@ and qtutilities.
 * `LIBRARIES`: specifies libraries to link against
 * `META_PUBLIC_QT_MODULES`: specifies Qt modules used in the public library
   interface
+* `META_PUBLIC_SHARED_LIB_DEPENDS`: specifies shared libraries used in the public
+  library interface
+* `META_PUBLIC_STATIC_LIB_DEPENDS`: specifies static libraries used in the public
+  library interface
 
 ## Provided modules
 c++utilities and qtutilities provide CMake modules to reduce boilerplate code
