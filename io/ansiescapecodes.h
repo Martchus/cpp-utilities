@@ -112,6 +112,7 @@ enum class Phrases {
     SubMessage, /**< bold, blue "  -> " */
     ErrorMessage, /**< bold, red "==> ERROR: " */
     WarningMessage, /**< bold, yellow "==> WARNING: " */
+    EndFlush, /**< resets the style and flushes the stream */
 };
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 

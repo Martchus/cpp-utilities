@@ -53,6 +53,10 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
         setStyle(stream, TextAttribute::Reset);
         setStyle(stream, TextAttribute::Bold);
         break;
+    case Phrases::EndFlush:
+        setStyle(stream, TextAttribute::Reset);
+        stream << std::endl;
+        break;
     }
     return stream;
 }
