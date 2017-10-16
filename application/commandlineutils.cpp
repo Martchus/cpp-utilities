@@ -53,10 +53,10 @@ TerminalSize determineTerminalSize()
     if (const HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE)) {
         GetConsoleScreenBufferInfo(stdHandle, &consoleBufferInfo);
         if (consoleBufferInfo.dwSize.X > 0) {
-            size.rows = static_cast<unsigned short>(consoleBufferInfo.dwSize.X);
+            size.columns = static_cast<unsigned short>(consoleBufferInfo.dwSize.X);
         }
         if (consoleBufferInfo.dwSize.Y > 0) {
-            size.columns = static_cast<unsigned short>(consoleBufferInfo.dwSize.Y);
+            size.rows = static_cast<unsigned short>(consoleBufferInfo.dwSize.Y);
         }
     }
 #endif
