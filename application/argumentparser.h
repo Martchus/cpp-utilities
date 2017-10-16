@@ -191,6 +191,7 @@ public:
     void setImplicit(bool value);
     bool denotesOperation() const;
     void setDenotesOperation(bool denotesOperation);
+    const CallbackFunction &callback() const;
     void setCallback(CallbackFunction callback);
     void printInfo(std::ostream &os, unsigned char indentation = 0) const;
     const ArgumentVector &subArguments() const;
@@ -650,9 +651,19 @@ inline void Argument::setDenotesOperation(bool denotesOperation)
 }
 
 /*!
+ * \brief Returns the assigned callback function.
+ * \sa setCallback()
+ */
+inline const Argument::CallbackFunction &Argument::callback() const
+{
+    return m_callbackFunction;
+}
+
+/*!
  * \brief Sets a \a callback function which will be called by the parser if
  *        the argument could be found and no parsing errors occured.
  * \remarks The \a callback will be called for each occurrence of the argument.
+ * \sa callback()
  */
 inline void Argument::setCallback(Argument::CallbackFunction callback)
 {
