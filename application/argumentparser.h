@@ -873,6 +873,17 @@ inline ConfigValueArgument::ConfigValueArgument(
     setRequiredValueCount(valueNames.size());
     setValueNames(valueNames);
 }
+
+class CPP_UTILITIES_EXPORT NoColorArgument : public Argument {
+public:
+    NoColorArgument();
+    ~NoColorArgument();
+    static void apply();
+
+private:
+    static NoColorArgument *s_instance;
+};
+
 } // namespace ApplicationUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_H

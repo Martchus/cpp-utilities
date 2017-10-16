@@ -70,6 +70,12 @@ None of these are enabled or set by default, unless stated otherwise.
     * coverage report is stored in build directory
 * `ENABLE_INSTALL_TARGETS=ON/OFF`: enables creation of install targets (enabled
   by default)
+* `ENABLE_ESCAPE_CODES_BY_DEAULT`: enables use of escape codes for formatted
+  output by default
+    * enabled by default
+    * see ApplicationUtilities::NoColorArgument and EscapeCodes::enabled
+    * has to be set when building `c++utilities`; projects using that build of
+      `c++utilities` will then use this default
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions

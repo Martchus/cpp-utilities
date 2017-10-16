@@ -782,7 +782,9 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
                 completionMode);
             try {
                 reader.read();
+                NoColorArgument::apply();
             } catch (const Failure &) {
+                NoColorArgument::apply();
                 if (!completionMode) {
                     throw;
                 }
@@ -1375,4 +1377,91 @@ HelpArgument::HelpArgument(ArgumentParser &parser)
  * \brief The ConfigValueArgument class is an Argument where setCombinable() is true by default.
  * \sa ConfigValueArgument::ConfigValueArgument()
  */
+
+/*!
+ * \class NoColorArgument
+ * \brief The NoColorArgument class allows to specify whether use of escape codes or similar technique to provide formatted output
+ *        on the terminal should be enabled/disabled.
+ *
+ * This argument will either prevent or explicitely allow the use of escape codes or similar technique to provide formatted output
+ * on the terminal. More explicitly, the argument will always allow to negate the default value of EscapeCodes::enabled which can be
+ * configured at build time by setting the CMake variable ENABLE_ESCAPE_CODES_BY_DEFAULT.
+ *
+ * \remarks
+ * - Only the first instance is considered for actually altering the value of EscapeCodes::enabled so it makes no sense to
+ *   instantiate this class multiple times.
+ * - It is ensure that EscapeCodes::enabled will be set before any callback functions are invoked and even in the error case (if
+ *   the error doesn't prevent the argument from being detected). Hence this feature is implemented via NoColorArgument::apply()
+ *   rather than the usual callback mechanism.
+ *
+ * \sa NoColorArgument::NoColorArgument(), EscapeCodes::enabled
+ */
+
+NoColorArgument *NoColorArgument::s_instance = nullptr;
+
+/*!
+ * \brief Constructs a new NoColorArgument argument.
+ * \remarks This will also set EscapeCodes::enabled to the value of the environment variable ENABLE_ESCAPE_CODES.
+ */
+NoColorArgument::NoColorArgument()
+#ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT
+    : Argument("no-color", '\0', "disables formatted/colorized output")
+#else
+    : Argument("enable-color", '\0', "enables formatted/colorized output")
+#endif
+{
+    setCombinable(true);
+
+    if (s_instance) {
+        return;
+    }
+    s_instance = this;
+
+    // set the environmentvariable: note that this is not directly used and just assigned for printing help
+    setEnvironmentVariable("ENABLE_ESCAPE_CODES");
+
+    // default-initialize EscapeCodes::enabled from environment variable
+    const char *envValue = getenv(environmentVariable());
+    if (!envValue) {
+        return;
+    }
+    for (; *envValue; ++envValue) {
+        switch (*envValue) {
+        case '0':
+        case ' ':
+            break;
+        default:
+            // enable escape codes if ENABLE_ESCAPE_CODES contains anything else than spaces or zeros
+            EscapeCodes::enabled = true;
+            return;
+        }
+    }
+    // disable escape codes if ENABLE_ESCAPE_CODES is empty or only contains spaces and zeros
+    EscapeCodes::enabled = false;
+}
+
+/*!
+ * \brief Destroys the object.
+ */
+NoColorArgument::~NoColorArgument()
+{
+    if (s_instance == this) {
+        s_instance = nullptr;
+    }
+}
+
+/*!
+ * \brief Sets EscapeCodes::enabled according to the presense of the first instantiation of NoColorArgument.
+ */
+void NoColorArgument::apply()
+{
+    if (NoColorArgument::s_instance && NoColorArgument::s_instance->isPresent()) {
+#ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT
+        EscapeCodes::enabled = false;
+#else
+        EscapeCodes::enabled = true;
+#endif
+    }
+}
+
 } // namespace ApplicationUtilities

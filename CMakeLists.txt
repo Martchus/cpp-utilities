@@ -147,6 +147,18 @@ if(FORCE_UTF8_CODEPAGE)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_FORCE_UTF8_CODEPAGE)
 endif()
 
+# configure whether escape codes should be enabled by default
+option(ENABLE_ESCAPE_CODES_BY_DEAULT "enables usage of escape codes by default" ON)
+if(ENABLE_ESCAPE_CODES_BY_DEAULT)
+    set_source_files_properties(
+        application/argumentparser.cpp
+        io/ansiescapecodes.cpp
+        PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT
+    )
+else()
+    message(STATUS "Disabling use of escape codes by default.")
+endif()
+
 # include modules to apply configuration
 include(BasicConfig)
 include(WindowsResources)

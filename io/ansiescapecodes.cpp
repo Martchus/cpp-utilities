@@ -1,6 +1,29 @@
 #include "./ansiescapecodes.h"
 
+/*!
+ * \brief Encapsulates functions for formatted terminal output using ANSI escape codes.
+ */
 namespace EscapeCodes {
+
+/*!
+ * \brief Controls whether the functions inside the EscapeCodes namespace actually make use of escape codes.
+ *
+ * This allows to disable use of escape codes when not appropriate.
+ *
+ * The default value can be configured at build time by setting the CMake variable ENABLE_ESCAPE_CODES_BY_DEFAULT.
+ * The "default for the default" is true.
+ * However, the default is overridden with the value of the environment variable ENABLE_ESCAPE_CODES when instantiating
+ * an ApplicationUtilities::NoColorArgument (if ENABLE_ESCAPE_CODES is present).
+ *
+ * \sa ApplicationUtilities::NoColorArgument
+ */
+bool enabled =
+#ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT
+    true
+#else
+    false
+#endif
+    ;
 
 /*!
  * \brief Prints the specified \a phrase.
