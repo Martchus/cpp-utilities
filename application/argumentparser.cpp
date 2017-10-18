@@ -130,8 +130,8 @@ void ArgumentReader::read(ArgumentVector &args)
         size_t argDenotationLength;
         if (argDenotationType != Value) {
             const char *const equationPos = strchr(argDenotation, '=');
-            for (argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation);
-                 argDenotationLength; matchingArg = nullptr) {
+            for (argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); argDenotationLength;
+                 matchingArg = nullptr) {
                 // search for arguments by abbreviation or name depending on the previously determined denotation type
                 if (argDenotationType == Abbreviation) {
                     for (Argument *arg : args) {
