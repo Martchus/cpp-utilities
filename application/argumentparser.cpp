@@ -714,6 +714,7 @@ ArgumentParser::ArgumentParser()
     , m_executable(nullptr)
     , m_unknownArgBehavior(UnknownArgumentBehavior::Fail)
     , m_defaultArg(nullptr)
+    , m_helpArg(*this)
 {
 }
 
@@ -963,7 +964,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // read specified arguments
     ArgumentReader reader(*this, argv, argv + argcForReader, completionMode);
     const bool allArgsProcessed(reader.read());
-    NoColorArgument::apply();
+    m_noColorArg.apply();
 
     // fail when not all arguments could be processed, except when in completion mode
     if (!completionMode && !allArgsProcessed) {
@@ -1658,8 +1659,6 @@ HelpArgument::HelpArgument(ArgumentParser &parser)
  * \sa NoColorArgument::NoColorArgument(), EscapeCodes::enabled
  */
 
-NoColorArgument *NoColorArgument::s_instance = nullptr;
-
 /*!
  * \brief Constructs a new NoColorArgument argument.
  * \remarks This will also set EscapeCodes::enabled to the value of the environment variable ENABLE_ESCAPE_CODES.
@@ -1672,11 +1671,6 @@ NoColorArgument::NoColorArgument()
 #endif
 {
     setCombinable(true);
-
-    if (s_instance) {
-        return;
-    }
-    s_instance = this;
 
     // set the environmentvariable: note that this is not directly used and just assigned for printing help
     setEnvironmentVariable("ENABLE_ESCAPE_CODES");
@@ -1702,21 +1696,11 @@ NoColorArgument::NoColorArgument()
 }
 
 /*!
- * \brief Destroys the object.
- */
-NoColorArgument::~NoColorArgument()
-{
-    if (s_instance == this) {
-        s_instance = nullptr;
-    }
-}
-
-/*!
  * \brief Sets EscapeCodes::enabled according to the presense of the first instantiation of NoColorArgument.
  */
-void NoColorArgument::apply()
+void NoColorArgument::apply() const
 {
-    if (NoColorArgument::s_instance && NoColorArgument::s_instance->isPresent()) {
+    if (isPresent()) {
 #ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT
         EscapeCodes::enabled = false;
 #else

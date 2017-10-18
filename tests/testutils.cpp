@@ -110,8 +110,7 @@ TestApplication *TestApplication::m_instance = nullptr;
  * \throws Throws std::runtime_error if an instance has already been created.
  */
 TestApplication::TestApplication(int argc, char **argv)
-    : m_helpArg(m_parser)
-    , m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
+    : m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
     , m_applicationPathArg("app-path", 'a', "specifies the path of the application to be tested")
     , m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files")
     , m_unitsArg("units", 'u', "specifies the units to test; omit to test all units")
@@ -142,7 +141,7 @@ TestApplication::TestApplication(int argc, char **argv)
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
         m_unitsArg.setCombinable(true);
-        m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg });
+        m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg });
 
         // parse arguments
         try {
@@ -154,7 +153,7 @@ TestApplication::TestApplication(int argc, char **argv)
         }
 
         // print help
-        if (m_helpArg.isPresent()) {
+        if (m_parser.helpArg().isPresent()) {
             exit(0);
         }
     }
