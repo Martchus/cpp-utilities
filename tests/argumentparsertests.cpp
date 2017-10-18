@@ -9,6 +9,7 @@
 #include "../application/failure.h"
 #include "../application/fakeqtconfigarguments.h"
 
+#include "../io/ansiescapecodes.h"
 #include "../io/path.h"
 
 #include "resources/config.h"
@@ -187,6 +188,7 @@ void ArgumentParserTests::testParsing()
     stringstream buffer;
     streambuf *regularCerrBuffer = cerr.rdbuf(buffer.rdbuf());
     parser.resetArgs();
+    EscapeCodes::enabled = false;
     try {
         parser.parseArgs(6, argv3);
     } catch (...) {
@@ -194,11 +196,11 @@ void ArgumentParserTests::testParsing()
         throw;
     }
     cerr.rdbuf(regularCerrBuffer);
-    CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown and will be ignored.\n"s
-                         "The specified argument \"title\" is unknown and will be ignored.\n"s
-                         "The specified argument \"diskpos\" is unknown and will be ignored.\n"s
-                         "The specified argument \"--files\" is unknown and will be ignored.\n"s
-                         "The specified argument \"somefile\" is unknown and will be ignored.\n"s,
+    CPPUNIT_ASSERT_EQUAL("Warning: The specified argument \"album\" is unknown and will be ignored.\n"s
+                         "Warning: The specified argument \"title\" is unknown and will be ignored.\n"s
+                         "Warning: The specified argument \"diskpos\" is unknown and will be ignored.\n"s
+                         "Warning: The specified argument \"--files\" is unknown and will be ignored.\n"s
+                         "Warning: The specified argument \"somefile\" is unknown and will be ignored.\n"s,
         buffer.str());
     // none of the arguments should be present now
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
@@ -666,6 +668,7 @@ void ArgumentParserTests::testHelp()
                             "  default environment variable: FILES\n"
                             "\n"
                             "Project website: " APP_URL "\n");
+        EscapeCodes::enabled = true;
         parser.parseArgs(2, argv);
     }
 }

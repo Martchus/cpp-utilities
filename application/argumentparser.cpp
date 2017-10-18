@@ -18,6 +18,7 @@
 using namespace std;
 using namespace std::placeholders;
 using namespace ConversionUtilities;
+using namespace EscapeCodes;
 using namespace IoUtilities;
 
 /*!
@@ -97,172 +98,177 @@ void ArgumentReader::read(ArgumentVector &args)
 
     // iterate through all argument denotations; loop might exit earlier when an denotation is unknown
     while (argv != end) {
-        if (values && lastArgInLevel->requiredValueCount() != static_cast<size_t>(-1) && values->size() < lastArgInLevel->requiredValueCount()) {
-            // there are still values to read
+        // check whether there are still values to read
+        if (values && lastArgInLevel->requiredValueCount() != Argument::varValueCount && values->size() < lastArgInLevel->requiredValueCount()) {
+            // read arg as value and continue with next arg
             values->emplace_back(argDenotation ? argDenotation : *argv);
             ++index, ++argv, argDenotation = nullptr;
+            continue;
+        }
+
+        // determine how denotation must be processed
+        bool abbreviationFound = false;
+        if (argDenotation) {
+            // continue reading childs for abbreviation denotation already detected
+            abbreviationFound = false;
+            argDenotationType = Abbreviation;
         } else {
-            // determine how denotation must be processed
-            bool abbreviationFound = false;
-            if (argDenotation) {
-                // continue reading childs for abbreviation denotation already detected
-                abbreviationFound = false;
-                argDenotationType = Abbreviation;
-            } else {
-                // determine denotation type
-                argDenotation = *argv;
-                if (!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
-                    // skip empty arguments
-                    ++index, ++argv, argDenotation = nullptr;
-                    continue;
-                }
-                abbreviationFound = false;
-                argDenotationType = Value;
-                *argDenotation == '-' && (++argDenotation, ++argDenotationType) && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+            // determine denotation type
+            argDenotation = *argv;
+            if (!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
+                // skip empty arguments
+                ++index, ++argv, argDenotation = nullptr;
+                continue;
             }
+            abbreviationFound = false;
+            argDenotationType = Value;
+            *argDenotation == '-' && (++argDenotation, ++argDenotationType) && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+        }
 
-            // try to find matching Argument instance
-            Argument *matchingArg = nullptr;
-            size_t argDenotationLength;
-            if (argDenotationType != Value) {
-                const char *const equationPos = strchr(argDenotation, '=');
-                for (argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation);
-                     argDenotationLength; matchingArg = nullptr) {
-                    // search for arguments by abbreviation or name depending on the previously determined denotation type
-                    if (argDenotationType == Abbreviation) {
-                        for (Argument *arg : args) {
-                            if (arg->abbreviation() && arg->abbreviation() == *argDenotation) {
-                                matchingArg = arg;
-                                abbreviationFound = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        for (Argument *arg : args) {
-                            if (arg->name() && !strncmp(arg->name(), argDenotation, argDenotationLength)
-                                && *(arg->name() + argDenotationLength) == '\0') {
-                                matchingArg = arg;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (matchingArg) {
-                        // an argument matched the specified denotation so add an occurrence
-                        matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
-
-                        // prepare reading parameter values
-                        values = &matchingArg->m_occurrences.back().values;
-                        if (equationPos) {
-                            values->push_back(equationPos + 1);
-                        }
-
-                        // read sub arguments
-                        ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
-                        if (argDenotationType != Abbreviation || (++argDenotation != equationPos)) {
-                            if (argDenotationType != Abbreviation || !*argDenotation) {
-                                // no further abbreviations follow -> read sub args for next argv
-                                ++argv, argDenotation = nullptr;
-                                read(lastArg->m_subArgs);
-                                argDenotation = nullptr;
-                            } else {
-                                // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
-                                read(lastArg->m_subArgs);
-                            }
-                            break;
-                        } // else: another abbreviated argument follows (and it is not present in the sub args)
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            if (!matchingArg) {
-                // unknown argument might be a sibling of the parent element
-                if (argDenotationType != Value) {
-                    for (auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend();; ++parentArgument) {
-                        for (Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
-                            if (sibling->occurrences() < sibling->maxOccurrences()) {
-                                if ((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
-                                    || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenotationLength))) {
-                                    return;
-                                }
-                            }
-                        }
-                        if (parentArgument == pathEnd) {
-                            break;
-                        }
-                    };
-                }
-
-                // unknown argument might just be a parameter value of the last argument
-                if (lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
-                    values->emplace_back(abbreviationFound ? argDenotation : *argv);
-                    ++index, ++argv, argDenotation = nullptr;
-                    continue;
-                }
-
-                // first value might denote "operation"
-                for (Argument *arg : args) {
-                    if (arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
-                        (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
-                        lastArgDenotation = argv;
-                        ++index, ++argv;
-                        break;
-                    }
-                }
-
-                // use the first default argument which is not already present if there is still no match
-                if (!matchingArg && (!completionMode || (argv + 1 != end))) {
-                    const bool uncombinableMainArgPresent = parentArg ? false : parser.isUncombinableMainArgPresent();
+        // try to find matching Argument instance
+        Argument *matchingArg = nullptr;
+        size_t argDenotationLength;
+        if (argDenotationType != Value) {
+            const char *const equationPos = strchr(argDenotation, '=');
+            for (argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation);
+                 argDenotationLength; matchingArg = nullptr) {
+                // search for arguments by abbreviation or name depending on the previously determined denotation type
+                if (argDenotationType == Abbreviation) {
                     for (Argument *arg : args) {
-                        if (arg->isImplicit() && !arg->isPresent() && !arg->wouldConflictWithArgument()
-                            && (!uncombinableMainArgPresent || !arg->isMainArgument())) {
-                            (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
+                        if (arg->abbreviation() && arg->abbreviation() == *argDenotation) {
+                            matchingArg = arg;
+                            abbreviationFound = true;
+                            break;
+                        }
+                    }
+                } else {
+                    for (Argument *arg : args) {
+                        if (arg->name() && !strncmp(arg->name(), argDenotation, argDenotationLength)
+                            && *(arg->name() + argDenotationLength) == '\0') {
+                            matchingArg = arg;
                             break;
                         }
                     }
                 }
 
                 if (matchingArg) {
-                    // an argument matched the specified denotation
-                    if (lastArgInLevel == matchingArg) {
-                        break; // break required? -> TODO: add test for this condition
-                    }
+                    // an argument matched the specified denotation so add an occurrence
+                    matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
 
                     // prepare reading parameter values
                     values = &matchingArg->m_occurrences.back().values;
+                    if (equationPos) {
+                        values->push_back(equationPos + 1);
+                    }
 
                     // read sub arguments
-                    ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, argDenotation = nullptr;
-                    read(lastArg->m_subArgs);
-                    argDenotation = nullptr;
-                    continue;
-                }
-
-                // argument denotation is unknown -> handle error
-                if (parentArg) {
-                    // continue with parent level
-                    return;
-                }
-                if (completionMode) {
-                    // ignore unknown denotation
-                    ++index, ++argv, argDenotation = nullptr;
-                } else {
-                    switch (parser.m_unknownArgBehavior) {
-                    case UnknownArgumentBehavior::Warn:
-                        cerr << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << endl;
-                        FALLTHROUGH;
-                    case UnknownArgumentBehavior::Ignore:
-                        // ignore unknown denotation
-                        ++index, ++argv, argDenotation = nullptr;
+                    ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
+                    if (argDenotationType != Abbreviation || (++argDenotation != equationPos)) {
+                        if (argDenotationType != Abbreviation || !*argDenotation) {
+                            // no further abbreviations follow -> read sub args for next argv
+                            ++argv, argDenotation = nullptr;
+                            read(lastArg->m_subArgs);
+                            argDenotation = nullptr;
+                        } else {
+                            // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
+                            read(lastArg->m_subArgs);
+                        }
                         break;
-                    case UnknownArgumentBehavior::Fail:
-                        throw Failure(argsToString("The specified argument \"", *argv, "\" is unknown."));
+                    } // else: another abbreviated argument follows (and it is not present in the sub args)
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // continue with next arg if we've got a match already
+        if (matchingArg) {
+            continue;
+        }
+
+        // unknown argument might be a sibling of the parent element
+        if (argDenotationType != Value) {
+            for (auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend();; ++parentArgument) {
+                for (Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
+                    if (sibling->occurrences() < sibling->maxOccurrences()) {
+                        if ((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
+                            || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenotationLength))) {
+                            return;
+                        }
                     }
                 }
-            } // if(!matchingArg)
-        } // no values to read
+                if (parentArgument == pathEnd) {
+                    break;
+                }
+            };
+        }
+
+        // unknown argument might just be a parameter value of the last argument
+        if (lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
+            values->emplace_back(abbreviationFound ? argDenotation : *argv);
+            ++index, ++argv, argDenotation = nullptr;
+            continue;
+        }
+
+        // first value might denote "operation"
+        for (Argument *arg : args) {
+            if (arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
+                (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
+                lastArgDenotation = argv;
+                ++index, ++argv;
+                break;
+            }
+        }
+
+        // use the first default argument which is not already present if there is still no match
+        if (!matchingArg && (!completionMode || (argv + 1 != end))) {
+            const bool uncombinableMainArgPresent = parentArg ? false : parser.isUncombinableMainArgPresent();
+            for (Argument *arg : args) {
+                if (arg->isImplicit() && !arg->isPresent() && !arg->wouldConflictWithArgument()
+                    && (!uncombinableMainArgPresent || !arg->isMainArgument())) {
+                    (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
+                    break;
+                }
+            }
+        }
+
+        if (matchingArg) {
+            // an argument matched the specified denotation
+            if (lastArgInLevel == matchingArg) {
+                break; // break required? -> TODO: add test for this condition
+            }
+
+            // prepare reading parameter values
+            values = &matchingArg->m_occurrences.back().values;
+
+            // read sub arguments
+            ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, argDenotation = nullptr;
+            read(lastArg->m_subArgs);
+            argDenotation = nullptr;
+            continue;
+        }
+
+        // argument denotation is unknown -> handle error
+        if (parentArg) {
+            // continue with parent level
+            return;
+        }
+        if (completionMode) {
+            // ignore unknown denotation
+            ++index, ++argv, argDenotation = nullptr;
+        } else {
+            switch (parser.m_unknownArgBehavior) {
+            case UnknownArgumentBehavior::Warn:
+                cerr << Phrases::Warning << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << Phrases::EndFlush;
+                FALLTHROUGH;
+            case UnknownArgumentBehavior::Ignore:
+                // ignore unknown denotation
+                ++index, ++argv, argDenotation = nullptr;
+                break;
+            case UnknownArgumentBehavior::Fail:
+                throw Failure(argsToString("The specified argument \"", *argv, "\" is unknown."));
+            }
+        }
     } // while(argv != end)
 }
 
