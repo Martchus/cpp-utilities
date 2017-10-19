@@ -56,13 +56,20 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS} ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
     endif()
 
-    # add target for test executable, but exclude it from the "all target" when EXCLUDE_TESTS_FROM_ALL is set
+    # add target for test executable, but exclude it from the "all" target when EXCLUDE_TESTS_FROM_ALL is set
     if(EXCLUDE_TESTS_FROM_ALL)
         set(TESTS_EXCLUSION EXCLUDE_FROM_ALL)
     else()
         unset(TESTS_EXCLUSION)
     endif()
     add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests ${TESTS_EXCLUSION} ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
+
+    # add top-level target to build all test targets conveniently, also when excluded from "all" target
+    if(NOT TARGET tests)
+        add_custom_target(tests DEPENDS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    else()
+        add_dependencies(tests ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    endif()
 
     # handle testing a library (which is default project type)
     if(NOT META_PROJECT_TYPE OR "${META_PROJECT_TYPE}" STREQUAL "library")
