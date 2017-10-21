@@ -33,6 +33,7 @@ public:
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
     static const TestApplication *instance();
+    static const char *appPath();
 
 private:
     ApplicationUtilities::ArgumentParser m_parser;
@@ -65,6 +66,14 @@ inline TestApplication::operator bool() const
 inline const TestApplication *TestApplication::instance()
 {
     return TestApplication::m_instance;
+}
+
+/*!
+ * \brief Returns the application path or an empty string if no application path has been set.
+ */
+inline const char *TestApplication::appPath()
+{
+    return m_instance && m_instance->m_applicationPathArg.firstValue() ? m_instance->m_applicationPathArg.firstValue() : "";
 }
 
 /*!
