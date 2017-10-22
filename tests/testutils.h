@@ -5,6 +5,7 @@
 #include "../conversion/types.h"
 #include "../misc/traits.h"
 
+#include <iomanip>
 #include <ostream>
 #include <string>
 
@@ -191,8 +192,12 @@ template <typename T> AsHexNumber<T> asHexNumber(const T &value)
 template <typename Iteratable, Traits::EnableIf<Traits::IsIteratable<Iteratable>, Traits::Not<Traits::IsString<Iteratable>>>...>
 inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
 {
-    for (const auto &item : iteratable)
-        out << item << '\n';
+    out << '\n';
+    std::size_t index = 0;
+    for (const auto &item : iteratable) {
+        out << std::setw(2) << index << ':' << ' ' << item << '\n';
+        ++index;
+    }
     return out;
 }
 
