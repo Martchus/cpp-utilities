@@ -95,6 +95,14 @@ typename Container::value_type joinStrings(const Container &strings,
 }
 
 /*!
+ * \brief Converts the specified \a arrayOfLines to a multiline string.
+ */
+template <class Container = std::initializer_list<std::string>> inline std::vector<std::string> toMultiline(const Container &arrayOfLines)
+{
+    return joinStrings(arrayOfLines, "\n", false);
+}
+
+/*!
  * \brief Specifies the role of empty parts when splitting strings.
  */
 enum class EmptyPartsTreat {
@@ -148,6 +156,14 @@ Container splitString(const typename Container::value_type &string, const typena
         }
     }
     return res;
+}
+
+/*!
+ * \brief Converts the specified \a multilineString to an array of lines.
+ */
+template <class Container = std::vector<std::string>> inline std::vector<std::string> toArrayOfLines(const std::string &multilineString)
+{
+    return splitString<Container>(multilineString, "\n", EmptyPartsTreat::Keep);
 }
 
 /*!
