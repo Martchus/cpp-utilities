@@ -116,11 +116,6 @@ if(BUILD_SHARED_LIBS)
     # add library to be created, set libs to link against, set version and C++ standard
     if(META_HEADER_ONLY_LIB)
         add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} INTERFACE)
-        foreach(HEADER_FILE IN LISTS HEADER_FILES)
-            target_sources(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER_FILE}"
-            )
-        endforeach()
         target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             INTERFACE ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}" "${PRIVATE_LIBRARIES}"
         )
@@ -174,11 +169,6 @@ if(BUILD_STATIC_LIBS)
     # add library to be created, set required libs, set version and C++ standard
     if(META_HEADER_ONLY_LIB)
         add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static INTERFACE)
-        foreach(HEADER_FILE IN LISTS HEADER_FILES)
-            target_sources(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
-                INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER_FILE}"
-            )
-        endforeach()
         target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             INTERFACE ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_STATIC_LIBRARIES}" "${PRIVATE_STATIC_LIBRARIES}"
         )
