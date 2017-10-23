@@ -207,7 +207,7 @@ if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
                     COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-                    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                    DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
                 )
                 if(NOT TARGET tidy)
                     add_custom_target(tidy)
