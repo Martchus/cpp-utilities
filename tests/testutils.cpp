@@ -3,6 +3,7 @@
 #include "../application/failure.h"
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
+#include "../io/ansiescapecodes.h"
 #include "../io/catchiofailure.h"
 
 #include <cstdlib>
@@ -22,6 +23,7 @@
 using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
+using namespace EscapeCodes;
 using namespace IoUtilities;
 
 /*!
@@ -77,61 +79,62 @@ TestApplication::TestApplication(int argc, char **argv)
     // parse arguments
     try {
         m_parser.parseArgs(argc, argv);
-
-        // print help
-        if (m_helpArg.isPresent()) {
-            m_valid = false;
-            exit(0);
-        }
-
-        // handle path for testfiles and working-copy
-        cerr << "Directories used to search for testfiles:" << endl;
-        if (m_testFilesPathArg.isPresent()) {
-            if (*m_testFilesPathArg.values().front()) {
-                cerr << ((m_testFilesPathArgValue = m_testFilesPathArg.values().front()) += '/') << endl;
-            } else {
-                cerr << (m_testFilesPathArgValue = "./") << endl;
-            }
-        }
-        if (!m_testFilesPathEnvValue.empty()) {
-            cerr << m_testFilesPathEnvValue << endl;
-        }
-        cerr << "./testfiles/" << endl << endl;
-        cerr << "Directory used to store working copies:" << endl;
-        if (m_workingDirArg.isPresent()) {
-            if (*m_workingDirArg.values().front()) {
-                (m_workingDir = m_workingDirArg.values().front()) += '/';
-            } else {
-                m_workingDir = "./";
-            }
-        } else if (const char *workingDirEnv = getenv("WORKING_DIR")) {
-            if (const auto len = strlen(workingDirEnv)) {
-                m_workingDir.reserve(len + 1);
-                m_workingDir += workingDirEnv;
-                m_workingDir += '/';
-            }
-        } else {
-            if (m_testFilesPathArg.isPresent()) {
-                m_workingDir = m_testFilesPathArgValue + "workingdir/";
-            } else if (!m_testFilesPathEnvValue.empty()) {
-                m_workingDir = m_testFilesPathEnvValue + "workingdir/";
-            } else {
-                m_workingDir = "./testfiles/workingdir/";
-            }
-        }
-        cerr << m_workingDir << endl << endl;
-
-        // clear list of all additional profiling files created when forking the test application
-        if (const char *profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
-            ofstream(profrawListFile, ios_base::trunc);
-        }
-
-        m_valid = true;
-        cerr << "Executing test cases ..." << endl;
     } catch (const Failure &failure) {
-        cerr << "Invalid arguments specified: " << failure.what() << endl;
+        cerr << failure;
         m_valid = false;
+        return;
     }
+
+    // print help
+    if (m_helpArg.isPresent()) {
+        m_valid = false;
+        exit(0);
+    }
+
+    // handle path for testfiles and working-copy
+    cerr << "Directories used to search for testfiles:" << endl;
+    if (m_testFilesPathArg.isPresent()) {
+        if (*m_testFilesPathArg.values().front()) {
+            cerr << ((m_testFilesPathArgValue = m_testFilesPathArg.values().front()) += '/') << endl;
+        } else {
+            cerr << (m_testFilesPathArgValue = "./") << endl;
+        }
+    }
+    if (!m_testFilesPathEnvValue.empty()) {
+        cerr << m_testFilesPathEnvValue << endl;
+    }
+    cerr << "./testfiles/" << endl << endl;
+    cerr << "Directory used to store working copies:" << endl;
+    if (m_workingDirArg.isPresent()) {
+        if (*m_workingDirArg.values().front()) {
+            (m_workingDir = m_workingDirArg.values().front()) += '/';
+        } else {
+            m_workingDir = "./";
+        }
+    } else if (const char *workingDirEnv = getenv("WORKING_DIR")) {
+        if (const auto len = strlen(workingDirEnv)) {
+            m_workingDir.reserve(len + 1);
+            m_workingDir += workingDirEnv;
+            m_workingDir += '/';
+        }
+    } else {
+        if (m_testFilesPathArg.isPresent()) {
+            m_workingDir = m_testFilesPathArgValue + "workingdir/";
+        } else if (!m_testFilesPathEnvValue.empty()) {
+            m_workingDir = m_testFilesPathEnvValue + "workingdir/";
+        } else {
+            m_workingDir = "./testfiles/workingdir/";
+        }
+    }
+    cerr << m_workingDir << endl << endl;
+
+    // clear list of all additional profiling files created when forking the test application
+    if (const char *profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
+        ofstream(profrawListFile, ios_base::trunc);
+    }
+
+    m_valid = true;
+    cerr << TextAttribute::Bold << "Executing test cases ..." << Phrases::EndFlush;
 }
 
 /*!
@@ -171,7 +174,7 @@ string TestApplication::testFilePath(const string &name) const
     file.clear();
     file.open(path = "./testfiles/" + name, ios_base::in);
     if (!file.good()) {
-        cerr << "Warning: The testfile \"" << path << "\" can not be located." << endl;
+        cerr << Phrases::Warning << "The testfile \"" << path << "\" can not be located." << Phrases::EndFlush;
     }
     return path;
 }
@@ -192,7 +195,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     struct stat currentStat;
     if (stat(m_workingDir.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
         if (mkdir(m_workingDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-            cerr << "Unable to create working copy for \"" << name << "\": can't create working directory." << endl;
+            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
             return string();
         }
     }
@@ -208,7 +211,8 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
             currentLevel += *i;
             if (stat(currentLevel.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
                 if (mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-                    cerr << "Unable to create working copy for \"" << name << "\": can't create working directory." << endl;
+                    cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory."
+                         << Phrases::EndFlush;
                     return string();
                 }
             }
@@ -225,7 +229,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
             return path;
         } catch (...) {
             catchIoFailure();
-            cerr << "Unable to create working copy for \"" << name << "\": an IO error occured." << endl;
+            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occured." << Phrases::EndFlush;
         }
     } else {
         return m_workingDir + name;
@@ -288,7 +292,7 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
                     // poll succeeds
                     if (fileDescriptorSet[0].revents & POLLIN) {
                         if ((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
-                            output.append(buffer, count);
+                            output.append(buffer, static_cast<size_t>(count));
                         }
                     } else if (fileDescriptorSet[0].revents & POLLHUP) {
                         close(readCoutPipe);
@@ -296,7 +300,7 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
                     }
                     if (fileDescriptorSet[1].revents & POLLIN) {
                         if ((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
-                            errors.append(buffer, count);
+                            errors.append(buffer, static_cast<size_t>(count));
                         }
                     } else if (fileDescriptorSet[1].revents & POLLHUP) {
                         close(readCerrPipe);
@@ -333,7 +337,7 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
 
         // -> execute application
         execv(appPath, const_cast<char *const *>(args));
-        cerr << "Unable to execute \"" << appPath << "\": execv() failed" << endl;
+        cerr << Phrases::Error << "Unable to execute \"" << appPath << "\": execv() failed" << Phrases::EndFlush;
         exit(-101);
     }
 }
