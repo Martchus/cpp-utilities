@@ -69,6 +69,24 @@ template <typename T> Bool<false> isIteratableImpl(...);
 /// \endcond
 
 template <typename T> using IsIteratable = decltype(Detail::isIteratableImpl<T>(0));
+
+/// \cond
+namespace Detail {
+template <typename T> auto hasSizeImpl(int) -> decltype(std::declval<T &>().size(), Bool<true>{});
+template <typename T> Bool<false> hasSizeImpl(...);
+} // namespace Detail
+/// \endcond
+
+template <typename T> using HasSize = decltype(Detail::hasSizeImpl<T>(0));
+
+/// \cond
+namespace Detail {
+template <typename T> auto isReservable(int) -> decltype(std::declval<T &>().reserve(0u), Bool<true>{});
+template <typename T> Bool<false> isReservable(...);
+} // namespace Detail
+/// \endcond
+
+template <typename T> using IsReservable = decltype(Detail::isReservable<T>(0));
 } // namespace Traits
 
 #endif // CPP_UTILITIES_TRAITS_H

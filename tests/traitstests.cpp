@@ -1,5 +1,6 @@
 #include "../misc/traits.h"
 
+#include <forward_list>
 #include <list>
 #include <map>
 #include <string>
@@ -11,6 +12,11 @@ using namespace Traits;
 struct SomeStruct {
     string foo;
     int bar;
+};
+
+struct CountableStruct {
+    int numberOfElements;
+    size_t size() const;
 };
 
 static_assert(!Bool<false>::value, "Bool<false>");
@@ -31,6 +37,13 @@ static_assert(IsIteratable<vector<int>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<list<string>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<map<string, string>>::value, "IsIterator: positive case");
 static_assert(IsIteratable<initializer_list<double>>::value, "IsIterator: positive case");
+static_assert(!HasSize<SomeStruct>::value, "HasSize: negative case");
+static_assert(!HasSize<forward_list<SomeStruct>>::value, "HasSize: negative case");
+static_assert(HasSize<vector<SomeStruct>>::value, "HasSize: positive case");
+static_assert(HasSize<string>::value, "HasSize: positive case");
+static_assert(HasSize<CountableStruct>::value, "HasSize: positive case");
+static_assert(!IsReservable<list<SomeStruct>>::value, "HasSize: negative case");
+static_assert(IsReservable<vector<SomeStruct>>::value, "HasSize: positive case");
 
 static_assert(!IsCString<string>::value, "IsCString: negative case");
 static_assert(!IsCString<int[]>::value, "IsCString: negative case");
