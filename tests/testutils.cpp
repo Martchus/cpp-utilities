@@ -359,10 +359,22 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
     static unsigned int invocationCount = 0;
     ++invocationCount;
 
-    // determine application path
-    const char *const appPath = m_applicationPathArg.firstValue();
+    // determine the path of the application to be tested
+    const char *appPath = m_applicationPathArg.firstValue();
+    string fallbackAppPath;
     if (!appPath || !*appPath) {
-        throw runtime_error("Unable to execute application to be tested: no application path specified");
+        // try to find the path by removing "_tests"-suffix from own executable path
+        // (the own executable path is the path of the test application and its name is usually the name of the application
+        //  to be tested with "_tests"-suffix)
+        const char *const testAppPath = m_parser.executable();
+        const size_t testAppPathLength = strlen(testAppPath);
+        if (testAppPathLength > 6 && !strcmp(testAppPath + testAppPathLength - 6, "_tests")) {
+            fallbackAppPath.assign(testAppPath, testAppPathLength - 6);
+            appPath = fallbackAppPath.data();
+            // TODO: it would not hurt to verify whether "fallbackAppPath" actually exists and is executalbe
+        } else {
+            throw runtime_error("Unable to execute application to be tested: no application path specified");
+        }
     }
 
     // determine new path for profiling output (to not override profiling output of parent and previous invocations)
