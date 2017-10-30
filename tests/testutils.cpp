@@ -5,6 +5,8 @@
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
 #include "../io/catchiofailure.h"
+#include "../io/misc.h"
+#include "../io/path.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -56,13 +58,13 @@ TestApplication::TestApplication(int argc, char **argv)
     }
     m_instance = this;
 
-    // read TEST_FILE_PATH environment variable
-    if (const char *testFilesPathEnv = getenv("TEST_FILE_PATH")) {
-        if (const auto len = strlen(testFilesPathEnv)) {
-            m_testFilesPathEnvValue.reserve(len + 1);
-            m_testFilesPathEnvValue += testFilesPathEnv;
-            m_testFilesPathEnvValue += '/';
-        }
+    // determine fallback path for testfiles which is used when --test-files-path/-p not present
+    // -> read TEST_FILE_PATH environment variable
+    readFallbackTestfilePathFromEnv();
+    // -> find source directory if TEST_FILE_PATH not present
+    const bool fallbackIsSourceDir = m_fallbackTestFilesPath.empty();
+    if (fallbackIsSourceDir) {
+        readFallbackTestfilePathFromSrcRef();
     }
 
     // setup argument parser
@@ -95,13 +97,13 @@ TestApplication::TestApplication(int argc, char **argv)
     cerr << "Directories used to search for testfiles:" << endl;
     if (m_testFilesPathArg.isPresent()) {
         if (*m_testFilesPathArg.values().front()) {
-            cerr << ((m_testFilesPathArgValue = m_testFilesPathArg.values().front()) += '/') << endl;
+            cerr << ((m_testFilesPath = m_testFilesPathArg.values().front()) += '/') << endl;
         } else {
-            cerr << (m_testFilesPathArgValue = "./") << endl;
+            cerr << (m_testFilesPath = "./") << endl;
         }
     }
-    if (!m_testFilesPathEnvValue.empty()) {
-        cerr << m_testFilesPathEnvValue << endl;
+    if (!m_fallbackTestFilesPath.empty() && m_testFilesPath != m_fallbackTestFilesPath) {
+        cerr << m_fallbackTestFilesPath << endl;
     }
     cerr << "./testfiles/" << endl << endl;
     cerr << "Directory used to store working copies:" << endl;
@@ -119,9 +121,9 @@ TestApplication::TestApplication(int argc, char **argv)
         }
     } else {
         if (m_testFilesPathArg.isPresent()) {
-            m_workingDir = m_testFilesPathArgValue + "workingdir/";
-        } else if (!m_testFilesPathEnvValue.empty()) {
-            m_workingDir = m_testFilesPathEnvValue + "workingdir/";
+            m_workingDir = m_testFilesPath + "workingdir/";
+        } else if (!m_fallbackTestFilesPath.empty() && !fallbackIsSourceDir) {
+            m_workingDir = m_fallbackTestFilesPath + "workingdir/";
         } else {
             m_workingDir = "./testfiles/workingdir/";
         }
@@ -155,16 +157,16 @@ string TestApplication::testFilePath(const string &name) const
 
     // check the path specified by command line argument
     if (m_testFilesPathArg.isPresent()) {
-        file.open(path = m_testFilesPathArgValue + name, ios_base::in);
+        file.open(path = m_testFilesPath + name, ios_base::in);
         if (file.good()) {
             return path;
         }
     }
 
     // check the path specified by environment variable
-    if (!m_testFilesPathEnvValue.empty()) {
+    if (!m_fallbackTestFilesPath.empty()) {
         file.clear();
-        file.open(path = m_testFilesPathEnvValue + name, ios_base::in);
+        file.open(path = m_fallbackTestFilesPath + name, ios_base::in);
         if (file.good()) {
             return path;
         }
@@ -382,6 +384,53 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
     }
 
     return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, newProfilingPath);
+}
+
+void TestApplication::readFallbackTestfilePathFromEnv()
+{
+    if (const char *testFilesPathEnv = getenv("TEST_FILE_PATH")) {
+        if (const auto len = strlen(testFilesPathEnv)) {
+            m_fallbackTestFilesPath.reserve(len + 1);
+            m_fallbackTestFilesPath += testFilesPathEnv;
+            m_fallbackTestFilesPath += '/';
+        }
+    }
+}
+
+void TestApplication::readFallbackTestfilePathFromSrcRef()
+{
+    try {
+        // read "srcdirref" file which should contain the path of the source directory; this file should have been
+        // create by the CMake module "TestTarget.cmake"
+        const string srcDirContent(readFile("srcdirref", 2 * 1024));
+        if (srcDirContent.empty()) {
+            cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
+            return;
+        }
+
+            // check whether the referenced source directory contains a "testfiles" directory
+#ifdef PLATFORM_UNIX // directoryEntries() is not implemented under Windows so we can only to the check under UNIX
+        bool hasTestfilesDir = false;
+        for (const string dir : directoryEntries(srcDirContent.data(), DirectoryEntryType::Directory)) {
+            if (dir == "testfiles") {
+                hasTestfilesDir = true;
+                break;
+            }
+        }
+        if (!hasTestfilesDir) {
+            cerr << Phrases::Warning
+                 << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
+                 << Phrases::End << "Referenced source directory: " << srcDirContent << endl;
+            return;
+        }
+#endif
+
+        m_fallbackTestFilesPath = move(srcDirContent);
+        m_fallbackTestFilesPath += "/testfiles/";
+    } catch (...) {
+        // the "srcdirref" file likely just does not exist, so ignore the error case for now
+        catchIoFailure();
+    }
 }
 
 /*!

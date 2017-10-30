@@ -160,7 +160,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
     )
 
-    # make a test recognized by ctest
+    # make the test recognized by ctest
     unset(RUN_TESTS_APPLICATION_ARG)
     if(META_PROJECT_TYPE STREQUAL "application")
         set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>")
@@ -301,6 +301,9 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
             add_dependencies(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_run_tests_with_wine ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
         endif()
     endif()
+
+    # add a file called "srcdirref" to the build directory; this file contains the path of the sources so tests can easily find test files contained in the source directory
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/srcdirref" "${CMAKE_CURRENT_SOURCE_DIR}")
 
     set(META_HAVE_TESTS YES)
 

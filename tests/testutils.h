@@ -37,14 +37,17 @@ public:
     static const char *appPath();
 
 private:
+    void readFallbackTestfilePathFromEnv();
+    void readFallbackTestfilePathFromSrcRef();
+
     ApplicationUtilities::ArgumentParser m_parser;
     ApplicationUtilities::HelpArgument m_helpArg;
     ApplicationUtilities::Argument m_testFilesPathArg;
     ApplicationUtilities::Argument m_applicationPathArg;
     ApplicationUtilities::Argument m_workingDirArg;
     ApplicationUtilities::Argument m_unitsArg;
-    std::string m_testFilesPathArgValue;
-    std::string m_testFilesPathEnvValue;
+    std::string m_testFilesPath;
+    std::string m_fallbackTestFilesPath;
     std::string m_workingDir;
     bool m_valid;
     static TestApplication *m_instance;
