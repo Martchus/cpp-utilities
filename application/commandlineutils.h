@@ -58,7 +58,7 @@ inline TerminalSize::TerminalSize(unsigned short rows, unsigned short columns, u
 {
 }
 
-TerminalSize determineTerminalSize();
+TerminalSize CPP_UTILITIES_EXPORT determineTerminalSize();
 
 /*!
  * \brief The Indentation class allows printing indentation conveniently, eg. cout << Indentation(4) << ...
