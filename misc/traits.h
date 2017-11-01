@@ -48,45 +48,38 @@ struct IsCString
 template <typename T> struct IsString : Bool<IsCString<T>::value || IsSpecializationOf<T, std::basic_string>::value> {
 };
 
-/// \cond
-namespace Detail {
-// allow ADL with custom begin/end
-using std::begin;
-using std::end;
-template <typename T>
-auto isIteratableImpl(int) -> decltype(
+/*!
+ * \def CPP_UTILITIES_PP_COMMA
+ * \brief The CPP_UTILITIES_PP_COMMA macro helps passing "," as a macro argument.
+ */
+#define CPP_UTILITIES_PP_COMMA ,
+
+/*!
+ * \def CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK
+ * \brief The CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK macro defines a type trait for checking whether some operation can be done with
+ *        a particular type.
+ * \sa Traits::HasSize or Traits::IsIteratable for an example how to use it.
+ */
+#define CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(CheckName, CheckCode)                                                                                 \
+    namespace Detail {                                                                                                                               \
+    template <typename T> auto CheckName(int) -> decltype(CheckCode, Bool<true>{});                                                                  \
+    template <typename T> Bool<false> CheckName(...);                                                                                                \
+    }                                                                                                                                                \
+    template <typename T> using CheckName = decltype(Detail::CheckName<T>(0))
+
+CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(HasSize, std::is_integral<decltype(std::declval<T &>().size())>::value);
+CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsReservable, std::declval<T &>().reserve(0u));
+CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
     // begin/end and operator !=
-    begin(std::declval<T &>()) != end(std::declval<T &>()),
-    // operator ,
-    void(),
-    // operator ++
-    ++std::declval<decltype(begin(std::declval<T &>())) &>(),
-    // operator*
-    void(*begin(std::declval<T &>())), Bool<true>{});
+    std::begin(std::declval<T &>())
+        != std::end(std::declval<T &>()) CPP_UTILITIES_PP_COMMA
+        // operator ,
+        void() CPP_UTILITIES_PP_COMMA
+        // operator ++
+        ++ std::declval<decltype(begin(std::declval<T &>())) &>() CPP_UTILITIES_PP_COMMA
+        // operator*
+        void(*begin(std::declval<T &>())));
 
-template <typename T> Bool<false> isIteratableImpl(...);
-} // namespace Detail
-/// \endcond
-
-template <typename T> using IsIteratable = decltype(Detail::isIteratableImpl<T>(0));
-
-/// \cond
-namespace Detail {
-template <typename T> auto hasSizeImpl(int) -> decltype(std::declval<T &>().size(), Bool<true>{});
-template <typename T> Bool<false> hasSizeImpl(...);
-} // namespace Detail
-/// \endcond
-
-template <typename T> using HasSize = decltype(Detail::hasSizeImpl<T>(0));
-
-/// \cond
-namespace Detail {
-template <typename T> auto isReservable(int) -> decltype(std::declval<T &>().reserve(0u), Bool<true>{});
-template <typename T> Bool<false> isReservable(...);
-} // namespace Detail
-/// \endcond
-
-template <typename T> using IsReservable = decltype(Detail::isReservable<T>(0));
 } // namespace Traits
 
 #endif // CPP_UTILITIES_TRAITS_H
