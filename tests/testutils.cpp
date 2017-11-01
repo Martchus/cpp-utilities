@@ -398,6 +398,19 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
     return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, newProfilingPath);
 }
 
+/*!
+ * \brief Executes an application with the specified \a args.
+ * \remarks
+ * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
+ *   invoke the application to be tested itself.
+ * - Currently only supported under UNIX.
+ */
+int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
+{
+    return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, string());
+}
+#endif // PLATFORM_UNIX
+
 void TestApplication::readFallbackTestfilePathFromEnv()
 {
     if (const char *testFilesPathEnv = getenv("TEST_FILE_PATH")) {
@@ -435,7 +448,7 @@ void TestApplication::readFallbackTestfilePathFromSrcRef()
                  << Phrases::End << "Referenced source directory: " << srcDirContent << endl;
             return;
         }
-#endif
+#endif // PLATFORM_UNIX
 
         m_fallbackTestFilesPath = move(srcDirContent);
         m_fallbackTestFilesPath += "/testfiles/";
@@ -444,17 +457,4 @@ void TestApplication::readFallbackTestfilePathFromSrcRef()
         catchIoFailure();
     }
 }
-
-/*!
- * \brief Executes an application with the specified \a args.
- * \remarks
- * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
- *   invoke the application to be tested itself.
- * - Currently only supported under UNIX.
- */
-int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
-{
-    return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, string());
-}
-#endif
 } // namespace TestUtilities
