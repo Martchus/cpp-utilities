@@ -1,5 +1,5 @@
 # C++ utilities
-Common C++ classes and routines used by my applications such as argument parser, IO and conversion utilities.
+Useful C++ classes and routines such as argument parser, IO and conversion utilities.
 
 ## Features
 The library utilizes:
@@ -8,7 +8,7 @@ The library utilizes:
 * dealing with dates and times
 * conversion of primitive data types to byte-buffers and vice versa (litte-endian and big-endian)
 * common string conversions/operations, eg.
-    - character set conversion via iconv
+    - character set conversions via iconv
     - split, join, find and replace
     - conversion from number to string and vice verca
     - encoding/decoding base-64
@@ -18,6 +18,12 @@ The library utilizes:
     - reading/writing terminated strings and size-prefixed strings
     - reading/writing INI files
     - reading bitwise
+    - writing formatted output using ANSI escape sequences
+* using SFINAE by providing additional traits, eg. for checking whether a type is iteratable
+* testing with *CppUnit*
+    - finding testfiles and make working copies of testfiles
+    - assert standard output
+    - various helper
 * building with CMake by providing some modules and templates
 
 ## Build instructions
@@ -68,7 +74,7 @@ make DESTDIR="/temporary/install/location" install
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in Doxygen version accessible via "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Windows and MacOS X in form
-  of Arch Linux packages. These scripts can be used example also when building under another platform.
+  of Arch Linux packages. These scripts can be used as an example also when building under another platform.
 
 #### Building for Windows
 * Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
@@ -101,7 +107,7 @@ for building Arch Linux packages.
 
 PKGBUILD files to cross compile for Windows using mingw-w64 and for MacOS X using osxcross are also included.
 
-#### RPM packages
+#### RPM packages for openSUSE
 RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
 Packages are available for x86_64, aarch64 and armv7l. Since GCC provided by Leap is too old, only Tumbleweed packages
 are up-to-date.
