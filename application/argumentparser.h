@@ -210,6 +210,8 @@ public:
     Argument *specifiedOperation() const;
     void reset();
     void resetRecursively();
+    const std::vector<ArgumentOccurrence> &occurrenceInfo() const;
+    std::vector<ArgumentOccurrence> &occurrenceInfo();
 
     /*!
      * \brief Denotes a variable number of values.
@@ -756,6 +758,26 @@ inline void Argument::setPreDefinedCompletionValues(const char *preDefinedComple
 inline void Argument::reset()
 {
     m_occurrences.clear();
+}
+
+/*!
+ * \brief Returns information about all occurrences of the argument which have been detected when parsing.
+ * \remarks The convenience methods isPresent(), values() and path() provide direct access to these information for a particular occurrence.
+ */
+inline const std::vector<ArgumentOccurrence> &Argument::occurrenceInfo() const
+{
+    return m_occurrences;
+}
+
+/*!
+ * \brief Returns information about all occurrences of the argument which have been detected when parsing.
+ * \remarks
+ * This information is meant to be set by the ArgumentParser. Modifying it directly is likely not a good idea. This method has been
+ * added primarily for testing purposes. In this case it might make sense to skip the actual parsing and just provide some dummy values.
+ */
+inline std::vector<ArgumentOccurrence> &Argument::occurrenceInfo()
+{
+    return m_occurrences;
 }
 
 /*!
