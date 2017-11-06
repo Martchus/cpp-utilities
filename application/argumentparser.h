@@ -22,7 +22,7 @@ CPP_UTILITIES_EXPORT extern const char *applicationUrl;
 CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersions;
 
 /*!
- * \macro SET_DEPENDENCY_INFO
+ * \def SET_DEPENDENCY_INFO
  * \brief Sets meta data about the dependencies the application was linked against which is
  *        used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
@@ -34,7 +34,7 @@ CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersio
 #endif
 
 /*!
- * \macro SET_APPLICATION_INFO
+ * \def SET_APPLICATION_INFO
  * \brief Sets application meta data (including SET_DEPENDENCY_INFO) used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
