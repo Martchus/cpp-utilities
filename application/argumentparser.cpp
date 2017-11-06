@@ -1320,7 +1320,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
                 for (const auto &name : arg->m_valueNames) {
                     ss << ' ' << name, ++valueNamesPrint;
                 }
-                if (arg->m_requiredValueCount != static_cast<size_t>(-1)) {
+                if (arg->m_requiredValueCount != Argument::varValueCount) {
                     while (valueNamesPrint < arg->m_requiredValueCount) {
                         ss << "\nvalue " << (++valueNamesPrint);
                     }

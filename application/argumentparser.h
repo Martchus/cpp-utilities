@@ -483,7 +483,7 @@ inline void Argument::appendValueName(const char *valueName)
  */
 inline bool Argument::allRequiredValuesPresent(std::size_t occurrence) const
 {
-    return m_requiredValueCount == static_cast<std::size_t>(-1)
+    return m_requiredValueCount == Argument::varValueCount
         || (m_occurrences[occurrence].values.size() >= static_cast<std::size_t>(m_requiredValueCount));
 }
 
