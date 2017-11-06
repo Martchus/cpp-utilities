@@ -62,8 +62,8 @@ template <typename T> struct IsString : Bool<IsCString<T>::value || IsSpecializa
  */
 #define CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(CheckName, CheckCode)                                                                                 \
     namespace Detail {                                                                                                                               \
-    template <typename T> auto CheckName(int) -> decltype(CheckCode, Bool<true>{});                                                                  \
-    template <typename T> Bool<false> CheckName(...);                                                                                                \
+    template <typename T> auto CheckName(int) -> decltype(CheckCode, ::Traits::Bool<true>{});                                                        \
+    template <typename T>::Traits::Bool<false> CheckName(...);                                                                                       \
     }                                                                                                                                                \
     template <typename T> using CheckName = decltype(Detail::CheckName<T>(0))
 
