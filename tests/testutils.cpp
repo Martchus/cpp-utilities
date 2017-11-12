@@ -67,30 +67,32 @@ TestApplication::TestApplication(int argc, char **argv)
         readFallbackTestfilePathFromSrcRef();
     }
 
-    // setup argument parser
-    for (Argument *arg : initializer_list<Argument *>{ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg }) {
-        arg->setRequiredValueCount(1);
-        arg->setValueNames({ "path" });
-        arg->setCombinable(true);
-    }
-    m_unitsArg.setRequiredValueCount(Argument::varValueCount);
-    m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
-    m_unitsArg.setCombinable(true);
-    m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg });
+    // handle specified arguments (if present)
+    if (argc && argv) {
+        // setup argument parser
+        for (Argument *arg : initializer_list<Argument *>{ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg }) {
+            arg->setRequiredValueCount(1);
+            arg->setValueNames({ "path" });
+            arg->setCombinable(true);
+        }
+        m_unitsArg.setRequiredValueCount(Argument::varValueCount);
+        m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
+        m_unitsArg.setCombinable(true);
+        m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg });
 
-    // parse arguments
-    try {
-        m_parser.parseArgs(argc, argv);
-    } catch (const Failure &failure) {
-        cerr << failure;
-        m_valid = false;
-        return;
-    }
+        // parse arguments
+        try {
+            m_parser.parseArgs(argc, argv);
+        } catch (const Failure &failure) {
+            cerr << failure;
+            m_valid = false;
+            return;
+        }
 
-    // print help
-    if (m_helpArg.isPresent()) {
-        m_valid = false;
-        exit(0);
+        // print help
+        if (m_helpArg.isPresent()) {
+            exit(0);
+        }
     }
 
     // handle path for testfiles and working-copy
