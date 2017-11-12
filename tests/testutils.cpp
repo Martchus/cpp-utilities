@@ -151,6 +151,13 @@ TestApplication::~TestApplication()
 
 /*!
  * \brief Returns the full path of the test file with the specified \a name.
+ *
+ * The specified \a name might be a relative path in the testfiles directory.
+ *
+ * The following directories are searched for the specified testfile:
+ * 1. The directory specified as CLI argument.
+ * 2. The fallback directory, which can set by setting the environment
+ *    variable `TEST_FILE_PATH`.
  */
 string TestApplication::testFilePath(const string &name) const
 {
@@ -186,6 +193,10 @@ string TestApplication::testFilePath(const string &name) const
 #ifdef PLATFORM_UNIX
 /*!
  * \brief Returns the full path to a working copy of the test file with the specified \a name.
+ *
+ * The specified \a mode controls whether a working copy is actually created or whether just the path is returned.
+ * The test file is located using testFilePath().
+ *
  * \remarks Currently only available under UNIX.
  */
 string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode mode) const
@@ -241,6 +252,13 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     return string();
 }
 
+/*!
+ * \brief Creates a working copy of the test file with the specified \a name and returns the full path of the created file.
+ *
+ * The test file is located using testFilePath().
+ *
+ * \remarks Currently only available under UNIX.
+ */
 string TestApplication::workingCopyPath(const string &name) const
 {
     return workingCopyPathMode(name, WorkingCopyMode::CreateCopy);
