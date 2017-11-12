@@ -22,7 +22,8 @@ enum class WorkingCopyMode {
 
 class CPP_UTILITIES_EXPORT TestApplication {
 public:
-    TestApplication(int argc, char **argv);
+    explicit TestApplication();
+    explicit TestApplication(int argc, const char * const *argv);
     ~TestApplication();
 
     operator bool() const;

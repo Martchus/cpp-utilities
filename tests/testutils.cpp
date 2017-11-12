@@ -106,10 +106,19 @@ TestApplication *TestApplication::m_instance = nullptr;
  */
 
 /*!
- * \brief Constructs a TestApplication instance.
+ * \brief Constructs a TestApplication instance without further arguments.
  * \throws Throws std::runtime_error if an instance has already been created.
  */
-TestApplication::TestApplication(int argc, char **argv)
+TestApplication::TestApplication()
+    : TestApplication(0, nullptr)
+{
+}
+
+/*!
+ * \brief Constructs a TestApplication instance for the specified arguments.
+ * \throws Throws std::runtime_error if an instance has already been created.
+ */
+TestApplication::TestApplication(int argc, const char *const *argv)
     : m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
     , m_applicationPathArg("app-path", 'a', "specifies the path of the application to be tested")
     , m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files")
