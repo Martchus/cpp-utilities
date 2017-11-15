@@ -219,13 +219,18 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                         "${LLVM_PROFILE_RAW_LIST_FILE}"
             )
             # generate coverage report (statistics, for each file a table)
+            if(NOT META_HEADER_ONLY_LIB)
+                set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}> $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
+            else()
+                set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
+            endif()
             add_custom_command(
                 OUTPUT "${COVERAGE_REPORT_FILE}"
                 COMMAND "${LLVM_COV_BIN}" report
                     -format=text
                     -stats
                     -instr-profile "${LLVM_PROFILE_DATA_FILE}"
-                    $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
+                    ${LLVM_COV_TARGET_FILE}
                     ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES} ${QML_SOURCE_FILES}
                     > "${COVERAGE_REPORT_FILE}"
                 COMMENT "Generating coverage report (statistics as table)"
@@ -261,7 +266,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                     -project-title="${META_APP_NAME}"
                     -format=html
                     -instr-profile "${LLVM_PROFILE_DATA_FILE}"
-                    $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
+                    ${LLVM_COV_TARGET_FILE}
                     ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES}
                     > "${COVERAGE_HTML_REPORT_FILE}"
                 COMMENT "Generating HTML document showing covered/uncovered code"
