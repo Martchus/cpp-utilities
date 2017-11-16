@@ -48,6 +48,11 @@ struct IsCString
 template <typename T> struct IsString : Bool<IsCString<T>::value || IsSpecializationOf<T, std::basic_string>::value> {
 };
 
+template <typename T, typename = void> struct IsComplete : Bool<false> {
+};
+template <typename T> struct IsComplete<T, decltype(void(sizeof(T)))> : Bool<true> {
+};
+
 /*!
  * \def CPP_UTILITIES_PP_COMMA
  * \brief The CPP_UTILITIES_PP_COMMA macro helps passing "," as a macro argument.

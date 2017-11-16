@@ -19,6 +19,8 @@ struct CountableStruct {
     size_t size() const;
 };
 
+struct TestIncomplete;
+
 static_assert(!Bool<false>::value, "Bool<false>");
 static_assert(Bool<true>::value, "Bool<true>");
 static_assert(!Not<Bool<true>>::value, "Not");
@@ -56,3 +58,6 @@ static_assert(!IsString<stringstream>::value, "IsString: negative case");
 static_assert(IsString<const char *>::value, "IsString: positive case");
 static_assert(IsString<string>::value, "IsCString: positive case");
 static_assert(IsString<u16string>::value, "IsCString: positive case");
+
+static_assert(!IsComplete<TestIncomplete>::value, "IsComplete: negative case");
+static_assert(IsComplete<CountableStruct>::value, "IsComplete: positive case");
