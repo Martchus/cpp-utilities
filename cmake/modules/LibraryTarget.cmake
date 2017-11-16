@@ -225,7 +225,7 @@ endif()
 
 # Qt Creator does not show INTERFACE_SOURCES in project tree, so create a custom target as workaround
 if(META_HEADER_ONLY_LIB)
-    add_custom_target(interface_sources_for_qtcreator EXCLUDE_FROM_ALL SOURCES ${HEADER_FILES})
+    add_custom_target(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator EXCLUDE_FROM_ALL SOURCES ${HEADER_FILES})
 endif()
 
 # create the CMake package config file from template
