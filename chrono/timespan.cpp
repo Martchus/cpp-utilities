@@ -157,6 +157,12 @@ void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool fullSe
             }
         }
         break;
+    case TimeSpanOutputFormat::TotalSeconds:
+        if (fullSeconds) {
+            s << setprecision(0);
+        }
+        s << positive.totalSeconds();
+        break;
     }
     result = s.str();
 }

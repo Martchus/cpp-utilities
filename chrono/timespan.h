@@ -21,7 +21,8 @@ class DateTime;
  */
 enum class TimeSpanOutputFormat {
     Normal, /**< the normal form of specifing a time interval: hh:mm:ss */
-    WithMeasures /**< measures are used, eg.: 34 d 5 h 10 min 7 s 31 ms */
+    WithMeasures, /**< measures are used, eg.: 34 d 5 h 10 min 7 s 31 ms */
+    TotalSeconds, /**< total seconds (as returned by totalSeconds()), eg. 2304.342 */
 };
 
 class CPP_UTILITIES_EXPORT TimeSpan {
