@@ -191,8 +191,16 @@ void ArgumentReader::read(ArgumentVector &args)
             for (auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend();; ++parentArgument) {
                 for (Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
                     if (sibling->occurrences() < sibling->maxOccurrences()) {
-                        if ((argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation))
-                            || (sibling->name() && !strncmp(sibling->name(), argDenotation, argDenotationLength))) {
+                        // check whether the denoted abbreviation matches the sibling's abbreviatiopn
+                        if (argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation)) {
+                            return;
+                        }
+                        // check whether the denoted name matches the sibling's name
+                        if (!sibling->name()) {
+                            continue;
+                        }
+                        const auto siblingNameLength = strlen(sibling->name());
+                        if (argDenotationLength == siblingNameLength && !strncmp(sibling->name(), argDenotation, argDenotationLength)) {
                             return;
                         }
                     }
