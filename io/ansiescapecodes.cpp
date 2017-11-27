@@ -80,6 +80,12 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
         setStyle(stream, TextAttribute::Reset);
         stream << std::endl;
         break;
+    case Phrases::Info:
+        setStyle(stream, Color::Blue, ColorContext::Foreground, TextAttribute::Bold);
+        stream << "Info: ";
+        setStyle(stream, TextAttribute::Reset);
+        setStyle(stream, TextAttribute::Bold);
+        break;
     }
     return stream;
 }
