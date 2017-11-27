@@ -66,6 +66,32 @@ enum class UnknownArgumentBehavior {
 };
 
 /*!
+ * \brief The ParseArgumentBehavior enum specifies the behavior when parsing arguments.
+ *
+ * This concerns checking constraints, invoking callbacks and handling failures. The values are supposed to be combined
+ * using the |-operator. Note that ParseArgumentBehavior::ReadArguments is always implied.
+ */
+enum class ParseArgumentBehavior {
+    ReadArguments = 0x0, /**< reads the specified CLI arguments, equivalent to simply calling readArgs() */
+    CheckConstraints = 0x1, /**< whether the constraints should be checked after reading the arguments */
+    InvokeCallbacks = 0x2, /**< whether the callbacks should be invoked after reading the arguments and (maybe) checking the constraints */
+    ExitOnFailure
+    = 0x4, /**< whether the parser should print an error message and terminate the application on failure (rather than throwing an exception) */
+};
+
+/// \cond
+constexpr ParseArgumentBehavior operator|(ParseArgumentBehavior lhs, ParseArgumentBehavior rhs)
+{
+    return static_cast<ParseArgumentBehavior>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+}
+
+constexpr bool operator&(ParseArgumentBehavior lhs, ParseArgumentBehavior rhs)
+{
+    return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
+}
+/// \endcond
+
+/*!
  * \brief The ValueCompletionBehavior enum specifies the items to be considered when generating completion for an argument value.
  * \remarks
  * - The enumeration items are meant to be combined using the |-operator.
@@ -254,6 +280,9 @@ public:
     void printHelp(std::ostream &os) const;
     void parseArgs(int argc, const char *const *argv);
     void parseArgsOrExit(int argc, const char *const *argv);
+    void parseArgsExt(int argc, const char *const *argv,
+        ParseArgumentBehavior behavior
+        = ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks | ParseArgumentBehavior::ExitOnFailure);
     void readArgs(int argc, const char *const *argv);
     void resetArgs();
     unsigned int actualArgumentCount() const;

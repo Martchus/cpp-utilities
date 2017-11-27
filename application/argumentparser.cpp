@@ -721,11 +721,7 @@ void ArgumentParser::printHelp(ostream &os) const
  */
 void ArgumentParser::parseArgs(int argc, const char *const *argv)
 {
-    readArgs(argc, argv);
-    if (argc) {
-        checkConstraints(m_mainArgs);
-        invokeCallbacks(m_mainArgs);
-    }
+    parseArgsExt(argc, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
 }
 
 /*!
@@ -734,15 +730,51 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv)
  *          case. Instead, it will print an error message and terminate the application with exit
  *          code 1.
  * \sa parseArgs(), readArgs()
+ * \deprecated In next major release, this method will be removed. parseArgs() can serve the same
+ *             purpose then.
  */
 void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
 {
+    parseArgsExt(argc, argv);
+}
+
+/*!
+ * \brief Parses the specified command line arguments.
+ *
+ * The behavior is configurable by specifying the \a behavior argument. See ParseArgumentBehavior for
+ * the options. By default, all options are present.
+ *
+ * \remarks
+ *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
+ *  - This method will not return in the error case if the ParseArgumentBehavior::ExitOnFailure is present
+ *    (default).
+ *  - This method will not return in case shell completion is requested. This behavior can be altered
+ *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
+ * \throws Throws Failure if the specified arguments are invalid and the ParseArgumentBehavior::ExitOnFailure
+ *         flag is not present.
+ * \sa parseArgs(), readArgs(), parseArgsOrExit()
+ * \deprecated In next major release, this method will be available as parseArgs().
+ */
+void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgumentBehavior behavior)
+{
     try {
-        parseArgs(argc, argv);
+        readArgs(argc, argv);
+        if (!argc) {
+            return;
+        }
+        if (behavior & ParseArgumentBehavior::CheckConstraints) {
+            checkConstraints(m_mainArgs);
+        }
+        if (behavior & ParseArgumentBehavior::InvokeCallbacks) {
+            invokeCallbacks(m_mainArgs);
+        }
     } catch (const Failure &failure) {
-        CMD_UTILS_START_CONSOLE;
-        cerr << failure;
-        exit(1);
+        if (behavior & ParseArgumentBehavior::ExitOnFailure) {
+            CMD_UTILS_START_CONSOLE;
+            cerr << failure;
+            exit(1);
+        }
+        throw;
     }
 }
 
@@ -756,6 +788,8 @@ void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
  *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid.
  * \sa parseArgs(), parseArgsOrExit()
+ * \deprecated In next major release, this method will be private. parseArgs() can serve the same
+ *             purpose then.
  */
 void ArgumentParser::readArgs(int argc, const char *const *argv)
 {
