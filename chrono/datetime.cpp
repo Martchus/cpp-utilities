@@ -27,12 +27,12 @@ const int DateTime::m_daysToMonth366[13] = { 0, 31, 60, 91, 121, 152, 182, 213, 
 const int DateTime::m_daysInMonth365[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 const int DateTime::m_daysInMonth366[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-template <typename num1, typename num2, typename num3> inline bool inRangeInclMax(num1 val, num2 min, num3 max)
+template <typename num1, typename num2, typename num3> constexpr bool inRangeInclMax(num1 val, num2 min, num3 max)
 {
     return (val) >= (min) && (val) <= (max);
 }
 
-template <typename num1, typename num2, typename num3> inline bool inRangeExclMax(num1 val, num2 min, num3 max)
+template <typename num1, typename num2, typename num3> constexpr bool inRangeExclMax(num1 val, num2 min, num3 max)
 {
     return (val) >= (min) && (val) < (max);
 }
@@ -314,8 +314,8 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
     if (!inRangeInclMax(month, 1, 12)) {
         throw ConversionException("month is out of range");
     }
-    const auto *daysToMonth = reinterpret_cast<const int *>(isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365);
-    int passedMonth = month - 1;
+    const auto *const daysToMonth = reinterpret_cast<const int *>(isLeapYear(year) ? m_daysToMonth366 : m_daysToMonth365);
+    const int passedMonth = month - 1;
     if (!inRangeInclMax(day, 1, daysToMonth[month] - daysToMonth[passedMonth])) {
         throw ConversionException("day is out of range");
     }
@@ -353,16 +353,16 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
  */
 int DateTime::getDatePart(DatePart part) const
 {
-    int fullDays = m_ticks / TimeSpan::m_ticksPerDay;
-    int full400YearBlocks = fullDays / m_daysPer400Years;
-    int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
+    const int fullDays = m_ticks / TimeSpan::m_ticksPerDay;
+    const int full400YearBlocks = fullDays / m_daysPer400Years;
+    const int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
     int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;
     if (full100YearBlocks == 4) {
         full100YearBlocks = 3;
     }
-    int daysMinusFull100YearBlocks = daysMinusFull400YearBlocks - full100YearBlocks * m_daysPer100Years;
-    int full4YearBlocks = daysMinusFull100YearBlocks / m_daysPer4Years;
-    int daysMinusFull4YearBlocks = daysMinusFull100YearBlocks - full4YearBlocks * m_daysPer4Years;
+    const int daysMinusFull100YearBlocks = daysMinusFull400YearBlocks - full100YearBlocks * m_daysPer100Years;
+    const int full4YearBlocks = daysMinusFull100YearBlocks / m_daysPer4Years;
+    const int daysMinusFull4YearBlocks = daysMinusFull100YearBlocks - full4YearBlocks * m_daysPer4Years;
     int full1YearBlocks = daysMinusFull4YearBlocks / m_daysPerYear;
     if (full1YearBlocks == 4) {
         full1YearBlocks = 3;
@@ -370,11 +370,11 @@ int DateTime::getDatePart(DatePart part) const
     if (part == DatePart::Year) {
         return full400YearBlocks * 400 + full100YearBlocks * 100 + full4YearBlocks * 4 + full1YearBlocks + 1;
     }
-    int restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
+    const int restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
     if (part == DatePart::DayOfYear) { // day
         return restDays + 1;
     }
-    const int *daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
+    const int *const daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
     int month = 1;
     while (restDays >= daysToMonth[month]) {
         ++month;
