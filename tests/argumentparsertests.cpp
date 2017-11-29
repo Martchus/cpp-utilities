@@ -125,7 +125,8 @@ void ArgumentParserTests::testParsing()
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({ &fieldsArg, &filesArg, &verboseArg, &notAlbumArg });
-    parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg });
+    NoColorArgument noColorArg;
+    parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg, &noColorArg });
 
     // error about uncombinable arguments
     const char *argv[] = { "tageditor", "get", "album", "title", "diskpos", "-f", "somefile" };
@@ -312,6 +313,17 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
     CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
+
+    // specifying top-level argument after abbreviation
+    const char *argv17[] = { "tageditor", "-if=test-v", "--no-color" };
+    parser.resetArgs();
+    parser.parseArgs(3, argv17);
+    CPPUNIT_ASSERT(!filesArg.isPresent());
+    CPPUNIT_ASSERT(fileArg.isPresent());
+    CPPUNIT_ASSERT(!verboseArg.isPresent());
+    CPPUNIT_ASSERT(noColorArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
+    CPPUNIT_ASSERT_EQUAL("test-v"s, string(fileArg.values(0).front()));
 
     // default argument
     const char *argv8[] = { "tageditor" };

@@ -185,10 +185,14 @@ void ArgumentReader::read(ArgumentVector &args)
                     argDenotation = nullptr;
                     break;
                 } else {
-                    // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
+                    // further abbreviations follow -> remember current arg value
+                    const char *const *currentArgValue = argv;
+                    // don't increment argv, keep processing outstanding chars of argDenotation
                     read(lastArg->m_subArgs);
-                    // stop further processing if denotation has been consumed
-                    if (!argDenotation) {
+
+                    // stop further processing if the denotation has been consumed or even the next value has already been loaded
+                    if (!argDenotation || currentArgValue != argv) {
+                        argDenotation = nullptr;
                         break;
                     }
                 }
