@@ -160,6 +160,8 @@ void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool fullSe
     case TimeSpanOutputFormat::TotalSeconds:
         if (fullSeconds) {
             s << setprecision(0);
+        } else {
+            s << setprecision(10);
         }
         s << positive.totalSeconds();
         break;
