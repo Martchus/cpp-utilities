@@ -157,14 +157,15 @@ void ArgumentReader::read(ArgumentVector &args)
 
                     // prepare reading parameter values
                     values = &matchingArg->m_occurrences.back().values;
-                    if (equationPos) {
+                    if ((argDenotationType != Abbreviation && equationPos) || (++argDenotation == equationPos)) {
                         values->push_back(equationPos + 1);
+                        argDenotation = nullptr;
                     }
 
                     // read sub arguments
                     ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
-                    if (argDenotationType != Abbreviation || (++argDenotation != equationPos)) {
-                        if (argDenotationType != Abbreviation || !*argDenotation) {
+                    if (argDenotationType != Abbreviation || (argDenotation != equationPos)) {
+                        if (argDenotationType != Abbreviation || !argDenotation || !*argDenotation) {
                             // no further abbreviations follow -> read sub args for next argv
                             ++argv, argDenotation = nullptr;
                             read(lastArg->m_subArgs);
