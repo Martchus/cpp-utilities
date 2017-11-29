@@ -83,6 +83,14 @@ void ArgumentReader::read()
 }
 
 /*!
+ * \brief Returns whether the \a denotation with the specified \a denotationLength matches the argument's \a name.
+ */
+bool Argument::matchesDenotation(const char *denotation, size_t denotationLength) const
+{
+    return m_name && !strncmp(m_name, denotation, denotationLength) && *(m_name + denotationLength) == '\0';
+}
+
+/*!
  * \brief Reads the commands line arguments specified when constructing the object.
  * \remarks Reads on custom argument-level specified via \a args.
  */
@@ -127,11 +135,14 @@ void ArgumentReader::read(ArgumentVector &args)
 
         // try to find matching Argument instance
         Argument *matchingArg = nullptr;
-        size_t argDenotationLength;
         if (argDenotationType != Value) {
+            // determine actual denotation length (everything before equation sign)
             const char *const equationPos = strchr(argDenotation, '=');
-            for (argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation); argDenotationLength;
-                 matchingArg = nullptr) {
+            const auto argDenotationLength = equationPos ? static_cast<size_t>(equationPos - argDenotation) : strlen(argDenotation);
+
+            // loop through each "part" of the denotation
+            // names are read at once, but for abbreviations each character is considered individually
+            for (; argDenotationLength; matchingArg = nullptr) {
                 // search for arguments by abbreviation or name depending on the previously determined denotation type
                 if (argDenotationType == Abbreviation) {
                     for (Argument *arg : args) {
@@ -143,52 +154,52 @@ void ArgumentReader::read(ArgumentVector &args)
                     }
                 } else {
                     for (Argument *arg : args) {
-                        if (arg->name() && !strncmp(arg->name(), argDenotation, argDenotationLength)
-                            && *(arg->name() + argDenotationLength) == '\0') {
+                        if (arg->matchesDenotation(argDenotation, argDenotationLength)) {
                             matchingArg = arg;
                             break;
                         }
                     }
                 }
-
-                if (matchingArg) {
-                    // an argument matched the specified denotation so add an occurrence
-                    matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
-
-                    // prepare reading parameter values
-                    values = &matchingArg->m_occurrences.back().values;
-                    if ((argDenotationType != Abbreviation && equationPos) || (++argDenotation == equationPos)) {
-                        values->push_back(equationPos + 1);
-                        argDenotation = nullptr;
-                    }
-
-                    // read sub arguments
-                    ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
-                    if (argDenotationType != Abbreviation || (argDenotation != equationPos)) {
-                        if (argDenotationType != Abbreviation || !argDenotation || !*argDenotation) {
-                            // no further abbreviations follow -> read sub args for next argv
-                            ++argv, argDenotation = nullptr;
-                            read(lastArg->m_subArgs);
-                            argDenotation = nullptr;
-                        } else {
-                            // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
-                            read(lastArg->m_subArgs);
-                        }
-                        break;
-                    } // else: another abbreviated argument follows (and it is not present in the sub args)
-                } else {
+                if (!matchingArg) {
                     break;
                 }
+
+                // an argument matched the specified denotation so add an occurrence
+                matchingArg->m_occurrences.emplace_back(index, parentPath, parentArg);
+
+                // prepare reading parameter values
+                values = &matchingArg->m_occurrences.back().values;
+
+                // read value after equation sigh
+                if ((argDenotationType != Abbreviation && equationPos) || (++argDenotation == equationPos)) {
+                    values->push_back(equationPos + 1);
+                    argDenotation = nullptr;
+                }
+
+                // read sub arguments, distinguish whether further abbreviations follow
+                ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
+                if (argDenotationType != Abbreviation || !argDenotation || !*argDenotation) {
+                    // no further abbreviations follow -> read sub args for next argv
+                    ++argv, argDenotation = nullptr;
+                    read(lastArg->m_subArgs);
+                    argDenotation = nullptr;
+                    break;
+                } else {
+                    // further abbreviations follow -> don't increment argv, keep processing outstanding chars of argDenotation
+                    read(lastArg->m_subArgs);
+                    // stop further processing if denotation has been consumed
+                    if (!argDenotation) {
+                        break;
+                    }
+                }
             }
-        }
 
-        // continue with next arg if we've got a match already
-        if (matchingArg) {
-            continue;
-        }
+            // continue with next arg if we've got a match already
+            if (matchingArg) {
+                continue;
+            }
 
-        // unknown argument might be a sibling of the parent element
-        if (argDenotationType != Value) {
+            // unknown argument might be a sibling of the parent element
             for (auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend();; ++parentArgument) {
                 for (Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
                     if (sibling->occurrences() < sibling->maxOccurrences()) {
@@ -197,11 +208,7 @@ void ArgumentReader::read(ArgumentVector &args)
                             return;
                         }
                         // check whether the denoted name matches the sibling's name
-                        if (!sibling->name()) {
-                            continue;
-                        }
-                        const auto siblingNameLength = strlen(sibling->name());
-                        if (argDenotationLength == siblingNameLength && !strncmp(sibling->name(), argDenotation, argDenotationLength)) {
+                        if (sibling->matchesDenotation(argDenotation, argDenotationLength)) {
                             return;
                         }
                     }

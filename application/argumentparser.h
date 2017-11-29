@@ -246,6 +246,8 @@ public:
     static constexpr std::size_t varValueCount = std::numeric_limits<std::size_t>::max();
 
 private:
+    bool matchesDenotation(const char *denotation, size_t denotationLength) const;
+
     const char *m_name;
     char m_abbreviation;
     const char *m_environmentVar;
