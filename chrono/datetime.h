@@ -39,6 +39,7 @@ enum class DayOfWeek {
 
 /*!
  * \brief Specifies the date part.
+ * \remarks Intended for internal use only.
  * \sa DateTime::getDatePart()
  */
 enum class DatePart {
@@ -316,7 +317,7 @@ constexpr inline TimeSpan DateTime::timeOfDay() const
 }
 
 /*!
- * \brief Returns an indication whether the year of the dae represented by this instance is a leap year.
+ * \brief Returns an indication whether the year represented by this instance is a leap year.
  */
 inline bool DateTime::isLeapYear() const
 {

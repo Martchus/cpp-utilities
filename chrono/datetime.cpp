@@ -292,7 +292,7 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
 #if defined(PLATFORM_UNIX) && !defined(PLATFORM_MAC)
 /*!
  * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
- * \remarks
+ * \remarks Only available under UNIX-like systems supporting clock_gettime().
  */
 DateTime DateTime::exactGmtNow()
 {
