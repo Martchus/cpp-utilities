@@ -265,7 +265,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!fileArg.isPresent());
     CPPUNIT_ASSERT(filesArg.isPresent());
-    CPPUNIT_ASSERT_EQUAL(filesArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
+    CPPUNIT_ASSERT_EQUAL(1_st, filesArg.values(0).size());
     CPPUNIT_ASSERT(!strcmp(filesArg.values(0).front(), "test"));
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
@@ -287,13 +287,22 @@ void ArgumentParserTests::testParsing()
     }
 
     // equation sign syntax
-    const char *argv11[] = { "tageditor", "-if=test" };
+    const char *argv11[] = { "tageditor", "-if=test-v" };
     parser.resetArgs();
     parser.parseArgs(2, argv11);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
-    CPPUNIT_ASSERT_EQUAL(fileArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
-    CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
+    CPPUNIT_ASSERT(!verboseArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
+    CPPUNIT_ASSERT_EQUAL("test-v"s, string(fileArg.values(0).front()));
+    const char *argv15[] = { "tageditor", "-i", "--file=test", "-v" };
+    parser.resetArgs();
+    parser.parseArgs(4, argv15);
+    CPPUNIT_ASSERT(!filesArg.isPresent());
+    CPPUNIT_ASSERT(fileArg.isPresent());
+    CPPUNIT_ASSERT(verboseArg.isPresent());
+    CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
+    CPPUNIT_ASSERT_EQUAL("test"s, string(fileArg.values(0).front()));
 
     // specifying value directly after abbreviation
     const char *argv12[] = { "tageditor", "-iftest" };
@@ -301,7 +310,7 @@ void ArgumentParserTests::testParsing()
     parser.parseArgs(2, argv12);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
-    CPPUNIT_ASSERT_EQUAL(fileArg.values(0).size(), static_cast<vector<const char *>::size_type>(1));
+    CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
     CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
 
     // default argument
@@ -349,14 +358,26 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT(!strcmp(e.what(),
-            "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"));
+        CPPUNIT_ASSERT_EQUAL(
+            "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"s,
+            string(e.what()));
+    }
+
+    // constraint checking: truncated argument not wrongly detected
+    const char *argv16[] = { "tageditor", "--hel", "-p", "album", "title", "diskpos" };
+    fieldsArg.setRequiredValueCount(Argument::varValueCount);
+    parser.resetArgs();
+    try {
+        parser.parseArgs(6, argv16);
+        CPPUNIT_FAIL("Exception expected.");
+    } catch (const Failure &e) {
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown."s, string(e.what()));
     }
 
     // nested operations
     const char *argv14[] = { "tageditor", "get", "fields", "album=test", "-f", "somefile" };
     parser.resetArgs();
-    fieldsArg.setRequiredValueCount(Argument::varValueCount);
     fieldsArg.setDenotesOperation(true);
     parser.parseArgs(6, argv14);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
@@ -382,9 +403,9 @@ void ArgumentParserTests::testCallbacks()
     Argument callbackArg("with-callback", 't', "callback test");
     callbackArg.setRequiredValueCount(2);
     callbackArg.setCallback([](const ArgumentOccurrence &occurrence) {
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), occurrence.index);
+        CPPUNIT_ASSERT_EQUAL(0_st, occurrence.index);
         CPPUNIT_ASSERT(occurrence.path.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), occurrence.values.size());
+        CPPUNIT_ASSERT_EQUAL(2_st, occurrence.values.size());
         CPPUNIT_ASSERT(!strcmp(occurrence.values[0], "val1"));
         CPPUNIT_ASSERT(!strcmp(occurrence.values[1], "val2"));
         throw 42;
