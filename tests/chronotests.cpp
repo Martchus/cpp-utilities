@@ -140,6 +140,7 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL(600, test2.nanoseconds());
     CPPUNIT_ASSERT_EQUAL("00:00:15.9850776"s, test2.toString());
     CPPUNIT_ASSERT_EQUAL("15 s 985 ms 77 µs 600 ns"s, test2.toString(TimeSpanOutputFormat::WithMeasures));
+    CPPUNIT_ASSERT_EQUAL("15.9850776"s, test2.toString(TimeSpanOutputFormat::TotalSeconds));
 
     // test whether ConversionException() is thrown when invalid values are specified
     CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2:34a:53:32.5"), ConversionException);
