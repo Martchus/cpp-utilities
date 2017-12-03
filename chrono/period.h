@@ -42,7 +42,7 @@ inline int Period::days() const
     return m_days;
 }
 
-DateTime operator+(DateTime begin, Period period);
+DateTime CPP_UTILITIES_EXPORT operator+(DateTime begin, Period period);
 
 } // namespace ChronoUtilities
 
