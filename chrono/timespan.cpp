@@ -14,11 +14,24 @@ using namespace ConversionUtilities;
 /*!
  * \class ChronoUtilities::TimeSpan
  * \brief Represents a time interval.
+ *
+ * Note that the TimeSpan class is meant to express a time interval independently of the
+ * concrete starting DateTime and end DateTime and hence can not be expressed in years
+ * and month. For that use case, use the Period class instead.
+ *
  * \remarks Time values are measured in 100-nanosecond units called ticks.
+ * \todo
+ * - Add method for parsing custom string formats.
+ * - Add method for printing to custom string formats.
  */
 
 /*!
  * \brief Parses the given C-style string as TimeSpan.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected format.
+ *
+ * The expected format is "days:hours:minutes:seconds", eg. "5:31:4.521" for 5 hours, 31 minutes
+ * and 4.521 seconds. So parts at the front can be omitted and the parts can be fractions. The
+ * colon can be changed by specifying another \a separator.
  */
 TimeSpan TimeSpan::fromString(const char *str, char separator)
 {

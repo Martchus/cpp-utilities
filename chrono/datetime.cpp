@@ -46,8 +46,15 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  *    0001 A.D. (C.E.) in the GregorianCalendar calendar (excluding ticks that would
  *    be added by leap seconds).
  *  - There is no time zone information associated. Hence different time zones are
- *    not taken into account when comparing two instances. For instance the
- *    expression (DateTime::now() - DateTime::gmtNow()) returns one hour in Germany (instead of zero).
+ *    not taken into account when comparing two instances. For instance, the
+ *    expression (DateTime::now() - DateTime::gmtNow()) returns one hour in Germany during winter
+ *    time (instead of zero).
+ * \todo
+ * - Add method for parsing custom string formats.
+ * - Add method for printing to custom string formats.
+ * - Allow to determine the date part for each compontent at once to prevent multiple
+ *   invocations of getDatePart().
+ * - Make more methods constexpr.
  */
 
 /*!
@@ -74,6 +81,12 @@ DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 
 /*!
  * \brief Parses the given C-style string as DateTime.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected time format.
+ *
+ * The expected format is something like "2012-02-29 15:34:20.033" or "2012/02/29 15:34:20.033". The
+ * delimiters '-', ':' and '/' are exchangeable.
+ *
+ * \sa DateTime::fromIsoString()
  */
 DateTime DateTime::fromString(const char *str)
 {
@@ -110,8 +123,9 @@ DateTime DateTime::fromString(const char *str)
  * \brief Parses the specified ISO date time denotation provided as C-style string.
  * \returns Returns a pair where the first value is the parsed date time and the second value
  *          a time span which can be subtracted from the first value to get the UTC time.
- * \remarks Not sure whether it is actually ISO conform, but it parses denotations like
- *          "2016-08-29T21:32:31.588539814+02:00".
+ *
+ * Not sure whether it is actually ISO conform, but the expected format is something like
+ * "2016-08-29T21:32:31.588539814+02:00".
  */
 std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
 {

@@ -154,6 +154,11 @@ constexpr inline TimeSpan TimeSpan::fromDays(double days)
 
 /*!
  * \brief Parses the given std::string as TimeSpan.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected format.
+ *
+ * The expected format is "days:hours:minutes:seconds", eg. "5:31:4.521" for 5 hours, 31 minutes
+ * and 4.521 seconds. So parts at the front can be omitted and the parts can be fractions. The
+ * colon can be changed by specifying another \a separator.
  */
 inline TimeSpan TimeSpan::fromString(const std::string &str, char separator)
 {
@@ -177,7 +182,7 @@ constexpr inline TimeSpan TimeSpan::infinity()
 }
 
 /*!
- * \brief Gets the number of ticks that represent the value of the current TimeSpan class.
+ * \brief Returns the number of ticks that represent the value of the current TimeSpan class.
  */
 constexpr inline int64 TimeSpan::totalTicks() const
 {
@@ -185,7 +190,7 @@ constexpr inline int64 TimeSpan::totalTicks() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional microseconds.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional microseconds.
  */
 constexpr double TimeSpan::totalMicroseconds() const
 {
@@ -193,7 +198,7 @@ constexpr double TimeSpan::totalMicroseconds() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional milliseconds.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional milliseconds.
  */
 constexpr inline double TimeSpan::totalMilliseconds() const
 {
@@ -201,7 +206,7 @@ constexpr inline double TimeSpan::totalMilliseconds() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional seconds.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional seconds.
  */
 constexpr inline double TimeSpan::totalSeconds() const
 {
@@ -209,7 +214,7 @@ constexpr inline double TimeSpan::totalSeconds() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional minutes.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional minutes.
  */
 constexpr inline double TimeSpan::totalMinutes() const
 {
@@ -217,7 +222,7 @@ constexpr inline double TimeSpan::totalMinutes() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional hours.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional hours.
  */
 constexpr inline double TimeSpan::totalHours() const
 {
@@ -225,7 +230,7 @@ constexpr inline double TimeSpan::totalHours() const
 }
 
 /*!
- * \brief Gets the value of the current TimeSpan class expressed in whole and fractional days.
+ * \brief Returns the value of the current TimeSpan class expressed in whole and fractional days.
  */
 constexpr inline double TimeSpan::totalDays() const
 {
@@ -233,7 +238,7 @@ constexpr inline double TimeSpan::totalDays() const
 }
 
 /*!
- * \brief Gets the nanoseconds component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the nanoseconds component of the time interval represented by the current TimeSpan class.
  * \remarks The accuracy of the TimeSpan class is 100-nanoseconds. Hence the returned value
  *          will always have two zeros at the end (in decimal representation).
  */
@@ -243,7 +248,7 @@ constexpr int TimeSpan::nanoseconds() const
 }
 
 /*!
- * \brief Gets the microseconds component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the microseconds component of the time interval represented by the current TimeSpan class.
  */
 constexpr int TimeSpan::microseconds() const
 {
@@ -251,7 +256,7 @@ constexpr int TimeSpan::microseconds() const
 }
 
 /*!
- * \brief Gets the miliseconds component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the miliseconds component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::milliseconds() const
 {
@@ -259,7 +264,7 @@ constexpr inline int TimeSpan::milliseconds() const
 }
 
 /*!
- * \brief Gets the seconds component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the seconds component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::seconds() const
 {
@@ -267,7 +272,7 @@ constexpr inline int TimeSpan::seconds() const
 }
 
 /*!
- * \brief Gets the minutes component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the minutes component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::minutes() const
 {
@@ -275,7 +280,7 @@ constexpr inline int TimeSpan::minutes() const
 }
 
 /*!
- * \brief Gets the hours component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the hours component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::hours() const
 {
@@ -283,7 +288,7 @@ constexpr inline int TimeSpan::hours() const
 }
 
 /*!
- * \brief Gets the days component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the days component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::days() const
 {

@@ -146,6 +146,7 @@ constexpr inline DateTime::DateTime(uint64 ticks)
 
 /*!
  * \brief Constructs a DateTime to the specified \a year, \a month, and \a day.
+ * \throws Throws a ConversionException if the specified \a year, \a month or \a day is out-of-range.
  */
 inline DateTime DateTime::fromDate(int year, int month, int day)
 {
@@ -154,6 +155,7 @@ inline DateTime DateTime::fromDate(int year, int month, int day)
 
 /*!
  * \brief Constructs a DateTime to the specified \a hour, \a minute, \a second and \a millisecond.
+ * \throws Throws a ConversionException if the specified \a hour, \a minute, \a second or \a millisecond is out-of-range.
  */
 inline DateTime DateTime::fromTime(int hour, int minute, int second, double millisecond)
 {
@@ -162,6 +164,8 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
 
 /*!
  * \brief Constructs a DateTime to the specified \a year, \a month, \a day, \a hour, \a minute, \a second and \a millisecond.
+ * \throws Throws a ConversionException if the specified \a year, \a month, \a day, \a hour, \a minute, \a second or \a millisecond
+ *         is out-of-range.
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
@@ -173,6 +177,12 @@ inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour
 
 /*!
  * \brief Parses the given std::string as DateTime.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected time format.
+ *
+ * The expected format is something like "2012-02-29 15:34:20.033" or "2012/02/29 15:34:20.033". The
+ * delimiters '-', ':' and '/' are exchangeable.
+ *
+ * \sa DateTime::fromIsoString()
  */
 inline DateTime DateTime::fromString(const std::string &str)
 {
@@ -182,6 +192,7 @@ inline DateTime DateTime::fromString(const std::string &str)
 /*!
  * \brief Parses the specified ISO date time denotation provided as C-style string.
  * \returns Returns the parsed UTC time. That means a possibly denoted time zone delta is subtracted from the time stamp.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected time format.
  * \sa fromIsoString()
  */
 inline DateTime DateTime::fromIsoStringGmt(const char *str)
@@ -193,6 +204,7 @@ inline DateTime DateTime::fromIsoStringGmt(const char *str)
 /*!
  * \brief Parses the specified ISO date time denotation provided as C-style string.
  * \returns Returns the parsed local time. That means a possibly denoted time zone delta is discarded.
+ * \throws Throws a ConversionException if the specified \a str does not match the expected time format.
  * \sa fromIsoString()
  */
 inline DateTime DateTime::fromIsoStringLocal(const char *str)
@@ -201,7 +213,7 @@ inline DateTime DateTime::fromIsoStringLocal(const char *str)
 }
 
 /*!
- * \brief Gets the number of ticks which represent the value of the current instance.
+ * \brief Returns the number of ticks which represent the value of the current instance.
  */
 constexpr inline uint64 DateTime::totalTicks() const
 {
@@ -209,7 +221,7 @@ constexpr inline uint64 DateTime::totalTicks() const
 }
 
 /*!
- * \brief Gets the year component of the date represented by this instance.
+ * \brief Returns the year component of the date represented by this instance.
  */
 inline int DateTime::year() const
 {
@@ -217,7 +229,7 @@ inline int DateTime::year() const
 }
 
 /*!
- * \brief Gets the month component of the date represented by this instance.
+ * \brief Returns the month component of the date represented by this instance.
  */
 inline int DateTime::month() const
 {
@@ -225,7 +237,7 @@ inline int DateTime::month() const
 }
 
 /*!
- * \brief Gets the day component of the date represented by this instance.
+ * \brief Returns the day component of the date represented by this instance.
  */
 inline int DateTime::day() const
 {
@@ -233,7 +245,7 @@ inline int DateTime::day() const
 }
 
 /*!
- * \brief Gets the day of the year represented by this instance.
+ * \brief Returns the day of the year represented by this instance.
  */
 inline int DateTime::dayOfYear() const
 {
@@ -241,7 +253,7 @@ inline int DateTime::dayOfYear() const
 }
 
 /*!
- * \brief Gets the day of the week represented by this instance.
+ * \brief Returns the day of the week represented by this instance.
  * \sa DayOfWeek
  */
 constexpr inline DayOfWeek DateTime::dayOfWeek() const
@@ -250,7 +262,7 @@ constexpr inline DayOfWeek DateTime::dayOfWeek() const
 }
 
 /*!
- * \brief Gets the hour component of the date represented by this instance.
+ * \brief Returns the hour component of the date represented by this instance.
  */
 constexpr inline int DateTime::hour() const
 {
@@ -258,7 +270,7 @@ constexpr inline int DateTime::hour() const
 }
 
 /*!
- *\brief  Gets the minute component of the date represented by this instance.
+ *\brief Returns the minute component of the date represented by this instance.
  */
 constexpr inline int DateTime::minute() const
 {
@@ -266,7 +278,7 @@ constexpr inline int DateTime::minute() const
 }
 
 /*!
- * \brief Gets the second component of the date represented by this instance.
+ * \brief Returns the second component of the date represented by this instance.
  */
 constexpr inline int DateTime::second() const
 {
@@ -274,7 +286,7 @@ constexpr inline int DateTime::second() const
 }
 
 /*!
- * \brief Gets the millisecond component of the date represented by this instance.
+ * \brief Returns the millisecond component of the date represented by this instance.
  */
 constexpr inline int DateTime::millisecond() const
 {
@@ -282,7 +294,7 @@ constexpr inline int DateTime::millisecond() const
 }
 
 /*!
- * \brief Gets the microsecond component of the date represented by this instance.
+ * \brief Returns the microsecond component of the date represented by this instance.
  */
 constexpr int DateTime::microsecond() const
 {
@@ -290,7 +302,7 @@ constexpr int DateTime::microsecond() const
 }
 
 /*!
- * \brief Gets the nanosecond component of the date represented by this instance.
+ * \brief Returns the nanosecond component of the date represented by this instance.
  * \remarks The accuracy of the DateTime class is 100-nanoseconds. Hence the returned value
  *          will always have two zeros at the end (in decimal representation).
  */
@@ -309,7 +321,7 @@ constexpr inline bool DateTime::isNull() const
 }
 
 /*!
- * \brief Gets the time of day as TimeSpan for this instance.
+ * \brief Returns the time of day as TimeSpan for this instance.
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
@@ -468,6 +480,8 @@ constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
 /*!
  * \brief Substracts two DateTime instances.
  * \returns The result is a TimeSpan.
+ * \remarks For expressing the delta between two concrete DateTime instances in terms of
+ *          years, month and days, use Period::Period instead.
  */
 constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
 {
