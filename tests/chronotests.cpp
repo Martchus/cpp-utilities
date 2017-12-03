@@ -29,6 +29,7 @@ class ChronoTests : public TestFixture {
     CPPUNIT_TEST(testDateTime);
     CPPUNIT_TEST(testTimeSpan);
     CPPUNIT_TEST(testOperators);
+    CPPUNIT_TEST(testPeriod);
     CPPUNIT_TEST(testHashing);
     CPPUNIT_TEST_SUITE_END();
 
@@ -43,6 +44,7 @@ public:
     void testDateTime();
     void testTimeSpan();
     void testOperators();
+    void testPeriod();
     void testHashing();
 };
 
@@ -159,7 +161,26 @@ void ChronoTests::testOperators()
     dateTime += TimeSpan::fromDays(365);
     CPPUNIT_ASSERT_EQUAL(2000, dateTime.year());
     CPPUNIT_ASSERT_EQUAL(5, dateTime.day());
-    CPPUNIT_ASSERT_EQUAL(2, Period(dateTime, dateTime + TimeSpan::fromDays(62)).months());
+}
+
+/*!
+ * \brief Tests Period.
+ */
+void ChronoTests::testPeriod()
+{
+    const auto begin(DateTime::fromDateAndTime(1994, 7, 18, 15, 30, 21)), end(DateTime::fromDateAndTime(2017, 12, 2, 15, 30, 21));
+    const Period period(begin, end);
+    CPPUNIT_ASSERT_EQUAL(23, period.years());
+    CPPUNIT_ASSERT_EQUAL(4, period.months());
+    CPPUNIT_ASSERT_EQUAL(14, period.days());
+    CPPUNIT_ASSERT_EQUAL(end.toString(), (begin + period).toString());
+
+    const auto end2(DateTime::fromDateAndTime(2018, 1, 2, 15, 30, 21));
+    const Period period2(begin, end2);
+    CPPUNIT_ASSERT_EQUAL(23, period2.years());
+    CPPUNIT_ASSERT_EQUAL(5, period2.months());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("one more day, because December has 31 days", 15, period2.days());
+    CPPUNIT_ASSERT_EQUAL(end2.toString(), (begin + period2).toString());
 }
 
 /*!

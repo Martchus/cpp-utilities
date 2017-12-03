@@ -41,6 +41,9 @@ inline int Period::days() const
 {
     return m_days;
 }
+
+DateTime operator+(DateTime begin, Period period);
+
 } // namespace ChronoUtilities
 
 #endif // CHRONO_UTILITIES_PERIOD_H
