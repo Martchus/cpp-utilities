@@ -21,7 +21,7 @@ public:
     OutputCheck(const std::string &expectedOutput, std::ostream &os = std::cout);
     OutputCheck(std::string &&expectedOutput, std::string &&alternativeOutput, std::ostream &os = std::cout);
     OutputCheck(std::function<void(const std::string &output)> &&customCheck, std::ostream &os = std::cout);
-    ~OutputCheck();
+    ~OutputCheck() noexcept(false);
 
 private:
     std::ostream &m_os;
@@ -69,7 +69,7 @@ inline OutputCheck::OutputCheck(std::function<void(const std::string &)> &&custo
 /*!
  * \brief Asserts the buffered standard output and restores the regular behaviour of std::cout.
  */
-inline OutputCheck::~OutputCheck()
+inline OutputCheck::~OutputCheck() noexcept(false)
 {
     m_os.rdbuf(m_regularOutputBuffer);
     if (m_customCheck) {
