@@ -476,14 +476,14 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         add_dependencies(install-mingw-w64 ${LOCALIZATION_TARGET})
         add_dependencies(install-mingw-w64-strip ${LOCALIZATION_TARGET})
     endif()
-    if(BUILD_SHARED_LIBS)
+    if(BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
         add_custom_target(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip
             COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" -g "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}.dll.a"
         )
         add_dependencies(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip install-binary-strip)
         add_dependencies(install-mingw-w64-strip install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip)
     endif()
-    if(BUILD_STATIC_LIBS)
+    if(BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
         add_custom_target(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip
             COMMAND "${CMAKE_FIND_ROOT_PATH}/bin/strip" -g "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}.a"
         )
