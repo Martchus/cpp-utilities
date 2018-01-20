@@ -104,6 +104,15 @@ if(NOT BUILTIN_TRANSLATIONS)
     list(APPEND ALL_FILES ${QM_FILES})
 endif()
 
+# determine include path used when building the project itself
+if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    # use special include directory if available
+    set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+else()
+    # use the project folder itself
+    set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/..")
+endif()
+
 # add target for building the library
 if(BUILD_SHARED_LIBS)
     if(STATIC_LIBRARY_LINKAGE)
@@ -124,7 +133,7 @@ if(BUILD_SHARED_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             INTERFACE
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+                $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_SHARED_INCLUDE_DIRS}
         )
@@ -142,7 +151,7 @@ if(BUILD_SHARED_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             PUBLIC
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+                $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_SHARED_INCLUDE_DIRS}
             PRIVATE
@@ -177,7 +186,7 @@ if(BUILD_STATIC_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             INTERFACE
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+                $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_STATIC_INCLUDE_DIRS}
         )
@@ -194,7 +203,7 @@ if(BUILD_STATIC_LIBS)
         )
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static
             PUBLIC
-                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+                $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                 $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                 ${PUBLIC_STATIC_INCLUDE_DIRS}
             PRIVATE
