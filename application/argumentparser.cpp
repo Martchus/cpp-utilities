@@ -717,10 +717,38 @@ void ArgumentParser::printHelp(ostream &os) const
     }
     EscapeCodes::setStyle(os);
     if (!m_mainArgs.empty()) {
-        os << "Available arguments:";
+        bool hasOperations = false;
         for (const Argument *arg : m_mainArgs) {
-            os << '\n';
-            arg->printInfo(os);
+            if (arg->denotesOperation()) {
+                hasOperations = true;
+                break;
+            }
+        }
+
+        // check whether operations are available
+        if (hasOperations) {
+            // split top-level operations and other configurations
+            os << "Available operations:";
+            for (const Argument *arg : m_mainArgs) {
+                if (arg->denotesOperation()) {
+                    os << '\n';
+                    arg->printInfo(os);
+                }
+            }
+            os << "\nAvailable top-level options:";
+            for (const Argument *arg : m_mainArgs) {
+                if (!arg->denotesOperation()) {
+                    os << '\n';
+                    arg->printInfo(os);
+                }
+            }
+        } else {
+            // just show all args if no operations are available
+            os << "Available arguments:";
+            for (const Argument *arg : m_mainArgs) {
+                os << '\n';
+                arg->printInfo(os);
+            }
         }
     }
     if (applicationUrl && *applicationUrl) {
