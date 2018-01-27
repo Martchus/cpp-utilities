@@ -730,14 +730,14 @@ void ArgumentParser::printHelp(ostream &os) const
             // split top-level operations and other configurations
             os << "Available operations:";
             for (const Argument *arg : m_mainArgs) {
-                if (arg->denotesOperation()) {
+                if (arg->denotesOperation() && strcmp(arg->name(), "help")) {
                     os << '\n';
                     arg->printInfo(os);
                 }
             }
             os << "\nAvailable top-level options:";
             for (const Argument *arg : m_mainArgs) {
-                if (!arg->denotesOperation()) {
+                if (!arg->denotesOperation() && strcmp(arg->name(), "help")) {
                     os << '\n';
                     arg->printInfo(os);
                 }
@@ -746,8 +746,10 @@ void ArgumentParser::printHelp(ostream &os) const
             // just show all args if no operations are available
             os << "Available arguments:";
             for (const Argument *arg : m_mainArgs) {
-                os << '\n';
-                arg->printInfo(os);
+                if (strcmp(arg->name(), "help")) {
+                    os << '\n';
+                    arg->printInfo(os);
+                }
             }
         }
     }
