@@ -165,12 +165,14 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
     if(META_PROJECT_TYPE STREQUAL "application")
         set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>")
     endif()
-    add_test(NAME ${META_PROJECT_NAME}_run_tests COMMAND
-        ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
-        -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
-        -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-        ${RUN_TESTS_APPLICATION_ARGS}
-    )
+    if(NOT META_TEST_TARGET_IS_MANUAL)
+        add_test(NAME ${META_PROJECT_NAME}_run_tests COMMAND
+            ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+            -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
+            -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
+            ${RUN_TESTS_APPLICATION_ARGS}
+        )
+    endif()
 
     # enable source code based coverage analysis using clang
     if(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
@@ -185,10 +187,12 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         set(COVERAGE_OVERALL_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall.txt")
         set(COVERAGE_HTML_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html")
         # specify where to store raw clang profiling data via environment variable
-        set_tests_properties(${META_PROJECT_NAME}_run_tests
-            PROPERTIES ENVIRONMENT
-                "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE};LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}"
-        )
+        if(NOT META_TEST_TARGET_IS_MANUAL)
+            set_tests_properties(${META_PROJECT_NAME}_run_tests
+                PROPERTIES ENVIRONMENT
+                    "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE};LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}"
+            )
+        endif()
         add_custom_command(
             OUTPUT "${LLVM_PROFILE_RAW_FILE}"
                    "${LLVM_PROFILE_RAW_LIST_FILE}"
@@ -293,7 +297,9 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
     endif()
 
     # add the test executable to the dependencies of the check target
-    add_dependencies(check ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    if(NOT META_TEST_TARGET_IS_MANUAL)
+        add_dependencies(check ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    endif()
 
     # add target for launching tests with wine ensuring the WINEPATH is set correctly so wine is able to find all required *.dll files
     # requires script from c++utilities, hence the sources of c++utilities must be present
