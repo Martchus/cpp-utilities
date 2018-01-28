@@ -390,7 +390,7 @@ constexpr inline DateTime DateTime::unixEpochStart()
  */
 inline DateTime DateTime::now()
 {
-    return DateTime::fromTimeStamp(time(nullptr));
+    return DateTime::fromTimeStamp(std::time(nullptr));
 }
 
 /*!
@@ -399,7 +399,7 @@ inline DateTime DateTime::now()
  */
 inline DateTime DateTime::gmtNow()
 {
-    return DateTime::fromTimeStampGmt(time(nullptr));
+    return DateTime::fromTimeStampGmt(std::time(nullptr));
 }
 
 /*!

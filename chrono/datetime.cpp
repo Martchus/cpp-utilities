@@ -7,10 +7,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#if defined(PLATFORM_UNIX)
-#include <time.h>
-#endif
-
 using namespace std;
 using namespace ChronoUtilities;
 using namespace ConversionUtilities;
