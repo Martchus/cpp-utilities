@@ -178,10 +178,14 @@ string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
     ss.exceptions(ios_base::badbit | ios_base::failbit);
     char *delimChars = m_buffer, *buff = m_buffer + 2;
     ConversionUtilities::BE::getBytes(termination, delimChars);
-    do {
+    m_stream->get(buff[0]);
+    m_stream->get(buff[1]);
+    while (!((buff[0] == delimChars[0]) && (buff[1] == delimChars[1]))) {
+        ss.put(buff[0]);
+        ss.put(buff[1]);
         m_stream->get(buff[0]);
         m_stream->get(buff[1]);
-    } while (!((buff[0] == delimChars[0]) && (buff[1] == delimChars[1])));
+    }
     return ss.str();
 }
 
@@ -198,10 +202,14 @@ string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
     ss.exceptions(ios_base::badbit | ios_base::failbit);
     char *delimChars = m_buffer, *buff = m_buffer + 2;
     ConversionUtilities::LE::getBytes(termination, delimChars);
-    do {
+    m_stream->get(buff[0]);
+    m_stream->get(buff[1]);
+    while (!((buff[0] == delimChars[0]) && (buff[1] == delimChars[1]))) {
+        ss.put(buff[0]);
+        ss.put(buff[1]);
         m_stream->get(buff[0]);
         m_stream->get(buff[1]);
-    } while (!((buff[0] == delimChars[0]) && (buff[1] == delimChars[1])));
+    }
     return ss.str();
 }
 
