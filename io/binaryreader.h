@@ -62,7 +62,6 @@ public:
     bool readBool();
     std::string readLengthPrefixedString();
     std::string readString(std::size_t length);
-    // TODO: refactor methods for reading terminated strings in v5
     std::string readTerminatedString(byte termination = 0);
     std::string readTerminatedString(size_t maxBytesToRead, byte termination = 0);
     std::string readMultibyteTerminatedStringBE(uint16 termination = 0);

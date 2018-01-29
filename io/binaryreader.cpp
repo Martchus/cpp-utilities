@@ -134,6 +134,9 @@ string BinaryReader::readString(size_t length)
  * Advances the current position of the stream by the string length plus one byte.
  *
  * \param termination The byte to be recognized as termination value.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readTerminatedString(byte termination)
 {
@@ -152,6 +155,9 @@ string BinaryReader::readTerminatedString(byte termination)
  *
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The value to be recognized as termination.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readTerminatedString(size_t maxBytesToRead, byte termination)
 {
@@ -171,6 +177,9 @@ string BinaryReader::readTerminatedString(size_t maxBytesToRead, byte terminatio
  * Advances the current position of the stream by the string length plus two bytes.
  *
  * \param termination Specifies the two byte sized big endian value to be recognized as termination.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
 {
@@ -195,6 +204,9 @@ string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
  * Advances the current position of the stream by the string length plus two bytes.
  *
  * \param termination Specifies the two byte sized little endian value to be recognized as termination.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
 {
@@ -221,6 +233,9 @@ string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
  *
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The two byte sized big endian value to be recognized as termination.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, uint16 termination)
 {
@@ -245,6 +260,9 @@ string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead,
  *
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The two byte sized little endian value to be recognized as termination.
+ *
+ * \deprecated This method is likely refactored/removed in v5.
+ * \todo Refactor/remove in v5.
  */
 string BinaryReader::readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, uint16 termination)
 {
