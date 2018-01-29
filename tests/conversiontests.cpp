@@ -18,6 +18,13 @@ using namespace ConversionUtilities;
 
 using namespace CPPUNIT_NS;
 
+// compile-time checks for binary conversion
+static_assert(toSynchsafeInt(255) == 383, "toSynchsafeInt()");
+static_assert(toNormalInt(383) == 255, "toNormalInt()");
+static_assert(swapOrder(static_cast<uint16>(0xABCD)) == 0xCDAB, "swapOrder(uint16)");
+static_assert(swapOrder(static_cast<uint32>(0xABCDEF12)) == 0x12EFCDAB, "swapOrder(uint32)");
+static_assert(swapOrder(static_cast<uint64>(0xABCDEF1234567890)) == 0x9078563412EFCDAB, "swapOrder(uint64)");
+
 /*!
  * \brief The ConversionTests class tests classes and methods of the ConversionUtilities namespace.
  */
@@ -303,6 +310,8 @@ void ConversionTests::testStringConversions()
     // startsWith()
     CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"));
     CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"));
+    CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"s));
+    CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"s));
 
     // containsSubstrings()
     CPPUNIT_ASSERT(containsSubstrings<string>("this string contains foo and bar", { "foo", "bar" }));
@@ -319,15 +328,38 @@ void ConversionTests::testStringConversions()
     for (byte &c : originalBase64Data) {
         c = randomDistChar(m_randomEngine);
     }
-    const auto encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data));
-    auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), encodedBase64Data.size());
+    auto encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data));
+    auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size()));
     CPPUNIT_ASSERT(decodedBase64Data.second == sizeof(originalBase64Data));
     for (unsigned int i = 0; i < sizeof(originalBase64Data); ++i) {
         CPPUNIT_ASSERT(decodedBase64Data.first[i] == originalBase64Data[i]);
     }
+    // test padding
+    encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data) - 1);
+    CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 1));
+    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size())));
+    encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data) - 2);
+    CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 1));
+    CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 2));
+    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size())));
+    // test check for invalid size
+    CPPUNIT_ASSERT_THROW(decodeBase64(encodedBase64Data.data(), 3), ConversionException);
 
     // dataSizeToString(), bitrateToString()
-    // TODO
+    CPPUNIT_ASSERT_EQUAL("512 bytes"s, dataSizeToString(512ul));
+    CPPUNIT_ASSERT_EQUAL("2.50 KiB"s, dataSizeToString((2048ul + 512ul)));
+    CPPUNIT_ASSERT_EQUAL("2.50 KiB (2560 byte)"s, dataSizeToString((2048ul + 512ul), true));
+    CPPUNIT_ASSERT_EQUAL("2.50 MiB"s, dataSizeToString((2048ul + 512ul) * 1024ul));
+    CPPUNIT_ASSERT_EQUAL("2.50 GiB"s, dataSizeToString((2048ul + 512ul) * 1024ul * 1024ul));
+    CPPUNIT_ASSERT_EQUAL("2.50 TiB"s, dataSizeToString((2048ul + 512ul) * 1024ul * 1024ul * 1024ul));
+    CPPUNIT_ASSERT_EQUAL("128 bit/s"s, bitrateToString(0.128, false));
+    CPPUNIT_ASSERT_EQUAL("128 kbit/s"s, bitrateToString(128.0, false));
+    CPPUNIT_ASSERT_EQUAL("128 Mbit/s"s, bitrateToString(128.0 * 1e3, false));
+    CPPUNIT_ASSERT_EQUAL("128 Gbit/s"s, bitrateToString(128.0 * 1e6, false));
+    CPPUNIT_ASSERT_EQUAL("16 byte/s"s, bitrateToString(0.128, true));
+    CPPUNIT_ASSERT_EQUAL("16 KiB/s"s, bitrateToString(128.0, true));
+    CPPUNIT_ASSERT_EQUAL("16 MiB/s"s, bitrateToString(128.0 * 1e3, true));
+    CPPUNIT_ASSERT_EQUAL("16 GiB/s"s, bitrateToString(128.0 * 1e6, true));
 }
 
 string functionTakingString(const string &str)
