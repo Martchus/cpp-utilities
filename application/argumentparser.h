@@ -753,6 +753,9 @@ inline bool Argument::isMainArgument() const
 
 /*!
  * \brief Returns the items to be considered when generating completion for the values.
+ *
+ * By default, files and directories are considered, unless pre-defined values have been
+ * specified using setPreDefinedCompletionValues().
  */
 inline ValueCompletionBehavior Argument::valueCompletionBehaviour() const
 {
@@ -761,6 +764,9 @@ inline ValueCompletionBehavior Argument::valueCompletionBehaviour() const
 
 /*!
  * \brief Sets the items to be considered when generating completion for the values.
+ *
+ * By default, files and directories are considered, unless pre-defined values have been
+ * specified using setPreDefinedCompletionValues().
  */
 inline void Argument::setValueCompletionBehavior(ValueCompletionBehavior completionValues)
 {
