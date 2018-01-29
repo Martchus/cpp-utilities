@@ -119,9 +119,10 @@ DateTime DateTime::fromString(const char *str)
  * \brief Parses the specified ISO date time denotation provided as C-style string.
  * \returns Returns a pair where the first value is the parsed date time and the second value
  *          a time span which can be subtracted from the first value to get the UTC time.
- *
- * Not sure whether it is actually ISO conform, but the expected format is something like
- * "2016-08-29T21:32:31.588539814+02:00".
+ * \remarks Not all variants allowed by ISO 8601 are supported right now, eg. delimiters can not
+ *          be omitted.
+ *          The common form (something like "2016-08-29T21:32:31.588539814+02:00") is supported of course.
+ * \sa https://en.wikipedia.org/wiki/ISO_8601
  */
 std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
 {
@@ -151,6 +152,8 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
         } else if (c == '-') {
             if (valueIndex < dayIndex) {
                 ++valueIndex;
+            } else if (++valueIndex == deltaHourIndex) {
+                deltaNegative = true;
             } else {
                 throw ConversionException("unexpected \"-\" after day");
             }
@@ -170,17 +173,19 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
             }
         } else if ((c == '+') && (++valueIndex == deltaHourIndex)) {
             deltaNegative = false;
-        } else if ((c == '-') && (++valueIndex == deltaHourIndex)) {
-            deltaNegative = true;
+        } else if ((c == 'Z') && (++valueIndex == deltaHourIndex)) {
+            valueIndex += 2;
         } else if (c == '\0') {
             break;
         } else {
             throw ConversionException(argsToString("unexpected \"", c, '\"'));
         }
     }
-    deltaNegative && (*deltaHourIndex = -*deltaHourIndex);
-    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds),
-        TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
+    auto delta(TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
+    if (deltaNegative) {
+        delta = TimeSpan(-delta.totalTicks());
+    }
+    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), delta);
 }
 
 /*!
@@ -246,7 +251,12 @@ string DateTime::toIsoString(TimeSpan timeZoneDelta) const
         }
     }
     if (!timeZoneDelta.isNull()) {
-        s << (timeZoneDelta.isNegative() ? '-' : '+');
+        if (timeZoneDelta.isNegative()) {
+            s << '-';
+            timeZoneDelta = TimeSpan(-timeZoneDelta.totalTicks());
+        } else {
+            s << '+';
+        }
         s << setw(2) << timeZoneDelta.hours() << ':' << setw(2) << timeZoneDelta.minutes();
     }
     return s.str();
