@@ -845,53 +845,54 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
 {
     IF_DEBUG_BUILD(verifyArgs(m_mainArgs, std::vector<char>(), std::vector<const char *>());)
     m_actualArgc = 0;
-    if (argc) {
-        // the first argument is the executable name
-        m_executable = *argv;
 
-        // check for further arguments
-        if (--argc) {
-            // if the first argument (after executable name) is "--bash-completion-for", bash completion for the following arguments is requested
-            bool completionMode = !strcmp(*++argv, "--bash-completion-for");
-            unsigned int currentWordIndex;
-            if (completionMode) {
-                // the first argument after "--bash-completion-for" is the index of the current word
-                try {
-                    currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
-                    if (argc) {
-                        ++argv, --argc;
-                    }
-                } catch (const ConversionException &) {
-                    currentWordIndex = static_cast<unsigned int>(argc - 1);
-                }
-            }
-
-            // read specified arguments
-            ArgumentReader reader(*this, argv,
-                argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)),
-                completionMode);
-            try {
-                reader.read();
-                NoColorArgument::apply();
-            } catch (const Failure &) {
-                NoColorArgument::apply();
-                if (!completionMode) {
-                    throw;
-                }
-            }
-
-            if (completionMode) {
-                printBashCompletion(argc, argv, currentWordIndex, reader);
-                exitFunction(0); // prevent the applicaton to continue with the regular execution
-            }
-        } else {
-            // no arguments specified -> flag default argument as present if one is assigned
-            if (m_defaultArg) {
-                m_defaultArg->m_occurrences.emplace_back(0);
-            }
-        }
-    } else {
+    // the first argument is the executable name
+    if (!argc) {
         m_executable = nullptr;
+        return;
+    }
+    m_executable = *argv;
+
+    // check for further arguments
+    if (!--argc) {
+        // no arguments specified -> flag default argument as present if one is assigned
+        if (m_defaultArg) {
+            m_defaultArg->m_occurrences.emplace_back(0);
+        }
+        return;
+    }
+
+    // if the first argument (after executable name) is "--bash-completion-for", bash completion for the following arguments is requested
+    bool completionMode = !strcmp(*++argv, "--bash-completion-for");
+    unsigned int currentWordIndex;
+    if (completionMode) {
+        // the first argument after "--bash-completion-for" is the index of the current word
+        try {
+            currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
+            if (argc) {
+                ++argv, --argc;
+            }
+        } catch (const ConversionException &) {
+            currentWordIndex = static_cast<unsigned int>(argc - 1);
+        }
+    }
+
+    // read specified arguments
+    ArgumentReader reader(*this, argv,
+        argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), completionMode);
+    try {
+        reader.read();
+        NoColorArgument::apply();
+    } catch (const Failure &) {
+        NoColorArgument::apply();
+        if (!completionMode) {
+            throw;
+        }
+    }
+
+    if (completionMode) {
+        printBashCompletion(argc, argv, currentWordIndex, reader);
+        exitFunction(0); // prevent the applicaton to continue with the regular execution
     }
 }
 
