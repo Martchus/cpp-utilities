@@ -39,6 +39,7 @@ class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST(testBashCompletion);
     CPPUNIT_TEST(testHelp);
     CPPUNIT_TEST(testSetMainArguments);
+    CPPUNIT_TEST(testNoColorArgument);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -51,6 +52,7 @@ public:
     void testBashCompletion();
     void testHelp();
     void testSetMainArguments();
+    void testNoColorArgument();
 
 private:
     void callback();
@@ -128,6 +130,12 @@ void ArgumentParserTests::testParsing()
     NoColorArgument noColorArg;
     parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg, &noColorArg });
 
+    // no args present
+    parser.parseArgs(0, nullptr);
+    CPPUNIT_ASSERT(!parser.executable());
+    CPPUNIT_ASSERT(!parser.specifiedOperation());
+    CPPUNIT_ASSERT_EQUAL(0u, parser.actualArgumentCount());
+
     // error about uncombinable arguments
     const char *argv[] = { "tageditor", "get", "album", "title", "diskpos", "-f", "somefile" };
     // try to parse, this should fail
@@ -135,8 +143,15 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(7, argv);
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
-        CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"files\" can not be combined with \"fields\"."));
+        CPPUNIT_ASSERT_EQUAL("The argument \"files\" can not be combined with \"fields\"."s, string(e.what()));
+        // test printing btw
+        stringstream ss;
+        ss << e;
+        CPPUNIT_ASSERT_EQUAL(
+            "Error: Unable to parse arguments: The argument \"files\" can not be combined with \"fields\".\nSee --help for available commands.\n"s,
+            ss.str());
     }
+    CPPUNIT_ASSERT(parser.isUncombinableMainArgPresent());
 
     // arguments read correctly after successful parse
     filesArg.setCombinable(true);
@@ -153,6 +168,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
     CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT_EQUAL(&displayTagInfoArg, parser.specifiedOperation());
 
     // skip empty args
     const char *argv2[] = { "tageditor", "", "-p", "album", "title", "diskpos", "", "--files", "somefile" };
@@ -473,10 +489,17 @@ void ArgumentParserTests::testBashCompletion()
     valuesArg.setPreDefinedCompletionValues("title album artist trackpos");
     valuesArg.setImplicit(false);
     valuesArg.setValueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::AppendEquationSign);
+    Argument selectorsArg("selectors", '\0', "has some more pre-defined values");
+    selectorsArg.setRequiredValueCount(Argument::varValueCount);
+    selectorsArg.setPreDefinedCompletionValues("tag=id3v1 tag=id3v2 tag=matroska target=file target=track");
+    selectorsArg.setImplicit(false);
+    selectorsArg.setValueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues);
+    selectorsArg.setCallback(
+        [&selectorsArg](const ArgumentOccurrence &) { selectorsArg.setPreDefinedCompletionValues("tag=matroska tag=mp4 tag=vorbis"); });
     Argument getArg("get", 'g', "gets tag values");
     getArg.setSubArguments({ &fieldsArg, &filesArg });
     Argument setArg("set", 's', "sets tag values");
-    setArg.setSubArguments({ &valuesArg, &filesArg });
+    setArg.setSubArguments({ &valuesArg, &filesArg, &selectorsArg });
 
     parser.setMainArguments({ &helpArg, &displayFileInfoArg, &getArg, &setArg });
 
@@ -510,7 +533,7 @@ void ArgumentParserTests::testBashCompletion()
     // advance the cursor position -> the completion should propose the next argument
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -519,7 +542,7 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     filesArg.setDenotesOperation(true);
     {
-        const OutputCheck c("COMPREPLY=('files' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('files' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -551,6 +574,39 @@ void ArgumentParserTests::testBashCompletion()
         parser.printBashCompletion(3, argv4, 2, reader);
     }
 
+    // pre-defined values containing equation sign, equation sign already present
+    const char *const argv12[] = { "set", "--selectors", "tag=id3" };
+    parser.resetArgs();
+    {
+        const OutputCheck c("COMPREPLY=('tag=id3v1' 'tag=id3v2'  )\n");
+        reader.reset(argv12, argv12 + 3).read();
+        parser.printBashCompletion(3, argv12, 2, reader);
+    }
+
+    // recombining pre-defined values containing equation sign, equation sign already present
+    const char *const argv13[] = { "set", "--selectors", "tag", "=", "id3" };
+    parser.resetArgs();
+    {
+        const OutputCheck c("COMPREPLY=('id3v1' 'id3v2'  )\n");
+        reader.reset(argv13, argv13 + 5).read();
+        parser.printBashCompletion(5, argv13, 4, reader);
+    }
+    parser.resetArgs();
+    {
+        const OutputCheck c("COMPREPLY=('id3v1' 'id3v2' 'matroska'  )\n");
+        reader.reset(argv13, argv13 + 5).read();
+        parser.printBashCompletion(5, argv13, 3, reader);
+    }
+
+    // computing pre-defined values just in time using callback
+    selectorsArg.setValueCompletionBehavior(selectorsArg.valueCompletionBehaviour() | ValueCompletionBehavior::InvokeCallback);
+    parser.resetArgs();
+    {
+        const OutputCheck c("COMPREPLY=('matroska' 'mp4' 'vorbis' )\n");
+        reader.reset(argv13, argv13 + 5).read();
+        parser.printBashCompletion(5, argv13, 3, reader);
+    }
+
     // pre-defined values for implicit argument
     parser.resetArgs();
     {
@@ -578,7 +634,7 @@ void ArgumentParserTests::testBashCompletion()
     const char *const argv6[] = { "set", "--" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--values' )\n");
         reader.reset(argv6, argv6 + 2).read();
         parser.printBashCompletion(2, argv6, 1, reader);
     }
@@ -656,7 +712,11 @@ void ArgumentParserTests::testHelp()
     verboseArg.setCombinable(true);
     ConfigValueArgument nestedSubArg("nested-sub", '\0', "nested sub arg", { "value1", "value2" });
     nestedSubArg.setRequiredValueCount(Argument::varValueCount);
-    Argument subArg("sub", '\0', "sub arg");
+    Argument subArg("foo", 'f', "dummy");
+    subArg.setName("sub");
+    subArg.setAbbreviation('\0');
+    subArg.setDescription("sub arg");
+    subArg.setExample("sub arg example");
     subArg.setRequired(true);
     subArg.addSubArgument(&nestedSubArg);
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
@@ -692,6 +752,7 @@ void ArgumentParserTests::testHelp()
                             "    particularities: mandatory if parent argument is present\n"
                             "    \e[1m--nested-sub\e[0m [value1] [value2] ...\n"
                             "      nested sub arg\n"
+                            "    example: sub arg example\n"
                             "\n"
                             "\e[1m--env\e[0m [file] [value 2]\n"
                             "  env\n"
@@ -699,6 +760,35 @@ void ArgumentParserTests::testHelp()
                             "\n"
                             "Project website: " APP_URL "\n");
         EscapeCodes::enabled = true;
+        parser.parseArgs(2, argv);
+    }
+
+    verboseArg.setDenotesOperation(false);
+    {
+        const OutputCheck c(APP_NAME ", version " APP_VERSION "\n"
+                                     "Linked against: somelib, some other lib\n"
+                                     "\n"
+                                     "Available arguments:\n"
+                                     "--verbose, -v\n"
+                                     "  be verbose\n"
+                                     "  example: actually not an operation\n"
+                                     "\n"
+                                     "--files, -f\n"
+                                     "  specifies the path of the file(s) to be opened\n"
+                                     "  --sub\n"
+                                     "    sub arg\n"
+                                     "    particularities: mandatory if parent argument is present\n"
+                                     "    --nested-sub [value1] [value2] ...\n"
+                                     "      nested sub arg\n"
+                                     "    example: sub arg example\n"
+                                     "\n"
+                                     "--env [file] [value 2]\n"
+                                     "  env\n"
+                                     "  default environment variable: FILES\n"
+                                     "\n"
+                                     "Project website: " APP_URL "\n");
+        EscapeCodes::enabled = false;
+        parser.resetArgs();
         parser.parseArgs(2, argv);
     }
 }
@@ -721,4 +811,38 @@ void ArgumentParserTests::testSetMainArguments()
     subArg.setConstraints(0, 20);
     parser.setMainArguments({ &helpArg });
     CPPUNIT_ASSERT_MESSAGE("default if no required sub arg", &helpArg == parser.defaultArgument());
+}
+
+/*!
+ * \brief Tests whether NocolorArgument toggles escape codes correctly.
+ */
+void ArgumentParserTests::testNoColorArgument()
+{
+    // assume escape codes are enabled by default
+    EscapeCodes::enabled = true;
+
+    // ensure the initialization is not skipped
+    NoColorArgument::s_instance = nullptr;
+
+    {
+        unsetenv("ENABLE_ESCAPE_CODES");
+        NoColorArgument noColorArg;
+        noColorArg.apply();
+        CPPUNIT_ASSERT_MESSAGE("default used if not present", EscapeCodes::enabled);
+        noColorArg.m_occurrences.emplace_back(0);
+        noColorArg.apply();
+        CPPUNIT_ASSERT_MESSAGE("default negated if present", !EscapeCodes::enabled);
+        const NoColorArgument secondInstance;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("s_instance not altered by 2nd instance", &noColorArg, NoColorArgument::s_instance);
+    }
+    {
+        setenv("ENABLE_ESCAPE_CODES", "  0 ", 1);
+        const NoColorArgument noColorArg;
+        CPPUNIT_ASSERT(!EscapeCodes::enabled);
+    }
+    {
+        setenv("ENABLE_ESCAPE_CODES", "  1 ", 1);
+        const NoColorArgument noColorArg;
+        CPPUNIT_ASSERT(EscapeCodes::enabled);
+    }
 }

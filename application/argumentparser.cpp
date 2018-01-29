@@ -1267,6 +1267,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         }
 
         if (opening && openingDenotationType == Abbreviation && !nextArgumentOrValue) {
+            // TODO: add test for this case
             cout << '\'' << '-' << opening << arg->abbreviation() << '\'' << ' ';
         } else if (lastDetectedArg && reader.argDenotationType == Abbreviation && !nextArgumentOrValue) {
             if (reader.argv == reader.end) {

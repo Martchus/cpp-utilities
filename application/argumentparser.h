@@ -934,6 +934,8 @@ inline ConfigValueArgument::ConfigValueArgument(
 }
 
 class CPP_UTILITIES_EXPORT NoColorArgument : public Argument {
+    friend ArgumentParserTests;
+
 public:
     NoColorArgument();
     ~NoColorArgument();

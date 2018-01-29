@@ -153,6 +153,7 @@ if(ENABLE_ESCAPE_CODES_BY_DEAULT)
     set_source_files_properties(
         application/argumentparser.cpp
         io/ansiescapecodes.cpp
+        tests/argumentparsertests.cpp
         PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT
     )
 else()
