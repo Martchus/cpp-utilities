@@ -184,8 +184,10 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         set(LLVM_PROFILE_DATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata")
         # define paths of output files
         set(COVERAGE_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt")
+        set(COVERAGE_PER_FILE_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_per_file.txt")
         set(COVERAGE_OVERALL_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall.txt")
         set(COVERAGE_HTML_REPORT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html")
+        set(COVERAGE_REPORT_FILES "${COVERAGE_REPORT_FILE}")
         # specify where to store raw clang profiling data via environment variable
         if(NOT META_TEST_TARGET_IS_MANUAL)
             set_tests_properties(${META_PROJECT_NAME}_run_tests
@@ -222,11 +224,28 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                 DEPENDS "${LLVM_PROFILE_RAW_FILE}"
                         "${LLVM_PROFILE_RAW_LIST_FILE}"
             )
-            # generate coverage report (statistics, for each file a table)
+            # determine llvm-cov version
+            execute_process(
+                COMMAND "${LLVM_COV_BIN}" -version
+                OUTPUT_VARIABLE LLVM_COV_VERSION
+            )
+            string(REGEX MATCH "LLVM version ([0-9](.[0-9])*)" LLVM_COV_VERSION "${LLVM_COV_VERSION}")
+            if(CMAKE_MATCH_1)
+                set(LLVM_COV_VERSION "${CMAKE_MATCH_1}")
+            else()
+                message(FATAL_ERROR "Unable to determine version of llvm-cov. Output of ${LLVM_COV_BIN} -version:\n${LLVM_COV_VERSION}")
+            endif()
+            # determine the target file for llvm-cov
             if(NOT META_HEADER_ONLY_LIB)
                 set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}> $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
             else()
                 set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
+            endif()
+            # generate coverage report with statistics per function
+            unset(LLVM_COV_ADDITIONAL_OPTIONS)
+            if(LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
+                # LLVM 5 introduced -show-functions; this is required to get the same behavior as previously (statistics on function-level)
+                list(APPEND LLVM_COV_ADDITIONAL_OPTIONS -show-functions)
             endif()
             add_custom_command(
                 OUTPUT "${COVERAGE_REPORT_FILE}"
@@ -234,17 +253,37 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
                     -format=text
                     -stats
                     -instr-profile "${LLVM_PROFILE_DATA_FILE}"
+                    ${LLVM_COV_ADDITIONAL_OPTIONS}
                     ${LLVM_COV_TARGET_FILE}
                     ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES} ${QML_SOURCE_FILES}
                     > "${COVERAGE_REPORT_FILE}"
-                COMMENT "Generating coverage report (statistics as table)"
+                COMMENT "Generating coverage report (statistics per function)"
                 DEPENDS "${LLVM_PROFILE_DATA_FILE}"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             )
+            # generate coverage report with statistics per file (only possible with LLVM 5 if source files are specified)
+            if(LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
+                add_custom_command(
+                    OUTPUT "${COVERAGE_PER_FILE_REPORT_FILE}"
+                    COMMAND "${LLVM_COV_BIN}" report
+                        -format=text
+                        -stats
+                        -instr-profile "${LLVM_PROFILE_DATA_FILE}"
+                        ${LLVM_COV_TARGET_FILE}
+                        ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES} ${QML_SOURCE_FILES}
+                        > "${COVERAGE_PER_FILE_REPORT_FILE}"
+                    COMMENT "Generating coverage report (statistics per file)"
+                    DEPENDS "${LLVM_PROFILE_DATA_FILE}"
+                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                )
+                list(APPEND COVERAGE_REPORT_FILES "${COVERAGE_PER_FILE_REPORT_FILE}")
+            endif()
+            # add target for the coverage reports
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_summary"
-                DEPENDS "${COVERAGE_REPORT_FILE}"
+                DEPENDS ${COVERAGE_REPORT_FILES}
             )
             # generate coverage overall report (total region/line coverage)
+            # NOTE: added before release of LLVM 5 where coverage report with statistics per file could not be generated
             set(OVERALL_COVERAGE_AKW_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
             if(CPP_UTILITIES_SOURCE_DIR AND NOT EXISTS "${OVERALL_COVERAGE_AKW_SCRIPT}")
                 set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
@@ -282,7 +321,7 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
             )
             # create target for all coverage docs
             add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage"
-                DEPENDS "${COVERAGE_REPORT_FILE}"
+                DEPENDS ${COVERAGE_REPORT_FILES}
                 DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
                 DEPENDS "${COVERAGE_HTML_REPORT_FILE}"
             )
