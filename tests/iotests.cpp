@@ -1,6 +1,7 @@
 #include "./testutils.h"
 
 #include "../conversion/conversionexception.h"
+#include "../io/ansiescapecodes.h"
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
@@ -38,6 +39,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testCopy);
     CPPUNIT_TEST(testMisc);
+    CPPUNIT_TEST(testAnsiEscapeCodes);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -52,6 +54,7 @@ public:
     void testIniFile();
     void testCopy();
     void testMisc();
+    void testAnsiEscapeCodes();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
@@ -139,7 +142,17 @@ void IoTests::testBinaryReader()
            "23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"
            "45678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
            "678901234567890123456789");
-    CPPUNIT_ASSERT(reader.readTerminatedString() == "def");
+    CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString());
+    testFile.seekg(-4, ios_base::cur);
+    CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString(5, 0));
+    testFile.seekg(-4, ios_base::cur);
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(5, 0x6600));
+    testFile.seekg(-4, ios_base::cur);
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(5, 0x0066));
+    testFile.seekg(-4, ios_base::cur);
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<uint16>(0x6600)));
+    testFile.seekg(-4, ios_base::cur);
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<uint16>(0x0066)));
     CPPUNIT_ASSERT_THROW(reader.readLengthPrefixedString(), ConversionException);
     CPPUNIT_ASSERT_MESSAGE("pos in stream not advanced on conversion error", reader.readByte() == 0);
 
@@ -277,9 +290,13 @@ void IoTests::testBitReader()
  */
 void IoTests::testPathUtilities()
 {
+    CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("C:\\libs\\libc++utilities.so"));
+    CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("C:\\libs/libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("/usr/lib/libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("/usr/lib/"s, directory("/usr/lib/libc++utilities.so"));
-    CPPUNIT_ASSERT(directory("libc++utilities.so").empty());
+    CPPUNIT_ASSERT_EQUAL(string(), directory("libc++utilities.so"));
+    CPPUNIT_ASSERT_EQUAL("C:\\libs\\"s, directory("C:\\libs\\libc++utilities.so"));
+    CPPUNIT_ASSERT_EQUAL("C:\\libs/"s, directory("C:\\libs/libc++utilities.so"));
     string invalidPath("lib/c++uti*lities.so?");
     removeInvalidChars(invalidPath);
     CPPUNIT_ASSERT(invalidPath == "libc++utilities.so");
@@ -390,4 +407,37 @@ void IoTests::testMisc()
     } catch (...) {
         catchIoFailure();
     }
+}
+
+void IoTests::testAnsiEscapeCodes()
+{
+    stringstream ss1;
+    EscapeCodes::enabled = true;
+    ss1 << EscapeCodes::Phrases::Error << "some error" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::Warning << "some warning" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::Info << "some info" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::ErrorMessage << "Arch-style error" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::WarningMessage << "Arch-style warning" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::PlainMessage << "Arch-style message" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::SuccessMessage << "Arch-style success" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::Phrases::SubMessage << "Arch-style sub-message" << EscapeCodes::Phrases::End;
+    ss1 << EscapeCodes::color(EscapeCodes::Color::Blue, EscapeCodes::Color::Red, EscapeCodes::TextAttribute::Blink)
+        << "blue, blinking text on red background" << EscapeCodes::TextAttribute::Reset << '\n';
+    cout << "\noutput for formatting with ANSI escape codes:\n" << ss1.str() << "---------------------------------------------\n";
+    fstream("/tmp/test.txt", ios_base::out | ios_base::trunc) << ss1.str();
+    CPPUNIT_ASSERT_EQUAL("\e[1;31mError: \e[0m\e[1msome error\e[0m\n"
+                         "\e[1;33mWarning: \e[0m\e[1msome warning\e[0m\n"
+                         "\e[1;34mInfo: \e[0m\e[1msome info\e[0m\n"
+                         "\e[1;31m==> ERROR: \e[0m\e[1mArch-style error\e[0m\n"
+                         "\e[1;33m==> WARNING: \e[0m\e[1mArch-style warning\e[0m\n"
+                         "    \e[0m\e[1mArch-style message\e[0m\n"
+                         "\e[1;32m==> \e[0m\e[1mArch-style success\e[0m\n"
+                         "\e[1;32m  -> \e[0m\e[1mArch-style sub-message\e[0m\n"
+                         "\e[5;34;41mblue, blinking text on red background\e[0m\n"s,
+        ss1.str());
+
+    stringstream ss2;
+    EscapeCodes::enabled = false;
+    ss2 << EscapeCodes::Phrases::Info << "some info" << EscapeCodes::Phrases::End;
+    CPPUNIT_ASSERT_EQUAL("Info: some info\n"s, ss2.str());
 }
