@@ -46,7 +46,7 @@ inline void setStyle(std::ostream &stream, Color foregroundColor, Color backgrou
 {
     if (enabled) {
         stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(ColorContext::Foreground)
-               << static_cast<char>(foregroundColor) << ';' << static_cast<char>(ColorContext::Foreground) << static_cast<char>(backgroundColor)
+               << static_cast<char>(foregroundColor) << ';' << static_cast<char>(ColorContext::Background) << static_cast<char>(backgroundColor)
                << 'm';
     }
 }
