@@ -270,6 +270,7 @@ const char base64Pad = '=';
 
 /*!
  * \brief Encodes the specified \a data to Base64.
+ * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
 string encodeBase64(const byte *data, uint32 dataSize)
 {
@@ -309,6 +310,7 @@ string encodeBase64(const byte *data, uint32 dataSize)
 /*!
  * \brief Decodes the specified Base64 encoded string.
  * \throw Throws a ConversionException if the specified string is no valid Base64.
+ * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
 pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize)
 {
@@ -328,7 +330,7 @@ pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint
     auto buffer = make_unique<byte[]>(decodedSize);
     auto *iter = buffer.get() - 1;
     while (encodedStr < end) {
-        uint32 temp = 0;
+        int32 temp = 0;
         for (byte quantumPos = 0; quantumPos < 4; ++quantumPos, ++encodedStr) {
             temp <<= 6;
             if (*encodedStr >= 'A' && *encodedStr <= 'Z') {
