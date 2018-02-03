@@ -60,11 +60,11 @@ TestApplication::TestApplication(int argc, char **argv)
 
     // determine fallback path for testfiles which is used when --test-files-path/-p not present
     // -> read TEST_FILE_PATH environment variable
-    readFallbackTestfilePathFromEnv();
+    m_fallbackTestFilesPath = readTestfilePathFromEnv();
     // -> find source directory if TEST_FILE_PATH not present
-    const bool fallbackIsSourceDir = m_fallbackTestFilesPath.empty();
+    bool fallbackIsSourceDir = m_fallbackTestFilesPath.empty();
     if (fallbackIsSourceDir) {
-        readFallbackTestfilePathFromSrcRef();
+        m_fallbackTestFilesPath = readTestfilePathFromSrcRef();
     }
 
     // handle specified arguments (if present)
@@ -103,6 +103,14 @@ TestApplication::TestApplication(int argc, char **argv)
         } else {
             cerr << (m_testFilesPath = "./") << endl;
         }
+    } else {
+        // use fallback path if --test-files-path/-p not present
+        m_testFilesPath.swap(m_fallbackTestFilesPath);
+    }
+    // if it wasn't already the case, use the source directory as fallback dir
+    if (m_fallbackTestFilesPath.empty() && !fallbackIsSourceDir) {
+        m_fallbackTestFilesPath = readTestfilePathFromSrcRef();
+        fallbackIsSourceDir = true;
     }
     if (!m_fallbackTestFilesPath.empty() && m_testFilesPath != m_fallbackTestFilesPath) {
         cerr << m_fallbackTestFilesPath << endl;
@@ -116,10 +124,8 @@ TestApplication::TestApplication(int argc, char **argv)
             m_workingDir = "./";
         }
     } else if (const char *workingDirEnv = getenv("WORKING_DIR")) {
-        if (const auto len = strlen(workingDirEnv)) {
-            m_workingDir.reserve(len + 1);
-            m_workingDir += workingDirEnv;
-            m_workingDir += '/';
+        if (*workingDirEnv) {
+            m_workingDir = argsToString(workingDirEnv, '/');
         }
     } else {
         if (m_testFilesPathArg.isPresent()) {
@@ -156,23 +162,25 @@ TestApplication::~TestApplication()
  *
  * The following directories are searched for the specified testfile:
  * 1. The directory specified as CLI argument.
- * 2. The fallback directory, which can set by setting the environment
+ * 2. The fallback directory, which can be set by setting the environment
  *    variable `TEST_FILE_PATH`.
+ * 3. The source directory, if it could be determined via "srcref"-file
+ *    unless both, the CLI argument and environment variable are present.
  */
 string TestApplication::testFilePath(const string &name) const
 {
     string path;
     fstream file; // used to check whether the file is present
 
-    // check the path specified by command line argument
-    if (m_testFilesPathArg.isPresent()) {
+    // check the path specified by command line argument or via environment variable
+    if (!m_testFilesPath.empty()) {
         file.open(path = m_testFilesPath + name, ios_base::in);
         if (file.good()) {
             return path;
         }
     }
 
-    // check the path specified by environment variable
+    // check the fallback path (value from environment variable or source directory)
     if (!m_fallbackTestFilesPath.empty()) {
         file.clear();
         file.open(path = m_fallbackTestFilesPath + name, ios_base::in);
@@ -431,26 +439,24 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
 }
 #endif // PLATFORM_UNIX
 
-void TestApplication::readFallbackTestfilePathFromEnv()
+string TestApplication::readTestfilePathFromEnv()
 {
-    if (const char *testFilesPathEnv = getenv("TEST_FILE_PATH")) {
-        if (const auto len = strlen(testFilesPathEnv)) {
-            m_fallbackTestFilesPath.reserve(len + 1);
-            m_fallbackTestFilesPath += testFilesPathEnv;
-            m_fallbackTestFilesPath += '/';
-        }
+    const char *const testFilesPathEnv = getenv("TEST_FILE_PATH");
+    if (!testFilesPathEnv || !*testFilesPathEnv) {
+        return string();
     }
+    return argsToString(testFilesPathEnv, '/');
 }
 
-void TestApplication::readFallbackTestfilePathFromSrcRef()
+string TestApplication::readTestfilePathFromSrcRef()
 {
     try {
         // read "srcdirref" file which should contain the path of the source directory; this file should have been
         // create by the CMake module "TestTarget.cmake"
-        const string srcDirContent(readFile("srcdirref", 2 * 1024));
+        string srcDirContent(readFile("srcdirref", 2 * 1024));
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
-            return;
+            return string();
         }
 
             // check whether the referenced source directory contains a "testfiles" directory
@@ -466,15 +472,15 @@ void TestApplication::readFallbackTestfilePathFromSrcRef()
             cerr << Phrases::Warning
                  << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
                  << Phrases::End << "Referenced source directory: " << srcDirContent << endl;
-            return;
+            return string();
         }
 #endif // PLATFORM_UNIX
 
-        m_fallbackTestFilesPath = move(srcDirContent);
-        m_fallbackTestFilesPath += "/testfiles/";
+        return srcDirContent += "/testfiles/";
     } catch (...) {
         // the "srcdirref" file likely just does not exist, so ignore the error case for now
         catchIoFailure();
     }
+    return string();
 }
 } // namespace TestUtilities

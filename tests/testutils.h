@@ -37,8 +37,8 @@ public:
     static const char *appPath();
 
 private:
-    void readFallbackTestfilePathFromEnv();
-    void readFallbackTestfilePathFromSrcRef();
+    static std::string readTestfilePathFromEnv();
+    static std::string readTestfilePathFromSrcRef();
 
     ApplicationUtilities::ArgumentParser m_parser;
     ApplicationUtilities::HelpArgument m_helpArg;
