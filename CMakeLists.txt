@@ -90,6 +90,8 @@ set(CMAKE_MODULE_FILES
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
+    cmake/templates/SharedConfig.cmake.in
+    cmake/templates/StaticConfig.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
     cmake/templates/doxygen.in
@@ -129,7 +131,7 @@ set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 4)
 set(META_VERSION_MINOR 12)
-set(META_VERSION_PATCH 1)
+set(META_VERSION_PATCH 2)
 
 # find required 3rd party libraries
 include(3rdParty)

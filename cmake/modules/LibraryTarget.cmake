@@ -23,12 +23,9 @@ else()
     set(META_HEADER_ONLY_LIB YES)
 endif()
 
-# include for configure_package_config_file and write_basic_package_version_file
+# includes for configure_package_config_file, write_basic_package_version_file and find_template_file
 include(CMakePackageConfigHelpers)
-
-# find template for CMake config file
 include(TemplateFinder)
-find_template_file("Config.cmake" CPP_UTILITIES CONFIG_TEMPLATE_FILE)
 
 # determine library directory suffix
 set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
@@ -74,7 +71,6 @@ if(NOT META_PRIVATE_STATIC_LIB_COMPILE_DEFINITIONS)
 endif()
 
 # add global library-specific header
-include(TemplateFinder)
 find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
 if("${META_PROJECT_NAME}" STREQUAL "c++utilities")
     set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"./application/global.h\"")
@@ -238,6 +234,7 @@ if(META_HEADER_ONLY_LIB)
 endif()
 
 # create the CMake package config file from template
+find_template_file("Config.cmake" CPP_UTILITIES CONFIG_TEMPLATE_FILE)
 configure_package_config_file(
     "${CONFIG_TEMPLATE_FILE}"
     "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
@@ -250,6 +247,24 @@ configure_package_config_file(
         BIN_INSTALL_DESTINATION
         LIB_INSTALL_DESTINATION
 )
+if(BUILD_SHARED_LIBS)
+    find_template_file("SharedConfig.cmake" CPP_UTILITIES SHARED_CONFIG_TEMPLATE_FILE)
+    configure_package_config_file(
+        "${SHARED_CONFIG_TEMPLATE_FILE}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}SharedConfig.cmake"
+        INSTALL_DESTINATION
+            "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+    )
+endif()
+if(BUILD_STATIC_LIBS)
+    find_template_file("StaticConfig.cmake" CPP_UTILITIES STATIC_CONFIG_TEMPLATE_FILE)
+    configure_package_config_file(
+        "${STATIC_CONFIG_TEMPLATE_FILE}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}StaticConfig.cmake"
+        INSTALL_DESTINATION
+            "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+    )
+endif()
 
 # write the CMake version config file
 write_basic_package_version_file(
