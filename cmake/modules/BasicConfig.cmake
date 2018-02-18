@@ -49,6 +49,20 @@ if(NOT META_VERSION_PATCH)
     set(META_VERSION_PATCH 0)
 endif()
 
+# set META_ID to META_PROJECT_NAME if not specified
+if(NOT META_ID)
+    set(META_ID "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+endif()
+
+# set bugtracker URL
+if(NOT META_APP_BUGTRACKER_URL)
+    if(META_APP_URL MATCHES "https://(github.com|gitlab.com|.*/gogs|gogs.*)/.*")
+        set(META_APP_BUGTRACKER_URL "${META_APP_URL}/issues")
+    else()
+        set(META_APP_BUGTRACKER_URL "${META_APP_URL}")
+    endif()
+endif()
+
 # provide variables for other projects built as part of the same subdirs project
 # to access files from this project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)

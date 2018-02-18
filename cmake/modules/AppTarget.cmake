@@ -120,6 +120,12 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         )
     endif()
     add_dependencies(install-desktop ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    if(NOT TARGET install-appimage)
+        add_custom_target(install-appimage
+            COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=appimage -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+        )
+    endif()
+    add_dependencies(install-appimage ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
 
     # add install target for stripped binaries
     if(NOT TARGET install-binary-strip)
@@ -159,8 +165,10 @@ endif()
 # find template for *.desktop files
 include(TemplateFinder)
 find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
+find_template_file("appdata.xml" CPP_UTILITIES APP_APPSTREAM_TEMPLATE_FILE)
 
 # function to add *.desktop files with additional entries
+# FIXME v5: use "include(CMakeParseArguments)" like in ReflectionGenerator.cmake
 function(add_custom_desktop_file_with_additional_entries
         FILE_NAME
         DESKTOP_FILE_APP_NAME
@@ -204,7 +212,7 @@ function(add_custom_desktop_file
     )
 endfunction()
 
-# convenience function to add *.desktop file from project meta data
+# convenience function to add *.desktop file and meta info from project meta data
 function(add_desktop_file)
     # compose actions
     set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
@@ -217,7 +225,7 @@ function(add_desktop_file)
 
     # create desktop file
     add_custom_desktop_file_with_additional_entries(
-        "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
+        "${META_ID}"
         "${META_APP_NAME}"
         "${META_GENERIC_NAME}"
         "${META_APP_DESCRIPTION}"
@@ -225,6 +233,21 @@ function(add_desktop_file)
         "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
         "${META_PROJECT_NAME}"
         "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
+    )
+    # create appstream desktop file from template
+    set(META_APP_APPDATA_BODY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/body.appdata.xml")
+    if(EXISTS META_APP_APPDATA_BODY_FILE)
+        file(READ "${META_APP_APPIMAGE_BODY_FILE}" META_APP_APPDATA_BODY)
+    endif()
+    configure_file(
+        "${APP_APPSTREAM_TEMPLATE_FILE}"
+        "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml"
+    )
+    # add install for the appstream file
+    install(
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml"
+        DESTINATION "share/metainfo"
+        COMPONENT appimage
     )
 endfunction()
 
