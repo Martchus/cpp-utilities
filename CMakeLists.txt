@@ -94,6 +94,7 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/StaticConfig.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
+    cmake/templates/appdata.xml.in
     cmake/templates/doxygen.in
     cmake/templates/global.h.in
     cmake/templates/template.pc.in
