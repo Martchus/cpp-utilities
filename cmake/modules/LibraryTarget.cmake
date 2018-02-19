@@ -247,22 +247,30 @@ configure_package_config_file(
         BIN_INSTALL_DESTINATION
         LIB_INSTALL_DESTINATION
 )
+list(APPEND CMAKE_CONFIG_FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}ConfigVersion.cmake"
+)
 if(BUILD_SHARED_LIBS)
     find_template_file("SharedConfig.cmake" CPP_UTILITIES SHARED_CONFIG_TEMPLATE_FILE)
-    configure_package_config_file(
+    configure_file(
         "${SHARED_CONFIG_TEMPLATE_FILE}"
         "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}SharedConfig.cmake"
-        INSTALL_DESTINATION
-            "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+        @ONLY
+    )
+    list(APPEND CMAKE_CONFIG_FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}SharedConfig.cmake"
     )
 endif()
 if(BUILD_STATIC_LIBS)
     find_template_file("StaticConfig.cmake" CPP_UTILITIES STATIC_CONFIG_TEMPLATE_FILE)
-    configure_package_config_file(
+    configure_file(
         "${STATIC_CONFIG_TEMPLATE_FILE}"
         "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}StaticConfig.cmake"
-        INSTALL_DESTINATION
-            "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+        @ONLY
+    )
+    list(APPEND CMAKE_CONFIG_FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}StaticConfig.cmake"
     )
 endif()
 
@@ -336,13 +344,9 @@ endif()
 if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for the CMake config files
     install(
-        FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}Config.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION
-            "share/${META_PROJECT_NAME}/cmake"
-        COMPONENT
-            cmake-config
+        FILES ${CMAKE_CONFIG_FILES}
+        DESTINATION "share/${META_PROJECT_NAME}/cmake"
+        COMPONENT cmake-config
     )
     if(NOT TARGET install-cmake-config)
         add_custom_target(install-cmake-config
