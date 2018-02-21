@@ -63,6 +63,26 @@ if(NOT META_APP_BUGTRACKER_URL)
     endif()
 endif()
 
+# determine license automatically from LICENSE file
+if(NOT META_PROJECT_LICENSE)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE" META_PROJECT_LICENSE_FILE)
+    elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
+        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE" META_PROJECT_LICENSE_FILE)
+    endif()
+    if(META_PROJECT_LICENSE_FILE MATCHES "GNU GENERAL PUBLIC LICENSE.*Version ([1-9\\.])")
+        set(META_PROJECT_LICENSE "GPL-${CMAKE_MATCH_1}")
+    elseif(META_PROJECT_LICENSE_FILE MATCHES "GNU LESSER GENERAL PUBLIC LICENSE.*Version ([1-9\\.])")
+        set(META_PROJECT_LICENSE "LGPL-${CMAKE_MATCH_1}")
+    elseif(META_PROJECT_LICENSE_FILE MATCHES "MIT License")
+        set(META_PROJECT_LICENSE "MIT")
+    elseif(META_PROJECT_LICENSE_FILE MATCHES "Mozilla Public License Version ([1-9\\.])")
+        set(META_PROJECT_LICENSE "MPL-${CMAKE_MATCH_1}")
+    else()
+        message(WARNING "Unable to detect license of ${META_PROJECT_NAME}. Set META_PROJECT_LICENSE manually to silence this warning.")
+    endif()
+endif()
+
 # provide variables for other projects built as part of the same subdirs project
 # to access files from this project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
