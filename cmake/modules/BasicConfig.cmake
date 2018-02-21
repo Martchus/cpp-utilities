@@ -116,14 +116,6 @@ if(APPEND_GIT_REVISION)
     endif()
 endif()
 
-# stringify the meta data
-set(META_PROJECT_NAME_STR "\"${META_PROJECT_NAME}\"")
-set(META_APP_NAME_STR "\"${META_APP_NAME}\"")
-set(META_APP_AUTHOR_STR "\"${META_APP_AUTHOR}\"")
-set(META_APP_URL_STR "\"${META_APP_URL}\"")
-set(META_APP_DESCRIPTION_STR "\"${META_APP_DESCRIPTION}\"")
-set(META_APP_VERSION_STR "\"${META_APP_VERSION}\"")
-
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
 set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 
