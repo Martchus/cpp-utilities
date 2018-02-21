@@ -234,14 +234,25 @@ function(add_desktop_file)
         "${META_PROJECT_NAME}"
         "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
     )
-    # create appstream desktop file from template
+
+    # read body for appstream desktop file from resources
     set(META_APP_APPDATA_BODY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/body.appdata.xml")
-    if(EXISTS META_APP_APPDATA_BODY_FILE)
-        file(READ "${META_APP_APPIMAGE_BODY_FILE}" META_APP_APPDATA_BODY)
+    set(META_APP_APPDATA_SUBSTITUTED_BODY_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.body.appdata.xml")
+    if(EXISTS "${META_APP_APPDATA_BODY_FILE}")
+        configure_file(
+            "${META_APP_APPDATA_BODY_FILE}"
+            "${META_APP_APPDATA_SUBSTITUTED_BODY_FILE}"
+            @ONLY
+        )
+        file(READ "${META_APP_APPDATA_SUBSTITUTED_BODY_FILE}" META_APP_APPDATA_BODY)
+        # add indentation of two additional spaces
+        string(REGEX REPLACE "\n([^$])" "\n  \\1" META_APP_APPDATA_BODY "${META_APP_APPDATA_BODY}")
     endif()
+    # create appstream desktop file from template
     configure_file(
         "${APP_APPSTREAM_TEMPLATE_FILE}"
         "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml"
+        @ONLY
     )
     # add install for the appstream file
     install(

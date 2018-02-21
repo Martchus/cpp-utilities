@@ -5,10 +5,14 @@
   <project_license>@META_PROJECT_LICENSE@</project_license>
   <name>@META_APP_NAME@</name>
   <summary>@META_APP_DESCRIPTION@</summary>
-  @META_APP_APPDATA_BODY@<url type="homepage">@META_APP_URL@</url>
+  @META_APP_APPDATA_BODY@
+  <url type="homepage">@META_APP_URL@</url>
   <url type="bugtracker">@META_APP_BUGTRACKER_URL@</url>
+  <developer_name>@META_APP_AUTHOR@</developer_name>
   <provides>
     <binary>@TARGET_PREFIX@@META_PROJECT_NAME@@TARGET_SUFFIX@</binary>
   </provides>
-  <developer_name>@META_APP_AUTHOR@</developer_name>
+  <releases>
+    <release version="@META_APP_VERSION@"/>
+  </releases>
 </component>
