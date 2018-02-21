@@ -18,11 +18,13 @@ foreach(LINKAGE IN ITEMS "" "STATIC_")
     # iterate through public and private libraries of shared/static library
     foreach(DEPENDENCY IN LISTS PUBLIC_${LINKAGE}LIBRARIES PRIVATE_${LINKAGE}LIBRARIES)
         if(TARGET ${DEPENDENCY})
+            unset(DEPENDENCY_DISPLAY_NAME)
+            unset(DEPENDENCY_VER)
+
             # find version and display name for target
-            string(SUBSTRING "${DEPENDENCY}" 0 5 DEPENDENCY_PREFIX)
-            if("${DEPENDENCY_PREFIX}" STREQUAL "Qt5::" OR "${DEPENDENCY_PREFIX}" STREQUAL "StaticQt5::")
+            if(DEPENDENCY MATCHES "(Static)?Qt5::([A-Za-z0-9]+)")
                 # read meta-data of Qt module
-                string(SUBSTRING "${DEPENDENCY}" 5 -1 DEPENDENCY_MODULE_NAME)
+                set(DEPENDENCY_MODULE_NAME "${CMAKE_MATCH_2}")
                 set(DEPENDENCY_DISPLAY_NAME "Qt ${DEPENDENCY_MODULE_NAME}")
                 set(DEPENDENCY_VER "${Qt5${DEPENDENCY_MODULE_NAME}_VERSION_STRING}")
             elseif(${DEPENDENCY}_varname)
@@ -33,11 +35,9 @@ foreach(LINKAGE IN ITEMS "" "STATIC_")
                     set(DEPENDENCY_DISPLAY_NAME "${${DEPENDENCY_VARNAME}_DISPLAY_NAME}")
                 endif()
                 set(DEPENDENCY_VER "${${DEPENDENCY_VARNAME}_VERSION}")
-            else()
-                unset(DEPENDENCY_DISPLAY_NAME)
-                unset(DEPENDENCY_VER)
-                # FIXME: provide meta-data for other libs, too
             endif()
+            # FIXME: provide meta-data for other libs, too
+
             if(DEPENDENCY_VER AND NOT "${DEPENDENCY_VER}" STREQUAL "DEPENDENCY_VER-NOTFOUND")
                 list(APPEND DEPENCENCY_VERSIONS "${DEPENDENCY_DISPLAY_NAME}: ${DEPENDENCY_VER}")
             endif()
