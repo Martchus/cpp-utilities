@@ -290,12 +290,16 @@ void ConversionTests::testStringConversions()
     vector<string> splitTestExpected({ "1", "2,3" });
     vector<string> splitTestActual = splitString<vector<string>>("1,2,3"s, ","s, EmptyPartsTreat::Keep, 2);
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
+    splitTestActual = splitStringSimple<vector<string>>("1,2,3"s, ","s, 2);
+    CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
     splitTestExpected = { "1", "2,3", "4,,5" };
     splitTestActual = splitString<vector<string>>("1,2,,3,4,,5"s, ","s, EmptyPartsTreat::Merge, 3);
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
     string splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, false, "("s, ")"s);
     CPPUNIT_ASSERT_EQUAL("() (a) () (ab) (ABC) (s)"s, splitJoinTest);
     splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Keep), " "s, true, "("s, ")"s);
+    CPPUNIT_ASSERT_EQUAL("(a) (ab) (ABC) (s)"s, splitJoinTest);
+    splitJoinTest = joinStrings(splitStringSimple<vector<string>>(",a,,ab,ABC,s"s, ","s), " "s, true, "("s, ")"s);
     CPPUNIT_ASSERT_EQUAL("(a) (ab) (ABC) (s)"s, splitJoinTest);
     splitJoinTest = joinStrings(splitString<vector<string>>(",a,,ab,ABC,s"s, ","s, EmptyPartsTreat::Omit), " "s, false, "("s, ")"s);
     CPPUNIT_ASSERT_EQUAL("(a) (ab) (ABC) (s)"s, splitJoinTest);

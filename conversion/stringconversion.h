@@ -159,6 +159,33 @@ Container splitString(const typename Container::value_type &string, const typena
 }
 
 /*!
+ * \brief Splits the given \a string (which might also be a string view) at the specified \a delimiter.
+ * \param string The string to be splitted.
+ * \param delimiter Specifies the delimiter.
+ * \param maxParts Specifies the maximal number of parts. Values less or equal zero indicate an unlimited number of parts.
+ * \tparam Container The STL-container used to return the parts.
+ * \returns Returns the parts.
+ * \remarks This is a simplified version of splitString() where emptyPartsRole is always EmptyPartsTreat::Keep.
+ */
+template <class Container = std::list<std::string>>
+Container splitStringSimple(const typename Container::value_type &string, const typename Container::value_type &delimiter, int maxParts = -1)
+{
+    --maxParts;
+    Container res;
+    for (typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
+        delimPos = string.find(delimiter, i);
+        if (maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
+            delimPos = Container::value_type::npos;
+        }
+        if (delimPos == Container::value_type::npos) {
+            delimPos = string.size();
+        }
+        res.emplace_back(string.substr(i, delimPos - i));
+    }
+    return res;
+}
+
+/*!
  * \brief Converts the specified \a multilineString to an array of lines.
  */
 template <class Container = std::vector<std::string>> inline std::vector<std::string> toArrayOfLines(const std::string &multilineString)
