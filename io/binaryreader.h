@@ -187,7 +187,7 @@ inline void BinaryReader::read(byte *buffer, std::streamsize length)
  */
 inline void BinaryReader::read(std::vector<char> &buffer, std::streamsize length)
 {
-    buffer.resize(length);
+    buffer.resize(static_cast<std::vector<char>::size_type>(length));
     m_stream->read(buffer.data(), length);
 }
 
