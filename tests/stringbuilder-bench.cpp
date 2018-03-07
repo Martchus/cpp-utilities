@@ -21,7 +21,7 @@ int main()
     v1.reserve(iterations);
     v2.reserve(iterations);
 
-    DateTime t1 = DateTime::now();
+    DateTime t1 = DateTime::exactGmtNow();
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
             stringstream ss;
@@ -29,10 +29,10 @@ int main()
         }
         v1.clear();
     }
-    DateTime t2 = DateTime::now();
+    DateTime t2 = DateTime::exactGmtNow();
     cout << "plus operator: " << (t2 - t1).toString(TimeSpanOutputFormat::Normal, true) << endl;
 
-    t1 = DateTime::now();
+    t1 = DateTime::exactGmtNow();
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
             stringstream ss;
@@ -41,18 +41,18 @@ int main()
         }
         v1.clear();
     }
-    t2 = DateTime::now();
+    t2 = DateTime::exactGmtNow();
     const TimeSpan diff1 = t2 - t1;
     cout << "stringstream: " << diff1.toString(TimeSpanOutputFormat::Normal, true) << endl;
 
-    t1 = DateTime::now();
+    t1 = DateTime::exactGmtNow();
     for(unsigned int r = 0; r < iterations2; ++r) {
         for(unsigned int i = 0; i < iterations; ++i) {
             v2.emplace_back("left. "s % (i + 1) % "; right: "s % (i + 2) % "; top: "s % (i + 3) % "; bottom: "s % (i + 4) + ';');
         }
         v2.clear();
     }
-    t2 = DateTime::now();
+    t2 = DateTime::exactGmtNow();
     const TimeSpan diff2 = t2 - t1;
     cout << "string builder: " << diff2.toString(TimeSpanOutputFormat::Normal, true) << endl;
 
