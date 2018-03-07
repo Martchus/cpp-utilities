@@ -299,7 +299,7 @@ public:
     bool isUncombinableMainArgPresent() const;
 
 private:
-    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args, std::vector<char> abbreviations, std::vector<const char *> names);)
+    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader);
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);

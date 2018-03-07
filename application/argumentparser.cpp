@@ -949,11 +949,9 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
  *
  * \remarks
  *  - Verifies the sub arguments, too.
- *  - For debugging purposes only; hence only available in debug builds.
- *
- * \todo Remove unused parameter \a abbreviations and \a names in next major release.
+ *  - For debugging purposes only; hence only used in debug builds.
  */
-void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args, vector<char>, vector<const char *>)
+void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args)
 {
     vector<const Argument *> verifiedArgs;
     verifiedArgs.reserve(args.size());
@@ -974,7 +972,7 @@ void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args
         names.emplace_back(arg->name());
     }
     for (const Argument *arg : args) {
-        verifyArgs(arg->subArguments(), vector<char>(), vector<const char *>());
+        verifyArgs(arg->subArguments());
     }
 }
 #endif
