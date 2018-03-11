@@ -13,9 +13,9 @@ class CPP_UTILITIES_EXPORT Failure : public std::exception {
 public:
     Failure();
     Failure(const std::string &what);
-    ~Failure() USE_NOTHROW;
+    ~Failure() noexcept;
 
-    virtual const char *what() const USE_NOTHROW;
+    virtual const char *what() const noexcept;
 
 private:
     std::string m_what;

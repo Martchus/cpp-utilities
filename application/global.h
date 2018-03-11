@@ -85,20 +85,6 @@
 #endif
 
 /*!
- * \def USE_NOTHROW
- * \brief Marks a function as never throwing, under no circumstances.
- * \remarks If the function does nevertheless throw, the behaviour is undefined.
- */
-
-#ifndef USE_NOTHROW
-#if __cplusplus >= 201103L
-#define USE_NOTHROW noexcept
-#else
-#define USE_NOTHROW throw()
-#endif
-#endif
-
-/*!
  * \def DECLARE_ENUM
  * \brief Declares an enum without preventing lupdate to parse the file correctly.
  */
