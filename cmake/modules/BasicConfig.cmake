@@ -217,6 +217,7 @@ if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
             set(FORMATABLE_FILES
                 ${HEADER_FILES} ${SRC_FILES}
                 ${TEST_HEADER_FILES} ${TEST_SRC_FILES}
+                ${GUI_HEADER_FILES} ${GUI_SRC_FILES}
                 ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES}
                 ${QML_HEADER_FILES} ${QML_SRC_FILES}
             )
