@@ -843,7 +843,7 @@ void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgume
  */
 void ArgumentParser::readArgs(int argc, const char *const *argv)
 {
-    IF_DEBUG_BUILD(verifyArgs(m_mainArgs, std::vector<char>(), std::vector<const char *>());)
+    IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
     m_actualArgc = 0;
 
     // the first argument is the executable name
