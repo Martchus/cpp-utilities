@@ -57,7 +57,6 @@ configure_file(
 # add target for generating API documentation
 add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_apidoc"
     COMMAND "${DOXYGEN_BIN}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config"
-    SOURCES ${DOXY_INPUT_FILES}
 )
 if(NOT TARGET apidoc)
     add_custom_target(apidoc)
