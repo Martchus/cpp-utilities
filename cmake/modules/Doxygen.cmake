@@ -3,7 +3,7 @@ if(NOT BASIC_PROJECT_CONFIG_DONE)
 endif()
 
 option(NO_DOXYGEN "whether creation of Doxygen targets is disabled (enabled by default)" OFF)
-if(NOT NO_DOXYGEN)
+if(NO_DOXYGEN)
     return()
 endif()
 
