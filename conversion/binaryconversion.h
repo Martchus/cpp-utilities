@@ -77,7 +77,7 @@ namespace BE {
 #endif
 #include "./binaryconversionprivate.h"
 #undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-}
+} // namespace BE
 
 /*!
  * \brief Encapsulates binary conversion functions using the little endian byte order.
@@ -92,7 +92,7 @@ namespace LE {
 #endif
 #include "./binaryconversionprivate.h"
 #undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-}
+} // namespace LE
 
 /*!
  * \brief Returns the 8.8 fixed point representation converted from the specified 32-bit floating point number.

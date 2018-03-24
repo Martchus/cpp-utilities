@@ -70,4 +70,4 @@ void NativeFileStream::close()
 }
 
 #endif
-}
+} // namespace IoUtilities

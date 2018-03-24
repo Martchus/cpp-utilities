@@ -459,7 +459,7 @@ string TestApplication::readTestfilePathFromSrcRef()
             return string();
         }
 
-            // check whether the referenced source directory contains a "testfiles" directory
+        // check whether the referenced source directory contains a "testfiles" directory
 #ifdef PLATFORM_UNIX // directoryEntries() is not implemented under Windows so we can only to the check under UNIX
         bool hasTestfilesDir = false;
         for (const string &dir : directoryEntries(srcDirContent.data(), DirectoryEntryType::Directory)) {

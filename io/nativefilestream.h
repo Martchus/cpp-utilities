@@ -40,6 +40,6 @@ inline bool NativeFileStream::is_open() const
 }
 
 #endif
-}
+} // namespace IoUtilities
 
 #endif // IOUTILITIES_NATIVE_FILE_STREAM
