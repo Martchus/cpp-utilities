@@ -2,6 +2,7 @@
 #define IOUTILITIES_ANSIESCAPECODES
 
 #include "../global.h"
+#include "../misc/traits.h"
 
 #include <ostream>
 #include <tuple>
@@ -107,12 +108,18 @@ inline std::ostream &operator<<(std::ostream &stream, TextAttribute displayAttri
     return stream;
 }
 
-inline auto color(Color foreground, Color background, TextAttribute displayAttribute = TextAttribute::Reset)
+constexpr auto color(Color foreground, Color background, TextAttribute displayAttribute = TextAttribute::Reset)
 {
     return std::make_tuple(foreground, background, displayAttribute);
 }
 
-inline std::ostream &operator<<(std::ostream &stream, std::tuple<Color, Color, TextAttribute> displayAttribute)
+constexpr auto color(Color foreground, ColorContext context, TextAttribute displayAttribute = TextAttribute::Reset)
+{
+    return std::make_tuple(foreground, context, displayAttribute);
+}
+
+template<typename TupleType, Traits::EnableIfAny<std::is_same<TupleType, std::tuple<Color, Color, TextAttribute>>, std::is_same<TupleType, std::tuple<Color, ColorContext, TextAttribute>>>...>
+inline std::ostream &operator<<(std::ostream &stream, TupleType displayAttribute)
 {
     setStyle(stream, std::get<0>(displayAttribute), std::get<1>(displayAttribute), std::get<2>(displayAttribute));
     return stream;
