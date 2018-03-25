@@ -22,7 +22,8 @@ enum class TextAttribute : char {
     Underscore = '4',
     Blink = '5',
     ReverseVideo = '7',
-    Concealed = '8'
+    Concealed = '8',
+    Strikethrough = '9',
 };
 
 enum class Direction : char { Up = 'A', Down = 'B', Forward = 'C', Backward = 'D' };
