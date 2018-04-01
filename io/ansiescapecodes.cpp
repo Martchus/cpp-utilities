@@ -86,6 +86,10 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
         setStyle(stream, TextAttribute::Reset);
         setStyle(stream, TextAttribute::Bold);
         break;
+    case Phrases::Override:
+        eraseLine(stream);
+        stream << '\r';
+        break;
     }
     return stream;
 }

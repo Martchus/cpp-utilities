@@ -141,6 +141,7 @@ enum class Phrases {
     WarningMessage, /**< bold, yellow "==> WARNING: " */
     EndFlush, /**< resets the style and flushes the stream */
     Info, /**< bold, blue "Info: " */
+    Override, /**< erases the current line */
 };
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 
