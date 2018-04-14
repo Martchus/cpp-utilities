@@ -4,7 +4,7 @@
 #include <cstddef>
 
 // ensure the old ABI is used under libstd++ < 7 and the new ABI under libstd++ >= 7
-#if __GLIBCXX__ >= 20170502
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 7
 #undef _GLIBCXX_USE_CXX11_ABI
 #define _GLIBCXX_USE_CXX11_ABI 1
 #endif
