@@ -184,6 +184,14 @@ public:
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
 
+    // declare getter/setter/properties/operations for argument definition:
+    //  - those properties must be set *before* parsing
+    //  - they control the behaviour of the parser, eg.
+    //     - the name/abbreviation to look for
+    //     - constraints to be checked
+    //     - callbacks to be invoked
+    // TODO v5: It would make sense to move these to a separate class (eg. ArgumentDefinition) to prevent this one from
+    // becoming to big.
     const char *name() const;
     void setName(const char *name);
     char abbreviation() const;
@@ -194,19 +202,11 @@ public:
     void setDescription(const char *description);
     const char *example() const;
     void setExample(const char *example);
-    const std::vector<const char *> &values(std::size_t occurrence = 0) const;
-    const char *firstValue() const;
     std::size_t requiredValueCount() const;
     void setRequiredValueCount(std::size_t requiredValueCount);
     const std::vector<const char *> &valueNames() const;
     void setValueNames(std::initializer_list<const char *> valueNames);
     void appendValueName(const char *valueName);
-    bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
-    bool isPresent() const;
-    std::size_t occurrences() const;
-    std::size_t index(std::size_t occurrence) const;
-    std::size_t minOccurrences() const;
-    std::size_t maxOccurrences() const;
     void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
     const std::vector<Argument *> &path(std::size_t occurrence = 0) const;
     bool isRequired() const;
@@ -219,25 +219,37 @@ public:
     void setDenotesOperation(bool denotesOperation);
     const CallbackFunction &callback() const;
     void setCallback(CallbackFunction callback);
-    void printInfo(std::ostream &os, unsigned char indentation = 0) const;
     const ArgumentVector &subArguments() const;
     void setSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArgument(Argument *arg);
     bool hasSubArguments() const;
     const ArgumentVector parents() const;
-    bool isMainArgument() const;
-    bool isParentPresent() const;
+    void printInfo(std::ostream &os, unsigned char indentation = 0) const;
+
+    // declare getter/setter/properties for bash completion: those properties must be set *before parsing
     ValueCompletionBehavior valueCompletionBehaviour() const;
     void setValueCompletionBehavior(ValueCompletionBehavior valueCompletionBehaviour);
     const char *preDefinedCompletionValues() const;
     void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
+
+    // declare getter/read-only properties for parsing results: those properties will be populated when parsing
+    const std::vector<const char *> &values(std::size_t occurrence = 0) const;
+    const char *firstValue() const;
+    bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
+    bool isPresent() const;
+    std::size_t occurrences() const;
+    std::size_t index(std::size_t occurrence) const;
+    std::size_t minOccurrences() const;
+    std::size_t maxOccurrences() const;
+    bool isMainArgument() const;
+    bool isParentPresent() const;
     Argument *conflictsWithArgument() const;
     Argument *wouldConflictWithArgument() const;
     Argument *specifiedOperation() const;
-    void reset();
-    void resetRecursively();
     const std::vector<ArgumentOccurrence> &occurrenceInfo() const;
     std::vector<ArgumentOccurrence> &occurrenceInfo();
+    void reset();
+    void resetRecursively();
 
     /*!
      * \brief Denotes a variable number of values.
@@ -246,6 +258,7 @@ public:
     static constexpr std::size_t varValueCount = std::numeric_limits<std::size_t>::max();
 
 private:
+    // declare internal getter/setter/properties/operations for argument definition
     bool matchesDenotation(const char *denotation, size_t denotationLength) const;
 
     const char *m_name;
@@ -276,9 +289,12 @@ class CPP_UTILITIES_EXPORT ArgumentParser {
 public:
     ArgumentParser();
 
+    // declare getter/setter for argument definitions
     const ArgumentVector &mainArguments() const;
     void setMainArguments(const ArgumentInitializerList &mainArguments);
     void addMainArgument(Argument *argument);
+
+    // declare operations which will consider previously assigned argument definitions and maybe modify parsing results
     void printHelp(std::ostream &os) const;
     void parseArgs(int argc, const char *const *argv);
     void parseArgsOrExit(int argc, const char *const *argv);
@@ -287,6 +303,10 @@ public:
         = ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks | ParseArgumentBehavior::ExitOnFailure);
     void readArgs(int argc, const char *const *argv);
     void resetArgs();
+    void checkConstraints();
+    void invokeCallbacks();
+
+    // declare getter for parsing results
     unsigned int actualArgumentCount() const;
     const char *executable() const;
     UnknownArgumentBehavior unknownArgumentBehavior() const;
@@ -294,11 +314,10 @@ public:
     Argument *defaultArgument() const;
     void setDefaultArgument(Argument *argument);
     Argument *specifiedOperation() const;
-    void checkConstraints();
-    void invokeCallbacks();
     bool isUncombinableMainArgPresent() const;
 
 private:
+    // declare internal operations
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader);
     void checkConstraints(const ArgumentVector &args);
@@ -734,6 +753,8 @@ inline bool Argument::hasSubArguments() const
  *
  * If this argument is used as a main argument shouldn't be used as
  * secondary argument at the same time and thus have no parents.
+ *
+ * \todo Return by reference in v5.
  */
 inline const ArgumentVector Argument::parents() const
 {
@@ -791,6 +812,8 @@ inline void Argument::setPreDefinedCompletionValues(const char *preDefinedComple
 
 /*!
  * \brief Resets occurrences (indices, values and paths).
+ *
+ * So parsing results are wiped while the argument definition is preserved.
  */
 inline void Argument::reset()
 {
