@@ -1,7 +1,9 @@
 #ifndef APPLICATION_UTILITIES_ARGUMENTPARSER_H
 #define APPLICATION_UTILITIES_ARGUMENTPARSER_H
 
+#include "../conversion/stringconversion.h"
 #include "../global.h"
+#include "../misc/traits.h"
 
 #include <functional>
 #include <initializer_list>
@@ -122,7 +124,26 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
 }
 /// \endcond
 
+// TODO v5: Make function private
 Argument CPP_UTILITIES_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
+
+/*!
+ * \brief Contains functions to convert raw argument values to certain types.
+ * \remarks Still experimental. Might be removed/adjusted in next minor release.
+ */
+namespace ValueConversion {
+template <typename TargetType> TargetType convert(const char *value);
+
+template <typename TargetType, Traits::EnableIf<std::is_same<TargetType, std::string>>> TargetType convert(const char *value)
+{
+    return std::string(value);
+}
+
+template <typename TargetType, Traits::EnableIf<std::is_arithmetic<TargetType>>> TargetType convert(const char *value)
+{
+    return ConversionUtilities::stringToNumber<TargetType>(value);
+}
+} // namespace ValueConversion
 
 /*!
  * \brief The ArgumentOccurrence struct holds argument values for an occurrence of an argument.
@@ -146,7 +167,43 @@ struct CPP_UTILITIES_EXPORT ArgumentOccurrence {
      * \remarks Empty for top-level occurrences.
      */
     std::vector<Argument *> path;
+
+    template <typename TargetType> std::tuple<TargetType> convertValues() const;
+    template <typename FirstTargetType, typename... RemainingTargetTypes> std::tuple<FirstTargetType, RemainingTargetTypes...> convertValues() const;
+
+private:
+    template <typename FirstTargetType, typename... RemainingTargetTypes>
+    std::tuple<FirstTargetType, RemainingTargetTypes...> convertValues(std::vector<const char *>::const_iterator firstValue) const;
 };
+
+/*!
+ * \brief Converts the present value to the specified target type. There must be at least one value present.
+ * \remarks Still experimental. Might be removed/adjusted in next minor release.
+ */
+template <typename TargetType> std::tuple<TargetType> ArgumentOccurrence::convertValues() const
+{
+    return std::make_tuple<TargetType>(ValueConversion::convert<TargetType>(values.front()));
+}
+
+/*!
+ * \brief Converts the present values to the specified target types. There must be as many values present as types are specified.
+ * \remarks Still experimental. Might be removed/adjusted in next minor release.
+ */
+template <typename FirstTargetType, typename... RemainingTargetTypes>
+std::tuple<FirstTargetType, RemainingTargetTypes...> ArgumentOccurrence::convertValues() const
+{
+    return std::tuple_cat(std::make_tuple<FirstTargetType>(ValueConversion::convert<FirstTargetType>(values.front())),
+        convertValues<RemainingTargetTypes...>(values.cbegin() + 1));
+}
+
+/// \cond
+template <typename FirstTargetType, typename... RemainingTargetTypes>
+std::tuple<FirstTargetType, RemainingTargetTypes...> ArgumentOccurrence::convertValues(std::vector<const char *>::const_iterator firstValue) const
+{
+    return std::tuple_cat(std::make_tuple<FirstTargetType>(ValueConversion::convert<FirstTargetType>(*firstValue)),
+        convertValues<RemainingTargetTypes...>(firstValue + 1));
+}
+/// \endcond
 
 /*!
  * \brief Constructs an argument occurrence for the specified \a index.
@@ -234,6 +291,9 @@ public:
 
     // declare getter/read-only properties for parsing results: those properties will be populated when parsing
     const std::vector<const char *> &values(std::size_t occurrence = 0) const;
+    template <typename... TargetType> std::tuple<TargetType...> convertValues(std::size_t occurrence = 0) const;
+    template <typename... TargetType> std::vector<std::tuple<TargetType...>> convertAllValues() const;
+
     const char *firstValue() const;
     bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
     bool isPresent() const;
@@ -281,6 +341,29 @@ private:
     ValueCompletionBehavior m_valueCompletionBehavior;
     const char *m_preDefinedCompletionValues;
 };
+
+/*!
+ * \brief Converts the present values for the specified \a occurrence to the specified target types. There must be as many values present as types are specified.
+ * \remarks Still experimental. Might be removed/adjusted in next minor release.
+ */
+template <typename... TargetType> std::tuple<TargetType...> Argument::convertValues(std::size_t occurrence) const
+{
+    return m_occurrences[occurrence].convertValues<TargetType...>();
+}
+
+/*!
+ * \brief Converts the present values for all occurrence to the specified target types. For each occurrence, there must be as many values present as types are specified.
+ * \remarks Still experimental. Might be removed/adjusted in next minor release.
+ */
+template <typename... TargetType> std::vector<std::tuple<TargetType...>> Argument::convertAllValues() const
+{
+    std::vector<std::tuple<TargetType...>> res;
+    res.reserve(m_occurrences.size());
+    for (const auto &occurrence : m_occurrences) {
+        res.emplace_back(occurrence.convertValues<TargetType...>());
+    }
+    return res;
+}
 
 class CPP_UTILITIES_EXPORT ArgumentParser {
     friend ArgumentParserTests;
