@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 # add project files
 set(HEADER_FILES
     application/argumentparser.h
-    application/argumentparserprivate.h
     application/commandlineutils.h
     application/failure.h
     application/fakeqtconfigarguments.h
@@ -38,6 +37,7 @@ set(HEADER_FILES
     tests/outputcheck.h
 )
 set(SRC_FILES
+    application/argumentparserprivate.h
     application/argumentparser.cpp
     application/commandlineutils.cpp
     application/failure.cpp
