@@ -208,6 +208,12 @@ if(HAS_PARENT)
     message(STATUS "For the check target to work, it is required to call enable_testing() on the source directory root.")
 endif()
 
+# make testing more convenient (not only useful if there's a test target; this is for instance also used in mocked configuration of syncthingtray)
+# -> add a file called "srcdirref" to the build directory; this file contains the path of the sources so tests can easily find test files contained in the source directory
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/srcdirref" "${CMAKE_CURRENT_SOURCE_DIR}")
+# -> ensure the directory "testfiles" exists in the build directory; tests will create the directory for working copies of testfiles there by default
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/testfiles")
+
 # add target for tidying with clang-format
 if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
     option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" OFF)

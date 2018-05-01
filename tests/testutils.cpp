@@ -478,7 +478,8 @@ string TestApplication::readTestfilePathFromSrcRef()
 
         return srcDirContent += "/testfiles/";
     } catch (...) {
-        // the "srcdirref" file likely just does not exist, so ignore the error case for now
+        cerr << Phrases::Warning << "The file \"srcdirref\" can not be opened. It likely just doesn't exist in the working directory."
+             << Phrases::EndFlush;
         catchIoFailure();
     }
     return string();
