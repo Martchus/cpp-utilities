@@ -30,6 +30,7 @@ set(HEADER_FILES
     io/misc.h
     math/math.h
     misc/memory.h
+    misc/multiarray.h
     misc/random.h
     misc/traits.h
     tests/testutils.h
