@@ -6,13 +6,14 @@
 /*!
  * \namespace MathUtilities
  * \brief Contains various mathematical functions.
+ * \todo Move math.h and math.cpp to misc in v5.
  */
 
 namespace MathUtilities {
 
 /*!
  * \brief Returns a pseudo random number between \a lowerbounds and \a upperbounds.
- * \remarks Might be removed since std::uniform_int_distribution does the same.
+ * \todo Remove in v5 since std::uniform_int_distribution does the same.
  */
 int random(int lowerbounds, int upperbounds)
 {
@@ -22,6 +23,7 @@ int random(int lowerbounds, int upperbounds)
 
 /*!
  * \brief Returns the digitsum of the given \a number using the specified \a base.
+ * \todo Make constexpr/template in v5.
  */
 int digitsum(int number, int base)
 {
@@ -35,6 +37,7 @@ int digitsum(int number, int base)
 
 /*!
  * \brief Returns the factorial of the given \a number.
+ * \todo Make constexpr/template in v5.
  */
 int factorial(int number)
 {
@@ -47,6 +50,7 @@ int factorial(int number)
 
 /*!
  * \brief Computes \a base power \a exponent modulo \a module.
+ * \todo Make constexpr/template in v5.
  */
 uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module)
 {
@@ -65,6 +69,7 @@ uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module
 
 /*!
  * \brief Computes the inverse of \a number modulo \a module.
+ * \todo Make constexpr/template in v5.
  */
 int64 inverseModulo(int64 number, int64 module)
 {
@@ -82,6 +87,7 @@ int64 inverseModulo(int64 number, int64 module)
 
 /*!
  * \brief Computes the order of \a number modulo \a module.
+ * \todo Make constexpr/template in v5.
  */
 uint64 orderModulo(const uint64 number, const uint64 module)
 {
