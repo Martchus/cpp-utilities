@@ -5,6 +5,12 @@ Useful C++ classes and routines such as argument parser, IO and conversion utili
 The library utilizes:
 
 * parsing command-line arguments and providing Bash completion
+    - supports nested arguments
+    - supports operations (no `--` or `-` prefix, eg. `git status`)
+    - can check for invalid or uncombinable arguments
+    - can print help automatically
+    - provides automatic Bash completion for argument names
+    - allows customizing Bash completion for argument values
 * dealing with dates and times
 * conversion of primitive data types to byte-buffers and vice versa (litte-endian and big-endian)
 * common string conversions/operations, eg.
@@ -25,6 +31,13 @@ The library utilizes:
     - assert standard output
     - various helper
 * building with CMake by providing some modules and templates
+
+Besides, the library provides a few useful algorithms and data structures:
+
+* min(), max() for any number of arguments
+* digitsum(), factorial(), powerModulo(), inverseModulo(), orderModulo()
+* Damerau–Levenshtein distance
+* *N*-dimensional array
 
 ## Build instructions
 ### Requirements
