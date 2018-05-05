@@ -93,7 +93,7 @@ template <typename DistanceArray>
 size_t performDamerauLevenshteinAlgorithmAllocatingOnStack(
     DistanceArray &distanceArray, const char *const str1, const size_t size1, const char *const str2, const size_t size2)
 {
-    size_t buffer[128];
+    size_t buffer[128] = { 0 };
     distanceArray.buffer() = buffer;
     initDistanceArray(distanceArray, size1, size2);
     return performDamerauLevenshteinAlgorithm(distanceArray, str1, size1, str2, size2);
