@@ -33,6 +33,7 @@ set(HEADER_FILES
     misc/multiarray.h
     misc/random.h
     misc/traits.h
+    misc/levenshtein.h
     tests/testutils.h
     tests/cppunit.h
     tests/outputcheck.h
@@ -59,6 +60,7 @@ set(SRC_FILES
     io/misc.cpp
     math/math.cpp
     misc/random.cpp
+    misc/levenshtein.cpp
     tests/testutils.cpp
 )
 
@@ -73,6 +75,7 @@ set(TEST_SRC_FILES
     tests/argumentparsertests.cpp
     tests/traitstests.cpp
     tests/mathtests.cpp
+    tests/misctests.cpp
 )
 
 set(CMAKE_MODULE_FILES
