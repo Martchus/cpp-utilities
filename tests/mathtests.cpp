@@ -10,6 +10,19 @@ using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
+namespace MathUtilities {
+
+static_assert(min(1, 2, 3) == 1, "min");
+static_assert(min(3, 2, 1) == 1, "min");
+static_assert(min(3, 4, 2, 1) == 1, "min");
+static_assert(min(3, 4, -2, 2, 1) == -2, "min");
+static_assert(max(1, 2, 3) == 3, "max");
+static_assert(max(3, 2, 1) == 3, "max");
+static_assert(max(3, 4, 2, 1) == 4, "max");
+static_assert(max(3, -2, 4, 2, 1) == 4, "max");
+
+} // namespace MathUtilities
+
 /*!
  * \brief The MathTests class tests functions of the MathUtilities namespace.
  */
