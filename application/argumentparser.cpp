@@ -1149,7 +1149,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     // read the "opening" (started but not finished argument denotation)
     const char *opening = nullptr;
     string compoundOpening;
-    size_t openingLen, compoundOpeningStartLen = 0;
+    size_t openingLen = 0, compoundOpeningStartLen = 0;
     unsigned char openingDenotationType = Value;
     if (argc && completionInfo.nextArgumentOrValue) {
         if (currentWordIndex < static_cast<unsigned int>(argc)) {
@@ -1159,7 +1159,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             // This is not how values are treated by the argument parser. Hence the opening
             // must be joined again. In this case only the part after the equation sign needs to be
             // provided for completion so compoundOpeningStartLen is set to number of characters to skip.
-            size_t minCurrentWordIndex = (completionInfo.lastDetectedArg ? completionInfo.lastDetectedArgIndex : 0);
+            const size_t minCurrentWordIndex = (completionInfo.lastDetectedArg ? completionInfo.lastDetectedArgIndex : 0);
             if (currentWordIndex > minCurrentWordIndex && !strcmp(opening, "=")) {
                 compoundOpening.reserve(compoundOpeningStartLen = strlen(argv[--currentWordIndex]) + 1);
                 compoundOpening = argv[currentWordIndex];
@@ -1184,98 +1184,100 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     cout << "COMPREPLY=(";
     // -> completions for parameter values
     bool noWhitespace = false;
-    for (const Argument *arg : completionInfo.relevantPreDefinedValues) {
+    for (const Argument *const arg : completionInfo.relevantPreDefinedValues) {
         if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::InvokeCallback && arg->m_callbackFunction) {
             arg->m_callbackFunction(arg->isPresent() ? arg->m_occurrences.front() : ArgumentOccurrence(Argument::varValueCount));
         }
-        if (arg->preDefinedCompletionValues()) {
-            bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
-            if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
-                if (openingDenotationType == Value) {
-                    bool wordStart = true, ok = false, equationSignAlreadyPresent = false;
-                    size_t wordIndex = 0;
-                    for (const char *i = arg->preDefinedCompletionValues(), *end = opening + openingLen; *i;) {
-                        if (wordStart) {
-                            const char *i1 = i, *i2 = opening;
-                            for (; *i1 && i2 != end && *i1 == *i2; ++i1, ++i2)
-                                ;
-                            if ((ok = (i2 == end))) {
-                                cout << '\'';
-                            }
-                            wordStart = false;
-                            wordIndex = 0;
-                        } else if ((wordStart = (*i == ' ') || (*i == '\n'))) {
-                            equationSignAlreadyPresent = false;
-                            if (ok) {
-                                cout << '\'' << ' ';
-                            }
-                            ++i;
-                            continue;
-                        } else if (*i == '=') {
-                            equationSignAlreadyPresent = true;
-                        }
-                        if (ok) {
-                            if (!compoundOpeningStartLen || wordIndex >= compoundOpeningStartLen) {
-                                if (*i == '\'') {
-                                    cout << "'\"'\"'";
-                                } else {
-                                    cout << *i;
-                                }
-                            }
-                            ++i, ++wordIndex;
-                            switch (*i) {
-                            case ' ':
-                            case '\n':
-                            case '\0':
-                                if (appendEquationSign && !equationSignAlreadyPresent) {
-                                    cout << '=';
-                                    noWhitespace = true;
-                                    equationSignAlreadyPresent = false;
-                                }
-                                if (*i == '\0') {
-                                    cout << '\'';
-                                }
-                            }
-                        } else {
-                            ++i;
-                        }
+        if (!arg->preDefinedCompletionValues()) {
+            continue;
+        }
+        const bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
+        if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
+            if (openingDenotationType != Value) {
+                continue;
+            }
+            bool wordStart = true, ok = false, equationSignAlreadyPresent = false;
+            size_t wordIndex = 0;
+            for (const char *i = arg->preDefinedCompletionValues(), *end = opening + openingLen; *i;) {
+                if (wordStart) {
+                    const char *i1 = i, *i2 = opening;
+                    for (; *i1 && i2 != end && *i1 == *i2; ++i1, ++i2)
+                        ;
+                    if ((ok = (i2 == end))) {
+                        cout << '\'';
                     }
-                    cout << ' ';
+                    wordStart = false;
+                    wordIndex = 0;
+                } else if ((wordStart = (*i == ' ') || (*i == '\n'))) {
+                    equationSignAlreadyPresent = false;
+                    if (ok) {
+                        cout << '\'' << ' ';
+                    }
+                    ++i;
+                    continue;
+                } else if (*i == '=') {
+                    equationSignAlreadyPresent = true;
                 }
-            } else if (const char *i = arg->preDefinedCompletionValues()) {
-                bool equationSignAlreadyPresent = false;
-                cout << '\'';
-                while (*i) {
+                if (!ok) {
+                    ++i;
+                    continue;
+                }
+                if (!compoundOpeningStartLen || wordIndex >= compoundOpeningStartLen) {
                     if (*i == '\'') {
                         cout << "'\"'\"'";
                     } else {
                         cout << *i;
                     }
-                    switch (*(++i)) {
-                    case '=':
-                        equationSignAlreadyPresent = true;
-                        break;
-                    case ' ':
-                    case '\n':
-                    case '\0':
-                        if (appendEquationSign && !equationSignAlreadyPresent) {
-                            cout << '=';
-                            equationSignAlreadyPresent = false;
-                        }
-                        if (*i != '\0') {
-                            cout << '\'';
-                            if (*(++i)) {
-                                cout << ' ' << '\'';
-                            }
+                }
+                ++i, ++wordIndex;
+                switch (*i) {
+                case ' ':
+                case '\n':
+                case '\0':
+                    if (appendEquationSign && !equationSignAlreadyPresent) {
+                        cout << '=';
+                        noWhitespace = true;
+                        equationSignAlreadyPresent = false;
+                    }
+                    if (*i == '\0') {
+                        cout << '\'';
+                    }
+                }
+            }
+            cout << ' ';
+        } else if (const char *i = arg->preDefinedCompletionValues()) {
+            bool equationSignAlreadyPresent = false;
+            cout << '\'';
+            while (*i) {
+                if (*i == '\'') {
+                    cout << "'\"'\"'";
+                } else {
+                    cout << *i;
+                }
+                switch (*(++i)) {
+                case '=':
+                    equationSignAlreadyPresent = true;
+                    break;
+                case ' ':
+                case '\n':
+                case '\0':
+                    if (appendEquationSign && !equationSignAlreadyPresent) {
+                        cout << '=';
+                        equationSignAlreadyPresent = false;
+                    }
+                    if (*i != '\0') {
+                        cout << '\'';
+                        if (*(++i)) {
+                            cout << ' ' << '\'';
                         }
                     }
                 }
-                cout << '\'' << ' ';
             }
+            cout << '\'' << ' ';
         }
     }
     // -> completions for further arguments
-    for (const Argument *arg : completionInfo.relevantArgs) {
+    for (const Argument *const arg : completionInfo.relevantArgs) {
         if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
             switch (openingDenotationType) {
             case Value:
@@ -1360,15 +1362,16 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             list<string> entries = directoryEntries(actualDir.c_str(), entryTypes);
             findAndReplace(actualDir, replace, with);
             for (string &dirEntry : entries) {
-                if (startsWith(dirEntry, actualFile)) {
-                    cout << '\'';
-                    if (actualDir != ".") {
-                        cout << actualDir;
-                    }
-                    findAndReplace(dirEntry, replace, with);
-                    cout << dirEntry << '\'' << ' ';
-                    haveFileOrDirCompletions = true;
+                if (!startsWith(dirEntry, actualFile)) {
+                    continue;
                 }
+                cout << '\'';
+                if (actualDir != ".") {
+                    cout << actualDir;
+                }
+                findAndReplace(dirEntry, replace, with);
+                cout << dirEntry << '\'' << ' ';
+                haveFileOrDirCompletions = true;
             }
         } else {
             for (string &dirEntry : directoryEntries(".", entryTypes)) {
