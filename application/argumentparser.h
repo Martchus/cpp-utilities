@@ -365,6 +365,8 @@ template <typename... TargetType> std::vector<std::tuple<TargetType...>> Argumen
     return res;
 }
 
+struct ArgumentCompletionInfo;
+
 class CPP_UTILITIES_EXPORT ArgumentParser {
     friend ArgumentParserTests;
     friend ArgumentReader;
@@ -402,6 +404,7 @@ public:
 private:
     // declare internal operations
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
+    ArgumentCompletionInfo determineCompletionInfo(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader);
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader);
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);

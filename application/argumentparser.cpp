@@ -1015,6 +1015,127 @@ void insertSiblings(const ArgumentVector &siblings, list<const Argument *> &targ
     }
 }
 
+struct ArgumentCompletionInfo {
+    ArgumentCompletionInfo(const ArgumentReader &reader);
+
+    const Argument *const lastDetectedArg;
+    size_t lastDetectedArgIndex = 0;
+    vector<Argument *> lastDetectedArgPath;
+    list<const Argument *> relevantArgs;
+    list<const Argument *> relevantPreDefinedValues;
+    const char *const *lastSpecifiedArg = nullptr;
+    unsigned int lastSpecifiedArgIndex = 0;
+    bool nextArgumentOrValue = false;
+    bool completeFiles = false, completeDirs = false;
+};
+
+ArgumentCompletionInfo::ArgumentCompletionInfo(const ArgumentReader &reader)
+    : lastDetectedArg(reader.lastArg)
+{
+}
+
+/*!
+ * \brief Determines arguments relevant for Bash completion or suggestions in case of typo.
+ */
+ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
+    int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader)
+{
+    ArgumentCompletionInfo completion(reader);
+
+    // determine last detected arg
+    if (completion.lastDetectedArg) {
+        completion.lastDetectedArgIndex = reader.lastArgDenotation - argv;
+        completion.lastDetectedArgPath = completion.lastDetectedArg->path(completion.lastDetectedArg->occurrences() - 1);
+    }
+
+    // determine last arg, omitting trailing empty args
+    if (argc) {
+        completion.lastSpecifiedArgIndex = static_cast<unsigned int>(argc) - 1;
+        completion.lastSpecifiedArg = argv + completion.lastSpecifiedArgIndex;
+        for (; completion.lastSpecifiedArg >= argv && **completion.lastSpecifiedArg == '\0';
+             --completion.lastSpecifiedArg, --completion.lastSpecifiedArgIndex)
+            ;
+    }
+
+    // just return main arguments if no args detected
+    if (!completion.lastDetectedArg || !completion.lastDetectedArg->isPresent()) {
+        completion.nextArgumentOrValue = true;
+        insertSiblings(m_mainArgs, completion.relevantArgs);
+        completion.relevantArgs.sort(compareArgs);
+        return completion;
+    }
+
+    completion.nextArgumentOrValue = currentWordIndex > completion.lastDetectedArgIndex;
+    if (!completion.nextArgumentOrValue) {
+        // since the argument could be detected (hopefully unambiguously?) just return it for "final completion"
+        completion.relevantArgs.push_back(completion.lastDetectedArg);
+        completion.relevantArgs.sort(compareArgs);
+        return completion;
+    }
+
+    // define function to add parameter values of argument as possible completions
+    const auto addValueCompletionsForArg = [&completion](const Argument *arg) {
+        if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::PreDefinedValues) {
+            completion.relevantPreDefinedValues.push_back(arg);
+        }
+        if (!(arg->valueCompletionBehaviour() & ValueCompletionBehavior::FileSystemIfNoPreDefinedValues) || !arg->preDefinedCompletionValues()) {
+            completion.completeFiles = completion.completeFiles || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Files;
+            completion.completeDirs = completion.completeDirs || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Directories;
+        }
+    };
+
+    // detect number of specified values
+    auto currentValueCount = completion.lastDetectedArg->values(completion.lastDetectedArg->occurrences() - 1).size();
+    // ignore values which are specified after the current word
+    if (currentValueCount) {
+        const auto currentWordIndexRelativeToLastDetectedArg = currentWordIndex - completion.lastDetectedArgIndex;
+        if (currentValueCount > currentWordIndexRelativeToLastDetectedArg) {
+            currentValueCount -= currentWordIndexRelativeToLastDetectedArg;
+        } else {
+            currentValueCount = 0;
+        }
+    }
+
+    // add value completions for implicit child if there are no value specified and there are no values required by the
+    // last detected argument itself
+    if (!currentValueCount && !completion.lastDetectedArg->requiredValueCount()) {
+        for (const Argument *child : completion.lastDetectedArg->subArguments()) {
+            if (child->isImplicit() && child->requiredValueCount()) {
+                addValueCompletionsForArg(child);
+                break;
+            }
+        }
+    }
+
+    // add value completions for last argument if there are further values required
+    if (completion.lastDetectedArg->requiredValueCount() == Argument::varValueCount
+        || (currentValueCount < completion.lastDetectedArg->requiredValueCount())) {
+        addValueCompletionsForArg(completion.lastDetectedArg);
+    }
+
+    if (completion.lastDetectedArg->requiredValueCount() == Argument::varValueCount
+        || completion.lastDetectedArg->values(completion.lastDetectedArg->occurrences() - 1).size()
+            >= completion.lastDetectedArg->requiredValueCount()) {
+        // sub arguments of the last arg are possible completions
+        for (const Argument *subArg : completion.lastDetectedArg->subArguments()) {
+            if (subArg->occurrences() < subArg->maxOccurrences()) {
+                completion.relevantArgs.push_back(subArg);
+            }
+        }
+
+        // siblings of parents are possible completions as well
+        for (auto parentArgument = completion.lastDetectedArgPath.crbegin(), end = completion.lastDetectedArgPath.crend();; ++parentArgument) {
+            insertSiblings(parentArgument != end ? (*parentArgument)->subArguments() : m_mainArgs, completion.relevantArgs);
+            if (parentArgument == end) {
+                break;
+            }
+        }
+    }
+
+    completion.relevantArgs.sort(compareArgs);
+    return completion;
+}
+
 /*!
  * \brief Prints the bash completion for the specified arguments and the specified \a lastPath.
  * \remarks Arguments must have been parsed before with readSpecifiedArgs(). When calling this method, completionMode must
@@ -1022,107 +1143,15 @@ void insertSiblings(const ArgumentVector &siblings, list<const Argument *> &targ
  */
 void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader)
 {
-    // variables to store relevant completions (arguments, pre-defined values, files/dirs)
-    list<const Argument *> relevantArgs, relevantPreDefinedValues;
-    bool completeFiles = false, completeDirs = false, noWhitespace = false;
-
-    // get the last argument the argument parser was able to detect successfully
-    const Argument *const lastDetectedArg = reader.lastArg;
-    size_t lastDetectedArgIndex;
-    vector<Argument *> lastDetectedArgPath;
-    if (lastDetectedArg) {
-        lastDetectedArgIndex = reader.lastArgDenotation - argv;
-        lastDetectedArgPath = lastDetectedArg->path(lastDetectedArg->occurrences() - 1);
-    }
-
-    // determine last arg, omitting trailing empty args
-    const char *const *lastSpecifiedArg;
-    unsigned int lastSpecifiedArgIndex;
-    if (argc) {
-        lastSpecifiedArgIndex = static_cast<unsigned int>(argc) - 1;
-        lastSpecifiedArg = argv + lastSpecifiedArgIndex;
-        for (; lastSpecifiedArg >= argv && **lastSpecifiedArg == '\0'; --lastSpecifiedArg, --lastSpecifiedArgIndex)
-            ;
-    }
-
-    // determine arguments relevant for completion
-    bool nextArgumentOrValue;
-    if (lastDetectedArg && lastDetectedArg->isPresent()) {
-        if ((nextArgumentOrValue = (currentWordIndex > lastDetectedArgIndex))) {
-            // define function to add parameter values of argument as possible completions
-            const auto addValueCompletionsForArg = [&relevantPreDefinedValues, &completeFiles, &completeDirs](const Argument *arg) {
-                if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::PreDefinedValues) {
-                    relevantPreDefinedValues.push_back(arg);
-                }
-                if (!(arg->valueCompletionBehaviour() & ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)
-                    || !arg->preDefinedCompletionValues()) {
-                    completeFiles = completeFiles || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Files;
-                    completeDirs = completeDirs || arg->valueCompletionBehaviour() & ValueCompletionBehavior::Directories;
-                }
-            };
-
-            // detect number of specified values
-            auto currentValueCount = lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size();
-            // ignore values which are specified after the current word
-            if (currentValueCount) {
-                const auto currentWordIndexRelativeToLastDetectedArg = currentWordIndex - lastDetectedArgIndex;
-                if (currentValueCount > currentWordIndexRelativeToLastDetectedArg) {
-                    currentValueCount -= currentWordIndexRelativeToLastDetectedArg;
-                } else {
-                    currentValueCount = 0;
-                }
-            }
-
-            // add value completions for implicit child if there are no value specified and there are no values required by the
-            // last detected argument itself
-            if (!currentValueCount && !lastDetectedArg->requiredValueCount()) {
-                for (const Argument *child : lastDetectedArg->subArguments()) {
-                    if (child->isImplicit() && child->requiredValueCount()) {
-                        addValueCompletionsForArg(child);
-                        break;
-                    }
-                }
-            }
-
-            // add value completions for last argument if there are further values required
-            if (lastDetectedArg->requiredValueCount() == Argument::varValueCount || (currentValueCount < lastDetectedArg->requiredValueCount())) {
-                addValueCompletionsForArg(lastDetectedArg);
-            }
-
-            if (lastDetectedArg->requiredValueCount() == Argument::varValueCount
-                || lastDetectedArg->values(lastDetectedArg->occurrences() - 1).size() >= lastDetectedArg->requiredValueCount()) {
-                // sub arguments of the last arg are possible completions
-                for (const Argument *subArg : lastDetectedArg->subArguments()) {
-                    if (subArg->occurrences() < subArg->maxOccurrences()) {
-                        relevantArgs.push_back(subArg);
-                    }
-                }
-
-                // siblings of parents are possible completions as well
-                for (auto parentArgument = lastDetectedArgPath.crbegin(), end = lastDetectedArgPath.crend();; ++parentArgument) {
-                    insertSiblings(parentArgument != end ? (*parentArgument)->subArguments() : m_mainArgs, relevantArgs);
-                    if (parentArgument == end) {
-                        break;
-                    }
-                }
-            }
-        } else {
-            // since the argument could be detected (hopefully unambiguously?) just return it for "final completion"
-            relevantArgs.push_back(lastDetectedArg);
-        }
-
-    } else {
-        // no arguments detected -> just use main arguments for completion
-        nextArgumentOrValue = true;
-        insertSiblings(m_mainArgs, relevantArgs);
-    }
+    // determine completion info
+    const auto completionInfo(determineCompletionInfo(argc, argv, currentWordIndex, reader));
 
     // read the "opening" (started but not finished argument denotation)
     const char *opening = nullptr;
     string compoundOpening;
     size_t openingLen, compoundOpeningStartLen = 0;
     unsigned char openingDenotationType = Value;
-    if (argc && nextArgumentOrValue) {
+    if (argc && completionInfo.nextArgumentOrValue) {
         if (currentWordIndex < static_cast<unsigned int>(argc)) {
             opening = argv[currentWordIndex];
             // For some reason completions for eg. "set --values disk=1 tag=a" are splitted so the
@@ -1130,7 +1159,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             // This is not how values are treated by the argument parser. Hence the opening
             // must be joined again. In this case only the part after the equation sign needs to be
             // provided for completion so compoundOpeningStartLen is set to number of characters to skip.
-            size_t minCurrentWordIndex = (lastDetectedArg ? lastDetectedArgIndex : 0);
+            size_t minCurrentWordIndex = (completionInfo.lastDetectedArg ? completionInfo.lastDetectedArgIndex : 0);
             if (currentWordIndex > minCurrentWordIndex && !strcmp(opening, "=")) {
                 compoundOpening.reserve(compoundOpeningStartLen = strlen(argv[--currentWordIndex]) + 1);
                 compoundOpening = argv[currentWordIndex];
@@ -1145,24 +1174,23 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                 opening = compoundOpening.data();
             }
         } else {
-            opening = *lastSpecifiedArg;
+            opening = *completionInfo.lastSpecifiedArg;
         }
         *opening == '-' && (++opening, ++openingDenotationType) && *opening == '-' && (++opening, ++openingDenotationType);
         openingLen = strlen(opening);
     }
 
-    relevantArgs.sort(compareArgs);
-
     // print "COMPREPLY" bash array
     cout << "COMPREPLY=(";
     // -> completions for parameter values
-    for (const Argument *arg : relevantPreDefinedValues) {
+    bool noWhitespace = false;
+    for (const Argument *arg : completionInfo.relevantPreDefinedValues) {
         if (arg->valueCompletionBehaviour() & ValueCompletionBehavior::InvokeCallback && arg->m_callbackFunction) {
             arg->m_callbackFunction(arg->isPresent() ? arg->m_occurrences.front() : ArgumentOccurrence(Argument::varValueCount));
         }
         if (arg->preDefinedCompletionValues()) {
             bool appendEquationSign = arg->valueCompletionBehaviour() & ValueCompletionBehavior::AppendEquationSign;
-            if (argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+            if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
                 if (openingDenotationType == Value) {
                     bool wordStart = true, ok = false, equationSignAlreadyPresent = false;
                     size_t wordIndex = 0;
@@ -1247,8 +1275,8 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         }
     }
     // -> completions for further arguments
-    for (const Argument *arg : relevantArgs) {
-        if (argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+    for (const Argument *arg : completionInfo.relevantArgs) {
+        if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
             switch (openingDenotationType) {
             case Value:
                 if (!arg->denotesOperation() || strncmp(arg->name(), opening, openingLen)) {
@@ -1264,10 +1292,10 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             }
         }
 
-        if (opening && openingDenotationType == Abbreviation && !nextArgumentOrValue) {
+        if (opening && openingDenotationType == Abbreviation && !completionInfo.nextArgumentOrValue) {
             // TODO: add test for this case
             cout << '\'' << '-' << opening << arg->abbreviation() << '\'' << ' ';
-        } else if (lastDetectedArg && reader.argDenotationType == Abbreviation && !nextArgumentOrValue) {
+        } else if (completionInfo.lastDetectedArg && reader.argDenotationType == Abbreviation && !completionInfo.nextArgumentOrValue) {
             if (reader.argv == reader.end) {
                 cout << '\'' << *(reader.argv - 1) << '\'' << ' ';
             }
@@ -1281,7 +1309,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     // -> if there's already an "opening", determine the dir part and the file part
     string actualDir, actualFile;
     bool haveFileOrDirCompletions = false;
-    if (argc && currentWordIndex == lastSpecifiedArgIndex && opening) {
+    if (argc && currentWordIndex == completionInfo.lastSpecifiedArgIndex && opening) {
         // the "opening" might contain escaped characters which need to be unescaped first (let's hope this covers all possible escapings)
         string unescapedOpening(opening);
         findAndReplace<string>(unescapedOpening, "\\ ", " ");
@@ -1320,15 +1348,15 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
 
     // -> completion for files and dirs
     DirectoryEntryType entryTypes = DirectoryEntryType::None;
-    if (completeFiles) {
+    if (completionInfo.completeFiles) {
         entryTypes |= DirectoryEntryType::File;
     }
-    if (completeDirs) {
+    if (completionInfo.completeDirs) {
         entryTypes |= DirectoryEntryType::Directory;
     }
     if (entryTypes != DirectoryEntryType::None) {
         const string replace("'"), with("'\"'\"'");
-        if (argc && currentWordIndex <= lastSpecifiedArgIndex && opening) {
+        if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
             list<string> entries = directoryEntries(actualDir.c_str(), entryTypes);
             findAndReplace(actualDir, replace, with);
             for (string &dirEntry : entries) {
