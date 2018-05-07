@@ -7,11 +7,13 @@
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
 #include "../io/path.h"
+#include "../misc/levenshtein.h"
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -35,6 +37,72 @@ enum ArgumentDenotationType : unsigned char {
     Abbreviation = 1, /**< argument abbreviation */
     FullName = 2 /**< full argument name */
 };
+
+/*!
+ * \brief The ArgumentCompletionInfo struct holds information internally used for shell completion and suggestions.
+ */
+struct ArgumentCompletionInfo {
+    ArgumentCompletionInfo(const ArgumentReader &reader);
+
+    const Argument *const lastDetectedArg;
+    size_t lastDetectedArgIndex = 0;
+    vector<Argument *> lastDetectedArgPath;
+    list<const Argument *> relevantArgs;
+    list<const Argument *> relevantPreDefinedValues;
+    const char *const *lastSpecifiedArg = nullptr;
+    unsigned int lastSpecifiedArgIndex = 0;
+    bool nextArgumentOrValue = false;
+    bool completeFiles = false, completeDirs = false;
+};
+
+/*!
+ * \brief Constructs a new completion info for the specified \a reader.
+ * \remarks Only assigns some defaults. Use ArgumentParser::determineCompletionInfo() to populate the struct with actual data.
+ */
+ArgumentCompletionInfo::ArgumentCompletionInfo(const ArgumentReader &reader)
+    : lastDetectedArg(reader.lastArg)
+{
+}
+
+struct ArgumentSuggestion {
+    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion);
+    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize);
+    bool operator<(const ArgumentSuggestion &other) const;
+    bool operator==(const ArgumentSuggestion &other) const;
+    void addTo(multiset<ArgumentSuggestion> &suggestions, size_t limit) const;
+
+    const char *const suggestion;
+    const size_t suggestionSize;
+    const size_t editingDistance;
+};
+
+ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize)
+    : suggestion(suggestion)
+    , suggestionSize(suggestionSize)
+    , editingDistance(MiscUtilities::computeDamerauLevenshteinDistance(unknownArg, unknownArgSize, suggestion, suggestionSize))
+{
+}
+
+ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion)
+    : ArgumentSuggestion(unknownArg, unknownArgSize, suggestion, strlen(suggestion))
+{
+}
+
+bool ArgumentSuggestion::operator<(const ArgumentSuggestion &other) const
+{
+    return editingDistance < other.editingDistance;
+}
+
+void ArgumentSuggestion::addTo(multiset<ArgumentSuggestion> &suggestions, size_t limit) const
+{
+    if (suggestions.size() >= limit && !(*this < *--suggestions.end())) {
+        return;
+    }
+    suggestions.emplace(*this);
+    while (suggestions.size() > limit) {
+        suggestions.erase(--suggestions.end());
+    }
+}
 
 /*!
  * \class ArgumentReader
@@ -886,8 +954,8 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     const bool allArgsProcessed(reader.read());
     NoColorArgument::apply();
     if (!completionMode && !allArgsProcessed) {
-
-        throw Failure(argsToString("The specified argument \"", *reader.argv, "\" is unknown."));
+        const auto suggestions(findSuggestions(argc, argv, currentWordIndex, reader));
+        throw Failure(argsToString("The specified argument \"", *reader.argv, "\" is unknown.", suggestions));
     }
 
     if (completionMode) {
@@ -1015,30 +1083,11 @@ void insertSiblings(const ArgumentVector &siblings, list<const Argument *> &targ
     }
 }
 
-struct ArgumentCompletionInfo {
-    ArgumentCompletionInfo(const ArgumentReader &reader);
-
-    const Argument *const lastDetectedArg;
-    size_t lastDetectedArgIndex = 0;
-    vector<Argument *> lastDetectedArgPath;
-    list<const Argument *> relevantArgs;
-    list<const Argument *> relevantPreDefinedValues;
-    const char *const *lastSpecifiedArg = nullptr;
-    unsigned int lastSpecifiedArgIndex = 0;
-    bool nextArgumentOrValue = false;
-    bool completeFiles = false, completeDirs = false;
-};
-
-ArgumentCompletionInfo::ArgumentCompletionInfo(const ArgumentReader &reader)
-    : lastDetectedArg(reader.lastArg)
-{
-}
-
 /*!
  * \brief Determines arguments relevant for Bash completion or suggestions in case of typo.
  */
 ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
-    int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader)
+    int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader) const
 {
     ArgumentCompletionInfo completion(reader);
 
@@ -1132,8 +1181,61 @@ ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
         }
     }
 
-    completion.relevantArgs.sort(compareArgs);
     return completion;
+}
+
+/*!
+ * \brief Returns the suggestion string printed in error case due to unknown arguments.
+ */
+string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const
+{
+    // determine completion info
+    const auto completionInfo(determineCompletionInfo(argc, argv, cursorPos, reader));
+
+    // find best suggestions limiting the results to 2
+    const auto *const unknownArg(*reader.argv);
+    const auto unknownArgSize(strlen(unknownArg));
+    multiset<ArgumentSuggestion> bestSuggestions;
+    // -> consider relevant arguments
+    for (const Argument *const arg : completionInfo.relevantArgs) {
+        ArgumentSuggestion(unknownArg, unknownArgSize, arg->name()).addTo(bestSuggestions, 2);
+    }
+    // -> consider relevant values
+    for (const Argument *const arg : completionInfo.relevantPreDefinedValues) {
+        for (const char *i = arg->preDefinedCompletionValues(); *i; ++i) {
+            const char *const wordStart(i);
+            const char *wordEnd(wordStart + 1);
+            for (; *wordEnd && *wordEnd != ' '; ++wordEnd)
+                ;
+            ArgumentSuggestion(unknownArg, unknownArgSize, wordStart, static_cast<size_t>(wordEnd - wordStart)).addTo(bestSuggestions, 2);
+            i = wordEnd;
+        }
+    }
+
+    // format suggestion
+    string suggestionStr;
+    if (const auto suggestionCount = bestSuggestions.size()) {
+        // allocate memory
+        size_t requiredSize = 15;
+        for (const auto &suggestion : bestSuggestions) {
+            requiredSize += suggestion.suggestionSize + 2;
+        }
+        suggestionStr.reserve(requiredSize);
+
+        // add each suggestion to end up with something like "Did you mean status (1), pause (3), cat (4), edit (5) or rescan-all (8)?"
+        suggestionStr += "\nDid you mean ";
+        size_t i = 0;
+        for (const auto &suggestion : bestSuggestions) {
+            if (++i == suggestionCount) {
+                suggestionStr += " or ";
+            } else if (i > 1) {
+                suggestionStr += ", ";
+            }
+            suggestionStr.append(suggestion.suggestion, suggestion.suggestionSize);
+        }
+        suggestionStr += '?';
+    }
+    return suggestionStr;
 }
 
 /*!
@@ -1141,10 +1243,14 @@ ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
  * \remarks Arguments must have been parsed before with readSpecifiedArgs(). When calling this method, completionMode must
  *          be set to true.
  */
-void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader)
+void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader) const
 {
-    // determine completion info
-    const auto completionInfo(determineCompletionInfo(argc, argv, currentWordIndex, reader));
+    // determine completion info and sort relevant arguments
+    const auto completionInfo([&] {
+        auto clutteredCompletionInfo(determineCompletionInfo(argc, argv, currentWordIndex, reader));
+        clutteredCompletionInfo.relevantArgs.sort(compareArgs);
+        return clutteredCompletionInfo;
+    }());
 
     // read the "opening" (started but not finished argument denotation)
     const char *opening = nullptr;

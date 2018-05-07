@@ -404,8 +404,10 @@ public:
 private:
     // declare internal operations
     IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
-    ArgumentCompletionInfo determineCompletionInfo(int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader);
-    void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader);
+    ArgumentCompletionInfo determineCompletionInfo(
+        int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader) const;
+    std::string findSuggestions(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
+    void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);
 
