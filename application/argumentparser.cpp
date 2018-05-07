@@ -77,9 +77,9 @@ ArgumentReader &ArgumentReader::reset(const char *const *argv, const char *const
  * \brief Reads the commands line arguments specified when constructing the object.
  * \remarks Reads on main-argument-level.
  */
-void ArgumentReader::read()
+bool ArgumentReader::read()
 {
-    read(args);
+    return read(args);
 }
 
 /*!
@@ -92,9 +92,12 @@ bool Argument::matchesDenotation(const char *denotation, size_t denotationLength
 
 /*!
  * \brief Reads the commands line arguments specified when constructing the object.
- * \remarks Reads on custom argument-level specified via \a args.
+ * \remarks The argument definitions to look for are specified via \a args. The method calls itself recursively
+ *          to check for nested arguments as well.
+ * \returns Returns true if all arguments have been processed. Returns false on early exit because some argument
+ *          is unknown and behavior for this case is set to UnknownArgumentBehavior::Fail.
  */
-void ArgumentReader::read(ArgumentVector &args)
+bool ArgumentReader::read(ArgumentVector &args)
 {
     // method is called recursively for sub args to the last argument (which is nullptr in the initial call) is the current parent argument
     Argument *const parentArg = lastArg;
@@ -145,7 +148,7 @@ void ArgumentReader::read(ArgumentVector &args)
             for (; argDenotationLength; matchingArg = nullptr) {
                 // search for arguments by abbreviation or name depending on the previously determined denotation type
                 if (argDenotationType == Abbreviation) {
-                    for (Argument *arg : args) {
+                    for (Argument *const arg : args) {
                         if (arg->abbreviation() && arg->abbreviation() == *argDenotation) {
                             matchingArg = arg;
                             abbreviationFound = true;
@@ -153,7 +156,7 @@ void ArgumentReader::read(ArgumentVector &args)
                         }
                     }
                 } else {
-                    for (Argument *arg : args) {
+                    for (Argument *const arg : args) {
                         if (arg->matchesDenotation(argDenotation, argDenotationLength)) {
                             matchingArg = arg;
                             break;
@@ -170,7 +173,7 @@ void ArgumentReader::read(ArgumentVector &args)
                 // prepare reading parameter values
                 values = &matchingArg->m_occurrences.back().values;
 
-                // read value after equation sigh
+                // read value after equation sign
                 if ((argDenotationType != Abbreviation && equationPos) || (++argDenotation == equationPos)) {
                     values->push_back(equationPos + 1);
                     argDenotation = nullptr;
@@ -186,10 +189,9 @@ void ArgumentReader::read(ArgumentVector &args)
                     break;
                 } else {
                     // further abbreviations follow -> remember current arg value
-                    const char *const *currentArgValue = argv;
+                    const char *const *const currentArgValue = argv;
                     // don't increment argv, keep processing outstanding chars of argDenotation
                     read(lastArg->m_subArgs);
-
                     // stop further processing if the denotation has been consumed or even the next value has already been loaded
                     if (!argDenotation || currentArgValue != argv) {
                         argDenotation = nullptr;
@@ -205,15 +207,15 @@ void ArgumentReader::read(ArgumentVector &args)
 
             // unknown argument might be a sibling of the parent element
             for (auto parentArgument = parentPath.crbegin(), pathEnd = parentPath.crend();; ++parentArgument) {
-                for (Argument *sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
+                for (Argument *const sibling : (parentArgument != pathEnd ? (*parentArgument)->subArguments() : parser.m_mainArgs)) {
                     if (sibling->occurrences() < sibling->maxOccurrences()) {
                         // check whether the denoted abbreviation matches the sibling's abbreviatiopn
                         if (argDenotationType == Abbreviation && (sibling->abbreviation() && sibling->abbreviation() == *argDenotation)) {
-                            return;
+                            return false;
                         }
                         // check whether the denoted name matches the sibling's name
                         if (sibling->matchesDenotation(argDenotation, argDenotationLength)) {
-                            return;
+                            return false;
                         }
                     }
                 }
@@ -231,7 +233,7 @@ void ArgumentReader::read(ArgumentVector &args)
         }
 
         // first value might denote "operation"
-        for (Argument *arg : args) {
+        for (Argument *const arg : args) {
             if (arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
                 (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                 lastArgDenotation = argv;
@@ -243,7 +245,7 @@ void ArgumentReader::read(ArgumentVector &args)
         // use the first default argument which is not already present if there is still no match
         if (!matchingArg && (!completionMode || (argv + 1 != end))) {
             const bool uncombinableMainArgPresent = parentArg ? false : parser.isUncombinableMainArgPresent();
-            for (Argument *arg : args) {
+            for (Argument *const arg : args) {
                 if (arg->isImplicit() && !arg->isPresent() && !arg->wouldConflictWithArgument()
                     && (!uncombinableMainArgPresent || !arg->isMainArgument())) {
                     (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
@@ -271,7 +273,7 @@ void ArgumentReader::read(ArgumentVector &args)
         // argument denotation is unknown -> handle error
         if (parentArg) {
             // continue with parent level
-            return;
+            return false;
         }
         if (completionMode) {
             // ignore unknown denotation
@@ -286,10 +288,11 @@ void ArgumentReader::read(ArgumentVector &args)
                 ++index, ++argv, argDenotation = nullptr;
                 break;
             case UnknownArgumentBehavior::Fail:
-                throw Failure(argsToString("The specified argument \"", *argv, "\" is unknown."));
+                return false;
             }
         }
     } // while(argv != end)
+    return true;
 }
 
 /*!
@@ -880,14 +883,11 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // read specified arguments
     ArgumentReader reader(*this, argv,
         argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), completionMode);
-    try {
-        reader.read();
-        NoColorArgument::apply();
-    } catch (const Failure &) {
-        NoColorArgument::apply();
-        if (!completionMode) {
-            throw;
-        }
+    const bool allArgsProcessed(reader.read());
+    NoColorArgument::apply();
+    if (!completionMode && !allArgsProcessed) {
+
+        throw Failure(argsToString("The specified argument \"", *reader.argv, "\" is unknown."));
     }
 
     if (completionMode) {

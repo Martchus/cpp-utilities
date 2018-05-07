@@ -508,7 +508,7 @@ void ArgumentParserTests::testBashCompletion()
     ArgumentReader reader(parser, argv1, argv1 + 1, true);
     {
         const OutputCheck c("COMPREPLY=()\n");
-        reader.read();
+        CPPUNIT_ASSERT(reader.read());
         parser.printBashCompletion(1, argv1, 0, reader);
     }
 

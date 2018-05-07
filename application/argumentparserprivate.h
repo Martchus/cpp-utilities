@@ -10,8 +10,8 @@ class CPP_UTILITIES_EXPORT ArgumentReader {
 public:
     ArgumentReader(ArgumentParser &parser, const char *const *argv, const char *const *end, bool completionMode = false);
     ApplicationUtilities::ArgumentReader &reset(const char *const *argv, const char *const *end);
-    void read();
-    void read(ArgumentVector &args);
+    bool read();
+    bool read(ArgumentVector &args);
 
     /// \brief The associated ArgumentParser instance.
     ArgumentParser &parser;
