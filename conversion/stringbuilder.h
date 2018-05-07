@@ -12,23 +12,23 @@ namespace ConversionUtilities {
 /// \cond
 namespace Helper {
 
-template <class StringType, Traits::EnableIf<std::is_class<StringType>>...> std::size_t computeTupleElementSize(const StringType *str)
+template <class StringType, Traits::EnableIf<std::is_class<StringType>>* = nullptr> std::size_t computeTupleElementSize(const StringType *str)
 {
     return str->size();
 }
 
-template <class StringType, Traits::EnableIf<std::is_class<StringType>>...> std::size_t computeTupleElementSize(const StringType &str)
+template <class StringType, Traits::EnableIf<std::is_class<StringType>>* = nullptr> std::size_t computeTupleElementSize(const StringType &str)
 {
     return str.size();
 }
 
-template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>...>
+template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>* = nullptr>
 std::size_t computeTupleElementSize(const CharType *str)
 {
     return std::char_traits<CharType>::length(str);
 }
 
-template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>...>
+template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>* = nullptr>
 constexpr std::size_t computeTupleElementSize(CharType)
 {
     return 1;
@@ -36,7 +36,7 @@ constexpr std::size_t computeTupleElementSize(CharType)
 
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
-        std::is_unsigned<IntegralType>>...>
+        std::is_unsigned<IntegralType>>* = nullptr>
 std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t size = 0;
@@ -47,7 +47,7 @@ std::size_t computeTupleElementSize(IntegralType number, typename StringType::va
 
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
-        std::is_signed<IntegralType>>...>
+        std::is_signed<IntegralType>>* = nullptr>
 std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t size = number < 0 ? 1 : 0;
@@ -56,23 +56,23 @@ std::size_t computeTupleElementSize(IntegralType number, typename StringType::va
     return size;
 }
 
-template <class StringType, Traits::EnableIf<std::is_class<StringType>>...> void append(StringType &target, const StringType *str)
+template <class StringType, Traits::EnableIf<std::is_class<StringType>>* = nullptr> void append(StringType &target, const StringType *str)
 {
     target.append(*str);
 }
 
-template <class StringType, Traits::EnableIf<std::is_class<StringType>>...> void append(StringType &target, const StringType &str)
+template <class StringType, Traits::EnableIf<std::is_class<StringType>>* = nullptr> void append(StringType &target, const StringType &str)
 {
     target.append(str);
 }
 
-template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>...>
+template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>* = nullptr>
 void append(StringType &target, const CharType *str)
 {
     target.append(str);
 }
 
-template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>...>
+template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>>* = nullptr>
 void append(StringType &target, CharType c)
 {
     target += c;
@@ -80,7 +80,7 @@ void append(StringType &target, CharType c)
 
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
-        std::is_unsigned<IntegralType>>...>
+        std::is_unsigned<IntegralType>>* = nullptr>
 void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
 {
     const auto start = target.begin() + target.size();
@@ -92,7 +92,7 @@ void append(StringType &target, IntegralType number, typename StringType::value_
 
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
-        std::is_signed<IntegralType>>...>
+        std::is_signed<IntegralType>>* = nullptr>
 void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
 {
     if (number < 0) {
@@ -168,7 +168,7 @@ template <class Tuple> constexpr auto operator%(const Tuple &lhs, const char *rh
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-template <class Tuple, typename IntegralType, Traits::EnableIf<std::is_integral<IntegralType>>...>
+template <class Tuple, typename IntegralType, Traits::EnableIf<std::is_integral<IntegralType>>* = nullptr>
 constexpr auto operator%(const Tuple &lhs, IntegralType rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(rhs)))
 {
     return std::tuple_cat(lhs, std::make_tuple(rhs));
@@ -223,7 +223,7 @@ constexpr auto operator%(char lhs, const std::string &rhs) -> decltype(std::make
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>>...>
+template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>>* = nullptr>
 inline std::string operator+(const Tuple &lhs, const std::string &rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(&rhs)));
@@ -238,7 +238,7 @@ inline std::string operator+(const Tuple &lhs, const std::string &rhs)
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>>...>
+template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>>* = nullptr>
 inline std::string operator+(const Tuple &lhs, const char *rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
@@ -253,7 +253,7 @@ inline std::string operator+(const Tuple &lhs, const char *rhs)
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template <class Tuple, typename IntegralType, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>, std::is_integral<IntegralType>>...>
+template <class Tuple, typename IntegralType, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>, std::is_integral<IntegralType>>* = nullptr>
 inline std::string operator+(const Tuple &lhs, IntegralType rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));

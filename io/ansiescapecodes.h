@@ -120,7 +120,7 @@ constexpr auto color(Color foreground, ColorContext context, TextAttribute displ
 
 template <typename TupleType,
     Traits::EnableIfAny<std::is_same<TupleType, std::tuple<Color, Color, TextAttribute>>,
-        std::is_same<TupleType, std::tuple<Color, ColorContext, TextAttribute>>>...>
+        std::is_same<TupleType, std::tuple<Color, ColorContext, TextAttribute>>>* = nullptr>
 inline std::ostream &operator<<(std::ostream &stream, TupleType displayAttribute)
 {
     setStyle(stream, std::get<0>(displayAttribute), std::get<1>(displayAttribute), std::get<2>(displayAttribute));

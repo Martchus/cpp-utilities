@@ -287,7 +287,7 @@ template <typename CharType> constexpr CharType digitToChar(CharType digit)
  * \sa stringToNumber()
  */
 template <typename IntegralType, class StringType = std::string,
-    Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
+    Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>* = nullptr>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t resSize = 0;
@@ -308,7 +308,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \sa stringToNumber()
  */
-template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <typename IntegralType, class StringType = std::string, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>* = nullptr>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     const bool negative = number < 0;
@@ -340,7 +340,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  *          \a base and types).
  * \sa stringToNumber(), bufferToNumber()
  */
-template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
+template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType>>* = nullptr>
 StringType numberToString(FloatingType number, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
@@ -377,7 +377,7 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
+template <typename IntegralType, typename  StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>* = nullptr>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     IntegralType result = 0;
@@ -398,7 +398,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>* = nullptr>
 IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     auto i = string.begin();
@@ -432,7 +432,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
  */
-template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>>...>
+template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>>* = nullptr>
 FloatingType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
@@ -452,7 +452,7 @@ FloatingType stringToNumber(const StringType &string, typename StringType::value
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>* = nullptr>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
     IntegralType result = 0;
@@ -473,7 +473,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), stringToNumber()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, Traits::Not<std::is_signed<IntegralType>>>...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>>* = nullptr>
 IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
 {
     IntegralType result = 0;
@@ -494,7 +494,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned c
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>* = nullptr>
 IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 {
     if (!*string) {
@@ -527,7 +527,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), stringToNumber()
  */
-template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>...>
+template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>>* = nullptr>
 IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
 {
     if (!size) {
