@@ -22,6 +22,7 @@ CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
 CPP_UTILITIES_EXPORT extern const char *applicationVersion;
 CPP_UTILITIES_EXPORT extern const char *applicationUrl;
 CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersions;
+CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
 
 /*!
  * \def SET_DEPENDENCY_INFO
@@ -30,9 +31,9 @@ CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersio
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #ifndef APP_STATICALLY_LINKED
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions2 = DEPENCENCY_VERSIONS
 #else
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = STATIC_DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions2 = STATIC_DEPENCENCY_VERSIONS
 #endif
 
 /*!

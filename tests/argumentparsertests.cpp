@@ -731,7 +731,7 @@ void ArgumentParserTests::testHelp()
     parser.addMainArgument(&verboseArg);
     parser.addMainArgument(&filesArg);
     parser.addMainArgument(&envArg);
-    dependencyVersions = { "somelib", "some other lib" };
+    dependencyVersions2 = { "somelib", "some other lib" };
 
     // parse args and assert output
     const char *const argv[] = { "app", "-h" };

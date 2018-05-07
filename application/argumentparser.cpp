@@ -407,7 +407,12 @@ const char *applicationVersion = nullptr;
 /// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
 const char *applicationUrl = nullptr;
 /// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
+/// \deprecated Not used anymore. Use dependencyVersions2 instead.
 std::initializer_list<const char *> dependencyVersions;
+/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
+std::vector<const char *> dependencyVersions2;
+
+// TODO v5 use a struct for these properties
 
 /*!
  * \brief Specifies a function quit the application.
@@ -772,18 +777,18 @@ void ArgumentParser::printHelp(ostream &os) const
     if (applicationVersion && *applicationVersion) {
         os << "version " << applicationVersion;
     }
-    if (dependencyVersions.size()) {
+    if (dependencyVersions2.size()) {
         if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
             os << '\n';
             EscapeCodes::setStyle(os);
         }
-        auto i = dependencyVersions.begin(), end = dependencyVersions.end();
+        auto i = dependencyVersions2.begin(), end = dependencyVersions2.end();
         os << "Linked against: " << *i;
         for (++i; i != end; ++i) {
             os << ',' << ' ' << *i;
         }
     }
-    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions.size()) {
+    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions2.size()) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);
