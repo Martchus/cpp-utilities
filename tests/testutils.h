@@ -192,7 +192,7 @@ template <typename T> AsHexNumber<T> asHexNumber(const T &value)
 /*!
  * \brief Allows printing pairs so key/values of maps/hashes can be asserted using CPPUNIT_ASSERT_EQUAL.
  */
-template <typename Pair, Traits::EnableIf<Traits::IsSpecializationOf<Pair, std::pair>>* = nullptr>
+template <typename Pair, Traits::EnableIf<Traits::IsSpecializationOf<Pair, std::pair>> * = nullptr>
 inline std::ostream &operator<<(std::ostream &out, const Pair &pair)
 {
     return out << "key: " << pair.first << "; value: " << pair.second << '\n';
@@ -201,7 +201,7 @@ inline std::ostream &operator<<(std::ostream &out, const Pair &pair)
 /*!
  * \brief Allows printing iteratable objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
  */
-template <typename Iteratable, Traits::EnableIf<Traits::IsIteratable<Iteratable>, Traits::Not<Traits::IsString<Iteratable>>>* = nullptr>
+template <typename Iteratable, Traits::EnableIf<Traits::IsIteratable<Iteratable>, Traits::Not<Traits::IsString<Iteratable>>> * = nullptr>
 inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
 {
     out << '\n';
