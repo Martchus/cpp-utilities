@@ -199,6 +199,16 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or help?"s, string(e.what()));
     }
 
+    // error about unknown argument: mistake in final argument
+    const char *argv18[] = { "tageditor", "get", "album", "title", "diskpos", "--verbose", "--fi" };
+    try {
+        parser.resetArgs();
+        parser.parseArgs(7, argv18);
+        CPPUNIT_FAIL("Exception expected.");
+    } catch (const Failure &e) {
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean files or no-color?"s, string(e.what()));
+    }
+
     // warning about unknown argument
     parser.setUnknownArgumentBehavior(UnknownArgumentBehavior::Warn);
     // redirect stderr to check whether warnings are printed correctly

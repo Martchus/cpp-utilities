@@ -938,9 +938,11 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
         return;
     }
 
-    // if the first argument (after executable name) is "--bash-completion-for", bash completion for the following arguments is requested
-    bool completionMode = !strcmp(*++argv, "--bash-completion-for");
-    unsigned int currentWordIndex;
+    // check for completion mode: if first arg (after executable name) is "--bash-completion-for", bash completion for the following arguments is requested
+    const bool completionMode = !strcmp(*++argv, "--bash-completion-for");
+
+    // determine the index of the current word for completion and the number of arguments to be passed to ArgumentReader
+    unsigned int currentWordIndex, argcForReader;
     if (completionMode) {
         // the first argument after "--bash-completion-for" is the index of the current word
         try {
@@ -951,21 +953,26 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
         } catch (const ConversionException &) {
             currentWordIndex = static_cast<unsigned int>(argc - 1);
         }
+        argcForReader = min(static_cast<unsigned int>(argc), currentWordIndex + 1);
+    } else {
+        argcForReader = static_cast<unsigned int>(argc);
     }
 
     // read specified arguments
-    ArgumentReader reader(*this, argv,
-        argv + (completionMode ? min(static_cast<unsigned int>(argc), currentWordIndex + 1) : static_cast<unsigned int>(argc)), completionMode);
+    ArgumentReader reader(*this, argv, argv + argcForReader, completionMode);
     const bool allArgsProcessed(reader.read());
     NoColorArgument::apply();
+
+    // fail when not all arguments could be processed, except when in completion mode
     if (!completionMode && !allArgsProcessed) {
-        const auto suggestions(findSuggestions(argc, argv, currentWordIndex, reader));
+        const auto suggestions(findSuggestions(argc, argv, static_cast<unsigned int>(argc - 1), reader));
         throw Failure(argsToString("The specified argument \"", *reader.argv, "\" is unknown.", suggestions));
     }
 
+    // print Bash completion and prevent the applicaton to continue with the regular execution
     if (completionMode) {
         printBashCompletion(argc, argv, currentWordIndex, reader);
-        exitFunction(0); // prevent the applicaton to continue with the regular execution
+        exitFunction(0);
     }
 }
 
