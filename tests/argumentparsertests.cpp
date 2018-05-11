@@ -196,7 +196,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(6, argv3);
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or help?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
     }
 
     // error about unknown argument: mistake in final argument
@@ -206,7 +206,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(7, argv18);
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean files or no-color?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean --files or --no-color?"s, string(e.what()));
     }
 
     // warning about unknown argument
@@ -310,7 +310,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown.\nDid you mean get or help?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
     }
 
     // equation sign syntax
@@ -410,7 +410,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const Failure &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown.\nDid you mean help or get?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown.\nDid you mean --help or get?"s, string(e.what()));
     }
 
     // nested operations

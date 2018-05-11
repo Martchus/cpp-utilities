@@ -768,10 +768,10 @@ inline void Argument::setCombinable(bool value)
 }
 
 /*!
- * \brief Returns whether the argument denotes the operation.
+ * \brief Returns whether the argument denotes an operation.
  *
- * An argument which denotes the operation might be specified
- * withouth "--" or "-" prefix as first main argument.
+ * An argument which denotes an operation might be specified
+ * without "--" or "-" prefix.
  *
  * The default value is false, except for OperationArgument instances.
  *

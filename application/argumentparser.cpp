@@ -65,8 +65,8 @@ ArgumentCompletionInfo::ArgumentCompletionInfo(const ArgumentReader &reader)
 }
 
 struct ArgumentSuggestion {
-    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion);
-    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize);
+    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, bool hasDashPrefix);
+    ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize, bool hasDashPrefix);
     bool operator<(const ArgumentSuggestion &other) const;
     bool operator==(const ArgumentSuggestion &other) const;
     void addTo(multiset<ArgumentSuggestion> &suggestions, size_t limit) const;
@@ -74,17 +74,19 @@ struct ArgumentSuggestion {
     const char *const suggestion;
     const size_t suggestionSize;
     const size_t editingDistance;
+    const bool hasDashPrefix;
 };
 
-ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize)
+ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize, bool isOperation)
     : suggestion(suggestion)
     , suggestionSize(suggestionSize)
     , editingDistance(MiscUtilities::computeDamerauLevenshteinDistance(unknownArg, unknownArgSize, suggestion, suggestionSize))
+    , hasDashPrefix(isOperation)
 {
 }
 
-ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion)
-    : ArgumentSuggestion(unknownArg, unknownArgSize, suggestion, strlen(suggestion))
+ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, bool isOperation)
+    : ArgumentSuggestion(unknownArg, unknownArgSize, suggestion, strlen(suggestion), isOperation)
 {
 }
 
@@ -1204,13 +1206,20 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
     // determine completion info
     const auto completionInfo(determineCompletionInfo(argc, argv, cursorPos, reader));
 
+    // determine the unknown/misspelled argument
+    const auto *unknownArg(*reader.argv);
+    auto unknownArgSize(strlen(unknownArg));
+    // -> remove dashes since argument names internally don't have them
+    if (unknownArgSize >= 2 && unknownArg[0] == '-' && unknownArg[1] == '-') {
+        unknownArg += 2;
+        unknownArgSize -= 2;
+    }
+
     // find best suggestions limiting the results to 2
-    const auto *const unknownArg(*reader.argv);
-    const auto unknownArgSize(strlen(unknownArg));
     multiset<ArgumentSuggestion> bestSuggestions;
     // -> consider relevant arguments
     for (const Argument *const arg : completionInfo.relevantArgs) {
-        ArgumentSuggestion(unknownArg, unknownArgSize, arg->name()).addTo(bestSuggestions, 2);
+        ArgumentSuggestion(unknownArg, unknownArgSize, arg->name(), !arg->denotesOperation()).addTo(bestSuggestions, 2);
     }
     // -> consider relevant values
     for (const Argument *const arg : completionInfo.relevantPreDefinedValues) {
@@ -1219,7 +1228,7 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
             const char *wordEnd(wordStart + 1);
             for (; *wordEnd && *wordEnd != ' '; ++wordEnd)
                 ;
-            ArgumentSuggestion(unknownArg, unknownArgSize, wordStart, static_cast<size_t>(wordEnd - wordStart)).addTo(bestSuggestions, 2);
+            ArgumentSuggestion(unknownArg, unknownArgSize, wordStart, static_cast<size_t>(wordEnd - wordStart), false).addTo(bestSuggestions, 2);
             i = wordEnd;
         }
     }
@@ -1231,6 +1240,9 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
         size_t requiredSize = 15;
         for (const auto &suggestion : bestSuggestions) {
             requiredSize += suggestion.suggestionSize + 2;
+            if (suggestion.hasDashPrefix) {
+                requiredSize += 2;
+            }
         }
         suggestionStr.reserve(requiredSize);
 
@@ -1242,6 +1254,9 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
                 suggestionStr += " or ";
             } else if (i > 1) {
                 suggestionStr += ", ";
+            }
+            if (suggestion.hasDashPrefix) {
+                suggestionStr += "--";
             }
             suggestionStr.append(suggestion.suggestion, suggestion.suggestionSize);
         }
