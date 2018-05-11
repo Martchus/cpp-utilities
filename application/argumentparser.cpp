@@ -1227,6 +1227,9 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
     }
     // -> consider relevant values
     for (const Argument *const arg : completionInfo.relevantPreDefinedValues) {
+        if (!arg->preDefinedCompletionValues()) {
+            continue;
+        }
         for (const char *i = arg->preDefinedCompletionValues(); *i; ++i) {
             const char *const wordStart(i);
             const char *wordEnd(wordStart + 1);
