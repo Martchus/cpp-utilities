@@ -1209,6 +1209,10 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
     // determine the unknown/misspelled argument
     const auto *unknownArg(*reader.argv);
     auto unknownArgSize(strlen(unknownArg));
+    // -> refuse suggestions for long args to prevent huge memory allocation for Damerau-Levenshtein algo
+    if (unknownArgSize > 16) {
+        return string();
+    }
     // -> remove dashes since argument names internally don't have them
     if (unknownArgSize >= 2 && unknownArg[0] == '-' && unknownArg[1] == '-') {
         unknownArg += 2;
