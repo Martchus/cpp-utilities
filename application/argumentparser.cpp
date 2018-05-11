@@ -1231,7 +1231,7 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
         suggestionStr += "\nDid you mean ";
         size_t i = 0;
         for (const auto &suggestion : bestSuggestions) {
-            if (++i == suggestionCount) {
+            if (++i == suggestionCount && suggestionCount != 1) {
                 suggestionStr += " or ";
             } else if (i > 1) {
                 suggestionStr += ", ";
