@@ -137,7 +137,7 @@ StringData convertString(
  */
 StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16LE");
+    thread_local ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16LE");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
@@ -146,7 +146,7 @@ StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBuffer
  */
 StringData convertUtf16LEToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Half> descriptor("UTF-16LE", "UTF-8");
+    thread_local ConversionDescriptor<Half> descriptor("UTF-16LE", "UTF-8");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
@@ -155,7 +155,7 @@ StringData convertUtf16LEToUtf8(const char *inputBuffer, std::size_t inputBuffer
  */
 StringData convertUtf8ToUtf16BE(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16BE");
+    thread_local ConversionDescriptor<Double> descriptor("UTF-8", "UTF-16BE");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
@@ -164,7 +164,7 @@ StringData convertUtf8ToUtf16BE(const char *inputBuffer, std::size_t inputBuffer
  */
 StringData convertUtf16BEToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Half> descriptor("UTF-16BE", "UTF-8");
+    thread_local ConversionDescriptor<Half> descriptor("UTF-16BE", "UTF-8");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
@@ -173,7 +173,7 @@ StringData convertUtf16BEToUtf8(const char *inputBuffer, std::size_t inputBuffer
  */
 StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Keep> descriptor("ISO-8859-1", "UTF-8");
+    thread_local ConversionDescriptor<Keep> descriptor("ISO-8859-1", "UTF-8");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
@@ -182,7 +182,7 @@ StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferS
  */
 StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Keep> descriptor("UTF-8", "ISO-8859-1");
+    thread_local ConversionDescriptor<Keep> descriptor("UTF-8", "ISO-8859-1");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
