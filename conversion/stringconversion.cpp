@@ -44,7 +44,7 @@ struct Factor {
         : factor(factor){};
     size_t operator()(size_t value)
     {
-        return value * factor;
+        return static_cast<size_t>(value * factor);
     }
     float factor;
 };
@@ -90,11 +90,11 @@ public:
             if (bytesWritten == static_cast<size_t>(-1)) {
                 if (errno == EINVAL) {
                     // ignore incomplete multibyte sequence in the input
-                    bytesWritten = currentOutputOffset - outputBuffer;
+                    bytesWritten = static_cast<size_t>(currentOutputOffset - outputBuffer);
                     break;
                 } else if (errno == E2BIG) {
                     // output buffer has no more room for next converted character
-                    bytesWritten = currentOutputOffset - outputBuffer;
+                    bytesWritten = static_cast<size_t>(currentOutputOffset - outputBuffer);
                     outputBytesLeft = (outputSize += m_outputSizeHint(inputBytesLeft)) - bytesWritten;
                     outputBuffer = reinterpret_cast<char *>(realloc(outputBuffer, outputSize));
                 } else /*if(errno == EILSEQ)*/ {
