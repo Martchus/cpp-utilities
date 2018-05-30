@@ -182,7 +182,7 @@ StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferS
  */
 StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize)
 {
-    static ConversionDescriptor<Factor> descriptor("UTF-8", "ISO-8859-1", 1.1);
+    static ConversionDescriptor<Keep> descriptor("UTF-8", "ISO-8859-1");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
 
