@@ -9,7 +9,7 @@
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline int16 toInt16(const char *value)
+CPP_UTILITIES_EXPORT constexpr int16 toInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<int16>(value[0]) << 8 & 0xFF00) | (static_cast<int16>(value[1]) & 0x00FF);
@@ -21,7 +21,7 @@ CPP_UTILITIES_EXPORT inline int16 toInt16(const char *value)
 /*!
  * \brief Returns a 16-bit unsigned integer converted from two bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline uint16 toUInt16(const char *value)
+CPP_UTILITIES_EXPORT constexpr uint16 toUInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<uint16>(value[0]) << 8 & 0xFF00) | (static_cast<uint16>(value[1]) & 0x00FF);
@@ -33,7 +33,7 @@ CPP_UTILITIES_EXPORT inline uint16 toUInt16(const char *value)
 /*!
  * \brief Returns a 32-bit signed integer converted from four bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline int32 toInt32(const char *value)
+CPP_UTILITIES_EXPORT constexpr int32 toInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<int32>(value[0]) << 24 & 0xFF000000) | (static_cast<int32>(value[1]) << 16 & 0x00FF0000)
@@ -47,7 +47,7 @@ CPP_UTILITIES_EXPORT inline int32 toInt32(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from three bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline uint32 toUInt24(const char *value)
+CPP_UTILITIES_EXPORT constexpr uint32 toUInt24(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<uint32>(value[0]) << 16 & 0x00FF0000) | (static_cast<uint32>(value[1]) << 8 & 0x0000FF00)
@@ -61,7 +61,7 @@ CPP_UTILITIES_EXPORT inline uint32 toUInt24(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from four bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline uint32 toUInt32(const char *value)
+CPP_UTILITIES_EXPORT constexpr uint32 toUInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<uint32>(value[0]) << 24 & 0xFF000000) | (static_cast<uint32>(value[1]) << 16 & 0x00FF0000)
@@ -75,7 +75,7 @@ CPP_UTILITIES_EXPORT inline uint32 toUInt32(const char *value)
 /*!
  * \brief Returns a 64-bit signed integer converted from eight bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline int64 toInt64(const char *value)
+CPP_UTILITIES_EXPORT constexpr int64 toInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<int64>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<int64>(value[1]) << 48 & 0x00FF000000000000)
@@ -93,7 +93,7 @@ CPP_UTILITIES_EXPORT inline int64 toInt64(const char *value)
 /*!
  * \brief Returns a 64-bit unsigned integer converted from eight bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline uint64 toUInt64(const char *value)
+CPP_UTILITIES_EXPORT constexpr uint64 toUInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<uint64>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<uint64>(value[1]) << 48 & 0x00FF000000000000)
