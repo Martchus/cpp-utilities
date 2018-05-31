@@ -113,15 +113,9 @@ CPP_UTILITIES_EXPORT constexpr uint64 toUInt64(const char *value)
  */
 CPP_UTILITIES_EXPORT inline float32 toFloat32(const char *value)
 {
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    int32 val = toInt32(value);
-    char *c = reinterpret_cast<char *>(&val);
-    return *reinterpret_cast<float32 *>(c);
-#else
-    int32 val = toInt32(value);
-    char *c = reinterpret_cast<char *>(&val);
-    return *reinterpret_cast<float32 *>(c);
-#endif
+    const int32 val = toInt32(value);
+    const char *const c = reinterpret_cast<const char *>(&val);
+    return *reinterpret_cast<const float32 *>(c);
 }
 
 /*!
@@ -129,15 +123,9 @@ CPP_UTILITIES_EXPORT inline float32 toFloat32(const char *value)
  */
 CPP_UTILITIES_EXPORT inline float64 toFloat64(const char *value)
 {
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    int64 val = toInt64(value);
-    char *c = reinterpret_cast<char *>(&val);
-    return *reinterpret_cast<float64 *>(c);
-#else
-    int64 val = toInt64(value);
-    char *c = reinterpret_cast<char *>(&val);
-    return *reinterpret_cast<float64 *>(c);
-#endif
+    const int64 val = toInt64(value);
+    const char *const c = reinterpret_cast<const char *>(&val);
+    return *reinterpret_cast<const float64 *const>(c);
 }
 
 /*!
