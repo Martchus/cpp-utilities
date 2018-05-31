@@ -19,6 +19,7 @@ using namespace ConversionUtilities;
  * \class IoUtilities::BinaryReader
  * \brief Reads primitive data types from a std::istream.
  * \remarks Supports both, little endian and big endian.
+ * \sa For automatic serialization of structs, see https://github.com/Martchus/reflective-rapidjson.
  */
 
 /*!
@@ -92,13 +93,7 @@ istream::pos_type BinaryReader::readStreamsize()
     return streamsize;
 }
 
-/*!
- * \brief Reads a length prefixed string from the current stream.
- *
- * \remarks Reads the length prefix from the stream and then a string of the denoted length.
- *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
- */
-string BinaryReader::readLengthPrefixedString()
+void BinaryReader::bufferVariableLengthInteger()
 {
     static constexpr int maxPrefixLength = 8;
     int prefixLength = 1;
@@ -109,12 +104,22 @@ string BinaryReader::readLengthPrefixedString()
         mask >>= 1;
     }
     if (prefixLength > maxPrefixLength) {
-        throw ConversionException("Length denotation of length-prefixed string exceeds maximum.");
+        throw ConversionException("Length denotation of variable length unsigned integer exceeds maximum.");
     }
     memset(m_buffer, 0, maxPrefixLength);
     m_stream->read(m_buffer + (maxPrefixLength - prefixLength), prefixLength);
     *(m_buffer + (maxPrefixLength - prefixLength)) ^= mask;
-    return readString(BE::toUInt64(m_buffer));
+}
+
+/*!
+ * \brief Reads a length prefixed string from the current stream.
+ * \remarks Reads the length prefix from the stream and then a string of the denoted length.
+ *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
+ * \todo Make inline in v5.
+ */
+string BinaryReader::readLengthPrefixedString()
+{
+    return readString(readVariableLengthUIntBE());
 }
 
 /*!
@@ -142,7 +147,7 @@ string BinaryReader::readTerminatedString(byte termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
     ss.exceptions(ios_base::badbit | ios_base::failbit);
-    m_stream->get(*ss.rdbuf(), termination); // delim byte is not extracted from the stream
+    m_stream->get(*ss.rdbuf(), static_cast<char>(termination)); // delim byte is not extracted from the stream
     m_stream->seekg(1, ios_base::cur); // "extract" delim byte manually
     return ss.str();
 }

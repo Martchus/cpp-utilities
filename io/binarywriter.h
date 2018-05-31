@@ -4,6 +4,7 @@
 #include "../conversion/binaryconversion.h"
 #include "../conversion/types.h"
 
+#include <cstring>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -41,6 +42,7 @@ public:
     void writeUInt56BE(uint64 value);
     void writeInt64BE(int64 value);
     void writeUInt64BE(uint64 value);
+    void writeVariableLengthUIntBE(uint64 value);
     void writeFloat32BE(float32 value);
     void writeFloat64BE(float64 value);
     void writeInt16LE(int16 value);
@@ -55,11 +57,13 @@ public:
     void writeUInt56LE(uint64 value);
     void writeInt64LE(int64 value);
     void writeUInt64LE(uint64 value);
+    void writeVariableLengthUIntLE(uint64 value);
     void writeFloat32LE(float32 value);
     void writeFloat64LE(float64 value);
     void writeString(const std::string &value);
     void writeTerminatedString(const std::string &value);
     void writeLengthPrefixedString(const std::string &value);
+    void writeLengthPrefixedCString(const char *value, std::size_t size);
     void writeBool(bool value);
     void writeSynchsafeUInt32BE(uint32 valueToConvertAndWrite);
     void writeFixed8BE(float32 valueToConvertAndWrite);
@@ -68,7 +72,24 @@ public:
     void writeFixed8LE(float32 valueToConvertAndWrite);
     void writeFixed16LE(float32 valueToConvertAndWrite);
 
+    // declare further overloads for write() to ease use of BinaryWriter in templates
+    void write(char oneChar);
+    void write(byte oneByte);
+    void write(bool oneBool);
+    void write(const std::string &lengthPrefixedString);
+    void write(const char *lengthPrefixedString);
+    void write(int16 one16BitInt);
+    void write(uint16 one16BitUint);
+    void write(int32 one32BitInt);
+    void write(uint32 one32BitUint);
+    void write(int64 one64BitInt);
+    void write(uint64 one64BitUint);
+    void write(float32 one32BitFloat);
+    void write(float64 one64BitFloat);
+
 private:
+    void writeVariableLengthInteger(uint64 size, void (*getBytes)(uint64, char *));
+
     std::ostream *m_stream;
     bool m_ownership;
     char m_buffer[8];
@@ -307,6 +328,15 @@ inline void BinaryWriter::writeUInt64BE(uint64 value)
 }
 
 /*!
+ * \brief Writes an up to 8 byte long big endian unsigned integer to the current stream and advances the current position of the stream by one to eight bytes.
+ * \throws Throws ConversionException if \a value exceeds the maximum.
+ */
+inline void BinaryWriter::writeVariableLengthUIntBE(uint64 value)
+{
+    writeVariableLengthInteger(value, static_cast<void (*)(uint64, char *)>(&ConversionUtilities::BE::getBytes));
+}
+
+/*!
  * \brief Writes a 32-bit big endian floating point \a value to the current stream and advances the current position of the stream by four bytes.
  */
 inline void BinaryWriter::writeFloat32BE(float32 value)
@@ -441,6 +471,15 @@ inline void BinaryWriter::writeUInt64LE(uint64 value)
 }
 
 /*!
+ * \brief Writes an up to 8 byte long little endian unsigned integer to the current stream and advances the current position of the stream by one to eight bytes.
+ * \throws Throws ConversionException if \a value exceeds the maximum.
+ */
+inline void BinaryWriter::writeVariableLengthUIntLE(uint64 value)
+{
+    writeVariableLengthInteger(value, static_cast<void (*)(uint64, char *)>(&ConversionUtilities::LE::getBytes));
+}
+
+/*!
  * \brief Writes a 32-bit little endian floating point \a value to the current stream and advances the current position of the stream by four bytes.
  */
 inline void BinaryWriter::writeFloat32LE(float32 value)
@@ -524,6 +563,114 @@ inline void BinaryWriter::writeFixed8LE(float32 valueToConvertAndWrite)
 inline void BinaryWriter::writeFixed16LE(float32 valueToConvertAndWrite)
 {
     writeUInt32LE(ConversionUtilities::toFixed16(valueToConvertAndWrite));
+}
+
+/*!
+ * \brief Writes a single character to the current stream and advances the current position of the stream by one byte.
+ */
+inline void BinaryWriter::write(char oneChar)
+{
+    writeChar(oneChar);
+}
+
+/*!
+ * \brief Writes a single byte to the current stream and advances the current position of the stream by one byte.
+ */
+inline void BinaryWriter::write(byte oneByte)
+{
+    writeByte(oneByte);
+}
+
+/*!
+ * \brief Writes a boolean value to the current stream and advances the current position of the stream by one byte.
+ */
+inline void BinaryWriter::write(bool oneBool)
+{
+    writeBool(oneBool);
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ */
+inline void BinaryWriter::write(const std::string &lengthPrefixedString)
+{
+    writeLengthPrefixedCString(lengthPrefixedString.data(), lengthPrefixedString.size());
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ */
+inline void BinaryWriter::write(const char *lengthPrefixedString)
+{
+    writeLengthPrefixedCString(lengthPrefixedString, std::strlen(lengthPrefixedString));
+}
+
+/*!
+ * \brief Writes a 16-bit big endian signed integer to the current stream and advances the current position of the stream by two bytes.
+ */
+inline void BinaryWriter::write(int16 one16BitInt)
+{
+    writeInt16BE(one16BitInt);
+}
+
+/*!
+ * \brief Writes a 16-bit big endian unsigned integer to the current stream and advances the current position of the stream by two bytes.
+ */
+inline void BinaryWriter::write(uint16 one16BitUint)
+{
+    writeUInt16BE(one16BitUint);
+}
+
+/*!
+ * \brief Writes a 32-bit big endian signed integer to the current stream and advances the current position of the stream by four bytes.
+ */
+inline void BinaryWriter::write(int32 one32BitInt)
+{
+    writeInt32BE(one32BitInt);
+}
+
+/*!
+ * \brief Writes a 32-bit big endian unsigned integer to the current stream and advances the current position of the stream by four bytes.
+ */
+inline void BinaryWriter::write(uint32 one32BitUint)
+{
+    writeUInt32BE(one32BitUint);
+}
+
+/*!
+ * \brief Writes a 64-bit big endian signed integer to the current stream and advances the current position of the stream by eight bytes.
+ */
+inline void BinaryWriter::write(int64 one64BitInt)
+{
+    writeInt64BE(one64BitInt);
+}
+
+/*!
+ * \brief Writes a 64-bit big endian unsigned integer to the current stream and advances the current position of the stream by eight bytes.
+ */
+inline void BinaryWriter::write(uint64 one64BitUint)
+{
+    writeUInt64BE(one64BitUint);
+}
+
+/*!
+ * \brief Writes a 32-bit big endian floating point \a value to the current stream and advances the current position of the stream by four bytes.
+ */
+inline void BinaryWriter::write(float32 one32BitFloat)
+{
+    writeFloat32BE(one32BitFloat);
+}
+
+/*!
+ * \brief Writes a 64-bit big endian floating point \a value to the current stream and advances the current position of the stream by eight bytes.
+ */
+inline void BinaryWriter::write(float64 one64BitFloat)
+{
+    writeFloat64BE(one64BitFloat);
 }
 } // namespace IoUtilities
 

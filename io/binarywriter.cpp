@@ -13,6 +13,7 @@ using namespace ConversionUtilities;
  * \class IoUtilities::BinaryWriter
  * \brief Writes primitive data types to a std::ostream.
  * \remarks Supports both, little endian and big endian.
+ * \sa For automatic deserialization of structs, see https://github.com/Martchus/reflective-rapidjson.
  */
 
 /*!
@@ -71,24 +72,48 @@ void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
 }
 
 /*!
- * \brief Writes the length of a string and the string itself to the current stream.
- *
- * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ * \brief Writes the specified integer \a value. Conversion to bytes is done using the specified function.
  */
-void BinaryWriter::writeLengthPrefixedString(const string &value)
+void BinaryWriter::writeVariableLengthInteger(uint64 value, void (*getBytes)(uint64, char *))
 {
-    const uint64 size = value.size();
     uint64 boundCheck = 0x80;
     byte prefixLength = 1;
     for (; boundCheck != 0x8000000000000000; boundCheck <<= 7, ++prefixLength) {
-        if (size < boundCheck) {
-            BE::getBytes(size | boundCheck, m_buffer);
+        if (value < boundCheck) {
+            getBytes(value | boundCheck, m_buffer);
             break;
         }
     }
     if (prefixLength == 9) {
-        throw ConversionException("The size of the string exceeds the maximum.");
+        throw ConversionException("The variable-length integer to be written exceeds the maximum.");
     }
     m_stream->write(m_buffer + 8 - prefixLength, prefixLength);
-    m_stream->write(value.data(), static_cast<streamsize>(size));
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ *
+ * \throws Throws ConversionException if the string size exceeds the maximum.
+ * \todo Make inline in v5.
+ */
+void BinaryWriter::writeLengthPrefixedString(const string &value)
+{
+    writeVariableLengthUIntBE(value.size());
+    m_stream->write(value.data(), static_cast<streamsize>(value.size()));
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ *
+ * \throws Throws ConversionException if the string size exceeds the maximum.
+ * \todo Make inline in v5.
+ */
+void BinaryWriter::writeLengthPrefixedCString(const char *value, size_t size)
+{
+    writeVariableLengthUIntBE(size);
+    m_stream->write(value, static_cast<streamsize>(size));
 }
