@@ -120,13 +120,13 @@ endif()
 set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 
 # create header for feature detection
-if (META_REQUIRED_FEATURES)
+if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
     include(WriteCompilerDetectionHeader)
     write_compiler_detection_header(
       FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h"
       PREFIX "${META_PROJECT_VARNAME_UPPER}"
       COMPILERS GNU Clang
-      FEATURES ${META_REQUIRED_FEATURES}
+      FEATURES ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER}
     )
 endif()
 
