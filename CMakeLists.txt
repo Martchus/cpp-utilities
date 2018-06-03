@@ -134,6 +134,7 @@ set(META_APP_NAME "C++ Utilities")
 set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
+set(META_REQUIRED_FEATURES cxx_thread_local)
 set(META_VERSION_MAJOR 4)
 set(META_VERSION_MINOR 14)
 set(META_VERSION_PATCH 2)
@@ -165,6 +166,15 @@ if(ENABLE_ESCAPE_CODES_BY_DEAULT)
     )
 else()
     message(STATUS "Disabling use of escape codes by default.")
+endif()
+
+# configure use of thread_local
+option(ENABLE_THREAD_LOCAL "enables use of Thread-Local Storage" ON)
+if(NOT ENABLE_THREAD_LOCAL)
+    set_source_files_properties(
+        conversion/stringconversion.cpp
+        PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL
+    )
 endif()
 
 # include modules to apply configuration
