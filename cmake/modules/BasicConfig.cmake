@@ -119,6 +119,17 @@ endif()
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
 set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 
+# create header for feature detection
+if (META_REQUIRED_FEATURES)
+    include(WriteCompilerDetectionHeader)
+    write_compiler_detection_header(
+      FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h"
+      PREFIX "${META_PROJECT_VARNAME_UPPER}"
+      COMPILERS GNU Clang
+      FEATURES ${META_REQUIRED_FEATURES}
+    )
+endif()
+
 # disable new ABI (can't catch ios_base::failure with new ABI)
 option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
 if(FORCE_OLD_ABI)
