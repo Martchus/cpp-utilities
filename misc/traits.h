@@ -85,6 +85,7 @@ template <typename T> struct IsComplete<T, decltype(void(sizeof(T)))> : Bool<tru
 
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(HasSize, std::is_integral<decltype(std::declval<T &>().size())>::value);
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsReservable, std::declval<T &>().reserve(0u));
+CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsResizable, std::declval<T &>().resize(0u));
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
     // begin/end and operator !=
     std::begin(std::declval<T &>())
