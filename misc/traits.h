@@ -41,6 +41,17 @@ template <typename T, template <typename...> class Template> struct IsSpecializa
 template <template <typename...> class Template, typename... Args> struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {
 };
 
+template <typename... T> struct IsAnyOf : Bool<false> {
+};
+template <typename Type, typename OtherType, typename... RemainingTypes>
+struct IsAnyOf<Type, OtherType, RemainingTypes...> : Conditional<std::is_same<Type, OtherType>, Bool<true>, IsAnyOf<Type, RemainingTypes...>> {
+};
+template <typename... T> struct IsNoneOf : Bool<true> {
+};
+template <typename Type, typename OtherType, typename... RemainingTypes>
+struct IsNoneOf<Type, OtherType, RemainingTypes...> : Conditional<std::is_same<Type, OtherType>, Bool<false>, IsNoneOf<Type, RemainingTypes...>> {
+};
+
 template <typename T>
 struct IsCString
     : Bool<std::is_same<char const *, typename std::decay<T>::type>::value || std::is_same<char *, typename std::decay<T>::type>::value> {

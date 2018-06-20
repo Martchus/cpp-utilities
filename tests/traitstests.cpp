@@ -32,6 +32,15 @@ static_assert(All<Bool<true>, Bool<true>>::value, "All: positive case");
 static_assert(!IsSpecializationOf<string, basic_stringbuf>::value, "IsSpecializationOf: negative case");
 static_assert(IsSpecializationOf<string, basic_string>::value, "IsSpecializationOf: positive case");
 
+static_assert(IsAnyOf<string, string, int, bool>::value, "IsAnyOf: positive case");
+static_assert(IsAnyOf<int, string, int, bool>::value, "IsAnyOf: positive case");
+static_assert(IsAnyOf<bool, string, int, bool>::value, "IsAnyOf: positive case");
+static_assert(!IsAnyOf<unsigned int, string, int, bool>::value, "IsAnyOf: negative case");
+static_assert(!IsNoneOf<string, string, int, bool>::value, "IsNoneOf: negative case");
+static_assert(!IsNoneOf<int, string, int, bool>::value, "IsNoneOf: negative case");
+static_assert(!IsNoneOf<bool, string, int, bool>::value, "IsNoneOf: negative case");
+static_assert(IsNoneOf<unsigned int, string, int, bool>::value, "IsNoneOf: positive case");
+
 static_assert(!IsIteratable<int>::value, "IsIterator: negative case");
 static_assert(!IsIteratable<SomeStruct>::value, "IsIterator: negative case");
 static_assert(IsIteratable<string>::value, "IsIterator: positive case");
