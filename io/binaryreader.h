@@ -653,7 +653,7 @@ inline void BinaryReader::read(uint16 &one16BitUInt)
  */
 inline void BinaryReader::read(int32 &one32BitInt)
 {
-    one32BitInt = readInt16BE();
+    one32BitInt = readInt32BE();
 }
 
 /*!
