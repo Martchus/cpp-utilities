@@ -169,7 +169,7 @@ template <typename T> bool operator==(const AsHexNumber<T> &lhs, const AsHexNumb
  */
 template <typename T> std::ostream &operator<<(std::ostream &out, const AsHexNumber<T> &value)
 {
-    return out << std::hex << '0' << 'x' << unsigned(value.value) << std::dec;
+    return out << '0' << 'x' << std::hex << std::setfill('0') << std::setw(2) << unsigned(value.value) << std::dec;
 }
 
 /*!
@@ -179,6 +179,26 @@ template <typename T> std::ostream &operator<<(std::ostream &out, const AsHexNum
 template <typename T> AsHexNumber<T> asHexNumber(const T &value)
 {
     return AsHexNumber<T>(value);
+}
+
+/*!
+ * \brief Wraps a value to be printed using the hex system in the error case when asserted
+ *        with cppunit (or similar test framework).
+ * \remarks Only affects integral types. Values of other types are printed as usual.
+ */
+template <typename T, Traits::EnableIf<std::is_integral<T>> * = nullptr> AsHexNumber<T> integralsAsHexNumber(const T &value)
+{
+    return AsHexNumber<T>(value);
+}
+
+/*!
+ * \brief Wraps a value to be printed using the hex system in the error case when asserted
+ *        with cppunit (or similar test framework).
+ * \remarks Only affects integral types. Values of other types are printed as usual.
+ */
+template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const T &integralsAsHexNumber(const T &value)
+{
+    return value;
 }
 
 #ifndef TESTUTILS_ASSERT_EXEC
@@ -207,7 +227,7 @@ inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
     out << '\n';
     std::size_t index = 0;
     for (const auto &item : iteratable) {
-        out << std::setw(2) << index << ':' << ' ' << item << '\n';
+        out << std::setw(2) << index << ':' << ' ' << integralsAsHexNumber(item) << '\n';
         ++index;
     }
     return out;
