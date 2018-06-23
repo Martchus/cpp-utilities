@@ -42,6 +42,7 @@ public:
     static constexpr TimeSpan negativeInfinity();
     static constexpr TimeSpan infinity();
 
+    int64 &ticks();
     constexpr int64 totalTicks() const;
     constexpr double totalMicroseconds() const;
     constexpr double totalMilliseconds() const;
@@ -179,6 +180,14 @@ constexpr inline TimeSpan TimeSpan::negativeInfinity()
 constexpr inline TimeSpan TimeSpan::infinity()
 {
     return TimeSpan(std::numeric_limits<decltype(m_ticks)>::max());
+}
+
+/*!
+ * \brief Returns a mutable reference to the total ticks.
+ */
+inline int64 &TimeSpan::ticks()
+{
+    return m_ticks;
 }
 
 /*!

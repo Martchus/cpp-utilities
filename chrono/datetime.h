@@ -64,6 +64,7 @@ public:
     static DateTime fromTimeStamp(time_t timeStamp);
     static DateTime fromTimeStampGmt(time_t timeStamp);
 
+    uint64 &ticks();
     constexpr uint64 totalTicks() const;
     int year() const;
     int month() const;
@@ -210,6 +211,14 @@ inline DateTime DateTime::fromIsoStringGmt(const char *str)
 inline DateTime DateTime::fromIsoStringLocal(const char *str)
 {
     return fromIsoString(str).first;
+}
+
+/*!
+ * \brief Returns a mutable reference to the total ticks.
+ */
+inline uint64 &DateTime::ticks()
+{
+    return m_ticks;
 }
 
 /*!
