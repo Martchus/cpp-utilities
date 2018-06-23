@@ -28,6 +28,9 @@ static_assert(!Any<Bool<false>, Bool<false>>::value, "Any: negative case");
 static_assert(Any<Bool<true>, Bool<false>>::value, "Any: positive case");
 static_assert(!All<Bool<true>, Bool<false>>::value, "All: negative case");
 static_assert(All<Bool<true>, Bool<true>>::value, "All: positive case");
+static_assert(!None<Bool<true>, Bool<false>>::value, "None: negative case");
+static_assert(!None<Bool<true>, Bool<true>>::value, "None: negative case");
+static_assert(None<Bool<false>, Bool<false>>::value, "None: positive case");
 
 static_assert(!IsSpecializationOf<string, basic_stringbuf>::value, "IsSpecializationOf: negative case");
 static_assert(IsSpecializationOf<string, basic_string>::value, "IsSpecializationOf: positive case");

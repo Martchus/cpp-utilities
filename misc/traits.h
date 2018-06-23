@@ -30,6 +30,11 @@ template <typename... T> struct All : Bool<true> {
 template <typename Head, typename... Tail> struct All<Head, Tail...> : Conditional<Head, All<Tail...>, Bool<false>> {
 };
 
+template <typename... T> struct None : Bool<true> {
+};
+template <typename Head, typename... Tail> struct None<Head, Tail...> : Conditional<Head, Bool<false>, None<Tail...>> {
+};
+
 template <typename... Condition> using EnableIf = typename std::enable_if<All<Condition...>::value, Detail::Enabler>::type;
 template <typename... Condition> using DisableIf = typename std::enable_if<!All<Condition...>::value, Detail::Enabler>::type;
 
