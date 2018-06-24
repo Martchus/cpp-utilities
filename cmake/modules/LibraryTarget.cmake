@@ -230,7 +230,23 @@ endif()
 
 # Qt Creator does not show INTERFACE_SOURCES in project tree, so create a custom target as workaround
 if(META_HEADER_ONLY_LIB)
-    add_custom_target(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator EXCLUDE_FROM_ALL SOURCES ${HEADER_FILES})
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp" "// not belonging to a real target, only for header-only lib files showing up in Qt Creator")
+    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+        EXCLUDE_FROM_ALL
+        "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp" ${HEADER_FILES}
+    )
+    target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+        INTERFACE
+            $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+            $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
+            ${PUBLIC_SHARED_INCLUDE_DIRS}
+    )
+    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+        INTERFACE "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}" "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}"
+    )
+    target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+        INTERFACE "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}"
+    )
 endif()
 
 # create the CMake package config file from template
