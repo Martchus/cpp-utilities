@@ -45,6 +45,12 @@ template <typename T, template <typename...> class Template> struct IsSpecializa
 };
 template <template <typename...> class Template, typename... Args> struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {
 };
+template <typename Type, template <typename...> class... TemplateTypes> struct IsSpecializingAnyOf : Bool<false> {
+};
+template <typename Type, template <typename...> class TemplateType, template <typename...> class... RemainingTemplateTypes>
+struct IsSpecializingAnyOf<Type, TemplateType, RemainingTemplateTypes...>
+    : Conditional<IsSpecializationOf<Type, TemplateType>, Bool<true>, IsSpecializingAnyOf<Type, RemainingTemplateTypes...>> {
+};
 
 template <typename... T> struct IsAnyOf : Bool<false> {
 };
