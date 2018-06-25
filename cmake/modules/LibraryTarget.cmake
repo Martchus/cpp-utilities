@@ -247,6 +247,12 @@ if(META_HEADER_ONLY_LIB)
     target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
         INTERFACE "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}"
     )
+    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator PROPERTIES
+        VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+        SOVERSION "${META_SOVERSION}"
+        CXX_STANDARD "${META_CXX_STANDARD}"
+        AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+    )
 endif()
 
 # create the CMake package config file from template
