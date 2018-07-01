@@ -108,6 +108,16 @@ CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
         // operator*
         void(*begin(std::declval<T &>())));
 
+template <typename T> T &dereferenceMaybe(T &x)
+{
+    return x;
+}
+
+template <typename T> T &dereferenceMaybe(T *x)
+{
+    return *x;
+}
+
 } // namespace Traits
 
 #endif // CPP_UTILITIES_TRAITS_H
