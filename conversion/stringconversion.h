@@ -68,28 +68,32 @@ typename Container::value_type joinStrings(const Container &strings,
     const typename Container::value_type &rightClosure = typename Container::value_type())
 {
     typename Container::value_type res;
-    if (strings.size()) {
-        size_t entries = 0, size = 0;
-        for (const auto &str : strings) {
-            if (!omitEmpty || !str.empty()) {
-                size += str.size();
-                ++entries;
-            }
+    if (!strings.size()) {
+        return res;
+    }
+    std::size_t entries = 0, size = 0;
+    for (const auto &str : strings) {
+        if (omitEmpty && str.empty()) {
+            continue;
         }
-        if (entries) {
-            size += (entries * leftClosure.size()) + (entries * rightClosure.size()) + ((entries - 1) * delimiter.size());
-            res.reserve(size);
-            for (const auto &str : strings) {
-                if (!omitEmpty || !str.empty()) {
-                    if (!res.empty()) {
-                        res.append(delimiter);
-                    }
-                    res.append(leftClosure);
-                    res.append(str);
-                    res.append(rightClosure);
-                }
-            }
+        size += str.size();
+        ++entries;
+    }
+    if (!entries) {
+        return res;
+    }
+    size += (entries * leftClosure.size()) + (entries * rightClosure.size()) + ((entries - 1) * delimiter.size());
+    res.reserve(size);
+    for (const auto &str : strings) {
+        if (omitEmpty && str.empty()) {
+            continue;
         }
+        if (!res.empty()) {
+            res.append(delimiter);
+        }
+        res.append(leftClosure);
+        res.append(str);
+        res.append(rightClosure);
     }
     return res;
 }
