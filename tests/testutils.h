@@ -201,13 +201,25 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
     return value;
 }
 
-#ifndef TESTUTILS_ASSERT_EXEC
 /*!
- * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
+ * \brief Asserts successful execution of the application with the specified CLI \a args.
+ *
+ * The application is executed via TestApplication::execApp(). Output is stored in the std::string variables stdout
+ * and stderr.
+ *
  * \remarks Requires cppunit.
  */
 #define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
-#endif
+
+/*!
+ * \brief Asserts whether the specified \a string matches the specified \a regex.
+ * \remarks Requires cppunit.
+ */
+#define TESTUTILS_ASSERT_LIKE(message, expectedRegex, actualString)                                                                                  \
+    (CPPUNIT_NS::Asserter::failIf(!(std::regex_match(actualString, std::regex(expectedRegex))),                                                      \
+        CPPUNIT_NS::Message(ConversionUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"'),                      \
+            "Expression: " #actualString, message),                                                                                                  \
+        CPPUNIT_SOURCELINE()))
 
 /*!
  * \brief Allows printing pairs so key/values of maps/hashes can be asserted using CPPUNIT_ASSERT_EQUAL.
