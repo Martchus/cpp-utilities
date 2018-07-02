@@ -1,5 +1,5 @@
-#ifndef TESTUTILS_H
-#define TESTUTILS_H
+#ifndef CPP_UTILITIES_TESTUTILS_H
+#define CPP_UTILITIES_TESTUTILS_H
 
 #include "../application/argumentparser.h"
 #include "../conversion/types.h"
@@ -201,13 +201,18 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
     return value;
 }
 
-#ifndef TESTUTILS_ASSERT_EXEC
 /*!
  * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
  * \remarks Requires cppunit.
  */
-#define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
-#endif
+#define CPP_UTILITIES_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
+
+/*!
+ * \brief Asserts successful execution of application via TestApplication::execApp(). Output is stored in stdout and stderr.
+ * \deprecated Use CPP_UTILITIES_ASSERT_EXEC instead.
+ * \todo Remove in v5.
+ */
+#define TESTUTILS_ASSERT_EXEC(args) CPP_UTILITIES_ASSERT_EXEC(0, execApp(args, stdout, stderr))
 
 /*!
  * \brief Allows printing pairs so key/values of maps/hashes can be asserted using CPPUNIT_ASSERT_EQUAL.
@@ -266,4 +271,4 @@ constexpr int64 operator"" _int64(unsigned long long size)
 } // namespace Literals
 } // namespace TestUtilities
 
-#endif // TESTUTILS_H
+#endif // CPP_UTILITIES_TESTUTILS_H
