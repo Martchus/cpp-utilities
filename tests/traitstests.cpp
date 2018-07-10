@@ -1,13 +1,20 @@
 #include "../misc/traits.h"
+#include "../tests/testutils.h"
+
+#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include <forward_list>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 using namespace std;
 using namespace Traits;
+
+using namespace CPPUNIT_NS;
 
 struct SomeStruct {
     string foo;
@@ -15,7 +22,7 @@ struct SomeStruct {
 };
 
 struct CountableStruct {
-    int numberOfElements;
+    int numberOfElements = 42;
     size_t size() const;
 };
 
@@ -49,6 +56,14 @@ static_assert(!IsNoneOf<int, string, int, bool>::value, "IsNoneOf: negative case
 static_assert(!IsNoneOf<bool, string, int, bool>::value, "IsNoneOf: negative case");
 static_assert(IsNoneOf<unsigned int, string, int, bool>::value, "IsNoneOf: positive case");
 
+static_assert(!IsDereferencable<string>::value, "IsDereferencable: negative case");
+static_assert(!IsDereferencable<int>::value, "IsDereferencable: negative case");
+static_assert(IsDereferencable<string *>::value, "IsDereferencable: positive case");
+static_assert(IsDereferencable<int *>::value, "IsDereferencable: positive case");
+static_assert(IsDereferencable<unique_ptr<string>>::value, "IsDereferencable: positive case");
+static_assert(IsDereferencable<shared_ptr<string>>::value, "IsDereferencable: positive case");
+static_assert(!IsDereferencable<weak_ptr<string>>::value, "IsDereferencable: positive case");
+
 static_assert(!IsIteratable<int>::value, "IsIterator: negative case");
 static_assert(!IsIteratable<SomeStruct>::value, "IsIterator: negative case");
 static_assert(IsIteratable<string>::value, "IsIterator: positive case");
@@ -78,3 +93,42 @@ static_assert(IsString<u16string>::value, "IsCString: positive case");
 
 static_assert(!IsComplete<TestIncomplete>::value, "IsComplete: negative case");
 static_assert(IsComplete<CountableStruct>::value, "IsComplete: positive case");
+
+constexpr int i = 5;
+constexpr CountableStruct someStruct{};
+static_assert(dereferenceMaybe(&i) == 5, "int* dereferenced");
+static_assert(dereferenceMaybe(i) == 5, "int not dereferenced");
+static_assert(dereferenceMaybe(&someStruct).numberOfElements == 42, "CountableStruct* dereferenced");
+static_assert(dereferenceMaybe(someStruct).numberOfElements == 42, "CountableStruct not dereferenced");
+
+/*!
+ * \brief The TraitsTest class tests parts of the Traits namespace which can not be evaluated at compile-time.
+ */
+class TraitsTest : public TestFixture {
+    CPPUNIT_TEST_SUITE(TraitsTest);
+    CPPUNIT_TEST(testDereferenceMaybe);
+    CPPUNIT_TEST_SUITE_END();
+
+public:
+    void setUp()
+    {
+    }
+    void tearDown()
+    {
+    }
+
+    void testDereferenceMaybe();
+};
+
+CPPUNIT_TEST_SUITE_REGISTRATION(TraitsTest);
+
+/*!
+ * \brief Tests whether a smart pointer to a string can be treated like a normal string through the use of dereferenceMaybe().
+ */
+void TraitsTest::testDereferenceMaybe()
+{
+    const auto someString = "foo"s;
+    const auto someSmartPointer = make_unique<string>("foo");
+    CPPUNIT_ASSERT_EQUAL("foo"s, dereferenceMaybe(someString));
+    CPPUNIT_ASSERT_EQUAL("foo"s, dereferenceMaybe(someSmartPointer));
+}

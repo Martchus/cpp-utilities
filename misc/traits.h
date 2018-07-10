@@ -94,6 +94,9 @@ template <typename T> struct IsComplete<T, decltype(void(sizeof(T)))> : Bool<tru
     }                                                                                                                                                \
     template <typename T> using CheckName = decltype(Detail::CheckName<T>(0))
 
+/// \brief Evaluates to Bool<true> if the specified type can be dereferenced using the *-operator; otherwise evaluates to Bool<false>.
+CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsDereferencable, *(std::declval<T &>()));
+
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(HasSize, std::is_integral<decltype(std::declval<T &>().size())>::value);
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsReservable, std::declval<T &>().reserve(0u));
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsResizable, std::declval<T &>().resize(0u));
@@ -108,14 +111,28 @@ CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
         // operator*
         void(*begin(std::declval<T &>())));
 
-template <typename T> T &dereferenceMaybe(T &x)
+/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
+template <typename T, EnableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &value)
 {
-    return x;
+    return *value;
 }
 
-template <typename T> T &dereferenceMaybe(T *x)
+/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
+template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &value)
 {
-    return *x;
+    return value;
+}
+
+/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
+template <typename T, EnableIf<IsDereferencable<T>> * = nullptr> constexpr const auto &dereferenceMaybe(const T &value)
+{
+    return *value;
+}
+
+/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
+template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr const auto &dereferenceMaybe(const T &value)
+{
+    return value;
 }
 
 } // namespace Traits
