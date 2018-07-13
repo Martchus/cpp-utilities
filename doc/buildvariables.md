@@ -99,6 +99,13 @@ the location of libraries and include directories directly:
 * `dependency_STATIC_INCLUDE_DIR`: specifies the locations of the additional
   include directories required for using the static version of the *dependency*
 
+*Note about Qt*: Qt modules are always configured using the CMake packages via
+`find_package`. So using the variables described above to specify a custom location
+does not work. Instead, the variables `CMAKE_FIND_ROOT_PATH` or `CMAKE_PREFIX_PATH`
+can be used to specify the install prefix of the Qt build to use. Set `QT_LINKAGE`
+to `STATIC` if it is a static build of Qt.
+
+##### Examples
 Example of passing location of dynamic `iconv` and `zlib` to CMake:
 ```
 /opt/osxcross/bin/x86_64-apple-darwin15-cmake \
@@ -109,10 +116,25 @@ Example of passing location of dynamic `iconv` and `zlib` to CMake:
     ...
 ```
 
-*Note about Qt*: Qt modules must be located via `find_package`. So using the variables
-described above to specify a custom location does not work. Instead, the
-variable `CMAKE_PREFIX_PATH` can be used to specify the install prefix of the
-Qt build to use. Set `QT_LINKAGE` to `STATIC` if it is a static build of Qt.
+Here's an example of passing the location of the Android SDK/NDK to compile for Android.
+This time the `iconv` library is located by specifying its install prefix via
+`CMAKE_FIND_ROOT_PATH`. The include directories are not automatically added for that
+library, so this must still be done manually:
+```
+_android_arch=arm64-v8a
+cmake \
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_SYSTEM_VERSION=21 \
+    -DCMAKE_ANDROID_ARCH_ABI=$_android_arch \
+    -DCMAKE_ANDROID_NDK=/opt/android-ndk \
+    -DCMAKE_ANDROID_SDK=/opt/android-sdk \
+    -DCMAKE_ANDROID_STL_TYPE=gnustl_shared \
+    -DCMAKE_INSTALL_PREFIX=/opt/android-libs/$_android_arch \
+    -DCMAKE_FIND_ROOT_PATH="/opt/android-ndk/sysroot;/opt/android-libs/$_android_arch" \
+    -Diconv_DYNAMIC_INCLUDE_DIR="/opt/android-libs/$_android_arch/include" \
+    -Diconv_STATIC_INCLUDE_DIR="/opt/android-libs/$_android_arch/include" \
+    ...
+```
 
 #### Windows specific
 * `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
