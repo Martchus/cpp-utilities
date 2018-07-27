@@ -64,6 +64,10 @@ None of these are enabled or set by default, unless stated otherwise.
     * can be made unavailable by setting `META_NO_TIDY` in the project file
     * only available if format rules are available
     * also enables tidy check executed via `check` target
+* `CLANG_TIDY_ENABLED=ON/OFF`: enables target `static-check` for static code
+  analysis with `clang-tidy`
+    * can be made unavailable by setting `META_NO_STATIC_ANALYSIS` in the
+      project file
 * `CLANG_SOURCE_BASED_COVERAGE_ENABLED=ON/OFF`: enables `coverage` target to
   determine source-based test coverage using Clang/llvm
     * only available when building with Clang under UNIX

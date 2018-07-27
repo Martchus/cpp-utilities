@@ -175,11 +175,22 @@ elseif("${META_PROJECT_TYPE}" STREQUAL "application")
     option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
 endif()
 
-# additional linker flags used when static linkage is enables
+# additional linker flags used when static linkage is enabled
 if(NOT APPLE)
     list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static)
 endif()
 list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static-libstdc++ -static-libgcc)
+
+# determine whether the project is a header-only library
+if(SRC_FILES OR WIDGETS_FILES OR QML_FILES OR RES_FILES)
+    set(META_HEADER_ONLY_LIB NO)
+else()
+    set(META_HEADER_ONLY_LIB YES)
+    if("${META_PROJECT_TYPE}" STREQUAL "application")
+        message(FATAL_ERROR "Project ${META_PROJECT_NAME} is supposed to be an application but has only header files.")
+    endif()
+    message(STATUS "Project ${META_PROJECT_NAME} is header-only library.")
+endif()
 
 # options for enabling/disabling Qt GUI (if available)
 if(WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR META_HAS_WIDGETS_GUI)
@@ -219,59 +230,149 @@ if(HAS_PARENT)
     message(STATUS "For the check target to work, it is required to call enable_testing() on the source directory root.")
 endif()
 
-# make testing more convenient (not only useful if there's a test target; this is for instance also used in mocked configuration of syncthingtray)
+# make finding testfiles in out-of-source-tree build more convenient by adding a reference to the source directory
+# (not only useful if there's a test target; this is for instance also used in mocked configuration of syncthingtray)
 # -> add a file called "srcdirref" to the build directory; this file contains the path of the sources so tests can easily find test files contained in the source directory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/srcdirref" "${CMAKE_CURRENT_SOURCE_DIR}")
-# -> ensure the directory "testfiles" exists in the build directory; tests will create the directory for working copies of testfiles there by default
+# -> ensure the directory "testfiles" exists in the build directory; tests of my projects use it by default to create working copies of testfiles
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/testfiles")
 
+# determine source files which might be passed to clang-format or clang-tidy
+set(FORMATABLE_FILES
+    ${HEADER_FILES} ${SRC_FILES}
+    ${TEST_HEADER_FILES} ${TEST_SRC_FILES}
+    ${GUI_HEADER_FILES} ${GUI_SRC_FILES}
+    ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES}
+    ${QML_HEADER_FILES} ${QML_SRC_FILES}
+)
+# only format C/C++ files (and not eg. QML files)
+if(FORMATABLE_FILES)
+    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(cpp|h)")
+endif()
+
+# add command for symlinking clang-{format,tidy} rules so the tools can find it
+if(EXISTS "${CLANG_FORMAT_RULES}")
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
+    )
+endif()
+
 # add target for tidying with clang-format
-if(NOT META_NO_TIDY AND EXISTS "${CLANG_FORMAT_RULES}")
+if(NOT META_NO_TIDY AND FORMATABLE_FILES AND EXISTS "${CLANG_FORMAT_RULES}")
     option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" OFF)
     if(CLANG_FORMAT_ENABLED)
         find_program(CLANG_FORMAT_BIN clang-format)
-        if(CLANG_FORMAT_BIN)
-            set(FORMATABLE_FILES
-                ${HEADER_FILES} ${SRC_FILES}
-                ${TEST_HEADER_FILES} ${TEST_SRC_FILES}
-                ${GUI_HEADER_FILES} ${GUI_SRC_FILES}
-                ${WIDGETS_HEADER_FILES} ${WIDGETS_SRC_FILES}
-                ${QML_HEADER_FILES} ${QML_SRC_FILES}
-            )
-            if(FORMATABLE_FILES)
-                # only tidy C/C++ files (and not eg. QML files)
-                list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(cpp|h)")
-
-                 add_custom_command(
-                    OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                    COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                    COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
-                )
-                add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
-                    COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                    COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-                    DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                )
-                if(NOT TARGET tidy)
-                    add_custom_target(tidy)
-                endif()
-                add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
-
-                # also add a test to verify whether sources are tidy
-                add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
-                    COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                )
-                list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-                set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
-                    FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
-                    REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                )
-            endif()
-        else()
+        if(NOT CLANG_FORMAT_BIN)
             message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
         endif()
+        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+            COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+            DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        )
+        if(NOT TARGET tidy)
+            add_custom_target(tidy)
+        endif()
+        add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+
+        # also add a test to verify whether sources are tidy
+        add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+            COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+        list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+        set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
+            FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+            REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        )
+    endif()
+endif()
+
+# add target for static code analysis using clang-tidy
+if(NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
+    option(CLANG_TIDY_ENABLED "enables creation of static-check target using clang-tidy" OFF)
+    set(CLANG_TIDY_CHECKS "" CACHE STRING "-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,portability-*,readability-*,android-*")
+    if(CLANG_TIDY_ENABLED)
+        find_program(CLANG_TIDY_BIN clang-tidy)
+        if(NOT CLANG_TIDY_BIN)
+            message(FATAL_ERROR "Unable to add tidy target; clang-tidy not found")
+        endif()
+
+        set(CLANG_TIDY_DEPENDS ${FORMATABLE_FILES})
+
+        # compose options for clang-tidy
+        set(CLANG_TIDY_OPTIONS
+            -checks="${CLANG_TIDY_CHECKS}"
+            -header-filter="^${META_PROJECT_NAME}/"
+        )
+        if(EXISTS "${CLANG_FORMAT_RULES}")
+            list(APPEND CLANG_TIDY_OPTIONS "-format-style=file")
+            list(APPEND CLANG_TIDY_DPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+        endif()
+
+        # compose CXX flags for clang-tidy
+        set(CLANG_TIDY_CXX_FLAGS "")
+        if(NOT META_HEADER_ONLY_LIB)
+            # deduce flags from target
+            set(TARGET_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+            if(NOT BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
+                set(TARGET_NAME "${TARGET_NAME}_static")
+            endif()
+            # set c++ standard
+            list(APPEND CLANG_TIDY_CXX_FLAGS "-std=c++$<TARGET_PROPERTY:${TARGET_NAME},CXX_STANDARD>")
+            # add compile flags
+            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},COMPILE_FLAGS>")
+            list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:$<JOIN:${PROP},$<SEMICOLON>>>")
+            # add compile definitions
+            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},COMPILE_DEFINITIONS>")
+            list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:-D$<JOIN:${PROP},$<SEMICOLON>-D>>")
+            # add include directories
+            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},INCLUDE_DIRECTORIES>")
+            list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:-I$<JOIN:${PROP},$<SEMICOLON>-I>>")
+        else()
+            # set at least c++ standard for header-only libs
+            list(APPEND CLANG_TIDY_CXX_FLAGS "-std=c++${META_CXX_STANDARD}")
+        endif()
+
+        # add a custom command for each source file
+        set(CLANG_TIDY_SYMBOLIC_OUTPUT_FILES "")
+        foreach(FILE ${FORMATABLE_FILES})
+            # skip header files
+            if(${FILE} MATCHES ".*\.h")
+                continue()
+            endif()
+
+            # use symbolic output file since there's no actual output file (we're just interested in the log)
+            set(SYMBOLIC_OUTPUT_FILE "${FILE}.clang-tidy-output")
+            list(APPEND CLANG_TIDY_SYMBOLIC_OUTPUT_FILES "${SYMBOLIC_OUTPUT_FILE}")
+
+            add_custom_command(OUTPUT "${SYMBOLIC_OUTPUT_FILE}"
+                COMMAND "${CLANG_TIDY_BIN}" ${FILE} -- ${CLANG_TIDY_CXX_FLAGS}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                COMMENT "Linting ${FILE} using clang-tidy"
+                DEPENDS "${FILE}"
+                COMMAND_EXPAND_LISTS
+                VERBATIM
+            )
+        endforeach()
+
+        # mark all symbolic output files actually as symbolic
+        set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
+            PROPERTIES SYMBOLIC YES
+        )
+
+        # add targets
+        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check"
+            DEPENDS ${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
+            COMMENT "Linting ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} sources using clang-tidy"
+        )
+        if(NOT TARGET static-check)
+            add_custom_target(static-check)
+        endif()
+        add_dependencies(static-check "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check")
     endif()
 endif()
 
