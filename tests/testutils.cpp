@@ -251,7 +251,8 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
 
     // copy the file
     const auto origFilePath(testFilePath(name));
-    const auto workingCopyPath(m_workingDir + name);
+    auto workingCopyPath(m_workingDir + name);
+    size_t workingCopyPathAttempt = 0;
     fstream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
     if (origFile.fail()) {
@@ -260,6 +261,12 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
         return string();
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
+    while (workingCopy.fail() && !stat(workingCopyPath.c_str(), &currentStat)) {
+        // adjust the working copy path if the target file already exists and can not be truncated
+        workingCopyPath = argsToString(m_workingDir, "/tmp-", ++workingCopyPathAttempt, '-', name);
+        workingCopy.clear();
+        workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
+    }
     if (workingCopy.fail()) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \""
              << workingCopyPath << "\"." << Phrases::EndFlush;
