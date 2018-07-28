@@ -242,20 +242,22 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
         }
     }
 
-    // copy file
-    if (mode != WorkingCopyMode::NoCopy) {
-        try {
-            origFile.open(testFilePath(name), ios_base::in | ios_base::binary);
-            const string path = m_workingDir + name;
-            workingCopy.open(path, ios_base::out | ios_base::binary | ios_base::trunc);
-            workingCopy << origFile.rdbuf();
-            return path;
-        } catch (...) {
-            catchIoFailure();
-            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occured." << Phrases::EndFlush;
-        }
-    } else {
+    if (mode == WorkingCopyMode::NoCopy) {
         return m_workingDir + name;
+    }
+
+    // copy file
+    const auto origFilePath(testFilePath(name));
+    const auto workingCopyPath(m_workingDir + name);
+    try {
+        origFile.open(origFilePath, ios_base::in | ios_base::binary);
+        workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
+        workingCopy << origFile.rdbuf();
+        return workingCopyPath;
+    } catch (...) {
+        catchIoFailure();
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when copying \"" << origFilePath
+             << "\" to \"" << workingCopyPath << "\"." << Phrases::EndFlush;
     }
     return string();
 }
