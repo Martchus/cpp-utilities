@@ -211,18 +211,19 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
 {
     // ensure working directory is present
     struct stat currentStat;
-    if (stat(m_workingDir.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
-        if (mkdir(m_workingDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
-            return string();
-        }
+    if ((stat(m_workingDir.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode))
+        && mkdir(m_workingDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
+        return string();
     }
 
     // ensure subdirectory exists
-    const auto parts = splitString<vector<string>>(name, string("/"), EmptyPartsTreat::Omit);
+    const auto parts = splitString<vector<string>>(name, "/", EmptyPartsTreat::Omit);
     if (!parts.empty()) {
-        string currentLevel = m_workingDir;
         // create subdirectory level by level
+        string currentLevel;
+        currentLevel.reserve(m_workingDir.size() + name.size() + 1);
+        currentLevel.assign(m_workingDir);
         for (auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
             if (currentLevel.back() != '/') {
                 currentLevel += '/';
@@ -238,8 +239,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
                 continue;
             }
             // fail otherwise
-            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory."
-                 << Phrases::EndFlush;
+            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
             return string();
         }
     }
@@ -255,12 +255,14 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     fstream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
     if (origFile.fail()) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \"" << origFilePath << "\"." << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \""
+             << origFilePath << "\"." << Phrases::EndFlush;
         return string();
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     if (workingCopy.fail()) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \"" << workingCopyPath << "\"." << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \""
+             << workingCopyPath << "\"." << Phrases::EndFlush;
         return string();
     }
     workingCopy << origFile.rdbuf();
@@ -270,7 +272,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
 
     cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": ";
     if (origFile.fail()) {
-         cerr << "an IO error occurred when reading original file \"" << origFilePath << "\"";
+        cerr << "an IO error occurred when reading original file \"" << origFilePath << "\"";
         return string();
     }
     if (workingCopy.fail()) {
@@ -312,14 +314,16 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
 
     // create pipes
     int coutPipes[2], cerrPipes[2];
-    pipe(coutPipes), pipe(cerrPipes);
-    int readCoutPipe = coutPipes[0], writeCoutPipe = coutPipes[1];
-    int readCerrPipe = cerrPipes[0], writeCerrPipe = cerrPipes[1];
+    pipe(coutPipes);
+    pipe(cerrPipes);
+    const auto readCoutPipe = coutPipes[0], writeCoutPipe = coutPipes[1];
+    const auto readCerrPipe = cerrPipes[0], writeCerrPipe = cerrPipes[1];
 
     // create child process
-    if (int child = fork()) {
+    if (const auto child = fork()) {
         // parent process: read stdout and stderr from child
-        close(writeCoutPipe), close(writeCerrPipe);
+        close(writeCoutPipe);
+        close(writeCerrPipe);
 
         try {
             if (child == -1) {
@@ -334,41 +338,41 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
 
             // init variables for reading
             char buffer[512];
-            ssize_t count;
-            output.clear(), errors.clear();
+            output.clear();
+            errors.clear();
 
             // poll as long as at least one pipe is open
             do {
-                int retpoll = poll(fileDescriptorSet, 2, timeout);
-                if (retpoll > 0) {
-                    // poll succeeds
-                    if (fileDescriptorSet[0].revents & POLLIN) {
-                        if ((count = read(readCoutPipe, buffer, sizeof(buffer))) > 0) {
-                            output.append(buffer, static_cast<size_t>(count));
-                        }
-                    } else if (fileDescriptorSet[0].revents & POLLHUP) {
-                        close(readCoutPipe);
-                        fileDescriptorSet[0].fd = -1;
-                    }
-                    if (fileDescriptorSet[1].revents & POLLIN) {
-                        if ((count = read(readCerrPipe, buffer, sizeof(buffer))) > 0) {
-                            errors.append(buffer, static_cast<size_t>(count));
-                        }
-                    } else if (fileDescriptorSet[1].revents & POLLHUP) {
-                        close(readCerrPipe);
-                        fileDescriptorSet[1].fd = -1;
-                    }
-                } else if (retpoll == 0) {
-                    // timeout
+                const auto retpoll = poll(fileDescriptorSet, 2, timeout);
+                if (retpoll == 0) {
                     throw runtime_error("Poll time-out");
-                } else {
-                    // fail
+                }
+                if (retpoll < 0) {
                     throw runtime_error("Poll failed");
+                }
+                if (fileDescriptorSet[0].revents & POLLIN) {
+                    const auto count = read(readCoutPipe, buffer, sizeof(buffer));
+                    if (count > 0) {
+                        output.append(buffer, static_cast<size_t>(count));
+                    }
+                } else if (fileDescriptorSet[0].revents & POLLHUP) {
+                    close(readCoutPipe);
+                    fileDescriptorSet[0].fd = -1;
+                }
+                if (fileDescriptorSet[1].revents & POLLIN) {
+                    const auto count = read(readCerrPipe, buffer, sizeof(buffer));
+                    if (count > 0) {
+                        errors.append(buffer, static_cast<size_t>(count));
+                    }
+                } else if (fileDescriptorSet[1].revents & POLLHUP) {
+                    close(readCerrPipe);
+                    fileDescriptorSet[1].fd = -1;
                 }
             } while (fileDescriptorSet[0].fd >= 0 || fileDescriptorSet[1].fd >= 0);
         } catch (...) {
-            // ensure all pipes are close in the error case
-            close(readCoutPipe), close(readCerrPipe);
+            // ensure all pipes are closed in the error case
+            close(readCoutPipe);
+            close(readCerrPipe);
             throw;
         }
 
@@ -379,8 +383,12 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
     } else {
         // child process
         // -> set pipes to be used for stdout/stderr
-        dup2(writeCoutPipe, STDOUT_FILENO), dup2(writeCerrPipe, STDERR_FILENO);
-        close(readCoutPipe), close(writeCoutPipe), close(readCerrPipe), close(writeCerrPipe);
+        dup2(writeCoutPipe, STDOUT_FILENO);
+        dup2(writeCerrPipe, STDERR_FILENO);
+        close(readCoutPipe);
+        close(writeCoutPipe);
+        close(readCerrPipe);
+        close(writeCerrPipe);
 
         // -> modify environment variable LLVM_PROFILE_FILE to apply new path for profiling output
         if (!newProfilingPath.empty()) {
@@ -475,7 +483,7 @@ string TestApplication::readTestfilePathFromSrcRef()
     try {
         // read "srcdirref" file which should contain the path of the source directory; this file should have been
         // create by the CMake module "TestTarget.cmake"
-        string srcDirContent(readFile("srcdirref", 2 * 1024));
+        auto srcDirContent(readFile("srcdirref", 2 * 1024));
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
             return string();
