@@ -209,11 +209,6 @@ string TestApplication::testFilePath(const string &name) const
  */
 string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode mode) const
 {
-    // create file streams
-    fstream origFile, workingCopy;
-    origFile.exceptions(ios_base::badbit | ios_base::failbit);
-    workingCopy.exceptions(ios_base::badbit | ios_base::failbit);
-
     // ensure working directory is present
     struct stat currentStat;
     if (stat(m_workingDir.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
@@ -227,37 +222,62 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     const auto parts = splitString<vector<string>>(name, string("/"), EmptyPartsTreat::Omit);
     if (!parts.empty()) {
         string currentLevel = m_workingDir;
+        // create subdirectory level by level
         for (auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
             if (currentLevel.back() != '/') {
                 currentLevel += '/';
             }
             currentLevel += *i;
-            if (stat(currentLevel.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode)) {
-                if (mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-                    cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory."
-                         << Phrases::EndFlush;
-                    return string();
-                }
+
+            // continue if subdirectory level already exists
+            if (!stat(currentLevel.c_str(), &currentStat) && S_ISDIR(currentStat.st_mode)) {
+                continue;
             }
+            // continue if we can successfully create the directory
+            if (!mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+                continue;
+            }
+            // fail otherwise
+            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory."
+                 << Phrases::EndFlush;
+            return string();
         }
     }
 
+    // just return the path if we don't want to actually create a copy
     if (mode == WorkingCopyMode::NoCopy) {
         return m_workingDir + name;
     }
 
-    // copy file
+    // copy the file
     const auto origFilePath(testFilePath(name));
     const auto workingCopyPath(m_workingDir + name);
-    try {
-        origFile.open(origFilePath, ios_base::in | ios_base::binary);
-        workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
-        workingCopy << origFile.rdbuf();
+    fstream origFile, workingCopy;
+    origFile.open(origFilePath, ios_base::in | ios_base::binary);
+    if (origFile.fail()) {
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \"" << origFilePath << "\"." << Phrases::EndFlush;
+        return string();
+    }
+    workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
+    if (workingCopy.fail()) {
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \"" << workingCopyPath << "\"." << Phrases::EndFlush;
+        return string();
+    }
+    workingCopy << origFile.rdbuf();
+    if (!origFile.fail() && !workingCopy.fail()) {
         return workingCopyPath;
-    } catch (...) {
-        catchIoFailure();
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when copying \"" << origFilePath
-             << "\" to \"" << workingCopyPath << "\"." << Phrases::EndFlush;
+    }
+
+    cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": ";
+    if (origFile.fail()) {
+         cerr << "an IO error occurred when reading original file \"" << origFilePath << "\"";
+        return string();
+    }
+    if (workingCopy.fail()) {
+        if (origFile.fail()) {
+            cerr << " and ";
+        }
+        cerr << " an IO error occurred when writing to target file \"" << workingCopyPath << "\".";
     }
     return string();
 }
