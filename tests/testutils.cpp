@@ -258,18 +258,20 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     if (origFile.fail()) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \""
              << origFilePath << "\"." << Phrases::EndFlush;
+        cerr << "error: " << strerror(errno) << endl;
         return string();
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     while (workingCopy.fail() && !stat(workingCopyPath.c_str(), &currentStat)) {
         // adjust the working copy path if the target file already exists and can not be truncated
-        workingCopyPath = argsToString(m_workingDir, "/tmp-", ++workingCopyPathAttempt, '-', name);
+        workingCopyPath = argsToString(m_workingDir, name, '.', ++workingCopyPathAttempt);
         workingCopy.clear();
         workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     }
     if (workingCopy.fail()) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \""
              << workingCopyPath << "\"." << Phrases::EndFlush;
+        cerr << "error: " << strerror(errno) << endl;
         return string();
     }
     workingCopy << origFile.rdbuf();
@@ -288,6 +290,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
         }
         cerr << " an IO error occurred when writing to target file \"" << workingCopyPath << "\".";
     }
+    cerr << "error: " << strerror(errno) << endl;
     return string();
 }
 
