@@ -76,7 +76,7 @@ template <typename intType> intType BitReader::readBits(byte bitCount)
             m_bitsAvail = 8;
         }
         readAtOnce = std::min(bitCount, m_bitsAvail);
-        val = (val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce)));
+        val = static_cast<intType>((val << readAtOnce) | (((*m_buffer) >> (m_bitsAvail -= readAtOnce)) & (0xFF >> (0x08 - readAtOnce))));
     }
     return val;
 }
