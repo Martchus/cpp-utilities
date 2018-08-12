@@ -8,6 +8,7 @@
 #include "../io/misc.h"
 #include "../io/path.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
