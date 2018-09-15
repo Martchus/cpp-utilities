@@ -50,7 +50,7 @@ inline std::__c_file NativeFileStream::fileHandle()
 
 #else
 
-typedef std::fstream NativeFileStream;
+using NativeFileStream = std::fstream;
 
 #endif
 
