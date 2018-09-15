@@ -90,9 +90,7 @@ if(HAS_PARENT)
     set(${META_PROJECT_VARNAME_UPPER}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
     set(${META_PROJECT_VARNAME_UPPER}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
     set(${META_PROJECT_NAME}_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-    if(CMAKE_FIND_ROOT_PATH AND MINGW)
-        set(RUNTIME_LIBRARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" ${RUNTIME_LIBRARY_PATH} PARENT_SCOPE)
-    endif()
+    set(RUNTIME_LIBRARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" ${RUNTIME_LIBRARY_PATH} PARENT_SCOPE)
 endif()
 
 # determine version
@@ -257,6 +255,8 @@ if(EXISTS "${CLANG_FORMAT_RULES}")
         COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
         COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}"
     )
+else()
+    message(WARNING "Format rules for clang-format not found.")
 endif()
 
 # add target for tidying with clang-format
@@ -426,6 +426,18 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
         )
     endif()
+endif()
+
+# determine library directory suffix
+# note: Applications might be built as libraries under some platforms (eg. Android). Hence this is part of BasicConfig and not LibraryConfig.
+set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
+set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")
+set(LIB_SUFFIX_32 "" CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
+set(LIB_SUFFIX_64 "" CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
+if(LIB_SUFFIX_64 AND CMAKE_SIZEOF_VOID_P MATCHES "8")
+    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_64}")
+elseif(LIB_SUFFIX_32 AND CMAKE_SIZEOF_VOID_P MATCHES "4")
+    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_32}")
 endif()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)

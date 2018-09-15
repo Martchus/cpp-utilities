@@ -19,17 +19,6 @@ endif()
 include(CMakePackageConfigHelpers)
 include(TemplateFinder)
 
-# determine library directory suffix
-set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
-set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")
-set(LIB_SUFFIX_32 "" CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
-set(LIB_SUFFIX_64 "" CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
-if(LIB_SUFFIX_64 AND CMAKE_SIZEOF_VOID_P MATCHES "8")
-    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_64}")
-elseif(LIB_SUFFIX_32 AND CMAKE_SIZEOF_VOID_P MATCHES "4")
-    set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_32}")
-endif()
-
 # set install destination for the CMake modules, config files and header files
 set(HEADER_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
 set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")

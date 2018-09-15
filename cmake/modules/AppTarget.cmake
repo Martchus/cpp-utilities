@@ -40,7 +40,12 @@ if(NOT BUILTIN_TRANSLATIONS)
 endif()
 
 # add target for building the application
-add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
+if (NOT ANDROID)
+    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
+else()
+    # create a library which can be loaded from the Java-side
+    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${GUI_TYPE} ${ALL_FILES})
+endif()
 target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
     PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
     PRIVATE "${PRIVATE_LIBRARIES}"
@@ -75,6 +80,16 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
             RUNTIME DESTINATION bin
             BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}"
+            COMPONENT binary
+        )
+    elseif(ANDROID)
+        install(
+            TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+            RUNTIME DESTINATION bin
+            COMPONENT binary
+            LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX}
+            COMPONENT binary
+            ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX}
             COMPONENT binary
         )
     else()
