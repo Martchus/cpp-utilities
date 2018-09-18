@@ -80,6 +80,15 @@ None of these are enabled or set by default, unless stated otherwise.
     * see ApplicationUtilities::NoColorArgument and EscapeCodes::enabled
     * has to be set when building `c++utilities`; projects using that build of
       `c++utilities` will then use this default
+* `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native functions to open file streams
+    * Allows opening files which have non-ASCII in the path under Windows.
+    * Allows to use native file descriptors which is required to open files
+      from URLs provided by Android's Storage Access Framework.
+    * Changing this option alters the ABI of `c++utilities` and other libraries
+      exposing that ABI (eg. `tagparser` and `passwordfile`).
+    * This feature is implemented in `c++utilities`, so the option must be specified
+      when building `c++utilities`. Specifying it only when building eg. `tagparser`
+      has *no* effect.
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions
@@ -141,13 +150,6 @@ cmake \
 ```
 
 #### Windows specific
-* `USE_NATIVE_FILE_BUFFER=ON/OFF`: use native function to open file streams
-  to pass unicode file names correctly
-    * Changing this option alters the ABI of `c++utilities` and libraries using
-      that feature (eg. `tagparser`).
-    * This feature is implemented in `c++utilities`, so the option must be specified
-      when building `c++utilities`. Specifying it only when building eg. `tagparser`
-      has *no* effect.
 * `FORCE_UTF8_CODEPAGE=ON/OFF`: forces use of UTF-8 codepage in terminal
 * `WINDOWS_RESOURCES_ENABLED=ON/OFF`: enables creating resources for
   application meta data and icon (enabled by default)
@@ -282,6 +284,8 @@ controlled by the variables documented above. Most important modules are:
     * test target will automatically link against `cppunit` which is the test
       framework used by all my projects; set `META_NO_CPP_UNIT=OFF` in the project
       file to prevent this
+* `AndroidApk`: adds a target to create an APK package for Android using
+  androiddeployqt
 * `Doxygen`: adds a target to generate documentation using Doxygen
 * `WindowsResources`: handles creation of Windows resources to set application
   meta data and icon, ignored on other platforms
