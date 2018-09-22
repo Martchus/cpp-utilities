@@ -11,7 +11,7 @@ using namespace std;
 
 /*!
  * \namespace MiscUtilities
- * \brief The MiscUtilities namespace contains various utilities such as computing Damerau–Levenshtein distance
+ * \brief Contains various utilities such as computing Damerau–Levenshtein distance
  *        and *N*-dimensional arrays.
  */
 namespace MiscUtilities {
