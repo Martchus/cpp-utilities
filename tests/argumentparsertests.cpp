@@ -2,6 +2,7 @@
 #include "./testutils.h"
 
 #include "../conversion/stringbuilder.h"
+#include "../conversion/stringconversion.h"
 
 #include "../application/argumentparser.h"
 #include "../application/argumentparserprivate.h"
@@ -40,6 +41,7 @@ class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST(testHelp);
     CPPUNIT_TEST(testSetMainArguments);
     CPPUNIT_TEST(testNoColorArgument);
+    CPPUNIT_TEST(testValueConversion);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,6 +55,7 @@ public:
     void testHelp();
     void testSetMainArguments();
     void testNoColorArgument();
+    void testValueConversion();
 
 private:
     void callback();
@@ -854,5 +857,66 @@ void ArgumentParserTests::testNoColorArgument()
         setenv("ENABLE_ESCAPE_CODES", "  1 ", 1);
         const NoColorArgument noColorArg;
         CPPUNIT_ASSERT(EscapeCodes::enabled);
+    }
+}
+
+template <typename ValueTuple> void checkConvertedValues(const std::string &message, const ValueTuple &values)
+{
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(message, "foo"s, get<0>(values));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(message, 42u, get<1>(values));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(message, 7.5, get<2>(values));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(message, -42, get<3>(values));
+}
+
+/*!
+ * \brief Tests value conversion provided by Argument and ArgumentOccurrence.
+ */
+void ArgumentParserTests::testValueConversion()
+{
+    // convert values directly from ArgumentOccurrence
+    ArgumentOccurrence occurrence(0);
+    occurrence.values = { "foo", "42", "7.5", "-42" };
+    checkConvertedValues("values from ArgumentOccurrence::convertValues", occurrence.convertValues<string, unsigned int, double, int>());
+    static_assert(std::is_same<std::tuple<>, decltype(occurrence.convertValues<>())>::value, "specifying no types yields empty tuple");
+
+    // convert values via Argument's API
+    Argument arg("test", '\0');
+    arg.m_occurrences = { occurrence, occurrence };
+    checkConvertedValues("values from Argument::convertValues", arg.valuesAs<string, unsigned int, double, int>());
+    checkConvertedValues("values from Argument::convertValues(1)", arg.valuesAs<string, unsigned int, double, int>(1));
+    const auto allValues = arg.allValuesAs<string, unsigned int, double, int>();
+    CPPUNIT_ASSERT_EQUAL(2_st, allValues.size());
+    for (const auto &values : allValues) {
+        checkConvertedValues("values from Argument::convertAllValues", values);
+    }
+    static_assert(std::is_same<std::tuple<>, decltype(arg.valuesAs<>())>::value, "specifying no types yields empty tuple");
+
+    // error handling
+    try {
+        occurrence.convertValues<string, unsigned int, double, int, int>();
+        CPPUNIT_FAIL("Expected exception");
+    } catch (const Failure &failure) {
+        CPPUNIT_ASSERT_EQUAL("Expected 5 top-level values to be present but only 4 have been specified."s, string(failure.what()));
+    }
+    try {
+        occurrence.convertValues<int>();
+        CPPUNIT_FAIL("Expected exception");
+    } catch (const Failure &failure) {
+        CPPUNIT_ASSERT_EQUAL(
+            "Conversion of top-level value \"foo\" to type \"i\" failed: The character \"f\" is no valid digit."s, string(failure.what()));
+    }
+    occurrence.path = { &arg };
+    try {
+        occurrence.convertValues<string, unsigned int, double, int, int>();
+        CPPUNIT_FAIL("Expected exception");
+    } catch (const Failure &failure) {
+        CPPUNIT_ASSERT_EQUAL("Expected 5 values for argument --test to be present but only 4 have been specified."s, string(failure.what()));
+    }
+    try {
+        occurrence.convertValues<int>();
+        CPPUNIT_FAIL("Expected exception");
+    } catch (const Failure &failure) {
+        CPPUNIT_ASSERT_EQUAL("Conversion of value \"foo\" (for argument --test) to type \"i\" failed: The character \"f\" is no valid digit."s,
+            string(failure.what()));
     }
 }

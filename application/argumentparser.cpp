@@ -1725,4 +1725,26 @@ void NoColorArgument::apply()
     }
 }
 
+/*!
+ * \brief Throws a Failure for the current instance and the specified \a argumentPath.
+ */
+void ValueConversion::Helper::ArgumentValueConversionError::throwFailure(const std::vector<Argument *> &argumentPath) const
+{
+    throw Failure(argumentPath.empty()
+            ? argsToString("Conversion of top-level value \"", valueToConvert, "\" to type \"", targetTypeName, "\" failed: ", errorMessage)
+            : argsToString("Conversion of value \"", valueToConvert, "\" (for argument --", argumentPath.back()->name(), ") to type \"",
+                  targetTypeName, "\" failed: ", errorMessage));
+}
+
+/*!
+ * \brief Throws a Failure for insufficient number of values.
+ */
+void ArgumentOccurrence::throwNumberOfValuesNotSufficient(unsigned long valuesToConvert) const
+{
+    throw Failure(path.empty()
+            ? argsToString("Expected ", valuesToConvert, " top-level values to be present but only ", values.size(), " have been specified.")
+            : argsToString("Expected ", valuesToConvert, " values for argument --", path.back()->name(), " to be present but only ", values.size(),
+                  " have been specified."));
+}
+
 } // namespace ApplicationUtilities
