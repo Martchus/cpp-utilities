@@ -54,9 +54,9 @@ class Argument;
 class ArgumentParser;
 class ArgumentReader;
 
-typedef std::initializer_list<Argument *> ArgumentInitializerList;
-typedef std::vector<Argument *> ArgumentVector;
-typedef std::function<bool(Argument *)> ArgumentPredicate;
+using ArgumentInitializerList = std::initializer_list<Argument *>;
+using ArgumentVector = std::vector<Argument *>;
+using ArgumentPredicate = std::function<bool(Argument *)>;
 
 /*!
  * \brief The UnknownArgumentBehavior enum specifies the behavior of the argument parser when an unknown

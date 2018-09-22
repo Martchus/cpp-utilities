@@ -35,8 +35,8 @@ struct CPP_UTILITIES_EXPORT StringDataDeleter {
 /*!
  * \brief Type used to return string encoding conversion result.
  */
-typedef std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t> StringData;
-//typedef std::pair<std::unique_ptr<char>, std::size_t> StringData; // might work too
+using StringData = std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t>;
+//using StringData = std::pair<std::unique_ptr<char>, std::size_t>; // might work too
 
 CPP_UTILITIES_EXPORT StringData convertString(
     const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
