@@ -485,6 +485,33 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
 }
 
 /*!
+ * \brief Converts the given null-terminated \a string to a number assuming \a string uses the specified \a base.
+ * \tparam FloatingType The data type used to store the converted value.
+ * \tparam CharType The character type.
+ * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
+ * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ *          \a base and types).
+ * \sa numberToString(), bufferToNumber()
+ * \todo Provide an alternative using std::expected (when switching to C++17).
+ */
+template <typename FloatingType, class CharType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
+FloatingType stringToNumber(const CharType *string, unsigned char base = 10)
+{
+    std::basic_stringstream<CharType> ss;
+    ss << std::setbase(base) << string;
+    FloatingType result;
+    if ((ss >> result) && ss.eof()) {
+        return result;
+    }
+    std::string errorMsg;
+    errorMsg.reserve(42 + std::char_traits<CharType>::length(string));
+    errorMsg += "The string \"";
+    errorMsg += string;
+    errorMsg += "\" is no valid floating number.";
+    throw ConversionException(errorMsg);
+}
+
+/*!
  * \brief Converts the given \a string of \a size characters to an unsigned numeric value using the specified \a base.
  * \tparam IntegralType The data type used to store the converted value.
  * \tparam CharType The character type.
