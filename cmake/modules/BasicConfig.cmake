@@ -180,7 +180,7 @@ endif()
 list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static-libstdc++ -static-libgcc)
 
 # determine whether the project is a header-only library
-if(SRC_FILES OR WIDGETS_FILES OR QML_FILES OR RES_FILES)
+if(SRC_FILES OR GUI_SRC_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR QML_SRC_FILES OR RES_FILES)
     set(META_HEADER_ONLY_LIB NO)
 else()
     set(META_HEADER_ONLY_LIB YES)
