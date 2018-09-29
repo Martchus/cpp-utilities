@@ -137,14 +137,14 @@ set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parse
 set(META_FEATURES_FOR_COMPILER_DETECTION_HEADER cxx_thread_local)
 set(META_VERSION_MAJOR 4)
 set(META_VERSION_MINOR 15)
-set(META_VERSION_PATCH 0)
+set(META_VERSION_PATCH 1)
 
 # find required 3rd party libraries
 include(3rdParty)
 use_iconv(AUTO_LINKAGE REQUIRED)
 
 # configure use of native file buffer
-option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer under Windows, affects ABI (required for unicode filenames under Windows)" OFF)
+option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" OFF)
 if(USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
 endif()
