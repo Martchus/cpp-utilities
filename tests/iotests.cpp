@@ -1,6 +1,8 @@
 #include "./testutils.h"
 
 #include "../conversion/conversionexception.h"
+#include "../conversion/stringbuilder.h"
+
 #include "../io/ansiescapecodes.h"
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
@@ -9,6 +11,7 @@
 #include "../io/copy.h"
 #include "../io/inifile.h"
 #include "../io/misc.h"
+#include "../io/nativefilestream.h"
 #include "../io/path.h"
 
 #include <cppunit/TestFixture.h>
@@ -16,7 +19,13 @@
 
 #include <algorithm>
 #include <fstream>
+#include <regex>
 #include <sstream>
+
+#ifdef PLATFORM_UNIX
+#include <sys/fcntl.h>
+#include <sys/types.h>
+#endif
 
 using namespace std;
 using namespace IoUtilities;
@@ -38,8 +47,11 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testPathUtilities);
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testCopy);
-    CPPUNIT_TEST(testMisc);
+    CPPUNIT_TEST(testReadFile);
     CPPUNIT_TEST(testAnsiEscapeCodes);
+#ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
+    CPPUNIT_TEST(testNativeFileStream);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,8 +65,9 @@ public:
     void testPathUtilities();
     void testIniFile();
     void testCopy();
-    void testMisc();
+    void testReadFile();
     void testAnsiEscapeCodes();
+    void testNativeFileStream();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IoTests);
@@ -383,10 +396,11 @@ void IoTests::testCopy()
 }
 
 /*!
- * \brief Tests misc IO utilities.
+ * \brief Tests readFile().
  */
-void IoTests::testMisc()
+void IoTests::testReadFile()
 {
+    // read a file successfully
     const string iniFilePath(testFilePath("test.ini"));
     CPPUNIT_ASSERT_EQUAL("# file for testing INI parser\n"
                          "key0=value 0\n"
@@ -401,12 +415,19 @@ void IoTests::testMisc()
                          "#key5=value 5\n"
                          "key6=value 6\n"s,
         readFile(iniFilePath));
+
+    // fail by exceeding max size
     try {
         readFile(iniFilePath, 10);
         CPPUNIT_FAIL("no exception");
     } catch (...) {
         catchIoFailure();
     }
+
+    // handle UTF-8 in path and file contents correctly via NativeFileStream
+#if !defined(PLATFORM_WINDOWS) || defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER)
+    CPPUNIT_ASSERT_EQUAL("file with non-ASCII character 'ä' in its name\n"s, readFile(testFilePath("täst.txt")));
+#endif
 }
 
 void IoTests::testAnsiEscapeCodes()
@@ -441,3 +462,89 @@ void IoTests::testAnsiEscapeCodes()
     ss2 << EscapeCodes::Phrases::Info << "some info" << EscapeCodes::Phrases::End;
     CPPUNIT_ASSERT_EQUAL("Info: some info\n"s, ss2.str());
 }
+
+#ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
+/*!
+ * \brief Tests the NativeFileStream class.
+ */
+void IoTests::testNativeFileStream()
+{
+    // open file by path
+    const auto txtFilePath(workingCopyPath("täst.txt"));
+    NativeFileStream fileStream;
+    fileStream.exceptions(ios_base::badbit | ios_base::failbit);
+    CPPUNIT_ASSERT(!fileStream.is_open());
+    fileStream.open(txtFilePath, ios_base::in);
+    CPPUNIT_ASSERT(fileStream.is_open());
+    CPPUNIT_ASSERT_EQUAL(static_cast<char>(fileStream.get()), 'f');
+    fileStream.seekg(0, ios_base::end);
+    CPPUNIT_ASSERT_EQUAL(fileStream.tellg(), static_cast<NativeFileStream::pos_type>(47));
+    fileStream.close();
+    CPPUNIT_ASSERT(!fileStream.is_open());
+    try {
+        fileStream.open("non existing file", ios_base::in | ios_base::out | ios_base::binary);
+        CPPUNIT_FAIL("expected exception");
+    } catch (...) {
+        const string msg = catchIoFailure();
+#if defined(PLATFORM_UNIX)
+        CPPUNIT_ASSERT_EQUAL(msg, "open failed: iostream error"s);
+#elif defined(PLATFORM_WINDOWS)
+        CPPUNIT_ASSERT_EQUAL(msg, "CreateFileW failed: iostream error"s);
+#endif
+    }
+    fileStream.clear();
+
+    // open file from file descriptor
+#if defined(PLATFORM_UNIX)
+    auto readWriteFileDescriptor = open(txtFilePath.data(), O_RDWR);
+    CPPUNIT_ASSERT(readWriteFileDescriptor);
+    fileStream.openFromFileDescriptor(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
+    CPPUNIT_ASSERT(fileStream.is_open());
+    CPPUNIT_ASSERT_EQUAL(static_cast<char>(fileStream.get()), 'f');
+    fileStream.seekg(0, ios_base::end);
+    CPPUNIT_ASSERT_EQUAL(fileStream.tellg(), static_cast<NativeFileStream::pos_type>(47));
+    fileStream.flush();
+    fileStream.close();
+    CPPUNIT_ASSERT(!fileStream.is_open());
+#endif
+    try {
+        fileStream.openFromFileDescriptor(-1, ios_base::in | ios_base::out | ios_base::binary);
+        fileStream.get();
+        CPPUNIT_FAIL("expected exception");
+    } catch (...) {
+        const string msg = catchIoFailure();
+        TESTUTILS_ASSERT_LIKE("expected error message", "(fdopen failed|failed reading: Bad file descriptor): iostream error", msg);
+    }
+    fileStream.clear();
+
+    // append + write file via path
+    cout << "append + write file via path" << endl;
+    NativeFileStream fileStream2;
+    fileStream2.exceptions(ios_base::failbit | ios_base::badbit);
+    fileStream2.open(txtFilePath, ios_base::in | ios_base::out | ios_base::app);
+    CPPUNIT_ASSERT(fileStream2.is_open());
+    fileStream2 << "foo";
+    fileStream2.flush();
+    fileStream2.close();
+    CPPUNIT_ASSERT(!fileStream2.is_open());
+    CPPUNIT_ASSERT_EQUAL("file with non-ASCII character 'ä' in its name\nfoo"s, readFile(txtFilePath, 50));
+
+    // truncate + write file via path
+    fileStream2.open(txtFilePath, ios_base::out | ios_base::trunc);
+    CPPUNIT_ASSERT(fileStream2.is_open());
+    fileStream2 << "bar";
+    fileStream2.close();
+    CPPUNIT_ASSERT(!fileStream2.is_open());
+    CPPUNIT_ASSERT_EQUAL("bar"s, readFile(txtFilePath, 4));
+
+    // append + write via file descriptor from file handle
+    const auto appendFileHandle = fopen(txtFilePath.data(), "a");
+    CPPUNIT_ASSERT(appendFileHandle);
+    fileStream2.openFromFileDescriptor(fileno(appendFileHandle), ios_base::out | ios_base::app);
+    CPPUNIT_ASSERT(fileStream2.is_open());
+    fileStream2 << "foo";
+    fileStream2.close();
+    CPPUNIT_ASSERT(!fileStream2.is_open());
+    CPPUNIT_ASSERT_EQUAL("barfoo"s, readFile(txtFilePath, 7));
+}
+#endif

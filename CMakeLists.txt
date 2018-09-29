@@ -143,10 +143,35 @@ set(META_VERSION_PATCH 1)
 include(3rdParty)
 use_iconv(AUTO_LINKAGE REQUIRED)
 
-# configure use of native file buffer
+# configure use of native file buffer and its backend implementation if enabled
 option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" OFF)
+option(FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER "forces use of Boost.Iostreams for native file buffer" OFF)
 if(USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
+
+    # check whether __gnu_cxx::stdio_filebuf is available
+    try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE ${CMAKE_CURRENT_BINARY_DIR}
+        SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
+        OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG
+    )
+
+    # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
+    if(GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
+        message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
+        set_source_files_properties(
+            io/nativefilestream.cpp
+            PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF
+        )
+    else()
+        message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
+        use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
+        set_source_files_properties(
+            io/nativefilestream.cpp
+            PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS
+        )
+    endif()
+else()
+    message(STATUS "Using std::fstream for NativeFileStream")
 endif()
 
 # configure forcing UTF-8 code page under Windows

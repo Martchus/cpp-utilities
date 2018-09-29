@@ -1,7 +1,7 @@
 #include "./misc.h"
 #include "./catchiofailure.h"
+#include "./nativefilestream.h"
 
-#include <fstream>
 #include <streambuf>
 
 using namespace std;
@@ -15,7 +15,7 @@ namespace IoUtilities {
  */
 string readFile(const string &path, std::string::size_type maxSize)
 {
-    ifstream file;
+    NativeFileStream file;
     file.exceptions(ios_base::failbit | ios_base::badbit);
     file.open(path, ios_base::in | ios_base::binary);
     file.seekg(0, ios_base::end);

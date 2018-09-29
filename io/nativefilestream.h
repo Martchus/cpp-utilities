@@ -3,27 +3,24 @@
 
 #include "../global.h"
 
-#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER)
-#if defined(PLATFORM_MINGW) || defined(PLATFORM_LINUX)
-#include <ext/stdio_filebuf.h>
+#ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 #include <iostream>
 #include <memory>
+#include <streambuf>
 #include <string>
 #else
-#error "Platform not supported by NativeFileStream."
 #endif
-
-#else
 #include <fstream>
-#endif
 
 namespace IoUtilities {
 
-#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && (defined(PLATFORM_MINGW) || defined(PLATFORM_UNIX))
+#ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 
 class CPP_UTILITIES_EXPORT NativeFileStream : public std::iostream {
 public:
     NativeFileStream();
+    NativeFileStream(const std::string &path, std::ios_base::openmode openMode);
+    NativeFileStream(int fileDescriptor, std::ios_base::openmode openMode);
     NativeFileStream(NativeFileStream &&);
     ~NativeFileStream();
 
@@ -31,24 +28,42 @@ public:
     void open(const std::string &path, std::ios_base::openmode openMode);
     void openFromFileDescriptor(int fileDescriptor, std::ios_base::openmode openMode);
     void close();
-    std::__c_file fileHandle();
+    FILE fileHandle();
+
+    static std::unique_ptr<std::basic_streambuf<char>> makeFileBuffer(const std::string &path, ios_base::openmode openMode);
+    static std::unique_ptr<std::basic_streambuf<char>> makeFileBuffer(int fileDescriptor, ios_base::openmode openMode);
+#ifdef PLATFORM_WINDOWS
+    static std::unique_ptr<wchar_t[]> makeWidePath(const std::string &path);
+#endif
 
 private:
-    std::unique_ptr<__gnu_cxx::stdio_filebuf<char>> m_filebuf;
-    std::__c_file m_cfile;
+    void setFileBuffer(std::unique_ptr<std::basic_streambuf<char>> buffer);
+
+    std::unique_ptr<std::basic_streambuf<char>> m_filebuf;
+    FILE m_fileHandle;
 };
 
-inline bool NativeFileStream::is_open() const
+inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::openmode openMode)
 {
-    return m_filebuf && m_filebuf->is_open();
+    open(path, openMode);
 }
 
-inline std::__c_file NativeFileStream::fileHandle()
+inline NativeFileStream::NativeFileStream(int fileDescriptor, ios_base::openmode openMode)
 {
-    return m_cfile;
+    openFromFileDescriptor(fileDescriptor, openMode);
 }
 
-#else
+/*!
+ * \brief Returns the underlying file handle if possible; otherwise the behaviour is undefined.
+ * \deprecated Not implemented for any backend and will be removed in v5.
+ * \todo Remove in v5.
+ */
+inline FILE NativeFileStream::fileHandle()
+{
+    return m_fileHandle;
+}
+
+#else // CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 
 using NativeFileStream = std::fstream;
 

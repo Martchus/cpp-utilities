@@ -236,7 +236,7 @@ macro(find_external_library_from_package NAME PKGNAME VERSION INCLUDE_VAR LIBRAR
     endif()
 
     # use the find_library approach first because it is less buggy when trying to detect static libraries
-    # caveat: this way include dirs are not detected - however those are mostly the the default anyways and
+    # caveat: this way include dirs are not detected - however those are mostly the default anyways and
     # can also be set manually by the user in case the auto-detection is not sufficient
     find_external_library("${NAME}" "${LINKAGE}" OPTIONAL)
 
