@@ -7,6 +7,7 @@
 #include "../io/catchiofailure.h"
 #include "../io/misc.h"
 #include "../io/path.h"
+#include "../io/nativefilestream.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -23,6 +24,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
 using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
@@ -33,6 +38,52 @@ using namespace IoUtilities;
  * \brief Contains classes and functions utilizing creating of test applications.
  */
 namespace TestUtilities {
+
+bool fileSystemItemExists(const string &path)
+{
+#ifdef PLATFORM_UNIX
+    struct stat res;
+    return stat(path.data(), &res) == 0;
+#else
+    const auto widePath(NativeFileStream::makeWidePath(path));
+    const auto fileType(GetFileAttributesW(widePath.get()));
+    return fileType != INVALID_FILE_ATTRIBUTES;
+#endif
+}
+
+bool fileExists(const string &path)
+{
+#ifdef PLATFORM_UNIX
+    struct stat res;
+    return stat(path.data(), &res) == 0 && !S_ISDIR(res.st_mode);
+#else
+    const auto widePath(NativeFileStream::makeWidePath(path));
+    const auto fileType(GetFileAttributesW(widePath.get()));
+    return fileType != INVALID_FILE_ATTRIBUTES && fileType != FILE_ATTRIBUTE_DIRECTORY;
+#endif
+}
+
+bool dirExists(const string &path)
+{
+#ifdef PLATFORM_UNIX
+    struct stat res;
+    return stat(path.data(), &res) == 0 && S_ISDIR(res.st_mode);
+#else
+    const auto widePath(NativeFileStream::makeWidePath(path));
+    const auto fileType(GetFileAttributesW(widePath.get()));
+    return fileType != INVALID_FILE_ATTRIBUTES && fileType == FILE_ATTRIBUTE_DIRECTORY;
+#endif
+}
+
+bool makeDir(const string &path)
+{
+#ifdef PLATFORM_UNIX
+    return mkdir(path.data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
+#else
+    const auto widePath(NativeFileStream::makeWidePath(path));
+    return CreateDirectoryW(widePath.get(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS;
+#endif
+}
 
 TestApplication *TestApplication::m_instance = nullptr;
 
@@ -175,31 +226,25 @@ string TestApplication::testFilePath(const string &name) const
 
     // check the path specified by command line argument or via environment variable
     if (!m_testFilesPath.empty()) {
-        file.open(path = m_testFilesPath + name, ios_base::in);
-        if (file.good()) {
+        if (fileExists(path = m_testFilesPath + name)) {
             return path;
         }
     }
 
     // check the fallback path (value from environment variable or source directory)
     if (!m_fallbackTestFilesPath.empty()) {
-        file.clear();
-        file.open(path = m_fallbackTestFilesPath + name, ios_base::in);
-        if (file.good()) {
+        if (fileExists(path = m_fallbackTestFilesPath + name)) {
             return path;
         }
     }
 
     // file still not found -> return default path
-    file.clear();
-    file.open(path = "./testfiles/" + name, ios_base::in);
-    if (!file.good()) {
+    if (!fileExists(path = "./testfiles/" + name)) {
         cerr << Phrases::Warning << "The testfile \"" << path << "\" can not be located." << Phrases::EndFlush;
     }
     return path;
 }
 
-#ifdef PLATFORM_UNIX
 /*!
  * \brief Returns the full path to a working copy of the test file with the specified \a name.
  *
@@ -211,9 +256,7 @@ string TestApplication::testFilePath(const string &name) const
 string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode mode) const
 {
     // ensure working directory is present
-    struct stat currentStat;
-    if ((stat(m_workingDir.c_str(), &currentStat) || !S_ISDIR(currentStat.st_mode))
-        && mkdir(m_workingDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+    if (!dirExists(m_workingDir) && !makeDir(m_workingDir)) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
         return string();
     }
@@ -232,11 +275,11 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
             currentLevel += *i;
 
             // continue if subdirectory level already exists
-            if (!stat(currentLevel.c_str(), &currentStat) && S_ISDIR(currentStat.st_mode)) {
+            if (dirExists(currentLevel)) {
                 continue;
             }
             // continue if we can successfully create the directory
-            if (!mkdir(currentLevel.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+            if (!makeDir(currentLevel)) {
                 continue;
             }
             // fail otherwise
@@ -254,7 +297,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
     const auto origFilePath(testFilePath(name));
     auto workingCopyPath(m_workingDir + name);
     size_t workingCopyPathAttempt = 0;
-    fstream origFile, workingCopy;
+    NativeFileStream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
     if (origFile.fail()) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \""
@@ -263,7 +306,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
         return string();
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
-    while (workingCopy.fail() && !stat(workingCopyPath.c_str(), &currentStat)) {
+    while (workingCopy.fail() && fileSystemItemExists(workingCopyPath)) {
         // adjust the working copy path if the target file already exists and can not be truncated
         workingCopyPath = argsToString(m_workingDir, name, '.', ++workingCopyPathAttempt);
         workingCopy.clear();
@@ -307,6 +350,7 @@ string TestApplication::workingCopyPath(const string &name) const
     return workingCopyPathMode(name, WorkingCopyMode::CreateCopy);
 }
 
+#ifdef PLATFORM_UNIX
 /*!
  * \brief Executes an application with the specified \a args.
  * \remarks Provides internal implementation of execApp() and execHelperApp().

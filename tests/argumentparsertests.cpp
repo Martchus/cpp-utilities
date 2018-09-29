@@ -29,6 +29,19 @@ using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
+#ifdef PLATFORM_WINDOWS
+void setenv(const char *variableName, const char *value, bool replace)
+{
+    VAR_UNUSED(replace)
+    _putenv_s(variableName, value);
+}
+
+void unsetenv(const char *variableName)
+{
+    _putenv_s(variableName, "");
+}
+#endif
+
 /*!
  * \brief The ArgumentParserTests class tests the ArgumentParser and Argument classes.
  */

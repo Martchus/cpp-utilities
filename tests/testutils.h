@@ -26,9 +26,9 @@ public:
 
     operator bool() const;
     std::string testFilePath(const std::string &name) const;
-#ifdef PLATFORM_UNIX
     std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode) const;
     std::string workingCopyPath(const std::string &name) const;
+#ifdef PLATFORM_UNIX
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
     bool unitsSpecified() const;
@@ -107,7 +107,6 @@ inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &name)
     return TestApplication::instance()->testFilePath(name);
 }
 
-#ifdef PLATFORM_UNIX
 /*!
  * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
  * \remarks A TestApplication must be present.
@@ -128,6 +127,7 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &n
     return TestApplication::instance()->workingCopyPathMode(name, mode);
 }
 
+#ifdef PLATFORM_UNIX
 /*!
  * \brief Convenience function which executes the application to be tested with the specified \a args.
  * \remarks A TestApplication must be present.
@@ -140,7 +140,7 @@ inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &ou
 
 CPP_UTILITIES_EXPORT int execHelperApp(
     const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
-#endif
+#endif // PLATFORM_UNIX
 
 /*!
  * \brief The AsHexNumber class allows printing values asserted with cppunit (or similar test framework) using the
