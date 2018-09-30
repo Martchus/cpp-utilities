@@ -350,12 +350,12 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_THROW(decodeBase64(encodedBase64Data.data(), 3), ConversionException);
 
     // dataSizeToString(), bitrateToString()
-    CPPUNIT_ASSERT_EQUAL("512 bytes"s, dataSizeToString(512ul));
-    CPPUNIT_ASSERT_EQUAL("2.50 KiB"s, dataSizeToString((2048ul + 512ul)));
-    CPPUNIT_ASSERT_EQUAL("2.50 KiB (2560 byte)"s, dataSizeToString((2048ul + 512ul), true));
-    CPPUNIT_ASSERT_EQUAL("2.50 MiB"s, dataSizeToString((2048ul + 512ul) * 1024ul));
-    CPPUNIT_ASSERT_EQUAL("2.50 GiB"s, dataSizeToString((2048ul + 512ul) * 1024ul * 1024ul));
-    CPPUNIT_ASSERT_EQUAL("2.50 TiB"s, dataSizeToString((2048ul + 512ul) * 1024ul * 1024ul * 1024ul));
+    CPPUNIT_ASSERT_EQUAL("512 bytes"s, dataSizeToString(512ull));
+    CPPUNIT_ASSERT_EQUAL("2.50 KiB"s, dataSizeToString((2048ull + 512ull)));
+    CPPUNIT_ASSERT_EQUAL("2.50 KiB (2560 byte)"s, dataSizeToString((2048ull + 512ull), true));
+    CPPUNIT_ASSERT_EQUAL("2.50 MiB"s, dataSizeToString((2048ull + 512ull) * 1024ull));
+    CPPUNIT_ASSERT_EQUAL("2.50 GiB"s, dataSizeToString((2048ull + 512ull) * 1024ull * 1024ull));
+    CPPUNIT_ASSERT_EQUAL("2.50 TiB"s, dataSizeToString((2048ull + 512ull) * 1024ull * 1024ull * 1024ull));
     CPPUNIT_ASSERT_EQUAL("128 bit/s"s, bitrateToString(0.128, false));
     CPPUNIT_ASSERT_EQUAL("128 kbit/s"s, bitrateToString(128.0, false));
     CPPUNIT_ASSERT_EQUAL("128 Mbit/s"s, bitrateToString(128.0 * 1e3, false));
