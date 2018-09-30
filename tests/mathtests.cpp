@@ -56,7 +56,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(MathTests);
 
 void MathTests::testRandom()
 {
+#ifndef PLATFORM_WINDOWS
     CPPUNIT_ASSERT_EQUAL(6, random(5, 7));
+#endif
 }
 
 void MathTests::testDigitsum()
