@@ -1,5 +1,5 @@
 #define _GLIBCXX_USE_CXX11_ABI 0
-// include libstd++ specific header <bits/c++config.h> containing __GLIBCXX__
+// include libstdc++ specific header <bits/c++config.h> containing __GLIBCXX__
 // without including ios already (must be included after setting _GLIBCXX_USE_CXX11_ABI)
 #include <cstddef>
 
