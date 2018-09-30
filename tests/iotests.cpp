@@ -22,6 +22,10 @@
 #include <regex>
 #include <sstream>
 
+#ifdef PLATFORM_WINDOWS
+#include <cstdio>
+#endif
+
 #ifdef PLATFORM_UNIX
 #include <sys/fcntl.h>
 #include <sys/types.h>
@@ -486,16 +490,16 @@ void IoTests::testNativeFileStream()
         CPPUNIT_FAIL("expected exception");
     } catch (...) {
         const string msg = catchIoFailure();
-#if defined(PLATFORM_UNIX)
-        CPPUNIT_ASSERT_EQUAL(msg, "open failed: iostream error"s);
-#elif defined(PLATFORM_WINDOWS)
+#ifdef PLATFORM_WINDOWS
         CPPUNIT_ASSERT_EQUAL(msg, "CreateFileW failed: iostream error"s);
+#else
+        CPPUNIT_ASSERT_EQUAL(msg, "open failed: iostream error"s);
 #endif
     }
     fileStream.clear();
 
     // open file from file descriptor
-#if defined(PLATFORM_UNIX)
+#ifndef PLATFORM_WINDOWS
     auto readWriteFileDescriptor = open(txtFilePath.data(), O_RDWR);
     CPPUNIT_ASSERT(readWriteFileDescriptor);
     fileStream.openFromFileDescriptor(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
@@ -518,7 +522,6 @@ void IoTests::testNativeFileStream()
     fileStream.clear();
 
     // append + write file via path
-    cout << "append + write file via path" << endl;
     NativeFileStream fileStream2;
     fileStream2.exceptions(ios_base::failbit | ios_base::badbit);
     fileStream2.open(txtFilePath, ios_base::in | ios_base::out | ios_base::app);
@@ -538,7 +541,12 @@ void IoTests::testNativeFileStream()
     CPPUNIT_ASSERT_EQUAL("bar"s, readFile(txtFilePath, 4));
 
     // append + write via file descriptor from file handle
+#ifdef PLATFORM_WINDOWS
+    const auto wideTxtFilePath = NativeFileStream::makeWidePath(txtFilePath);
+    const auto appendFileHandle = _wfopen(wideTxtFilePath.get(), L"a+");
+#else
     const auto appendFileHandle = fopen(txtFilePath.data(), "a");
+#endif
     CPPUNIT_ASSERT(appendFileHandle);
     fileStream2.openFromFileDescriptor(fileno(appendFileHandle), ios_base::out | ios_base::app);
     CPPUNIT_ASSERT(fileStream2.is_open());
