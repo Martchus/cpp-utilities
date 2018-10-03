@@ -149,7 +149,7 @@ template <typename TargetType, Traits::EnableIf<std::is_arithmetic<TargetType>> 
 /// \cond
 namespace Helper {
 struct CPP_UTILITIES_EXPORT ArgumentValueConversionError {
-    const char *const errorMessage;
+    const std::string errorMessage;
     const char *const valueToConvert;
     const char *const targetTypeName;
 
