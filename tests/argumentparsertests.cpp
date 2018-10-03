@@ -21,26 +21,18 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifdef PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
 using namespace std;
 using namespace ApplicationUtilities;
 using namespace ConversionUtilities;
+using namespace IoUtilities;
 using namespace TestUtilities;
 using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
-
-#ifdef PLATFORM_WINDOWS
-void setenv(const char *variableName, const char *value, bool replace)
-{
-    VAR_UNUSED(replace)
-    _putenv_s(variableName, value);
-}
-
-void unsetenv(const char *variableName)
-{
-    _putenv_s(variableName, "");
-}
-#endif
 
 /*!
  * \brief The ArgumentParserTests class tests the ArgumentParser and Argument classes.
@@ -50,11 +42,13 @@ class ArgumentParserTests : public TestFixture {
     CPPUNIT_TEST(testArgument);
     CPPUNIT_TEST(testParsing);
     CPPUNIT_TEST(testCallbacks);
+    CPPUNIT_TEST(testSetMainArguments);
+    CPPUNIT_TEST(testValueConversion);
+#ifndef PLATFORM_WINDOWS
     CPPUNIT_TEST(testBashCompletion);
     CPPUNIT_TEST(testHelp);
-    CPPUNIT_TEST(testSetMainArguments);
     CPPUNIT_TEST(testNoColorArgument);
-    CPPUNIT_TEST(testValueConversion);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -64,11 +58,13 @@ public:
     void testArgument();
     void testParsing();
     void testCallbacks();
+    void testSetMainArguments();
+    void testValueConversion();
+#ifndef PLATFORM_WINDOWS
     void testBashCompletion();
     void testHelp();
-    void testSetMainArguments();
     void testNoColorArgument();
-    void testValueConversion();
+#endif
 
 private:
     void callback();
@@ -78,6 +74,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(ArgumentParserTests);
 
 void ArgumentParserTests::setUp()
 {
+#ifndef PLATFORM_WINDOWS
+    setenv("ENABLE_ESCAPE_CODES", "0", 1);
+#endif
+    EscapeCodes::enabled = false;
 }
 
 void ArgumentParserTests::tearDown()
@@ -90,21 +90,23 @@ void ArgumentParserTests::tearDown()
 void ArgumentParserTests::testArgument()
 {
     Argument argument("test", 't', "some description");
-    CPPUNIT_ASSERT_EQUAL(argument.isRequired(), false);
+    CPPUNIT_ASSERT_EQUAL(false, argument.isRequired());
     argument.setConstraints(1, 10);
-    CPPUNIT_ASSERT_EQUAL(argument.isRequired(), true);
+    CPPUNIT_ASSERT_EQUAL(true, argument.isRequired());
     Argument subArg("sub", 's', "sub arg");
     argument.addSubArgument(&subArg);
-    CPPUNIT_ASSERT_EQUAL(subArg.parents().at(0), &argument);
+    CPPUNIT_ASSERT_EQUAL(&argument, subArg.parents().at(0));
     CPPUNIT_ASSERT(!subArg.conflictsWithArgument());
     CPPUNIT_ASSERT(!argument.firstValue());
     argument.setEnvironmentVariable("FOO_ENV_VAR");
-    setenv("FOO_ENV_VAR", "foo", true);
-    CPPUNIT_ASSERT(!strcmp(argument.firstValue(), "foo"));
+#ifndef PLATFORM_WINDOWS // disabled under Windows for same reason as testNoColorArgument()
+    setenv("FOO_ENV_VAR", "foo", 1);
+    CPPUNIT_ASSERT_EQUAL("foo"s, string(argument.firstValue()));
+#endif
     ArgumentOccurrence occurrence(0, vector<Argument *>(), nullptr);
     occurrence.values.emplace_back("bar");
     argument.m_occurrences.emplace_back(move(occurrence));
-    CPPUNIT_ASSERT(!strcmp(argument.firstValue(), "bar"));
+    CPPUNIT_ASSERT_EQUAL("bar"s, string(argument.firstValue()));
 }
 
 /*!
@@ -227,30 +229,26 @@ void ArgumentParserTests::testParsing()
 
     // warning about unknown argument
     parser.setUnknownArgumentBehavior(UnknownArgumentBehavior::Warn);
-    // redirect stderr to check whether warnings are printed correctly
-    stringstream buffer;
-    streambuf *regularCerrBuffer = cerr.rdbuf(buffer.rdbuf());
-    parser.resetArgs();
-    EscapeCodes::enabled = false;
-    try {
+    {
+#ifndef PLATFORM_WINDOWS
+        const OutputCheck outputCheck("Warning: The specified argument \"album\" is unknown and will be ignored.\n"s
+                                      "Warning: The specified argument \"title\" is unknown and will be ignored.\n"s
+                                      "Warning: The specified argument \"diskpos\" is unknown and will be ignored.\n"s
+                                      "Warning: The specified argument \"--files\" is unknown and will be ignored.\n"s
+                                      "Warning: The specified argument \"somefile\" is unknown and will be ignored.\n"s,
+            cerr);
+#endif
+        parser.resetArgs();
+        EscapeCodes::enabled = false;
         parser.parseArgs(6, argv3);
-    } catch (...) {
-        cerr.rdbuf(regularCerrBuffer);
-        throw;
+
+        // none of the arguments should be present now
+        CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
+        CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
+        CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
+        CPPUNIT_ASSERT(!fieldsArg.isPresent());
+        CPPUNIT_ASSERT(!filesArg.isPresent());
     }
-    cerr.rdbuf(regularCerrBuffer);
-    CPPUNIT_ASSERT_EQUAL("Warning: The specified argument \"album\" is unknown and will be ignored.\n"s
-                         "Warning: The specified argument \"title\" is unknown and will be ignored.\n"s
-                         "Warning: The specified argument \"diskpos\" is unknown and will be ignored.\n"s
-                         "Warning: The specified argument \"--files\" is unknown and will be ignored.\n"s
-                         "Warning: The specified argument \"somefile\" is unknown and will be ignored.\n"s,
-        buffer.str());
-    // none of the arguments should be present now
-    CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-    CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
-    CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
-    CPPUNIT_ASSERT(!fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!filesArg.isPresent());
 
     // combined abbreviations like "-vf"
     const char *argv4[] = { "tageditor", "-i", "-vf", "test" };
@@ -482,6 +480,8 @@ void ArgumentParserTests::testCallbacks()
     parser.parseArgs(4, argv2);
 }
 
+
+#ifndef PLATFORM_WINDOWS
 /*!
  * \brief Used to check whether the exit() function is called when printing bash completion.
  */
@@ -489,7 +489,9 @@ static bool exitCalled = false;
 
 /*!
  * \brief Tests bash completion.
- * \remarks This tests makes assumptions about the order and the exact output format.
+ * \remarks
+ * - Disabled under Windows because OutputCheck isn't working.
+ * - This tests makes assumptions about the order and the exact output format.
  */
 void ArgumentParserTests::testBashCompletion()
 {
@@ -719,9 +721,12 @@ void ArgumentParserTests::testBashCompletion()
         parser.readArgs(3, argv11);
     }
 }
+#endif
 
+#ifndef PLATFORM_WINDOWS
 /*!
  * \brief Tests --help output.
+ * \remarks Disabled under Windows because OutputCheck isn't working.
  */
 void ArgumentParserTests::testHelp()
 {
@@ -818,6 +823,7 @@ void ArgumentParserTests::testHelp()
         parser.parseArgs(2, argv);
     }
 }
+#endif
 
 /*!
  * \brief Tests some corner cases in setMainArguments() which are not already checked in the other tests.
@@ -839,8 +845,13 @@ void ArgumentParserTests::testSetMainArguments()
     CPPUNIT_ASSERT_MESSAGE("default if no required sub arg", &helpArg == parser.defaultArgument());
 }
 
+#ifndef PLATFORM_WINDOWS
 /*!
  * \brief Tests whether NocolorArgument toggles escape codes correctly.
+ * \remarks
+ * Disabled under Windows. Under that platform we could alter the environment using
+ * SetEnvironmentVariableW. However, that doesn't seem to have an effect on further
+ * getenv() or _wgetenv() calls.
  */
 void ArgumentParserTests::testNoColorArgument()
 {
@@ -872,6 +883,7 @@ void ArgumentParserTests::testNoColorArgument()
         CPPUNIT_ASSERT(EscapeCodes::enabled);
     }
 }
+#endif
 
 template <typename ValueTuple> void checkConvertedValues(const std::string &message, const ValueTuple &values)
 {

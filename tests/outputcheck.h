@@ -15,6 +15,7 @@ namespace TestUtilities {
 /*!
  * \brief The StandardOutputCheck class asserts whether the (standard) output written in the enclosing code block
  *        matches the expected output.
+ * \remarks Does not work when compiling with GCC for Windows. At least when executing tests with WINE.
  */
 class OutputCheck {
 public:
@@ -72,15 +73,15 @@ inline OutputCheck::OutputCheck(std::function<void(const std::string &)> &&custo
 inline OutputCheck::~OutputCheck() noexcept(false)
 {
     m_os.rdbuf(m_regularOutputBuffer);
+    const std::string actualOutput(m_buffer.str());
     if (m_customCheck) {
-        m_customCheck(m_buffer.str());
+        m_customCheck(actualOutput);
         return;
     }
     if (m_alternativeOutput.empty()) {
-        CPPUNIT_ASSERT_EQUAL(m_expectedOutput, m_buffer.str());
+        CPPUNIT_ASSERT_EQUAL(m_expectedOutput, actualOutput);
         return;
     }
-    const std::string actualOutput(m_buffer.str());
     if (m_expectedOutput != actualOutput && m_alternativeOutput != actualOutput) {
         using namespace ConversionUtilities;
         CPPUNIT_FAIL("Output is not either \"" % m_expectedOutput % "\" or \"" % m_alternativeOutput % "\". Got instead:\n" + actualOutput);

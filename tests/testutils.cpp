@@ -59,7 +59,7 @@ bool fileExists(const string &path)
 #else
     const auto widePath(NativeFileStream::makeWidePath(path));
     const auto fileType(GetFileAttributesW(widePath.get()));
-    return fileType != INVALID_FILE_ATTRIBUTES && fileType != FILE_ATTRIBUTE_DIRECTORY;
+    return (fileType != INVALID_FILE_ATTRIBUTES) && !(fileType & FILE_ATTRIBUTE_DIRECTORY) && !(fileType & FILE_ATTRIBUTE_DEVICE);
 #endif
 }
 
@@ -71,7 +71,7 @@ bool dirExists(const string &path)
 #else
     const auto widePath(NativeFileStream::makeWidePath(path));
     const auto fileType(GetFileAttributesW(widePath.get()));
-    return fileType != INVALID_FILE_ATTRIBUTES && fileType == FILE_ATTRIBUTE_DIRECTORY;
+    return (fileType != INVALID_FILE_ATTRIBUTES) && (fileType & FILE_ATTRIBUTE_DIRECTORY);
 #endif
 }
 
@@ -240,7 +240,7 @@ string TestApplication::testFilePath(const string &name) const
 
     // file still not found -> return default path
     if (!fileExists(path = "./testfiles/" + name)) {
-        cerr << Phrases::Warning << "The testfile \"" << path << "\" can not be located." << Phrases::EndFlush;
+        cerr << Phrases::Warning << "The testfile \"" << name << "\" can not be located." << Phrases::EndFlush;
     }
     return path;
 }

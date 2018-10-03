@@ -204,19 +204,19 @@ StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferS
  * - Only available under Windows.
  * - If \a inputBufferSize is -1, \a inputBuffer is considered null-terminated.
  */
-std::unique_ptr<wchar_t[]> convertMultiByteToWide(const char *inputBuffer, int inputBufferSize)
+WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSize)
 {
     // calculate required size
-    int requiredSize = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, nullptr, 0);
-    std::unique_ptr<wchar_t[]> widePath;
-    if (requiredSize <= 0) {
+    WideStringData widePath;
+    widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, nullptr, 0);
+    if (widePath.second <= 0) {
         return widePath;
     }
     // do the actual conversion
-    widePath = make_unique<wchar_t[]>(static_cast<size_t>(requiredSize));
-    requiredSize = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, widePath.get(), requiredSize);
-    if (requiredSize <= 0) {
-        widePath.reset();
+    widePath.first = make_unique<wchar_t[]>(static_cast<size_t>(widePath.second));
+    widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, widePath.first.get(), widePath.second);
+    if (widePath.second <= 0) {
+        widePath.first.reset();
     }
     return widePath;
 }
@@ -225,9 +225,9 @@ std::unique_ptr<wchar_t[]> convertMultiByteToWide(const char *inputBuffer, int i
  * \brief Converts the specified multi-byte string to a wide string using the WinAPI.
  * \remarks Only available under Windows.
  */
-std::unique_ptr<wchar_t[]> convertMultiByteToWide(const std::string &inputBuffer)
+WideStringData convertMultiByteToWide(const std::string &inputBuffer)
 {
-    return convertMultiByteToWide(inputBuffer.data(), inputBuffer.size() < numeric_limits<int>::max() ? static_cast<int>(inputBuffer.size()) : -1);
+    return convertMultiByteToWide(inputBuffer.data(), inputBuffer.size() < (numeric_limits<int>::max() - 1) ? static_cast<int>(inputBuffer.size() + 1) : -1);
 }
 #endif
 

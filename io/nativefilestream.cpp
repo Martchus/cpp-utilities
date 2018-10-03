@@ -292,13 +292,17 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int
 }
 
 #ifdef PLATFORM_WINDOWS
+/*!
+ * \brief Converts the specified UTF-8 encoded \a path to UTF-16 for passing it to WinAPI functions.
+ * \throws Throws std::ios_base::failure when an encoding error occurs.
+ */
 std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
 {
     auto widePath = ::ConversionUtilities::convertMultiByteToWide(path);
-    if (!widePath) {
+    if (!widePath.first) {
         ::IoUtilities::throwIoFailure("Unable to convert path to UTF-16");
     }
-    return widePath;
+    return std::move(widePath.first);
 }
 #endif
 
