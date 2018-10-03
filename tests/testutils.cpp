@@ -6,8 +6,8 @@
 #include "../io/ansiescapecodes.h"
 #include "../io/catchiofailure.h"
 #include "../io/misc.h"
-#include "../io/path.h"
 #include "../io/nativefilestream.h"
+#include "../io/path.h"
 
 #include <cerrno>
 #include <cstdlib>

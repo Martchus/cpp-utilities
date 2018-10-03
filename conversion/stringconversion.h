@@ -47,6 +47,11 @@ CPP_UTILITIES_EXPORT StringData convertUtf16BEToUtf8(const char *inputBuffer, st
 CPP_UTILITIES_EXPORT StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
 CPP_UTILITIES_EXPORT StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize);
 
+#ifdef PLATFORM_WINDOWS
+CPP_UTILITIES_EXPORT std::unique_ptr<wchar_t[]> convertMultiByteToWide(const char *inputBuffer, int inputBufferSize = -1);
+CPP_UTILITIES_EXPORT std::unique_ptr<wchar_t[]> convertMultiByteToWide(const std::string &inputBuffer);
+#endif
+
 CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar = '\0');
 
 /*!

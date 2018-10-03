@@ -3,6 +3,10 @@
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 #include "./catchiofailure.h"
 
+#ifdef PLATFORM_WINDOWS
+#include "../conversion/stringconversion.h"
+#endif
+
 // include header files for file buffer implementation
 #if defined(CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF)
 #include <ext/stdio_filebuf.h>
@@ -262,7 +266,6 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int
     // compute native params
     const NativeFileParams nativeParams(openMode);
 
-
 #ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
     // open file handle to initialize stdio_filebuf
 #ifdef PLATFORM_WINDOWS
@@ -291,13 +294,8 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int
 #ifdef PLATFORM_WINDOWS
 std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
 {
-    int requiredSize = MultiByteToWideChar(CP_UTF8, 0, path.data(), -1, nullptr, 0);
-    if (requiredSize <= 0) {
-        ::IoUtilities::throwIoFailure("Unable to calculate buffer size for conversion of path to UTF-16");
-    }
-    auto widePath = make_unique<wchar_t[]>(static_cast<size_t>(requiredSize));
-    requiredSize = MultiByteToWideChar(CP_UTF8, 0, path.data(), -1, widePath.get(), requiredSize);
-    if (requiredSize <= 0) {
+    auto widePath = ::ConversionUtilities::convertMultiByteToWide(path);
+    if (!widePath) {
         ::IoUtilities::throwIoFailure("Unable to convert path to UTF-16");
     }
     return widePath;
