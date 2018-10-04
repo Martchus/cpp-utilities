@@ -12,16 +12,6 @@
 namespace MathUtilities {
 
 /*!
- * \brief Returns a pseudo random number between \a lowerbounds and \a upperbounds.
- * \todo Remove in v5 since std::uniform_int_distribution does the same.
- */
-int random(int lowerbounds, int upperbounds)
-{
-    assert(upperbounds - lowerbounds < RAND_MAX);
-    return lowerbounds + std::rand() % (upperbounds - lowerbounds + 1);
-}
-
-/*!
  * \brief Returns the digitsum of the given \a number using the specified \a base.
  * \todo Make constexpr/template in v5.
  */

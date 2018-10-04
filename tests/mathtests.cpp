@@ -28,7 +28,6 @@ static_assert(max(3, -2, 4, 2, 1) == 4, "max");
  */
 class MathTests : public TestFixture {
     CPPUNIT_TEST_SUITE(MathTests);
-    CPPUNIT_TEST(testRandom);
     CPPUNIT_TEST(testDigitsum);
     CPPUNIT_TEST(testFactorial);
     CPPUNIT_TEST(testPowerModulo);
@@ -44,7 +43,6 @@ public:
     {
     }
 
-    void testRandom();
     void testDigitsum();
     void testFactorial();
     void testPowerModulo();
@@ -54,12 +52,6 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MathTests);
 
-void MathTests::testRandom()
-{
-#ifndef PLATFORM_WINDOWS
-    CPPUNIT_ASSERT_EQUAL(6, random(5, 7));
-#endif
-}
 
 void MathTests::testDigitsum()
 {
