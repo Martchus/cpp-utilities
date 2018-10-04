@@ -26,7 +26,7 @@ public:
 
     bool is_open() const;
     void open(const std::string &path, std::ios_base::openmode openMode);
-    void openFromFileDescriptor(int fileDescriptor, std::ios_base::openmode openMode);
+    void open(int fileDescriptor, std::ios_base::openmode openMode);
     void close();
 
     static std::unique_ptr<std::basic_streambuf<char>> makeFileBuffer(const std::string &path, ios_base::openmode openMode);
@@ -50,7 +50,7 @@ inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::ope
 inline NativeFileStream::NativeFileStream(int fileDescriptor, ios_base::openmode openMode)
     : NativeFileStream()
 {
-    openFromFileDescriptor(fileDescriptor, openMode);
+    open(fileDescriptor, openMode);
 }
 
 #else // CPP_UTILITIES_USE_NATIVE_FILE_BUFFER

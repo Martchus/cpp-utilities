@@ -188,9 +188,8 @@ void NativeFileStream::open(const string &path, ios_base::openmode openMode)
  * \todo
  * - Maybe use setstate() instead of throwing exceptions directly for consistent error handling
  *   with std::fstream::open(). However, that makes passing specific error messages difficult.
- * - Rename to open() in v5.
  */
-void NativeFileStream::openFromFileDescriptor(int fileDescriptor, ios_base::openmode openMode)
+void NativeFileStream::open(int fileDescriptor, ios_base::openmode openMode)
 {
     setFileBuffer(makeFileBuffer(fileDescriptor, openMode));
 }
@@ -261,7 +260,7 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(con
 }
 
 /*!
- * \brief Internally called by openFromFileDescriptor().
+ * \brief Internally called by open().
  */
 std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int fileDescriptor, ios_base::openmode openMode)
 {

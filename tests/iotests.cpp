@@ -516,7 +516,7 @@ void IoTests::testNativeFileStream()
 #ifndef PLATFORM_WINDOWS
     auto readWriteFileDescriptor = open(txtFilePath.data(), O_RDWR);
     CPPUNIT_ASSERT(readWriteFileDescriptor);
-    fileStream.openFromFileDescriptor(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
+    fileStream.open(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
     CPPUNIT_ASSERT(fileStream.is_open());
     CPPUNIT_ASSERT_EQUAL(static_cast<char>(fileStream.get()), 'f');
     fileStream.seekg(0, ios_base::end);
@@ -526,7 +526,7 @@ void IoTests::testNativeFileStream()
     CPPUNIT_ASSERT(!fileStream.is_open());
 #endif
     try {
-        fileStream.openFromFileDescriptor(-1, ios_base::in | ios_base::out | ios_base::binary);
+        fileStream.open(-1, ios_base::in | ios_base::out | ios_base::binary);
         fileStream.get();
         CPPUNIT_FAIL("expected exception");
     } catch (...) {
@@ -564,7 +564,7 @@ void IoTests::testNativeFileStream()
     const auto appendFileHandle = fopen(txtFilePath.data(), "a");
 #endif
     CPPUNIT_ASSERT(appendFileHandle);
-    fileStream2.openFromFileDescriptor(fileno(appendFileHandle), ios_base::out | ios_base::app);
+    fileStream2.open(fileno(appendFileHandle), ios_base::out | ios_base::app);
     CPPUNIT_ASSERT(fileStream2.is_open());
     fileStream2 << "foo";
     fileStream2.close();
