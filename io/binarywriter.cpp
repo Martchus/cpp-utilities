@@ -89,31 +89,3 @@ void BinaryWriter::writeVariableLengthInteger(uint64 value, void (*getBytes)(uin
     }
     m_stream->write(m_buffer + 8 - prefixLength, prefixLength);
 }
-
-/*!
- * \brief Writes the length of a string and the string itself to the current stream.
- *
- * Advances the current position of the stream by the length of the string plus the size of the length prefix.
- *
- * \throws Throws ConversionException if the string size exceeds the maximum.
- * \todo Make inline in v5.
- */
-void BinaryWriter::writeLengthPrefixedString(const string &value)
-{
-    writeVariableLengthUIntBE(value.size());
-    m_stream->write(value.data(), static_cast<streamsize>(value.size()));
-}
-
-/*!
- * \brief Writes the length of a string and the string itself to the current stream.
- *
- * Advances the current position of the stream by the length of the string plus the size of the length prefix.
- *
- * \throws Throws ConversionException if the string size exceeds the maximum.
- * \todo Make inline in v5.
- */
-void BinaryWriter::writeLengthPrefixedCString(const char *value, size_t size)
-{
-    writeVariableLengthUIntBE(size);
-    m_stream->write(value, static_cast<streamsize>(size));
-}

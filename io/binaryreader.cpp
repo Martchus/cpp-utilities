@@ -112,17 +112,6 @@ void BinaryReader::bufferVariableLengthInteger()
 }
 
 /*!
- * \brief Reads a length prefixed string from the current stream.
- * \remarks Reads the length prefix from the stream and then a string of the denoted length.
- *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
- * \todo Make inline in v5.
- */
-string BinaryReader::readLengthPrefixedString()
-{
-    return readString(readVariableLengthUIntBE());
-}
-
-/*!
  * \brief Reads a string from the current stream of the given \a length from the stream and advances the current position of the stream by \a length byte.
  */
 string BinaryReader::readString(size_t length)

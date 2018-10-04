@@ -545,6 +545,16 @@ inline bool BinaryReader::readBool()
 }
 
 /*!
+ * \brief Reads a length prefixed string from the current stream.
+ * \remarks Reads the length prefix from the stream and then a string of the denoted length.
+ *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
+ */
+inline std::string BinaryReader::readLengthPrefixedString()
+{
+    return readString(readVariableLengthUIntBE());
+}
+
+/*!
  * \brief Reads a 32-bit big endian synchsafe integer from the current stream and advances the current position of the stream by four bytes.
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>

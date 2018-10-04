@@ -514,6 +514,32 @@ inline void BinaryWriter::writeTerminatedString(const std::string &value)
 }
 
 /*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ *
+ * \throws Throws ConversionException if the string size exceeds the maximum.
+ */
+inline void BinaryWriter::writeLengthPrefixedString(const std::string &value)
+{
+    writeVariableLengthUIntBE(value.size());
+    m_stream->write(value.data(), static_cast<std::streamsize>(value.size()));
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ *
+ * \throws Throws ConversionException if the string size exceeds the maximum.
+ */
+inline void BinaryWriter::writeLengthPrefixedCString(const char *value, std::size_t size)
+{
+    writeVariableLengthUIntBE(size);
+    m_stream->write(value, static_cast<std::streamsize>(size));
+}
+
+/*!
  * \brief Writes a 32-bit big endian synchsafe integer to the current stream and advances the current position of the stream by four bytes.
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
