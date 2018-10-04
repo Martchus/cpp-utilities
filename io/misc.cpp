@@ -1,5 +1,4 @@
 #include "./misc.h"
-#include "./catchiofailure.h"
 #include "./nativefilestream.h"
 
 #include <streambuf>
@@ -22,7 +21,7 @@ string readFile(const string &path, std::string::size_type maxSize)
     string res;
     const auto size = static_cast<string::size_type>(file.tellg());
     if (maxSize != string::npos && size > maxSize) {
-        throwIoFailure("File exceeds max size");
+        throw ios_base::failure("File exceeds max size");
     }
     res.reserve(size);
     file.seekg(ios_base::beg);

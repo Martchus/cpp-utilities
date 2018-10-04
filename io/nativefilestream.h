@@ -8,7 +8,6 @@
 #include <memory>
 #include <streambuf>
 #include <string>
-#else
 #endif
 #include <fstream>
 

@@ -4,7 +4,6 @@
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
-#include "../io/catchiofailure.h"
 #include "../io/misc.h"
 #include "../io/nativefilestream.h"
 #include "../io/path.h"
@@ -600,10 +599,9 @@ string TestApplication::readTestfilePathFromSrcRef()
 #endif // PLATFORM_UNIX
 
         return srcDirContent += "/testfiles/";
-    } catch (...) {
+    } catch (const std::ios_base::failure &) {
         cerr << Phrases::Warning << "The file \"srcdirref\" can not be opened. It likely just doesn't exist in the working directory."
              << Phrases::EndFlush;
-        catchIoFailure();
     }
     return string();
 }

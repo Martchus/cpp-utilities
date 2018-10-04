@@ -3,7 +3,6 @@
 
 #include "../conversion/types.h"
 #include "../global.h"
-#include "../io/catchiofailure.h"
 
 #include <ios>
 #include <iostream>
@@ -71,7 +70,7 @@ template <typename intType> intType BitReader::readBits(byte bitCount)
     for (byte readAtOnce; bitCount; bitCount -= readAtOnce) {
         if (!m_bitsAvail) {
             if (++m_buffer >= m_end) {
-                throwIoFailure("end of buffer exceeded");
+                throw std::ios_base::failure("end of buffer exceeded");
             }
             m_bitsAvail = 8;
         }

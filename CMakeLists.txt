@@ -24,7 +24,6 @@ set(HEADER_FILES
     io/copy.h
     io/inifile.h
     io/path.h
-    io/catchiofailure.h
     io/nativefilestream.h
     io/misc.h
     math/math.h
@@ -52,7 +51,6 @@ set(SRC_FILES
     io/bitreader.cpp
     io/inifile.cpp
     io/path.cpp
-    io/catchiofailure.cpp
     io/nativefilestream.cpp
     io/misc.cpp
     math/math.cpp
