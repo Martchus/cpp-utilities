@@ -123,9 +123,6 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
 }
 /// \endcond
 
-// TODO v5: Make function private
-Argument CPP_UTILITIES_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
-
 /*!
  * \brief Contains functions to convert raw argument values to certain types.
  *
