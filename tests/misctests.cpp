@@ -1,23 +1,34 @@
 #include "../misc/levenshtein.h"
 #include "../misc/multiarray.h"
+
+#include "../conversion/stringbuilder.h"
+
+#include "../io/misc.h"
+
 #include "../tests/testutils.h"
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <regex>
+
 using namespace std;
+using namespace ConversionUtilities;
+using namespace IoUtilities;
 using namespace MiscUtilities;
+using namespace TestUtilities;
 using namespace TestUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
 /*!
- * \brief The MiscTests class tests functions and classes from the misc directory.
+ * \brief The MiscTests class tests misc functions and classes (mainly of files contained by the misc directory).
  */
 class MiscTests : public TestFixture {
     CPPUNIT_TEST_SUITE(MiscTests);
     CPPUNIT_TEST(testMultiArray);
     CPPUNIT_TEST(testLevenshtein);
+    CPPUNIT_TEST(testTestUtilities);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -30,6 +41,7 @@ public:
 
     void testMultiArray();
     void testLevenshtein();
+    void testTestUtilities();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MiscTests);
@@ -122,4 +134,19 @@ void MiscTests::testLevenshtein()
     CPPUNIT_ASSERT_EQUAL(2_st, computeDamerauLevenshteinDistance("xxaxx", "xxäxx"));
     CPPUNIT_ASSERT_EQUAL(1_st, computeDamerauLevenshteinDistance("xxöxx", "xxäxx"));
     CPPUNIT_ASSERT_EQUAL(11_st, computeDamerauLevenshteinDistance("this is a long text", "this is too long for stack"));
+}
+
+/*!
+ * \brief Tests helper from TestUtilities namespace which aren't used in other tests anyways.
+ */
+void MiscTests::testTestUtilities()
+{
+    const auto workingCopyPathForNestedTestFile = workingCopyPath("subdir/nested-testfile.txt");
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("creation of subdirectories in working dir", "some file\n"s, readFile(workingCopyPathForNestedTestFile));
+
+    stringstream ss;
+    ss << asHexNumber(16);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("printing hex numbers", "0x10"s, ss.str());
+
+    TESTUTILS_ASSERT_LIKE("assert like works", ".*foo.*", "   foo   ");
 }
