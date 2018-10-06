@@ -480,7 +480,6 @@ void ArgumentParserTests::testCallbacks()
     parser.parseArgs(4, argv2);
 }
 
-
 #ifndef PLATFORM_WINDOWS
 /*!
  * \brief Used to check whether the exit() function is called when printing bash completion.

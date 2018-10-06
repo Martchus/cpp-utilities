@@ -227,7 +227,8 @@ WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSi
  */
 WideStringData convertMultiByteToWide(const std::string &inputBuffer)
 {
-    return convertMultiByteToWide(inputBuffer.data(), inputBuffer.size() < (numeric_limits<int>::max() - 1) ? static_cast<int>(inputBuffer.size() + 1) : -1);
+    return convertMultiByteToWide(
+        inputBuffer.data(), inputBuffer.size() < (numeric_limits<int>::max() - 1) ? static_cast<int>(inputBuffer.size() + 1) : -1);
 }
 #endif
 
