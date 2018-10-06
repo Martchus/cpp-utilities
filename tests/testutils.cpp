@@ -257,7 +257,8 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
 {
     // ensure working directory is present
     if (!dirExists(m_workingDir) && !makeDir(m_workingDir)) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory \"" << m_workingDir << "\"."
+             << Phrases::EndFlush;
         return string();
     }
 
@@ -274,16 +275,13 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
             }
             currentLevel += *i;
 
-            // continue if subdirectory level already exists
-            if (dirExists(currentLevel)) {
-                continue;
-            }
-            // continue if we can successfully create the directory
-            if (!makeDir(currentLevel)) {
+            // continue if subdirectory level already exists or we can successfully create the directory
+            if (dirExists(currentLevel) || makeDir(currentLevel)) {
                 continue;
             }
             // fail otherwise
-            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory." << Phrases::EndFlush;
+            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create directory \"" << currentLevel
+                 << "\" (inside working directory)." << Phrases::EndFlush;
             return string();
         }
     }
