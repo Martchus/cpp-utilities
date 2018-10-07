@@ -120,7 +120,7 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &name)
 /*!
  * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
  * \remarks A TestApplication must be present.
- * \sa TestApplication::workingCopyPathEx()
+ * \sa TestApplication::workingCopyPathMode()
  */
 inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode)
 {
