@@ -249,7 +249,7 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(con
         ::IoUtilities::throwIoFailure("CreateFileW failed");
     }
 #else
-    const auto fileDescriptor = ::open(path.data(), nativeParams.openFlags);
+    const auto fileDescriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fileDescriptor == -1) {
         ::IoUtilities::throwIoFailure("open failed");
     }
