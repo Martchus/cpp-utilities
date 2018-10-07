@@ -45,8 +45,11 @@ bool fileSystemItemExists(const string &path)
     struct stat res;
     return stat(path.data(), &res) == 0;
 #else
-    const auto widePath(NativeFileStream::makeWidePath(path));
-    const auto fileType(GetFileAttributesW(widePath.get()));
+    const auto widePath(convertMultiByteToWide(path));
+    if (!widePath.first) {
+        return false;
+    }
+    const auto fileType(GetFileAttributesW(widePath.first.get()));
     return fileType != INVALID_FILE_ATTRIBUTES;
 #endif
 }
@@ -57,8 +60,11 @@ bool fileExists(const string &path)
     struct stat res;
     return stat(path.data(), &res) == 0 && !S_ISDIR(res.st_mode);
 #else
-    const auto widePath(NativeFileStream::makeWidePath(path));
-    const auto fileType(GetFileAttributesW(widePath.get()));
+    const auto widePath(convertMultiByteToWide(path));
+    if (!widePath.first) {
+        return false;
+    }
+    const auto fileType(GetFileAttributesW(widePath.first.get()));
     return (fileType != INVALID_FILE_ATTRIBUTES) && !(fileType & FILE_ATTRIBUTE_DIRECTORY) && !(fileType & FILE_ATTRIBUTE_DEVICE);
 #endif
 }
@@ -69,8 +75,11 @@ bool dirExists(const string &path)
     struct stat res;
     return stat(path.data(), &res) == 0 && S_ISDIR(res.st_mode);
 #else
-    const auto widePath(NativeFileStream::makeWidePath(path));
-    const auto fileType(GetFileAttributesW(widePath.get()));
+    const auto widePath(convertMultiByteToWide(path));
+    if (!widePath.first) {
+        return false;
+    }
+    const auto fileType(GetFileAttributesW(widePath.first.get()));
     return (fileType != INVALID_FILE_ATTRIBUTES) && (fileType & FILE_ATTRIBUTE_DIRECTORY);
 #endif
 }
@@ -80,8 +89,11 @@ bool makeDir(const string &path)
 #ifdef PLATFORM_UNIX
     return mkdir(path.data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
 #else
-    const auto widePath(NativeFileStream::makeWidePath(path));
-    return CreateDirectoryW(widePath.get(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS;
+    const auto widePath(convertMultiByteToWide(path));
+    if (!widePath.first) {
+        return false;
+    }
+    return CreateDirectoryW(widePath.first.get(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS;
 #endif
 }
 
