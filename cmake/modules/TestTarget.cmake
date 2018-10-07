@@ -340,18 +340,6 @@ if(CPP_UNIT_LIB OR META_NO_CPP_UNIT)
         add_dependencies(check ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
     endif()
 
-    # add target for launching tests with wine ensuring the WINEPATH is set correctly so wine is able to find all required *.dll files
-    # requires script from c++utilities, hence the sources of c++utilities must be present
-    if(MINGW AND CMAKE_CROSSCOMPILING AND CPP_UTILITIES_SOURCE_DIR)
-        if(NOT TARGET ${META_PROJECT_NAME}_run_tests_with_wine)
-            if(CMAKE_FIND_ROOT_PATH)
-                list(APPEND RUNTIME_LIBRARY_PATH "${CMAKE_FIND_ROOT_PATH}/bin")
-            endif()
-            add_custom_target(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_run_tests_with_wine COMMAND "${CPP_UTILITIES_SOURCE_DIR}/scripts/wine.sh" "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.${WINDOWS_EXT}" ${RUNTIME_LIBRARY_PATH})
-            add_dependencies(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_run_tests_with_wine ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
-        endif()
-    endif()
-
     set(META_HAVE_TESTS YES)
 
 else()
