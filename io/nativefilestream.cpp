@@ -132,19 +132,19 @@ struct NativeFileParams {
  * \brief Constructs a new NativeFileStream which is initially closed.
  */
 NativeFileStream::NativeFileStream()
-    : m_filebuf(make_unique<StreamBuffer>())
+    : iostream(new StreamBuffer)
+    , m_filebuf(rdbuf())
 {
-    init(m_filebuf.get());
 }
 
 /*!
  * \brief Moves the NativeFileStream.
  */
 NativeFileStream::NativeFileStream(NativeFileStream &&other)
-    : m_filebuf(std::move(other.m_filebuf))
+    : iostream(other.m_filebuf.release())
+    , m_filebuf(rdbuf())
     , m_fileHandle(other.m_fileHandle)
 {
-    init(m_filebuf.get());
 }
 
 /*!

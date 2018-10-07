@@ -44,11 +44,13 @@ private:
 };
 
 inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::openmode openMode)
+    : NativeFileStream()
 {
     open(path, openMode);
 }
 
 inline NativeFileStream::NativeFileStream(int fileDescriptor, ios_base::openmode openMode)
+    : NativeFileStream()
 {
     openFromFileDescriptor(fileDescriptor, openMode);
 }
