@@ -239,7 +239,8 @@ and qtutilities.
   created via Doxygen; the first file is used as the main page
 * `DOC_ONLY_FILES`: specifies documentation-only files
 * `REQUIRED_ICONS`: names of the icons required by the application and the
-  used libraries (can be generated with `qtutilities/scripts/required_icons.sh`)
+  used libraries (can be generated with
+  [findicons](https://github.com/Martchus/findicons))
 * `CMAKE_MODULE_FILES`/`CMAKE_TEMPLATE_FILES`: specifies CMake modules/templates
   provides by the project; those files are installed so they can be used by
   other projects
