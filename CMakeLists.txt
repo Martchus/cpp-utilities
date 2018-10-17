@@ -158,16 +158,16 @@ if(USE_NATIVE_FILE_BUFFER)
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
     if(GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
-        set_source_files_properties(
-            io/nativefilestream.cpp
-            PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF
+        set_property(
+            SOURCE io/nativefilestream.cpp
+            APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF
         )
     else()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
         use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
-        set_source_files_properties(
-            io/nativefilestream.cpp
-            PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS
+        set_property(
+            SOURCE io/nativefilestream.cpp
+            APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS
         )
     endif()
 else()
@@ -183,11 +183,11 @@ endif()
 # configure whether escape codes should be enabled by default
 option(ENABLE_ESCAPE_CODES_BY_DEAULT "enables usage of escape codes by default" ON)
 if(ENABLE_ESCAPE_CODES_BY_DEAULT)
-    set_source_files_properties(
-        application/argumentparser.cpp
-        io/ansiescapecodes.cpp
-        tests/argumentparsertests.cpp
-        PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT
+    set_property(
+        SOURCE application/argumentparser.cpp
+               io/ansiescapecodes.cpp
+               tests/argumentparsertests.cpp
+        APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT
     )
 else()
     message(STATUS "Disabling use of escape codes by default.")
@@ -196,9 +196,9 @@ endif()
 # configure use of thread_local
 option(ENABLE_THREAD_LOCAL "enables use of Thread-Local Storage" ON)
 if(NOT ENABLE_THREAD_LOCAL)
-    set_source_files_properties(
-        conversion/stringconversion.cpp
-        PROPERTIES COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL
+    set_property(
+        SOURCE conversion/stringconversion.cpp
+        APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL
     )
 endif()
 
