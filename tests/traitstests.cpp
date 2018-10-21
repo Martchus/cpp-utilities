@@ -78,6 +78,8 @@ static_assert(HasSize<string>::value, "HasSize: positive case");
 static_assert(HasSize<CountableStruct>::value, "HasSize: positive case");
 static_assert(!IsReservable<list<SomeStruct>>::value, "HasSize: negative case");
 static_assert(IsReservable<vector<SomeStruct>>::value, "HasSize: positive case");
+static_assert(HasOperatorBool<function<void(void)>>::value, "HasOperatorBool: positive case");
+static_assert(!HasOperatorBool<SomeStruct>::value, "HasOperatorBool: negative case");
 
 static_assert(!IsCString<string>::value, "IsCString: negative case");
 static_assert(!IsCString<int[]>::value, "IsCString: negative case");
