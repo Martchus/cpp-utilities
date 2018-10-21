@@ -164,6 +164,7 @@ if(USE_NATIVE_FILE_BUFFER)
         )
     else()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
+        set(boost_iostreams_DYNAMIC_COMPILE_DEFINITIONS BOOST_IOSTREAMS_DYN_LINK)
         use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
         set_property(
             SOURCE io/nativefilestream.cpp
