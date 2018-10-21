@@ -209,7 +209,14 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  *
  * \remarks Requires cppunit.
  */
-#define TESTUTILS_ASSERT_EXEC(args) CPPUNIT_ASSERT_EQUAL(0, execApp(args, stdout, stderr))
+#define TESTUTILS_ASSERT_EXEC(args)                                                                                                                  \
+    {                                                                                                                                                \
+        const auto returnCode = execApp(args, stdout, stderr);                                                                                       \
+        if (returnCode != 0) {                                                                                                                       \
+            CPPUNIT_FAIL(                                                                                                                            \
+                ::ConversionUtilities::argsToString("app failed with return code ", returnCode, "\nstdout: ", stdout, "\nstderr: ", stderr));        \
+        }                                                                                                                                            \
+    }
 
 /*!
  * \brief Asserts whether the specified \a string matches the specified \a regex.
