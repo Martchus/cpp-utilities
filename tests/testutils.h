@@ -2,6 +2,7 @@
 #define TESTUTILS_H
 
 #include "../application/argumentparser.h"
+#include "../conversion/stringbuilder.h" // FIXME: remove in v5
 #include "../conversion/types.h"
 #include "../misc/traits.h"
 
