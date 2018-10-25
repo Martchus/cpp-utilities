@@ -370,9 +370,12 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
 {
     // print log message
     if (!suppressLogging) {
-        cout << '-';
-        for (const char *const *i = args; *i; ++i) {
-            cout << ' ' << *i;
+        // print actual appPath and skip first argument instead
+        cout << '-' << ' ' << appPath;
+        if (*args) {
+            for (const char *const *i = args + 1; *i; ++i) {
+                cout << ' ' << *i;
+            }
         }
         cout << endl;
     }
