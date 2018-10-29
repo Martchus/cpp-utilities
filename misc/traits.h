@@ -54,11 +54,17 @@ template <typename... Condition> using EnableIfAny = typename std::enable_if<Any
 /// \brief Shortcut for std::enable_if to apply Traits::Any, negate the condition and omit ::value and ::type.
 template <typename... Condition> using DisableIfAny = typename std::enable_if<!Any<Condition...>::value, Detail::Enabler>::type;
 
-/// \brief Evaluates to Bool<true> if the specified type is based on the specified \tparam Template; otherwise evaluates to Bool<false>.
-template <typename T, template <typename...> class Template> struct IsSpecializationOf : Bool<false> {
+/// \cond
+namespace Detail {
+template <typename T, template <typename...> class Template> struct IsSpecializationOfHelper : Bool<false> {
 };
+template <template <typename...> class Template, typename... Args> struct IsSpecializationOfHelper<Template<Args...>, Template> : Bool<true> {
+};
+} // namespace Detail
+/// \endcond
 /// \brief Evaluates to Bool<true> if the specified type is based on the specified \tparam Template; otherwise evaluates to Bool<false>.
-template <template <typename...> class Template, typename... Args> struct IsSpecializationOf<Template<Args...>, Template> : Bool<true> {
+template <typename Type, template <typename...> class... TemplateTypes>
+struct IsSpecializationOf : Detail::IsSpecializationOfHelper<typename std::remove_cv<Type>::type, TemplateTypes...> {
 };
 /// \brief Evaluates to Bool<true> if the specified type is based on one of the specified templates; otherwise evaluates to Bool<false>.
 template <typename Type, template <typename...> class... TemplateTypes> struct IsSpecializingAnyOf : Bool<false> {

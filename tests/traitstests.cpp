@@ -90,8 +90,10 @@ static_assert(IsCString<const char *>::value, "IsCString: positive case");
 static_assert(!IsString<int *>::value, "IsString: negative case");
 static_assert(!IsString<stringstream>::value, "IsString: negative case");
 static_assert(IsString<const char *>::value, "IsString: positive case");
-static_assert(IsString<string>::value, "IsCString: positive case");
-static_assert(IsString<u16string>::value, "IsCString: positive case");
+static_assert(IsString<string>::value, "IsString: positive case");
+static_assert(IsString<const string>::value, "IsString: positive case (const)");
+static_assert(IsString<volatile string>::value, "IsString: positive case (volatile)");
+static_assert(IsString<u16string>::value, "IsString: positive case");
 
 static_assert(!IsComplete<TestIncomplete>::value, "IsComplete: negative case");
 static_assert(IsComplete<CountableStruct>::value, "IsComplete: positive case");
