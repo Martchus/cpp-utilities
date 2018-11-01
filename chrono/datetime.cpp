@@ -171,10 +171,11 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
             } else {
                 ++valueIndex;
             }
-        } else if ((c == '+') && (++valueIndex == deltaHourIndex)) {
+        } else if ((c == '+') && (++valueIndex >= secondsIndex)) {
+            valueIndex = deltaHourIndex;
             deltaNegative = false;
-        } else if ((c == 'Z') && (++valueIndex == deltaHourIndex)) {
-            valueIndex += 2;
+        } else if ((c == 'Z') && (++valueIndex >= secondsIndex)) {
+            valueIndex = deltaHourIndex + 2;
         } else if (c == '\0') {
             break;
         } else {

@@ -159,6 +159,9 @@ void ChronoTests::testDateTime()
     // test further variants
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Zulu time", TimeSpan(), DateTime::fromIsoString("2017-08-23T19:40:15.985077682Z").second);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no minutes", TimeSpan::fromHours(3), DateTime::fromIsoString("2017-08-23T19:40:15.985077682+03").second);
+    const auto test6 = DateTime::fromIsoString("1970-01-01T01:02:03+01:00");
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction", DateTime::fromDateAndTime(1970, 1, 1, 1, 2, 3), test6.first);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction", TimeSpan::fromHours(1.0), test6.second);
     // test invalid characters
     CPPUNIT_ASSERT_THROW_MESSAGE("digits after Z", DateTime::fromIsoString("2017-O8-23T19:40:15.985077682Z02:00"), ConversionException);
     CPPUNIT_ASSERT_THROW_MESSAGE("invalid letter", DateTime::fromIsoString("2017-O8-23T19:40:15.985077682:+02:00"), ConversionException);
