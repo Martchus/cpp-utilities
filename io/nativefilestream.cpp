@@ -114,7 +114,7 @@ struct NativeFileParams {
                 openMode = 'w';
                 openFlags = O_WRONLY | O_TRUNC | O_CREAT;
             } else {
-                openMode = "r+";
+                openMode = "w";
                 openFlags = O_WRONLY | O_CREAT;
             }
         }
