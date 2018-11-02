@@ -170,6 +170,7 @@ TestApplication::TestApplication(int argc, char **argv)
     } else {
         // use fallback path if --test-files-path/-p not present
         m_testFilesPath.swap(m_fallbackTestFilesPath);
+        cerr << m_testFilesPath << endl;
     }
     // if it wasn't already the case, use the source directory as fallback dir
     if (m_fallbackTestFilesPath.empty() && !fallbackIsSourceDir) {
