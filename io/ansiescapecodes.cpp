@@ -90,6 +90,18 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
         eraseLine(stream);
         stream << '\r';
         break;
+    case Phrases::SubError:
+        setStyle(stream, Color::Red, ColorContext::Foreground, TextAttribute::Bold);
+        stream << "  -> ERROR: ";
+        setStyle(stream, TextAttribute::Reset);
+        setStyle(stream, TextAttribute::Bold);
+        break;
+    case Phrases::SubWarning:
+        setStyle(stream, Color::Yellow, ColorContext::Foreground, TextAttribute::Bold);
+        stream << "  -> WARNING: ";
+        setStyle(stream, TextAttribute::Reset);
+        setStyle(stream, TextAttribute::Bold);
+        break;
     }
     return stream;
 }
