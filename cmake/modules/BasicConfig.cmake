@@ -97,13 +97,14 @@ endif()
 set(META_APP_VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH})
 option(APPEND_GIT_REVISION "whether the build script should attempt to append the git revision and latest commit to the version displayed via --help" ON)
 if(APPEND_GIT_REVISION)
+    find_program(GIT_BIN git)
     execute_process(
-        COMMAND git rev-list --count HEAD
+        COMMAND ${GIT_BIN} rev-list --count HEAD
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         OUTPUT_VARIABLE META_GIT_REV_COUNT
     )
     execute_process(
-        COMMAND git rev-parse --short HEAD
+        COMMAND ${GIT_BIN} rev-parse --short HEAD
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         OUTPUT_VARIABLE META_GIT_LAST_COMMIT_ID
     )
