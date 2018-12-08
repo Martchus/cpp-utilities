@@ -246,7 +246,7 @@ set(FORMATABLE_FILES
 )
 # only format C/C++ files (and not eg. QML files)
 if(FORMATABLE_FILES)
-    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(cpp|h)")
+    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cpp|h|hpp)")
 endif()
 
 # add command for symlinking clang-{format,tidy} rules so the tools can find it
