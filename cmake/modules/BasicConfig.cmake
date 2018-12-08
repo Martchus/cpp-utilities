@@ -56,7 +56,7 @@ endif()
 
 # set bugtracker URL
 if(NOT META_APP_BUGTRACKER_URL)
-    if(META_APP_URL MATCHES "https://(github.com|gitlab.com|.*/gogs|gogs.*)/.*")
+    if(META_APP_URL MATCHES "https://(github.com|gitlab.com|.*/(gogs|gitea)|(gogs|gitea).*)/.*")
         set(META_APP_BUGTRACKER_URL "${META_APP_URL}/issues")
     else()
         set(META_APP_BUGTRACKER_URL "${META_APP_URL}")
