@@ -13,9 +13,10 @@ if(NOT MINGW OR NOT WINDOWS_RESOURCES_ENABLED)
     return()
 endif()
 
-# find rc template
+# find rc template, define path of output rc file
 include(TemplateFinder)
 find_template_file("windows.rc" CPP_UTILITIES RC_TEMPLATE_FILE)
+set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc")
 
 # create Windows icon from png with ffmpeg if available
 unset(WINDOWS_ICON_PATH)
@@ -39,6 +40,10 @@ if(WINDOWS_ICON_ENABLED)
             add_custom_command(
                 OUTPUT "${WINDOWS_ICON_PATH}"
                 COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" -vf crop=${PNG_ICON_CROP},scale=64:64 "${WINDOWS_ICON_PATH}"
+                DEPENDS "${PNG_ICON_PATH}"
+            )
+            set_source_files_properties("${WINDOWS_RC_FILE}"
+                PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}"
             )
             message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
         elseif(NOT USING_DEFAULT_PNG_ICON_PATH)
@@ -51,10 +56,11 @@ endif()
 # create Windows rc file from template
 configure_file(
     "${RC_TEMPLATE_FILE}"
-    "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc"
+    "${WINDOWS_RC_FILE}"
 )
+
 # set windres as resource compiler
-list(APPEND RES_FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc")
+list(APPEND RES_FILES "${WINDOWS_RC_FILE}")
 set(CMAKE_RC_COMPILER_INIT windres)
 set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 enable_language(RC)
