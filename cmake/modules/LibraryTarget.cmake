@@ -441,11 +441,6 @@ if(NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         )
     endif()
 
-    # ensure libraries are found when creating APK
-    if(ANDROID)
-        list(APPEND ECM_ADDITIONAL_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-    endif()
-
     # add install target for header files
     if(NOT META_IS_PLUGIN)
         foreach(HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
