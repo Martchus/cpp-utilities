@@ -5,7 +5,8 @@
 
 #include "../global.h"
 
-#ifdef __BYTE_ORDER__
+// detect byte order according to __BYTE_ORDER__
+#if defined(__BYTE_ORDER__)
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN false
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN true
@@ -19,8 +20,10 @@
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN false
 #define CONVERSION_UTILITIES_BYTE_ORDER_LITTLE_ENDIAN
 #endif
-#endif
-#ifdef __FLOAT_WORD_ORDER__
+#endif // defined(__BYTE_ORDER__)
+
+// detect float byte order according to __FLOAT_WORD_ORDER__
+#if defined(__FLOAT_WORD_ORDER__)
 #if __FLOAT_WORD_ORDER__ == __ORDER_BIG_ENDIAN__
 #define CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_BIG_ENDIAN
 #elif __FLOAT_WORD_ORDER__ == __ORDER_PDP_ENDIAN__
@@ -28,37 +31,43 @@
 #elif __FLOAT_WORD_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_LITTLE_ENDIAN
 #endif
-#endif
-#if defined(__BYTE_ORDER__) && defined(__FLOAT_WORD_ORDER__)
-#else
+#endif // defined(__FLOAT_WORD_ORDER__)
+
+// detect (float) byte order according to other macros
+#if !defined(__BYTE_ORDER__) || !defined(__FLOAT_WORD_ORDER__)
+
+// assume little endian from the precense of several macros
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)      \
     || defined(__LITTLE_ENDIAN__) || defined(_little_endian__) || defined(_LITTLE_ENDIAN) || defined(_WIN32_WCE) || defined(WINAPI_FAMILY)
-#ifndef __BYTE_ORDER__
+#if !defined(__BYTE_ORDER__)
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN true
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN false
 #define CONVERSION_UTILITIES_BYTE_ORDER_LITTLE_ENDIAN
 #endif
-#ifndef __FLOAT_WORD_ORDER__
+#if !defined(__FLOAT_WORD_ORDER__)
 #define CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_LITTLE_ENDIAN
 #endif
+
+// assume big endian from the precense of several macros
 #elif defined(__MIPSEB__) || defined(__s390__) || defined(__BIG_ENDIAN__) || defined(_big_endian__) || defined(_BIG_ENDIAN)
-#ifndef __BYTE_ORDER__
+#if !defined(__BYTE_ORDER__)
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN false
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN true
 #define CONVERSION_UTILITIES_BYTE_ORDER_BIG_ENDIAN
 #endif
-#ifndef __FLOAT_WORD_ORDER__
+#if !defined(__FLOAT_WORD_ORDER__)
 #define CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_BIG_ENDIAN
 #endif
+
+// fail if unable to detect endianness
 #else
 #error "Unable to determine byte order!"
 #endif
-#endif
 
-#if defined(CONVERSION_UTILITIES_BYTE_ORDER_MIDDLE_ENDIAN)
-#error "Middle endian byte order is not supported!"
-#endif
-#if defined(CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_MIDDLE_ENDIAN)
+#endif // !defined(__BYTE_ORDER__) || !defined(__FLOAT_WORD_ORDER__)
+
+// fail if middle endian detected
+#if defined(CONVERSION_UTILITIES_BYTE_ORDER_MIDDLE_ENDIAN) || defined(CONVERSION_UTILITIES_FLOAT_BYTE_ORDER_MIDDLE_ENDIAN)
 #error "Middle endian byte order is not supported!"
 #endif
 
