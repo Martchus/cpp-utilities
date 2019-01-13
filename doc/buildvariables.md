@@ -15,8 +15,8 @@
 * `CMAKE_CXX_FLAGS`: sets flags to be passed to the C++ compiler
 
 ### Custom variables
-The following variables are read by the CMake modules provided by c++utilities
-and qtutilities.
+The following variables are read by the CMake modules provided by `c++utilities`
+and `qtutilities`.
 
 None of these are enabled or set by default, unless stated otherwise.
 
@@ -204,7 +204,7 @@ cmake \
 The following variables are read by the CMake modules provided by c++utilities
 and qtutilities.
 
-### Meta data
+### Meta-data and overall project configuration
 * `META_PROJECT_NAME=name`: specifies the project name which is used as the
   application/library name, mustn't contain spaces
 * `META_APP_NAME=The Name`: specifies a more readible version of the project
@@ -223,6 +223,8 @@ and qtutilities.
   `CLANG_FORMAT_ENABLED` for this project
 * `META_NO_INSTALL_TARGETS`: the project is not meant to be installed, eg.
   private test helper; prevents creation of install targets
+* `META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION`: implicitely add a source file
+  with a main()-entry point to test target for running CppUnit test cases
 
 ### Files
 * `HEADER_FILES`/`SRC_FILES`: specifies C++ header/source files
