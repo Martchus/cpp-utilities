@@ -50,6 +50,17 @@ if(NOT META_NO_CPP_UNIT)
     endif()
 endif()
 
+# add default cppunit test application if requested
+if(META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION)
+    if(META_NO_CPP_UNIT)
+        message(FATAL_ERROR "Project ${META_PROJECT_NAME} has META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION and META_NO_CPP_UNIT enabled at the same time.")
+    endif()
+
+    set(DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC "${CMAKE_CURRENT_BINARY_DIR}/cppunit.cpp")
+    file(WRITE "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}" "#include <c++utilities/tests/cppunit.h>")
+    list(APPEND TEST_SRC_FILES "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}")
+endif()
+
 # always link test applications against c++utilities
 list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB})
 
