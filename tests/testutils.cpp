@@ -221,66 +221,66 @@ TestApplication::~TestApplication()
 }
 
 /*!
- * \brief Returns the full path of the test file with the specified \a name.
+ * \brief Returns the full path of the test file with the specified \a relativeTestFilePath.
  *
- * The specified \a name might be a relative path in the testfiles directory.
+ * The specified \a relativeTestFilePath is considered to be a path to a test file which is relative
+ * to at least one of the considered test file search directories.
  *
- * The following directories are searched for the specified testfile:
+ * The following directories are searched for test files in the given order:
  * 1. The directory specified as CLI argument.
  * 2. The fallback directory, which can be set by setting the environment
  *    variable `TEST_FILE_PATH`.
  * 3. The source directory, if it could be determined via "srcref"-file
  *    unless both, the CLI argument and environment variable are present.
  */
-string TestApplication::testFilePath(const string &name) const
+string TestApplication::testFilePath(const string &relativeTestFilePath) const
 {
     string path;
     fstream file; // used to check whether the file is present
 
     // check the path specified by command line argument or via environment variable
     if (!m_testFilesPath.empty()) {
-        if (fileExists(path = m_testFilesPath + name)) {
+        if (fileExists(path = m_testFilesPath + relativeTestFilePath)) {
             return path;
         }
     }
 
     // check the fallback path (value from environment variable or source directory)
     if (!m_fallbackTestFilesPath.empty()) {
-        if (fileExists(path = m_fallbackTestFilesPath + name)) {
+        if (fileExists(path = m_fallbackTestFilesPath + relativeTestFilePath)) {
             return path;
         }
     }
 
     // file still not found -> return default path
-    if (!fileExists(path = "./testfiles/" + name)) {
-        cerr << Phrases::Warning << "The testfile \"" << name << "\" can not be located." << Phrases::EndFlush;
+    if (!fileExists(path = "./testfiles/" + relativeTestFilePath)) {
+        cerr << Phrases::Warning << "The testfile \"" << relativeTestFilePath << "\" can not be located." << Phrases::EndFlush;
     }
     return path;
 }
 
 /*!
- * \brief Returns the full path to a working copy of the test file with the specified \a name.
+ * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
  *
  * The specified \a mode controls whether a working copy is actually created or whether just the path is returned.
- * The test file is located using testFilePath().
  *
- * \remarks Currently only available under UNIX.
+ * \remarks The test file is located using testFilePath().
  */
-string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode mode) const
+string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, WorkingCopyMode mode) const
 {
     // ensure working directory is present
     if (!dirExists(m_workingDir) && !makeDir(m_workingDir)) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create working directory \"" << m_workingDir << "\"."
-             << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": can't create working directory \""
+             << m_workingDir << "\"." << Phrases::EndFlush;
         return string();
     }
 
     // ensure subdirectory exists
-    const auto parts = splitString<vector<string>>(name, "/", EmptyPartsTreat::Omit);
+    const auto parts = splitString<vector<string>>(relativeTestFilePath, "/", EmptyPartsTreat::Omit);
     if (!parts.empty()) {
         // create subdirectory level by level
         string currentLevel;
-        currentLevel.reserve(m_workingDir.size() + name.size() + 1);
+        currentLevel.reserve(m_workingDir.size() + relativeTestFilePath.size() + 1);
         currentLevel.assign(m_workingDir);
         for (auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
             if (currentLevel.back() != '/') {
@@ -293,39 +293,39 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
                 continue;
             }
             // fail otherwise
-            cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": can't create directory \"" << currentLevel
-                 << "\" (inside working directory)." << Phrases::EndFlush;
+            cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": can't create directory \""
+                 << currentLevel << "\" (inside working directory)." << Phrases::EndFlush;
             return string();
         }
     }
 
     // just return the path if we don't want to actually create a copy
     if (mode == WorkingCopyMode::NoCopy) {
-        return m_workingDir + name;
+        return m_workingDir + relativeTestFilePath;
     }
 
     // copy the file
-    const auto origFilePath(testFilePath(name));
-    auto workingCopyPath(m_workingDir + name);
+    const auto origFilePath(testFilePath(relativeTestFilePath));
+    auto workingCopyPath(m_workingDir + relativeTestFilePath);
     size_t workingCopyPathAttempt = 0;
     NativeFileStream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
     if (origFile.fail()) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening original file \""
-             << origFilePath << "\"." << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath
+             << "\": an IO error occurred when opening original file \"" << origFilePath << "\"." << Phrases::EndFlush;
         cerr << "error: " << strerror(errno) << endl;
         return string();
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     while (workingCopy.fail() && fileSystemItemExists(workingCopyPath)) {
         // adjust the working copy path if the target file already exists and can not be truncated
-        workingCopyPath = argsToString(m_workingDir, name, '.', ++workingCopyPathAttempt);
+        workingCopyPath = argsToString(m_workingDir, relativeTestFilePath, '.', ++workingCopyPathAttempt);
         workingCopy.clear();
         workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     }
     if (workingCopy.fail()) {
-        cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": an IO error occurred when opening target file \""
-             << workingCopyPath << "\"." << Phrases::EndFlush;
+        cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath
+             << "\": an IO error occurred when opening target file \"" << workingCopyPath << "\"." << Phrases::EndFlush;
         cerr << "error: " << strerror(errno) << endl;
         return string();
     }
@@ -334,7 +334,7 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
         return workingCopyPath;
     }
 
-    cerr << Phrases::Error << "Unable to create working copy for \"" << name << "\": ";
+    cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": ";
     if (origFile.fail()) {
         cerr << "an IO error occurred when reading original file \"" << origFilePath << "\"";
         return string();
@@ -350,13 +350,13 @@ string TestApplication::workingCopyPathMode(const string &name, WorkingCopyMode 
 }
 
 /*!
- * \brief Creates a working copy of the test file with the specified \a name and returns the full path of the created file.
- *
- * The test file is located using testFilePath().
- *
- * \remarks Currently only available under UNIX.
+ * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
+ * \remarks The test file is located using testFilePath().
  */
-string TestApplication::workingCopyPath(const string &name) const
+string TestApplication::workingCopyPath(const string &relativeTestFilePath) const
+{
+    return workingCopyPathMode(relativeTestFilePath, WorkingCopyMode::CreateCopy);
+}
 {
     return workingCopyPathMode(name, WorkingCopyMode::CreateCopy);
 }

@@ -26,9 +26,9 @@ public:
     ~TestApplication();
 
     operator bool() const;
-    std::string testFilePath(const std::string &name) const;
-    std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode) const;
-    std::string workingCopyPath(const std::string &name) const;
+    std::string testFilePath(const std::string &relativeTestFilePath) const;
+    std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode) const;
+    std::string workingCopyPath(const std::string &relativeTestFilePath) const;
 #ifdef PLATFORM_UNIX
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
@@ -99,33 +99,30 @@ inline const std::vector<const char *> &TestApplication::units() const
 }
 
 /*!
- * \brief Convenience function which returns the full path of the test file with the specified \a name.
+ * \brief Convenience function to invoke TestApplication::testFilePath().
  * \remarks A TestApplication must be present.
- * \sa TestApplication::testFilePath()
  */
-inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &name)
+inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relativeTestFilePath)
 {
-    return TestApplication::instance()->testFilePath(name);
+    return TestApplication::instance()->testFilePath(relativeTestFilePath);
 }
 
 /*!
- * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
+ * \brief Convenience function to invoke TestApplication::workingCopyPath().
  * \remarks A TestApplication must be present.
- * \sa TestApplication::workingCopyPath()
  */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &name)
+inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relativeTestFilePath)
 {
-    return TestApplication::instance()->workingCopyPath(name);
+    return TestApplication::instance()->workingCopyPath(relativeTestFilePath);
 }
 
 /*!
- * \brief Convenience function which returns the full path to a working copy of the test file with the specified \a name.
+ * \brief Convenience function to invoke TestApplication::workingCopyPathMode().
  * \remarks A TestApplication must be present.
- * \sa TestApplication::workingCopyPathMode()
  */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &name, WorkingCopyMode mode)
+inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode)
 {
-    return TestApplication::instance()->workingCopyPathMode(name, mode);
+    return TestApplication::instance()->workingCopyPathMode(relativeTestFilePath, mode);
 }
 
 #ifdef PLATFORM_UNIX
