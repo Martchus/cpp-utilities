@@ -267,6 +267,35 @@ string TestApplication::testFilePath(const string &relativeTestFilePath) const
  */
 string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, WorkingCopyMode mode) const
 {
+    return workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, mode);
+}
+
+/*!
+ * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
+ * \remarks The test file is located using testFilePath().
+ */
+string TestApplication::workingCopyPath(const string &relativeTestFilePath) const
+{
+    return workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, WorkingCopyMode::CreateCopy);
+}
+
+/*!
+ * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
+ *
+ * The specified \a mode controls whether a working copy is actually created or whether just the path is returned. If only the
+ * path is returned, the \a relativeTestFilePath is ignored.
+ *
+ * In contrast to workingCopyPath(), this method allows to adjust the relative path of the working copy within the working copy
+ * directory via \a relativeWorkingCopyPath.
+ *
+ * \remarks
+ * - The test file specified via \a relativeTestFilePath is located using testFilePath().
+ * - The name of the working copy file specified via \a relativeWorkingCopyPath will be adjusted if it already exists in the file
+ *   system and can not be truncated.
+ */
+string TestApplication::workingCopyPathAs(
+    const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath, WorkingCopyMode mode) const
+{
     // ensure working directory is present
     if (!dirExists(m_workingDir) && !makeDir(m_workingDir)) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": can't create working directory \""
@@ -275,11 +304,11 @@ string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, 
     }
 
     // ensure subdirectory exists
-    const auto parts = splitString<vector<string>>(relativeTestFilePath, "/", EmptyPartsTreat::Omit);
+    const auto parts = splitString<vector<string>>(relativeWorkingCopyPath, "/", EmptyPartsTreat::Omit);
     if (!parts.empty()) {
         // create subdirectory level by level
         string currentLevel;
-        currentLevel.reserve(m_workingDir.size() + relativeTestFilePath.size() + 1);
+        currentLevel.reserve(m_workingDir.size() + relativeWorkingCopyPath.size() + 1);
         currentLevel.assign(m_workingDir);
         for (auto i = parts.cbegin(), end = parts.end() - 1; i != end; ++i) {
             if (currentLevel.back() != '/') {
@@ -292,7 +321,7 @@ string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, 
                 continue;
             }
             // fail otherwise
-            cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": can't create directory \""
+            cerr << Phrases::Error << "Unable to create working copy for \"" << relativeWorkingCopyPath << "\": can't create directory \""
                  << currentLevel << "\" (inside working directory)." << Phrases::EndFlush;
             return string();
         }
@@ -300,12 +329,12 @@ string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, 
 
     // just return the path if we don't want to actually create a copy
     if (mode == WorkingCopyMode::NoCopy) {
-        return m_workingDir + relativeTestFilePath;
+        return m_workingDir + relativeWorkingCopyPath;
     }
 
     // copy the file
     const auto origFilePath(testFilePath(relativeTestFilePath));
-    auto workingCopyPath(m_workingDir + relativeTestFilePath);
+    auto workingCopyPath(m_workingDir + relativeWorkingCopyPath);
     size_t workingCopyPathAttempt = 0;
     NativeFileStream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
@@ -318,7 +347,7 @@ string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, 
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     while (workingCopy.fail() && fileSystemItemExists(workingCopyPath)) {
         // adjust the working copy path if the target file already exists and can not be truncated
-        workingCopyPath = argsToString(m_workingDir, relativeTestFilePath, '.', ++workingCopyPathAttempt);
+        workingCopyPath = argsToString(m_workingDir, relativeWorkingCopyPath, '.', ++workingCopyPathAttempt);
         workingCopy.clear();
         workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     }
@@ -346,18 +375,6 @@ string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, 
     }
     cerr << "error: " << strerror(errno) << endl;
     return string();
-}
-
-/*!
- * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
- * \remarks The test file is located using testFilePath().
- */
-string TestApplication::workingCopyPath(const string &relativeTestFilePath) const
-{
-    return workingCopyPathMode(relativeTestFilePath, WorkingCopyMode::CreateCopy);
-}
-{
-    return workingCopyPathMode(name, WorkingCopyMode::CreateCopy);
 }
 
 #ifdef PLATFORM_UNIX

@@ -29,6 +29,8 @@ public:
     std::string testFilePath(const std::string &relativeTestFilePath) const;
     std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode) const;
     std::string workingCopyPath(const std::string &relativeTestFilePath) const;
+    std::string workingCopyPathAs(const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath,
+        WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
 #ifdef PLATFORM_UNIX
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
@@ -113,7 +115,7 @@ inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relative
  */
 inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relativeTestFilePath)
 {
-    return TestApplication::instance()->workingCopyPath(relativeTestFilePath);
+    return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, WorkingCopyMode::CreateCopy);
 }
 
 /*!
@@ -122,7 +124,17 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relat
  */
 inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode)
 {
-    return TestApplication::instance()->workingCopyPathMode(relativeTestFilePath, mode);
+    return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, mode);
+}
+
+/*!
+ * \brief Convenience function to invoke TestApplication::workingCopyPathAs().
+ * \remarks A TestApplication must be present.
+ */
+inline CPP_UTILITIES_EXPORT std::string workingCopyPathAs(
+    const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy)
+{
+    return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeWorkingCopyPath, mode);
 }
 
 #ifdef PLATFORM_UNIX

@@ -2,6 +2,7 @@
 #include "../misc/multiarray.h"
 
 #include "../conversion/stringbuilder.h"
+#include "../conversion/stringconversion.h"
 
 #include "../io/misc.h"
 
@@ -143,6 +144,14 @@ void MiscTests::testTestUtilities()
 {
     const auto workingCopyPathForNestedTestFile = workingCopyPath("subdir/nested-testfile.txt");
     CPPUNIT_ASSERT_EQUAL_MESSAGE("creation of subdirectories in working dir", "some file\n"s, readFile(workingCopyPathForNestedTestFile));
+
+    const auto workingCopyPathUnderDifferentNameForNestedTestFile = workingCopyPathAs("subdir/nested-testfile.txt", "subdir2/foo.txt");
+    const auto splittedPath = splitString<vector<string>>(workingCopyPathUnderDifferentNameForNestedTestFile, "/", EmptyPartsTreat::Omit);
+    CPPUNIT_ASSERT_GREATEREQUAL(2_st, splittedPath.size());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("different subdir", "subdir2"s, splittedPath[splittedPath.size() - 2]);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("different file name", "foo.txt"s, splittedPath[splittedPath.size() - 1]);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "creation of subdirectories in working dir", "some file\n"s, readFile(workingCopyPathUnderDifferentNameForNestedTestFile));
 
     stringstream ss;
     ss << asHexNumber(16);
