@@ -236,7 +236,6 @@ TestApplication::~TestApplication()
 string TestApplication::testFilePath(const string &relativeTestFilePath) const
 {
     string path;
-    fstream file; // used to check whether the file is present
 
     // check the path specified by command line argument or via environment variable
     if (!m_testFilesPath.empty()) {
