@@ -28,7 +28,9 @@ public:
     void open(const std::string &path, std::ios_base::openmode openMode);
     void openFromFileDescriptor(int fileDescriptor, std::ios_base::openmode openMode);
     void close();
+#if !defined(__ANDROID_API__) || !defined(__ANDROID_API_N__) || (__ANDROID_API__ < __ANDROID_API_N__)
     FILE fileHandle();
+#endif
 
     static std::unique_ptr<std::basic_streambuf<char>> makeFileBuffer(const std::string &path, ios_base::openmode openMode);
     static std::unique_ptr<std::basic_streambuf<char>> makeFileBuffer(int fileDescriptor, ios_base::openmode openMode);
@@ -40,7 +42,9 @@ private:
     void setFileBuffer(std::unique_ptr<std::basic_streambuf<char>> buffer);
 
     std::unique_ptr<std::basic_streambuf<char>> m_filebuf;
+#if !defined(__ANDROID_API__) || !defined(__ANDROID_API_N__) || (__ANDROID_API__ < __ANDROID_API_N__)
     FILE m_fileHandle;
+#endif
 };
 
 inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::openmode openMode)
@@ -55,6 +59,7 @@ inline NativeFileStream::NativeFileStream(int fileDescriptor, ios_base::openmode
     openFromFileDescriptor(fileDescriptor, openMode);
 }
 
+#if !defined(__ANDROID_API__) || !defined(__ANDROID_API_N__) || (__ANDROID_API__ < __ANDROID_API_N__)
 /*!
  * \brief Returns the underlying file handle if possible; otherwise the behaviour is undefined.
  * \deprecated Not implemented for any backend and will be removed in v5.
@@ -64,6 +69,7 @@ inline FILE NativeFileStream::fileHandle()
 {
     return m_fileHandle;
 }
+#endif
 
 #else // CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 

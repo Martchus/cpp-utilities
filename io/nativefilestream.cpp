@@ -143,7 +143,9 @@ NativeFileStream::NativeFileStream()
 NativeFileStream::NativeFileStream(NativeFileStream &&other)
     : iostream(other.m_filebuf.release())
     , m_filebuf(rdbuf())
+#if !defined(__ANDROID_API__) || !defined(__ANDROID_API_N__) || (__ANDROID_API__ < __ANDROID_API_N__)
     , m_fileHandle(other.m_fileHandle)
+#endif
 {
 }
 
