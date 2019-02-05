@@ -249,6 +249,12 @@ if(FORMATABLE_FILES)
     list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cpp|h|hpp)")
 endif()
 
+# determine source files which might be passed to cmake-format
+set(FORMATABLE_FILES_CMAKE
+    ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
+    ${CMAKE_MODULE_FILES}
+)
+
 # add command for symlinking clang-{format,tidy} rules so the tools can find it
 if(EXISTS "${CLANG_FORMAT_RULES}")
     add_custom_command(
@@ -260,36 +266,62 @@ else()
     message(WARNING "Format rules for clang-format not found.")
 endif()
 
-# add target for tidying with clang-format
-if(NOT META_NO_TIDY AND FORMATABLE_FILES AND EXISTS "${CLANG_FORMAT_RULES}")
+# allow user to configure creation of tidy targets unless the project disables this via META_NO_TIDY
+if(NOT META_NO_TIDY)
     option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" OFF)
-    if(CLANG_FORMAT_ENABLED)
-        find_program(CLANG_FORMAT_BIN clang-format)
-        if(NOT CLANG_FORMAT_BIN)
-            message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
-        endif()
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
-            COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-            DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-        )
-        if(NOT TARGET tidy)
-            add_custom_target(tidy)
-        endif()
-        add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+    option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" OFF)
+endif()
 
-        # also add a test to verify whether sources are tidy
-        add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
-            COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
-            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        )
-        list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-        set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
-            FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
-            REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+# add target for tidying with clang-format
+if(NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "${CLANG_FORMAT_RULES}")
+    find_program(CLANG_FORMAT_BIN clang-format)
+    if(NOT CLANG_FORMAT_BIN)
+        message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
+    endif()
+    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+        COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+        DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+    )
+    if(NOT TARGET tidy)
+        add_custom_target(tidy)
+    endif()
+    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+
+    # also add a test to verify whether sources are tidy
+    add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+        COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+    list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+    set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test" PROPERTIES
+        FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+        REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+    )
+endif()
+
+# add target for tidying with cmake-format
+if(NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
+    find_program(CMAKE_FORMAT_BIN cmake-format)
+    if(NOT CMAKE_FORMAT_BIN)
+        message(FATAL_ERROR "Unable to add tidy target; cmake-format not found")
+    endif()
+    if (NOT META_CMAKE_FORMAT_OPTIONS)
+        set(META_CMAKE_FORMAT_OPTIONS
+            --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125
         )
     endif()
+    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy"
+        COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
+        DEPENDS "${FORMATABLE_FILES_CMAKE}"
+    )
+    if(NOT TARGET tidy)
+        add_custom_target(tidy)
+    endif()
+    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy")
 endif()
 
 # add target for static code analysis using clang-tidy

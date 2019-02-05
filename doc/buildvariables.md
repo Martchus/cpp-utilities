@@ -64,6 +64,11 @@ None of these are enabled or set by default, unless stated otherwise.
     * can be made unavailable by setting `META_NO_TIDY` in the project file
     * only available if format rules are available
     * also enables tidy check executed via `check` target
+* `CMAKE_FORMAT_ENABLED=ON/OFF`: enables tidy target for code formatting via
+  `cmake-format`
+    * can be made unavailable by setting `META_NO_TIDY` in the project file
+    * options can be adjusted by setting `META_CMAKE_FORMAT_OPTIONS` in the
+      project file
 * `CLANG_TIDY_ENABLED=ON/OFF`: enables target `static-check` for static code
   analysis with `clang-tidy`
     * can be made unavailable by setting `META_NO_STATIC_ANALYSIS` in the
