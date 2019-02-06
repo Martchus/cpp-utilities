@@ -36,8 +36,7 @@ set(HEADER_FILES
     misc/levenshtein.h
     tests/testutils.h
     tests/cppunit.h
-    tests/outputcheck.h
-)
+    tests/outputcheck.h)
 set(SRC_FILES
     application/argumentparserprivate.h
     application/argumentparser.cpp
@@ -61,12 +60,9 @@ set(SRC_FILES
     math/math.cpp
     misc/random.cpp
     misc/levenshtein.cpp
-    tests/testutils.cpp
-)
+    tests/testutils.cpp)
 
-set(TEST_HEADER_FILES
-
-)
+set(TEST_HEADER_FILES)
 set(TEST_SRC_FILES
     tests/cppunit.cpp
     tests/conversiontests.cpp
@@ -75,8 +71,7 @@ set(TEST_SRC_FILES
     tests/argumentparsertests.cpp
     tests/traitstests.cpp
     tests/mathtests.cpp
-    tests/misctests.cpp
-)
+    tests/misctests.cpp)
 
 set(CMAKE_MODULE_FILES
     cmake/modules/BasicConfig.cmake
@@ -89,8 +84,7 @@ set(CMAKE_MODULE_FILES
     cmake/modules/Doxygen.cmake
     cmake/modules/ListToString.cmake
     cmake/modules/ShellCompletion.cmake
-    cmake/modules/3rdParty.cmake
-)
+    cmake/modules/3rdParty.cmake)
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
@@ -101,28 +95,15 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/appdata.xml.in
     cmake/templates/doxygen.in
     cmake/templates/global.h.in
-    cmake/templates/template.pc.in
-)
-set(SCRIPT_FILES
-)
-if(MINGW)
-    list(APPEND CMAKE_TEMPLATE_FILES
-        cmake/templates/windows.rc.in
-    )
-    list(APPEND SCRIPT_FILES
-        scripts/wine.sh
-    )
-endif()
+    cmake/templates/template.pc.in)
+set(SCRIPT_FILES)
+if (MINGW)
+    list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/windows.rc.in)
+    list(APPEND SCRIPT_FILES scripts/wine.sh)
+endif ()
 
-set(DOC_FILES
-    README.md
-    doc/buildvariables.md
-    doc/testapplication.md
-)
-set(EXTRA_FILES
-    tests/calculateoverallcoverage.awk
-    coding-style.clang-format
-)
+set(DOC_FILES README.md doc/buildvariables.md doc/testapplication.md)
+set(EXTRA_FILES tests/calculateoverallcoverage.awk coding-style.clang-format)
 
 # required to include CMake modules from own project directory
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" "${CMAKE_MODULE_PATH}")
@@ -146,62 +127,57 @@ use_iconv(AUTO_LINKAGE REQUIRED)
 # configure use of native file buffer and its backend implementation if enabled
 option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" OFF)
 option(FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER "forces use of Boost.Iostreams for native file buffer" OFF)
-if(USE_NATIVE_FILE_BUFFER)
+if (USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
 
     # check whether __gnu_cxx::stdio_filebuf is available
-    try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE ${CMAKE_CURRENT_BINARY_DIR}
-        SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
-        OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG
-    )
+    try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE
+                ${CMAKE_CURRENT_BINARY_DIR}
+                SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
+                OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG)
 
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
-    if(GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
+    if (GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
-        set_property(
-            SOURCE io/nativefilestream.cpp
-            APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF
-        )
-    else()
+        set_property(SOURCE io/nativefilestream.cpp
+                     APPEND
+                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+    else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
         set(boost_iostreams_DYNAMIC_COMPILE_DEFINITIONS BOOST_IOSTREAMS_DYN_LINK)
         use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
-        set_property(
-            SOURCE io/nativefilestream.cpp
-            APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS
-        )
-    endif()
-else()
+        set_property(SOURCE io/nativefilestream.cpp
+                     APPEND
+                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+    endif ()
+else ()
     message(STATUS "Using std::fstream for NativeFileStream")
-endif()
+endif ()
 
 # configure forcing UTF-8 code page under Windows
 option(FORCE_UTF8_CODEPAGE "forces use of UTF-8 code page under Windows via ApplicationUtilities::startConsole()" OFF)
-if(FORCE_UTF8_CODEPAGE)
+if (FORCE_UTF8_CODEPAGE)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_FORCE_UTF8_CODEPAGE)
-endif()
+endif ()
 
 # configure whether escape codes should be enabled by default
 option(ENABLE_ESCAPE_CODES_BY_DEAULT "enables usage of escape codes by default" ON)
-if(ENABLE_ESCAPE_CODES_BY_DEAULT)
-    set_property(
-        SOURCE application/argumentparser.cpp
-               io/ansiescapecodes.cpp
-               tests/argumentparsertests.cpp
-        APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT
-    )
-else()
+if (ENABLE_ESCAPE_CODES_BY_DEAULT)
+    set_property(SOURCE application/argumentparser.cpp io/ansiescapecodes.cpp tests/argumentparsertests.cpp
+                 APPEND
+                 PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT)
+else ()
     message(STATUS "Disabling use of escape codes by default.")
-endif()
+endif ()
 
 # configure use of thread_local
 option(ENABLE_THREAD_LOCAL "enables use of Thread-Local Storage" ON)
-if(NOT ENABLE_THREAD_LOCAL)
-    set_property(
-        SOURCE conversion/stringconversion.cpp
-        APPEND PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL
-    )
-endif()
+if (NOT ENABLE_THREAD_LOCAL)
+    set_property(SOURCE conversion/stringconversion.cpp
+                 APPEND
+                 PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL)
+endif ()
 
 # include modules to apply configuration
 include(BasicConfig)
