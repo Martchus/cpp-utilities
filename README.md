@@ -83,6 +83,8 @@ make DESTDIR="/temporary/install/location" install
   set `DISABLE_SHARED_LIBS=ON`.
 * By default the build system will prefer *linking against* shared libraries. To force *linking against* static libraries set `STATIC_LINKAGE=ON`.
   However, this will only affect applications. To force linking statically when building shared libraries set `STATIC_LIBRARY_LINKAGE=ON`.
+* If thread local storage is not supported by your compiler/platform (might be the case on MacOS), you can disable making use of it
+  via `ENABLE_THREAD_LOCAL=OFF`.
 * For more detailed documentation, see the documentation about build variables (in
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in Doxygen version accessible via "Related Pages").
