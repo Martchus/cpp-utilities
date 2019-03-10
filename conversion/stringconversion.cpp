@@ -7,6 +7,7 @@
 #endif
 
 #include <cstdlib>
+#include <cmath>
 #include <iomanip>
 #include <limits>
 #include <memory>
@@ -285,7 +286,9 @@ string bitrateToString(double bitrateInKbitsPerSecond, bool useIecBinaryPrefixes
 {
     stringstream res(stringstream::in | stringstream::out);
     res << setprecision(3);
-    if (useIecBinaryPrefixes) {
+    if (std::isnan(bitrateInKbitsPerSecond)) {
+        res << "indeterminable";
+    } else if (useIecBinaryPrefixes) {
         if (bitrateInKbitsPerSecond < 8.0) {
             res << (bitrateInKbitsPerSecond * 125.0) << " byte/s";
         } else if (bitrateInKbitsPerSecond < 8000.0) {
