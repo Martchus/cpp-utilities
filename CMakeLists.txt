@@ -16,7 +16,6 @@ set(HEADER_FILES
     conversion/conversionexception.h
     conversion/stringconversion.h
     conversion/stringbuilder.h
-    conversion/types.h
     io/ansiescapecodes.h
     io/binaryreader.h
     io/binarywriter.h

@@ -3,8 +3,7 @@
 
 #include "./timespan.h"
 
-#include "../conversion/types.h"
-
+#include <cstdint>
 #include <ctime>
 #include <limits>
 #include <string>
@@ -52,7 +51,7 @@ enum class DatePart {
 class CPP_UTILITIES_EXPORT DateTime {
 public:
     explicit constexpr DateTime();
-    explicit constexpr DateTime(uint64 ticks);
+    explicit constexpr DateTime(std::uint64_t ticks);
     static DateTime fromDate(int year = 1, int month = 1, int day = 1);
     static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
@@ -64,8 +63,8 @@ public:
     static DateTime fromTimeStamp(time_t timeStamp);
     static DateTime fromTimeStampGmt(time_t timeStamp);
 
-    uint64 &ticks();
-    constexpr uint64 totalTicks() const;
+    std::uint64_t &ticks();
+    constexpr std::uint64_t totalTicks() const;
     int year() const;
     int month() const;
     int day() const;
@@ -111,11 +110,11 @@ public:
     DateTime &operator-=(const TimeSpan &timeSpan);
 
 private:
-    static uint64 dateToTicks(int year, int month, int day);
-    static uint64 timeToTicks(int hour, int minute, int second, double millisecond);
+    static std::uint64_t dateToTicks(int year, int month, int day);
+    static std::uint64_t timeToTicks(int hour, int minute, int second, double millisecond);
     int getDatePart(DatePart part) const;
 
-    uint64 m_ticks;
+    std::uint64_t m_ticks;
     static const int m_daysPerYear;
     static const int m_daysPer4Years;
     static const int m_daysPer100Years;
@@ -140,7 +139,7 @@ constexpr inline DateTime::DateTime()
 /*!
  * \brief Constructs a DateTime with the specified number of \a ticks.
  */
-constexpr inline DateTime::DateTime(uint64 ticks)
+constexpr inline DateTime::DateTime(std::uint64_t ticks)
     : m_ticks(ticks)
 {
 }
@@ -170,7 +169,7 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
-    if (uint64 ticks = dateToTicks(year, month, day)) {
+    if (std::uint64_t ticks = dateToTicks(year, month, day)) {
         return DateTime(ticks + timeToTicks(hour, minute, second, millisecond));
     }
     return DateTime();
@@ -216,7 +215,7 @@ inline DateTime DateTime::fromIsoStringLocal(const char *str)
 /*!
  * \brief Returns a mutable reference to the total ticks.
  */
-inline uint64 &DateTime::ticks()
+inline std::uint64_t &DateTime::ticks()
 {
     return m_ticks;
 }
@@ -224,7 +223,7 @@ inline uint64 &DateTime::ticks()
 /*!
  * \brief Returns the number of ticks which represent the value of the current instance.
  */
-constexpr inline uint64 DateTime::totalTicks() const
+constexpr inline std::uint64_t DateTime::totalTicks() const
 {
     return m_ticks;
 }

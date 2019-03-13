@@ -1,9 +1,9 @@
 #ifndef IOUTILITIES_BITREADER_H
 #define IOUTILITIES_BITREADER_H
 
-#include "../conversion/types.h"
 #include "../global.h"
 
+#include <cstdint>
 #include <ios>
 #include <iostream>
 #include <type_traits>
@@ -15,11 +15,11 @@ public:
     BitReader(const char *buffer, std::size_t bufferSize);
     BitReader(const char *buffer, const char *end);
 
-    template <typename intType> intType readBits(byte bitCount);
-    byte readBit();
+    template <typename intType> intType readBits(std::uint8_t bitCount);
+    std::uint8_t readBit();
     template <typename intType> intType readUnsignedExpGolombCodedBits();
     template <typename intType> intType readSignedExpGolombCodedBits();
-    template <typename intType> intType showBits(byte bitCount);
+    template <typename intType> intType showBits(std::uint8_t bitCount);
     void skipBits(std::size_t bitCount);
     void align();
     std::size_t bitsAvailable();
@@ -27,9 +27,9 @@ public:
     void reset(const char *buffer, const char *end);
 
 private:
-    const byte *m_buffer;
-    const byte *m_end;
-    byte m_bitsAvail;
+    const std::uint8_t *m_buffer;
+    const std::uint8_t *m_end;
+    std::uint8_t m_bitsAvail;
 };
 
 /*!
@@ -50,8 +50,8 @@ inline BitReader::BitReader(const char *buffer, std::size_t bufferSize)
  *  - \a end must be greather than \a buffer.
  */
 inline BitReader::BitReader(const char *buffer, const char *end)
-    : m_buffer(reinterpret_cast<const byte *>(buffer))
-    , m_end(reinterpret_cast<const byte *>(end))
+    : m_buffer(reinterpret_cast<const std::uint8_t *>(buffer))
+    , m_end(reinterpret_cast<const std::uint8_t *>(end))
     , m_bitsAvail(8)
 {
 }
@@ -64,10 +64,10 @@ inline BitReader::BitReader(const char *buffer, const char *end)
  * \throws Throws ios_base::failure if the end of the buffer is exceeded.
  *         The reader becomes invalid in that case.
  */
-template <typename intType> intType BitReader::readBits(byte bitCount)
+template <typename intType> intType BitReader::readBits(std::uint8_t bitCount)
 {
     intType val = 0;
-    for (byte readAtOnce; bitCount; bitCount -= readAtOnce) {
+    for (std::uint8_t readAtOnce; bitCount; bitCount -= readAtOnce) {
         if (!m_bitsAvail) {
             if (++m_buffer >= m_end) {
                 throw std::ios_base::failure("end of buffer exceeded");
@@ -85,9 +85,9 @@ template <typename intType> intType BitReader::readBits(byte bitCount)
  * \throws Throws ios_base::failure if the end of the buffer is exceeded.
  *         The reader becomes invalid in that case.
  */
-inline byte BitReader::readBit()
+inline std::uint8_t BitReader::readBit()
 {
-    return readBits<byte>(1) == 1;
+    return readBits<std::uint8_t>(1) == 1;
 }
 
 /*!
@@ -100,7 +100,7 @@ inline byte BitReader::readBit()
  */
 template <typename intType> intType BitReader::readUnsignedExpGolombCodedBits()
 {
-    byte count = 0;
+    std::uint8_t count = 0;
     while (!readBit()) {
         ++count;
     }
@@ -124,7 +124,7 @@ template <typename intType> intType BitReader::readSignedExpGolombCodedBits()
 /*!
  * \brief Reads the specified number of bits from the buffer without advancing the current position.
  */
-template <typename intType> intType BitReader::showBits(byte bitCount)
+template <typename intType> intType BitReader::showBits(std::uint8_t bitCount)
 {
     auto tmp = *this;
     return tmp.readBits<intType>(bitCount);
@@ -146,8 +146,8 @@ inline std::size_t BitReader::bitsAvailable()
  */
 inline void BitReader::reset(const char *buffer, std::size_t bufferSize)
 {
-    m_buffer = reinterpret_cast<const byte *>(buffer);
-    m_end = reinterpret_cast<const byte *>(buffer + bufferSize);
+    m_buffer = reinterpret_cast<const std::uint8_t *>(buffer);
+    m_end = reinterpret_cast<const std::uint8_t *>(buffer + bufferSize);
     m_bitsAvail = 8;
 }
 
@@ -159,8 +159,8 @@ inline void BitReader::reset(const char *buffer, std::size_t bufferSize)
  */
 inline void BitReader::reset(const char *buffer, const char *end)
 {
-    m_buffer = reinterpret_cast<const byte *>(buffer);
-    m_end = reinterpret_cast<const byte *>(end);
+    m_buffer = reinterpret_cast<const std::uint8_t *>(buffer);
+    m_end = reinterpret_cast<const std::uint8_t *>(end);
     m_bitsAvail = 8;
 }
 

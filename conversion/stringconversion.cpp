@@ -250,7 +250,7 @@ void truncateString(string &str, char terminationChar)
  *
  * The unit with appropriate binary prefix will be appended.
  */
-string dataSizeToString(uint64 sizeInByte, bool includeByte)
+string dataSizeToString(std::uint64_t sizeInByte, bool includeByte)
 {
     stringstream res(stringstream::in | stringstream::out);
     res.setf(ios::fixed, ios::floatfield);
@@ -321,13 +321,13 @@ const char base64Pad = '=';
  * \brief Encodes the specified \a data to Base64.
  * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
-string encodeBase64(const byte *data, uint32 dataSize)
+string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
 {
     string encoded;
-    byte mod = dataSize % 3;
+    std::uint8_t mod = dataSize % 3;
     encoded.reserve(((dataSize / 3) + (mod > 0)) * 4);
-    uint32 temp;
-    for (const byte *end = --data + dataSize - mod; data != end;) {
+    std::uint32_t temp;
+    for (const std::uint8_t *end = --data + dataSize - mod; data != end;) {
         temp = *++data << 16;
         temp |= *++data << 8;
         temp |= *++data;
@@ -361,12 +361,12 @@ string encodeBase64(const byte *data, uint32 dataSize)
  * \throw Throws a ConversionException if the specified string is no valid Base64.
  * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
-pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize)
+pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
 {
     if (strSize % 4) {
         throw ConversionException("invalid size of base64");
     }
-    uint32 decodedSize = (strSize / 4) * 3;
+    std::uint32_t decodedSize = (strSize / 4) * 3;
     const char *const end = encodedStr + strSize;
     if (strSize) {
         if (*(end - 1) == base64Pad) {
@@ -376,11 +376,11 @@ pair<unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint
             --decodedSize;
         }
     }
-    auto buffer = make_unique<byte[]>(decodedSize);
+    auto buffer = make_unique<std::uint8_t[]>(decodedSize);
     auto *iter = buffer.get() - 1;
     while (encodedStr < end) {
-        int32 temp = 0;
-        for (byte quantumPos = 0; quantumPos < 4; ++quantumPos, ++encodedStr) {
+        std::int32_t temp = 0;
+        for (std::uint8_t quantumPos = 0; quantumPos < 4; ++quantumPos, ++encodedStr) {
             temp <<= 6;
             if (*encodedStr >= 'A' && *encodedStr <= 'Z') {
                 temp |= *encodedStr - 'A';

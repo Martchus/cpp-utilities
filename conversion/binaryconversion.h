@@ -1,9 +1,9 @@
 #ifndef CONVERSION_UTILITIES_BINARY_CONVERSION_H
 #define CONVERSION_UTILITIES_BINARY_CONVERSION_H
 
-#include "./types.h"
-
 #include "../global.h"
+
+#include <cstdint>
 
 // detect byte order according to __BYTE_ORDER__
 #if defined(__BYTE_ORDER__)
@@ -98,33 +98,33 @@ namespace LE {
 /*!
  * \brief Returns the 8.8 fixed point representation converted from the specified 32-bit floating point number.
  */
-CPP_UTILITIES_EXPORT constexpr uint16 toFixed8(float32 float32value)
+CPP_UTILITIES_EXPORT constexpr std::uint16_t toFixed8(float float32value)
 {
-    return static_cast<uint16>(float32value * 256.0f);
+    return static_cast<std::uint16_t>(float32value * 256.0f);
 }
 
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 8.8 fixed point representation.
  */
-CPP_UTILITIES_EXPORT constexpr float32 toFloat32(uint16 fixed8value)
+CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint16_t fixed8value)
 {
-    return static_cast<float32>(fixed8value) / 256.0f;
+    return static_cast<float>(fixed8value) / 256.0f;
 }
 
 /*!
  * \brief Returns the 16.16 fixed point representation converted from the specified 32-bit floating point number.
  */
-CPP_UTILITIES_EXPORT constexpr uint32 toFixed16(float32 float32value)
+CPP_UTILITIES_EXPORT constexpr std::uint32_t toFixed16(float float32value)
 {
-    return static_cast<uint32>(float32value * 65536.0f);
+    return static_cast<std::uint32_t>(float32value * 65536.0f);
 }
 
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 16.16 fixed point representation.
  */
-CPP_UTILITIES_EXPORT constexpr float32 toFloat32(uint32 fixed16value)
+CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint32_t fixed16value)
 {
-    return static_cast<float32>(fixed16value) / 65536.0f;
+    return static_cast<float>(fixed16value) / 65536.0f;
 }
 
 /*!
@@ -132,7 +132,7 @@ CPP_UTILITIES_EXPORT constexpr float32 toFloat32(uint32 fixed16value)
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-CPP_UTILITIES_EXPORT constexpr uint32 toSynchsafeInt(uint32 normalInt)
+CPP_UTILITIES_EXPORT constexpr std::uint32_t toSynchsafeInt(std::uint32_t normalInt)
 {
     return ((normalInt & 0x0000007fu)) | ((normalInt & 0x00003f80u) << 1) | ((normalInt & 0x001fc000u) << 2) | ((normalInt & 0x0fe00000u) << 3);
 }
@@ -142,7 +142,7 @@ CPP_UTILITIES_EXPORT constexpr uint32 toSynchsafeInt(uint32 normalInt)
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-CPP_UTILITIES_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
+CPP_UTILITIES_EXPORT constexpr std::uint32_t toNormalInt(std::uint32_t synchsafeInt)
 {
     return ((synchsafeInt & 0x0000007fu)) | ((synchsafeInt & 0x00007f00u) >> 1) | ((synchsafeInt & 0x007f0000u) >> 2)
         | ((synchsafeInt & 0x7f000000u) >> 3);
@@ -151,7 +151,7 @@ CPP_UTILITIES_EXPORT constexpr uint32 toNormalInt(uint32 synchsafeInt)
 /*!
  * \brief Swaps the byte order of the specified 16-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr uint16 swapOrder(uint16 value)
+CPP_UTILITIES_EXPORT constexpr std::uint16_t swapOrder(std::uint16_t value)
 {
     return ((value >> 8) & 0x00FF) | ((value << 8) & 0xFF00);
 }
@@ -159,7 +159,7 @@ CPP_UTILITIES_EXPORT constexpr uint16 swapOrder(uint16 value)
 /*!
  * \brief Swaps the byte order of the specified 32-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr uint32 swapOrder(uint32 value)
+CPP_UTILITIES_EXPORT constexpr std::uint32_t swapOrder(std::uint32_t value)
 {
     return (value >> 24) | ((value & 0x00FF0000) >> 8) | ((value & 0x0000FF00) << 8) | (value << 24);
 }
@@ -167,7 +167,7 @@ CPP_UTILITIES_EXPORT constexpr uint32 swapOrder(uint32 value)
 /*!
  * \brief Swaps the byte order of the specified 64-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr uint64 swapOrder(uint64 value)
+CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
 {
     return (value >> (7 * 8)) | ((value & 0x00FF000000000000) >> (5 * 8)) | ((value & 0x0000FF0000000000) >> (3 * 8))
         | ((value & 0x000000FF00000000) >> (1 * 8)) | ((value & 0x00000000FF000000) << (1 * 8)) | ((value & 0x0000000000FF0000) << (3 * 8))

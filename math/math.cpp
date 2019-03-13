@@ -42,10 +42,10 @@ int factorial(int number)
  * \brief Computes \a base power \a exponent modulo \a module.
  * \todo Make constexpr/template in v5.
  */
-uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module)
+std::uint64_t powerModulo(const std::uint64_t base, const std::uint64_t exponent, const std::uint64_t module)
 {
-    uint64 res = 1;
-    for (uint64 mask = 0x8000000000000000; mask; mask >>= 1) {
+    std::uint64_t res = 1;
+    for (std::uint64_t mask = 0x8000000000000000; mask; mask >>= 1) {
         if (mask & exponent) {
             res *= base;
         }
@@ -61,9 +61,9 @@ uint64 powerModulo(const uint64 base, const uint64 exponent, const uint64 module
  * \brief Computes the inverse of \a number modulo \a module.
  * \todo Make constexpr/template in v5.
  */
-int64 inverseModulo(int64 number, int64 module)
+std::int64_t inverseModulo(std::int64_t number, std::int64_t module)
 {
-    int64 y1 = 0, y2 = 1, tmp;
+    std::int64_t y1 = 0, y2 = 1, tmp;
     while (number != 1) {
         tmp = y1 - (module / number) * y2;
         y1 = y2;
@@ -79,9 +79,9 @@ int64 inverseModulo(int64 number, int64 module)
  * \brief Computes the order of \a number modulo \a module.
  * \todo Make constexpr/template in v5.
  */
-uint64 orderModulo(const uint64 number, const uint64 module)
+std::uint64_t orderModulo(const std::uint64_t number, const std::uint64_t module)
 {
-    uint64 order = 1;
+    std::uint64_t order = 1;
     for (; powerModulo(number, order, module) != 1 && order != module; ++order)
         ;
     return order != module ? order : 0;

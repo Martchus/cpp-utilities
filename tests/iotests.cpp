@@ -140,9 +140,9 @@ void IoTests::testBinaryReader()
     testFile.seekg(-4, ios_base::cur);
     CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(5, 0x0066));
     testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<uint16>(0x6600)));
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<std::uint16_t>(0x6600)));
     testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<uint16>(0x0066)));
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<std::uint16_t>(0x0066)));
     CPPUNIT_ASSERT_THROW(reader.readLengthPrefixedString(), ConversionException);
     CPPUNIT_ASSERT_MESSAGE("pos in stream not advanced on conversion error", reader.readByte() == 0);
 
@@ -243,23 +243,22 @@ void IoTests::testBinaryWriter()
  */
 void IoTests::testBitReader()
 {
-    const byte testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20, 0xFF, 0xFA };
+    const std::uint8_t testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20, 0xFF, 0xFA };
     BitReader reader(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT(reader.readBit() == 1);
     reader.skipBits(6);
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(3), reader.showBits<byte>(2));
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(3), reader.readBits<byte>(2));
-    CPPUNIT_ASSERT_EQUAL(static_cast<uint32>(0x103C4428 << 1), reader.readBits<uint32>(32));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(3), reader.showBits<std::uint8_t>(2));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(3), reader.readBits<std::uint8_t>(2));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint32_t>(0x103C4428 << 1), reader.readBits<std::uint32_t>(32));
     reader.align();
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0x44), reader.readBits<byte>(8));
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(7), reader.readUnsignedExpGolombCodedBits<byte>());
-    CPPUNIT_ASSERT_EQUAL(static_cast<sbyte>(4), reader.readSignedExpGolombCodedBits<sbyte>());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0), reader.readBit());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0), reader.readBit());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0x44), reader.readBits<std::uint8_t>(8));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(7), reader.readUnsignedExpGolombCodedBits<std::uint8_t>());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::int8_t>(4), reader.readSignedExpGolombCodedBits<std::int8_t>());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0), reader.readBit());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0), reader.readBit());
     reader.skipBits(8 + 4);
     CPPUNIT_ASSERT_EQUAL(4_st, reader.bitsAvailable());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0xA), reader.readBits<byte>(4));
-    }
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0xA), reader.readBits<std::uint8_t>(4));
     CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
     CPPUNIT_ASSERT_THROW(reader.skipBits(1), std::ios_base::failure);
     reader.reset(reinterpret_cast<const char *>(testData), sizeof(testData));
@@ -358,7 +357,7 @@ void IoTests::testCopy()
 
     // test
     testFile.seekg(0);
-    for (byte i = 0; i < 50; ++i) {
+    for (auto i = 0; i < 50; ++i) {
         CPPUNIT_ASSERT(testFile.get() == outputStream.get());
     }
 }

@@ -72,7 +72,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
  */
 DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
 {
-    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(timeStamp) * TimeSpan::ticksPerSecond);
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(timeStamp) * TimeSpan::ticksPerSecond);
 }
 
 /*!
@@ -319,15 +319,15 @@ DateTime DateTime::exactGmtNow()
 {
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
-    return DateTime(
-        DateTime::unixEpochStart().totalTicks() + static_cast<uint64>(t.tv_sec) * TimeSpan::ticksPerSecond + static_cast<uint64>(t.tv_nsec) / 100);
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(t.tv_sec) * TimeSpan::ticksPerSecond
+        + static_cast<std::uint64_t>(t.tv_nsec) / 100);
 }
 #endif
 
 /*!
  * \brief Converts the given date expressed in \a year, \a month and \a day to ticks.
  */
-uint64 DateTime::dateToTicks(int year, int month, int day)
+std::uint64_t DateTime::dateToTicks(int year, int month, int day)
 {
     if (!inRangeInclMax(year, 1, 9999)) {
         throw ConversionException("year is out of range");
@@ -350,7 +350,7 @@ uint64 DateTime::dateToTicks(int year, int month, int day)
 /*!
  * \brief Converts the given time expressed in \a hour, \a minute, \a second and \a millisecond to ticks.
  */
-uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
+std::uint64_t DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
 {
     if (!inRangeExclMax(hour, 0, 24)) {
         throw ConversionException("hour is out of range");
@@ -364,8 +364,8 @@ uint64 DateTime::timeToTicks(int hour, int minute, int second, double millisecon
     if (!inRangeExclMax(millisecond, 0.0, 1000.0)) {
         throw ConversionException("millisecond is out of range");
     }
-    return static_cast<uint64>(hour * TimeSpan::ticksPerHour) + static_cast<uint64>(minute * TimeSpan::ticksPerMinute)
-        + static_cast<uint64>(second * TimeSpan::ticksPerSecond) + static_cast<uint64>(millisecond * TimeSpan::ticksPerMillisecond);
+    return static_cast<std::uint64_t>(hour * TimeSpan::ticksPerHour) + static_cast<std::uint64_t>(minute * TimeSpan::ticksPerMinute)
+        + static_cast<std::uint64_t>(second * TimeSpan::ticksPerSecond) + static_cast<std::uint64_t>(millisecond * TimeSpan::ticksPerMillisecond);
 }
 
 /*!

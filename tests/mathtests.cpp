@@ -52,7 +52,6 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MathTests);
 
-
 void MathTests::testDigitsum()
 {
     CPPUNIT_ASSERT_EQUAL(0, digitsum(0));
