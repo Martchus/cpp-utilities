@@ -455,10 +455,8 @@ Argument::Argument(const char *name, char abbreviation, const char *description,
     , m_example(example)
     , m_minOccurrences(0)
     , m_maxOccurrences(1)
-    , m_combinable(false)
-    , m_denotesOperation(false)
     , m_requiredValueCount(0)
-    , m_implicit(false)
+    , m_flags(Flags::None)
     , m_isMainArg(false)
     , m_valueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::Files | ValueCompletionBehavior::Directories
           | ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)

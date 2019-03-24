@@ -255,6 +255,13 @@ class CPP_UTILITIES_EXPORT Argument {
 public:
     typedef std::function<void(const ArgumentOccurrence &)> CallbackFunction;
 
+    enum class Flags : std::uint64_t {
+        None = 0x0,
+        Combinable = 0x1,
+        Implicit = 0x2,
+        Operation = 0x4,
+    };
+
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
 
@@ -285,10 +292,13 @@ public:
     const std::vector<Argument *> &path(std::size_t occurrence = 0) const;
     bool isRequired() const;
     void setRequired(bool required);
+    Argument::Flags flags() const;
+    void setFlags(Argument::Flags flags);
+    void setFlags(Argument::Flags flags, bool add);
     bool isCombinable() const;
-    void setCombinable(bool value);
+    void setCombinable(bool combinable);
     bool isImplicit() const;
-    void setImplicit(bool value);
+    void setImplicit(bool implicit);
     bool denotesOperation() const;
     void setDenotesOperation(bool denotesOperation);
     const CallbackFunction &callback() const;
@@ -345,11 +355,9 @@ private:
     const char *m_example;
     std::size_t m_minOccurrences;
     std::size_t m_maxOccurrences;
-    bool m_combinable;
-    bool m_denotesOperation;
     std::size_t m_requiredValueCount;
     std::vector<const char *> m_valueNames;
-    bool m_implicit;
+    Flags m_flags;
     std::vector<ArgumentOccurrence> m_occurrences;
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
@@ -358,6 +366,18 @@ private:
     ValueCompletionBehavior m_valueCompletionBehavior;
     const char *m_preDefinedCompletionValues;
 };
+
+/// \cond
+constexpr Argument::Flags operator|(Argument::Flags lhs, Argument::Flags rhs)
+{
+    return static_cast<Argument::Flags>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+}
+
+constexpr bool operator&(Argument::Flags lhs, Argument::Flags rhs)
+{
+    return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
+}
+/// \endcond
 
 /*!
  * \brief Converts the present values for the specified \a occurrence to the specified target types. There must be as many values present as types are specified.
@@ -684,7 +704,7 @@ inline bool Argument::allRequiredValuesPresent(std::size_t occurrence) const
  */
 inline bool Argument::isImplicit() const
 {
-    return m_implicit;
+    return m_flags & Flags::Implicit;
 }
 
 /*!
@@ -693,7 +713,7 @@ inline bool Argument::isImplicit() const
  */
 inline void Argument::setImplicit(bool implicit)
 {
-    m_implicit = implicit;
+    setFlags(Flags::Implicit, implicit);
 }
 
 /*!
@@ -792,6 +812,32 @@ inline void Argument::setRequired(bool required)
 }
 
 /*!
+ * \brief Returns Argument::Flags for the argument.
+ */
+inline Argument::Flags Argument::flags() const
+{
+    return m_flags;
+}
+
+/*!
+ * \brief Replaces all Argument::Flags for the argument with the \a flags.
+ */
+inline void Argument::setFlags(Argument::Flags flags)
+{
+    m_flags = flags;
+}
+
+/*!
+ * \brief Adds or removes the specified \a flags.
+ */
+inline void Argument::setFlags(Argument::Flags flags, bool add)
+{
+    m_flags = add ? (m_flags | flags)
+                  : static_cast<Argument::Flags>(static_cast<std::underlying_type<Argument::Flags>::type>(m_flags)
+                        & ~static_cast<std::underlying_type<Argument::Flags>::type>(flags));
+}
+
+/*!
  * \brief Returns an indication whether the argument is combinable.
  *
  * The parser will complain if two arguments labeled as uncombinable are
@@ -801,7 +847,7 @@ inline void Argument::setRequired(bool required)
  */
 inline bool Argument::isCombinable() const
 {
-    return m_combinable;
+    return m_flags & Flags::Combinable;
 }
 
 /*!
@@ -812,9 +858,9 @@ inline bool Argument::isCombinable() const
  *
  * \sa isCombinable()
  */
-inline void Argument::setCombinable(bool value)
+inline void Argument::setCombinable(bool combinable)
 {
-    m_combinable = value;
+    setFlags(Flags::Combinable, combinable);
 }
 
 /*!
@@ -829,7 +875,7 @@ inline void Argument::setCombinable(bool value)
  */
 inline bool Argument::denotesOperation() const
 {
-    return m_denotesOperation;
+    return m_flags & Flags::Operation;
 }
 
 /*!
@@ -838,7 +884,7 @@ inline bool Argument::denotesOperation() const
  */
 inline void Argument::setDenotesOperation(bool denotesOperation)
 {
-    m_denotesOperation = denotesOperation;
+    setFlags(Flags::Operation, denotesOperation);
 }
 
 /*!
