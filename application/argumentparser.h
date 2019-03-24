@@ -1136,7 +1136,7 @@ inline void ArgumentParser::setExitFunction(std::function<void(int)> exitFunctio
 }
 
 /*!
- * \brief Returns the `--help` argument (which is always implicitely added to the main arguments).
+ * \brief Returns the `--help` argument.
  */
 inline const HelpArgument &ArgumentParser::helpArg() const
 {
@@ -1144,7 +1144,7 @@ inline const HelpArgument &ArgumentParser::helpArg() const
 }
 
 /*!
- * \brief Returns the `--help` argument (which is always implicitely added to the main arguments).
+ * \brief Returns the `--help` argument.
  */
 inline HelpArgument &ArgumentParser::helpArg()
 {
@@ -1152,7 +1152,7 @@ inline HelpArgument &ArgumentParser::helpArg()
 }
 
 /*!
- * \brief Returns the `--no-color` argument (which is always implicitely added to the main arguments).
+ * \brief Returns the `--no-color` argument.
  */
 inline const NoColorArgument &ArgumentParser::noColorArg() const
 {
@@ -1160,7 +1160,7 @@ inline const NoColorArgument &ArgumentParser::noColorArg() const
 }
 
 /*!
- * \brief Returns the `--no-color` argument (which is always implicitely added to the main arguments).
+ * \brief Returns the `--no-color` argument.
  */
 inline NoColorArgument &ArgumentParser::noColorArg()
 {

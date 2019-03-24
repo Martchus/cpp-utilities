@@ -151,7 +151,8 @@ void ArgumentParserTests::testParsing()
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({ &fieldsArg, &filesArg, &verboseArg, &notAlbumArg });
-    parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg });
+    parser.setMainArguments(
+        { &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &parser.noColorArg(), &parser.helpArg() });
 
     // no args present
     parser.parseArgs(0, nullptr);
@@ -502,7 +503,6 @@ void ArgumentParserTests::testBashCompletion()
 {
     ArgumentParser parser;
     parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
-    HelpArgument helpArg(parser);
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
@@ -535,7 +535,7 @@ void ArgumentParserTests::testBashCompletion()
     Argument setArg("set", 's', "sets tag values");
     setArg.setSubArguments({ &valuesArg, &filesArg, &selectorsArg });
 
-    parser.setMainArguments({ &displayFileInfoArg, &getArg, &setArg });
+    parser.setMainArguments({ &displayFileInfoArg, &getArg, &setArg, &parser.noColorArg(), &parser.helpArg() });
 
     // fail due to operation flags not set
     const char *const argv1[] = { "se" };
@@ -567,7 +567,7 @@ void ArgumentParserTests::testBashCompletion()
     // advance the cursor position -> the completion should propose the next argument
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--no-color' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -576,7 +576,7 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     filesArg.setDenotesOperation(true);
     {
-        const OutputCheck c("COMPREPLY=('files' '--selectors' '--no-color' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -668,7 +668,7 @@ void ArgumentParserTests::testBashCompletion()
     const char *const argv6[] = { "set", "--" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--no-color' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv6, argv6 + 2).read();
         parser.printBashCompletion(2, argv6, 1, reader);
     }
@@ -743,8 +743,7 @@ void ArgumentParserTests::testHelp()
 
     // setup parser
     ArgumentParser parser;
-    HelpArgument helpArg(parser);
-    helpArg.setRequired(true);
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     OperationArgument verboseArg("verbose", 'v', "be verbose", "actually not an operation");
     verboseArg.setCombinable(true);
     ConfigValueArgument nestedSubArg("nested-sub", '\0', "nested sub arg", { "value1", "value2" });
@@ -765,9 +764,7 @@ void ArgumentParserTests::testHelp()
     envArg.setRequiredValueCount(2);
     envArg.appendValueName("file");
     parser.helpArg().setRequired(true);
-    parser.addMainArgument(&verboseArg);
-    parser.addMainArgument(&filesArg);
-    parser.addMainArgument(&envArg);
+    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.noColorArg(), &parser.helpArg() });
     dependencyVersions2 = { "somelib", "some other lib" };
 
     // parse args and assert output
@@ -805,6 +802,7 @@ void ArgumentParserTests::testHelp()
     }
 
     verboseArg.setDenotesOperation(false);
+    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.helpArg() });
     {
         const OutputCheck c(APP_NAME ", version " APP_VERSION "\n"
                                      "Linked against: somelib, some other lib\n"
@@ -842,7 +840,7 @@ void ArgumentParserTests::testSetMainArguments()
 {
     ArgumentParser parser;
     parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
-    HelpArgument helpArg(parser);
+    HelpArgument &helpArg(parser.helpArg());
     Argument subArg("sub-arg", 's', "mandatory sub arg");
     subArg.setRequired(true);
     helpArg.addSubArgument(&subArg);

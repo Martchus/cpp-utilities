@@ -149,7 +149,8 @@ TestApplication::TestApplication(int argc, const char *const *argv)
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
         m_unitsArg.setCombinable(true);
-        m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg });
+        m_parser.setMainArguments(
+            { &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_parser.noColorArg(), &m_parser.helpArg() });
 
         // parse arguments
         try {
