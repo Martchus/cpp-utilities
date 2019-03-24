@@ -416,12 +416,6 @@ std::vector<const char *> dependencyVersions2;
 
 // TODO v5 use a struct for these properties
 
-/*!
- * \brief Specifies a function quit the application.
- * \remarks Currently only used after printing Bash completion. Default is std::exit().
- */
-void (*exitFunction)(int) = &exit;
-
 /// \cond
 
 inline bool notEmpty(const char *str)
@@ -899,7 +893,7 @@ void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgume
         if (behavior & ParseArgumentBehavior::ExitOnFailure) {
             CMD_UTILS_START_CONSOLE;
             cerr << failure;
-            exit(1);
+            invokeExit(1);
         }
         throw;
     }
@@ -973,7 +967,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // print Bash completion and prevent the applicaton to continue with the regular execution
     if (completionMode) {
         printBashCompletion(argc, argv, currentWordIndex, reader);
-        exitFunction(0);
+        invokeExit(0);
     }
 }
 
@@ -1607,6 +1601,18 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
         // invoke the callbacks for sub arguments recursively
         invokeCallbacks(arg->m_subArgs);
     }
+}
+
+/*!
+ * \brief Exits using the assigned function or std::exit().
+ */
+void ArgumentParser::invokeExit(int code)
+{
+    if (m_exitFunction) {
+        m_exitFunction(code);
+        return;
+    }
+    std::exit(code);
 }
 
 /*!

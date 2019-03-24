@@ -478,6 +478,7 @@ private:
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);
+    void invokeExit(int code);
 
     ArgumentVector m_mainArgs;
     unsigned int m_actualArgc;

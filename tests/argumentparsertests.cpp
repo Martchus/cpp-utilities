@@ -68,6 +68,7 @@ public:
 
 private:
     void callback();
+    [[noreturn]] void failOnExit(int code);
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ArgumentParserTests);
@@ -82,6 +83,11 @@ void ArgumentParserTests::setUp()
 
 void ArgumentParserTests::tearDown()
 {
+}
+
+[[noreturn]] void ArgumentParserTests::failOnExit(int code)
+{
+    CPPUNIT_FAIL(argsToString("Exited unexpectedly with code ", code));
 }
 
 /*!
@@ -116,6 +122,7 @@ void ArgumentParserTests::testParsing()
 {
     // setup parser with some test argument definitions
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     SET_APPLICATION_INFO;
     QT_CONFIG_ARGUMENTS qtConfigArgs;
     Argument verboseArg("verbose", 'v', "be verbose");
@@ -450,6 +457,7 @@ void ArgumentParserTests::testParsing()
 void ArgumentParserTests::testCallbacks()
 {
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     Argument callbackArg("with-callback", 't', "callback test");
     callbackArg.setRequiredValueCount(2);
     callbackArg.setCallback([](const ArgumentOccurrence &occurrence) {
@@ -493,6 +501,7 @@ static bool exitCalled = false;
 void ArgumentParserTests::testBashCompletion()
 {
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     HelpArgument helpArg(parser);
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
@@ -832,6 +841,7 @@ void ArgumentParserTests::testHelp()
 void ArgumentParserTests::testSetMainArguments()
 {
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     HelpArgument helpArg(parser);
     Argument subArg("sub-arg", 's', "mandatory sub arg");
     subArg.setRequired(true);
