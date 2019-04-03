@@ -75,16 +75,6 @@ endif ()
 # always link test applications against c++utilities
 list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB})
 
-# set compile definitions
-if (NOT META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS ${META_PUBLIC_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PUBLIC_SHARED_COMPILE_DEFINITIONS})
-endif ()
-if (NOT META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
-endif ()
-
 # add target for test executable, but exclude it from the "all" target when EXCLUDE_TESTS_FROM_ALL is set
 if (EXCLUDE_TESTS_FROM_ALL)
     set(TESTS_EXCLUSION EXCLUDE_FROM_ALL)
@@ -104,19 +94,14 @@ else ()
 endif ()
 
 # handle testing a library (which is default project type)
-if (NOT META_PROJECT_TYPE OR "${META_PROJECT_TYPE}" STREQUAL "library")
+if (META_PROJECT_IS_LIBRARY)
     # when testing a library, the test application always needs to link against it
-    if (BUILD_SHARED_LIBS)
-        list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
-        message(STATUS "Linking test target dynamically against ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-    else ()
-        list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static)
-        message(STATUS "Linking test target statically against ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-    endif ()
+    list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    message(STATUS "Linking test target against ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 endif ()
 
 # handle testing an application
-if ("${META_PROJECT_TYPE}" STREQUAL "application")
+if (META_PROJECT_IS_APPLICATION)
     # using functions directly from the tests might be required -> also create a 'testlib' and link tests against it
     if (LINK_TESTS_AGAINST_APP_TARGET)
         # create target for the 'testlib'
@@ -128,16 +113,16 @@ if ("${META_PROJECT_TYPE}" STREQUAL "application")
                               PRIVATE "${PRIVATE_LIBRARIES}")
         target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
                                    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                          $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
-                                   PRIVATE "${PRIVATE_SHARED_INCLUDE_DIRS}")
+                                          $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
+                                   PRIVATE "${PRIVATE_INCLUDE_DIRS}")
         target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
                                    PUBLIC
-                                   "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+                                   "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                    PRIVATE
-                                   "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}")
+                                   "${META_PRIVATE_COMPILE_DEFINITIONS}")
         target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
-                               PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}"
-                               PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}")
+                               PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
+                               PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
         set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
                               PROPERTIES CXX_STANDARD
                                          "${META_CXX_STANDARD}"
@@ -161,22 +146,22 @@ if ("${META_PROJECT_TYPE}" STREQUAL "application")
     endif ()
 endif ()
 
-# actually apply configuration for test target
+# configure test target
 target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
                       PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}")
 target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
-                           PRIVATE ${TEST_INCLUDE_DIRS} "${PRIVATE_SHARED_INCLUDE_DIRS}")
+                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
+                           PRIVATE ${TEST_INCLUDE_DIRS} "${PRIVATE_INCLUDE_DIRS}")
 target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
                            PUBLIC
-                           "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+                           "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
-                           "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}")
+                           "${META_PRIVATE_COMPILE_DEFINITIONS}")
 target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
-                       PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}"
-                       PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}")
+                       PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
+                       PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"

@@ -82,8 +82,6 @@ set(CMAKE_MODULE_FILES
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
-    cmake/templates/SharedConfig.cmake.in
-    cmake/templates/StaticConfig.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
     cmake/templates/appdata.xml.in
@@ -139,8 +137,8 @@ if (USE_NATIVE_FILE_BUFFER)
                      PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
-        set(boost_iostreams_DYNAMIC_COMPILE_DEFINITIONS BOOST_IOSTREAMS_DYN_LINK)
-        use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
+        find_package(Boost REQUIRED COMPONENTS iostreams)
+        use_target(TARGET_NAME Boost::iostreams)
         set_property(SOURCE io/nativefilestream.cpp
                      APPEND
                      PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)

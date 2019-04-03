@@ -18,26 +18,6 @@ if (WIN32)
     set(WINDOWS_EXT "exe")
 endif (WIN32)
 
-# set compile definitions
-if (NOT META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS ${META_PUBLIC_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PUBLIC_SHARED_COMPILE_DEFINITIONS})
-endif ()
-if (NOT META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
-    if (STATIC_LINKAGE)
-        list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS APP_STATICALLY_LINKED)
-    endif ()
-endif ()
-
-# set linker flags
-if (STATIC_LINKAGE)
-    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${META_ADDITIONAL_STATIC_LINK_FLAGS})
-else ()
-    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${META_ADDITIONAL_LINK_FLAGS})
-endif ()
-
 # define relevant files
 set(ALL_FILES
     ${HEADER_FILES}
@@ -52,27 +32,30 @@ if (NOT BUILTIN_TRANSLATIONS)
 endif ()
 
 # add target for building the application
-if (NOT ANDROID)
-    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
-else ()
-    # create a library which can be loaded from the Java-side
+if (ANDROID)
+    # create a shared library which can be loaded from the Java-side
     add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${GUI_TYPE} ${ALL_FILES})
+else ()
+    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
 endif ()
+message(STATUS LINKING ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+                      PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+                      PRIVATE "${PRIVATE_LIBRARIES}")
 target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                      PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+                      PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${PRIVATE_LIBRARIES}")
 target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
-                           PRIVATE "${PRIVATE_SHARED_INCLUDE_DIRS}")
+                           PRIVATE "${PRIVATE_INCLUDE_DIRS}")
 target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
                            PUBLIC
-                           "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+                           "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
-                           "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}")
+                           "${META_PRIVATE_COMPILE_DEFINITIONS}")
 target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                       PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}"
-                       PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}")
+                       PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
+                       PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"

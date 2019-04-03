@@ -10,9 +10,15 @@
   install prefix is set via `make` argument `DESTDIR=path`)
 * `CMAKE_BUILD_TYPE=Release/Debug`: specifies whether to do a debug or a release
   build
+* `BUILD_SHARED_LIBS=ON/OFF`: whether to build shared libraries (`ON`) or static
+  libraries (`OFF`); it is not possible to build both at the same time within the
+  same build process
 * `CMAKE_SKIP_BUILD_RPATH=OFF`: ensures the rpath is set in the build tree
 * `CMAKE_INSTALL_RPATH=rpath`: sets the rpath used when installing
 * `CMAKE_CXX_FLAGS`: sets flags to be passed to the C++ compiler
+* `CMAKE_FIND_LIBRARY_SUFFIXES`: sets the library suffixes the build script will
+  consider, e.g. set to `.a;.lib` to prefer static Windows libraries or to
+  `.dll;.dll.a` to prefer shared Windows libraries
 
 ### Custom variables
 The following variables are read by the CMake modules provided by `c++utilities`
@@ -27,23 +33,9 @@ None of these are enabled or set by default, unless stated otherwise.
 * `LIB_SUFFIX_64=suffix`: suffix for library install directory
     * used when building for 64-bit platforms
     * overrides general `LIB_SUFFIX` when building for 64-bit platforms
-* `ENABLE_STATIC_LIBS=ON/OFF`: enables building static libs
-* `DISABLE_SHARED_LIBS=ON/OFF`: disables building shared libs
-* `STATIC_LINKAGE=ON/OFF`: enables linking applications *preferably* against
-  static libraries
-    * by default dynamic libraries are preferred
-    * only affect building applications
-* `STATIC_LIBRARY_LINKAGE=ON/OFF`: enables linking dynamic libraries *preferably*
-  against static libraries
-    * by default linking against dynamic libraries is preferred
-    * only affects building dynamic libraries (static libraries are just archives
-      of objects and hence *not linked* against their dependencies when being built)
-    * note that static libraries are always preferred to provide the dependency
-      of another static library
-        * eg. linking against static `c++utilities` requires also linking against
-          its dependency `iconv`; the static version of `iconv` is preferred
-        * this behaviour has actually nothing to do with `STATIC_LIBRARY_LINKAGE`
-          and can currently not be controlled
+* `QT_PACKAGE_PREFIX=Qt5`: sets the prefix for Qt packages, by default `Qt5`
+* `KF_PACKAGE_PREFIX=KF5`: sets the prefix for KDE Frameworks packages, by
+  default `KF5``
 * `SHELL_COMPLETION_ENABLED=ON/OFF`: enables shell completion in general
   (enabled by default)
 * `BASH_COMPLETION_ENABLED=ON/OFF`: enables Bash completion (enabled by
@@ -108,14 +100,10 @@ If the detection does not work as expected or a library from a non-standard
 location should be used, the following variables can be used to specify
 the location of libraries and include directories directly:
 
-* `dependency_DYNAMIC_LIB`: specifies the locations of the dynamic libraries
-  for *dependency*
-* `dependency_STATIC_LIB`: specifies the locations of the static libraries
-  for *dependency*
+* `dependency__LIBRARY_PATH`: specifies the locations of the library required
+  by *dependency*
 * `dependency_DYNAMIC_INCLUDE_DIR`: specifies the locations of the additional
-  include directories required for using the dynamic version of the *dependency*
-* `dependency_STATIC_INCLUDE_DIR`: specifies the locations of the additional
-  include directories required for using the static version of the *dependency*
+  include directories required the *dependency*
 
 *Note about Qt*: Qt modules are always configured using the CMake packages via
 `find_package`. So using the variables described above to specify a custom location
@@ -196,13 +184,10 @@ cmake \
     * only relevant when using static Qt
 * `WEBVIEW_PROVIDER=auto/webkit/webengine/none`: specifies the Qt module to use
   for the web view
-* `JS_PROVIDER=auto/script/qml/none`: specifies the Qt module to use
+* `JS_PROVIDER=qml/script/none`: specifies the Qt module to use
   for the JavaScript engine
-* `QT_LINKAGE=AUTO_LINKAGE/STATIC/SHARED`: specifies whether to use static
-  or shared version of Qt (only works with Qt packages provided in the AUR)
-* `ADDITIONAL_QT_MODULES=Network;Concurrent;...`: specifies additional Qt
-  modules to link against (only use for modules which can not be added
-  automatically)
+* `WEBVIEW_PROVIDER=webengine/webkit/none`: specifies the Qt module to use
+  for the built-in web view
 
 
 ## Variables to be set in project file

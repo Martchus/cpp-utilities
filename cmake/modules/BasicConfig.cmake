@@ -12,6 +12,8 @@ if (NOT META_APP_DESCRIPTION)
     message(FATAL_ERROR "No project name (META_APP_DESCRIPTION) specified.")
 endif ()
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
+
 # set project name (displayed in Qt Creator)
 message(STATUS "Configuring project ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 project(${META_PROJECT_NAME})
@@ -165,41 +167,6 @@ if (LOGGING_ENABLED)
     message(STATUS "Logging is enabled.")
 endif ()
 
-# options for deciding whether to build static and/or shared libraries
-if (("${META_PROJECT_TYPE}" STREQUAL "library")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL ""))
-    option(ENABLE_STATIC_LIBS "whether building static libraries is enabled (disabled by default)" OFF)
-    option(DISABLE_SHARED_LIBS "whether building dynamic libraries is disabled (enabled by default)" OFF)
-    if (DISABLE_SHARED_LIBS)
-        set(BUILD_SHARED_LIBS OFF)
-    else ()
-        set(BUILD_SHARED_LIBS ON)
-    endif ()
-    if (ENABLE_STATIC_LIBS)
-        set(BUILD_STATIC_LIBS ON)
-    else ()
-        set(BUILD_STATIC_LIBS OFF)
-    endif ()
-endif ()
-
-# options for forcing static linkage when building applications or dynamic libraries
-if (("${META_PROJECT_TYPE}" STREQUAL "library")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL ""))
-    option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
-elseif ("${META_PROJECT_TYPE}" STREQUAL "application")
-    option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
-endif ()
-
-# additional linker flags used when static linkage is enabled
-if (NOT APPLE)
-    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static)
-endif ()
-list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static-libstdc++ -static-libgcc)
-
 # determine whether the project is a header-only library
 if (SRC_FILES OR GUI_SRC_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR QML_SRC_FILES OR RES_FILES)
     set(META_HEADER_ONLY_LIB NO)
@@ -210,6 +177,9 @@ else ()
     endif ()
     message(STATUS "Project ${META_PROJECT_NAME} is header-only library.")
 endif ()
+
+# ensure 3rdParty has been included to configure BUILD_SHARED_LIBS and STATIC_LINKAGE/STATIC_LIBRARY_LINKAGE
+include(3rdParty)
 
 # options for enabling/disabling Qt GUI (if available)
 if (WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR META_HAS_WIDGETS_GUI)

@@ -35,311 +35,44 @@ macro (configure_dynamic_library_suffixes)
     endif ()
 endmacro ()
 
-macro (link_against_library_varnames
-       NAME
-       LINKAGE
-       REQUIRED
-       PRIVATE_LIBRARIES_VARNAME
-       PUBLIC_LIBRARIES_VARNAME
-       PRIVATE_STATIC_LIBRARIES_VARNAME
-       PUBLIC_STATIC_LIBRARIES_VARNAME)
-    # determine whether the library is required or optional FIXME: improve passing required argument
-    if ("${REQUIRED}" STREQUAL "OPTIONAL")
-        set(${NAME}_REQUIRED "NO")
-    elseif ("${REQUIRED}" STREQUAL "REQUIRED")
-        set(${NAME}_REQUIRED "REQUIRED")
-    else ()
-        message(FATAL_ERROR "Invalid use of link_against_library; must specify either REQUIRED or OPTIONAL.")
-    endif ()
+function(validate_visibility VISIBILITY)
+    if (NOT (VISIBILITY STREQUAL PUBLIC OR VISIBILITY STREQUAL PRIVATE))
+        message(FATAL_ERROR "Specified visibility ${VISIBILITY} is invalid (must be either PUBLIC or PRIVATE).")
+    endif()
+endfunction()
 
-    # add library to list of libraries to link against when building dynamic libraries or applications - prefer dynamic lib
-    # if linkage not explicitely specified
-    if (${NAME}_STATIC_LIB
-        AND (("${LINKAGE}" STREQUAL "AUTO_LINKAGE"
-              AND ((NOT (${NAME}_DYNAMIC_LIB OR ${NAME}_SHARED_LIB))
-                   OR (STATIC_LINKAGE AND "${META_PROJECT_TYPE}" STREQUAL "application")
-                   OR (STATIC_LIBRARY_LINKAGE
-                       AND ("${META_PROJECT_TYPE}" STREQUAL "" OR "${META_PROJECT_TYPE}" STREQUAL "library"))))
-             OR ("${LINKAGE}" STREQUAL "STATIC")))
-        set(USE_${NAME} ON)
-        set(USE_STATIC_${NAME} ON)
-        list(APPEND LIBRARIES ${${NAME}_STATIC_LIB})
-        message(
-            STATUS
-                "Linking ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} statically against external library ${NAME} (${${NAME}_STATIC_LIB})."
-            )
-        if (${NAME}_STATIC_INCLUDE_DIR)
-            list(APPEND ADDITIONAL_STATIC_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            message(
-                STATUS
-                    "Adding include path for ${NAME} to ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}: ${${NAME}_STATIC_INCLUDE_DIR}"
-                )
-        endif ()
-        if (${NAME}_STATIC_COMPILE_DEFINITIONS)
-            list(APPEND META_PRIVATE_STATIC_LIB_COMPILE_DEFINITIONS ${${NAME}_STATIC_COMPILE_DEFINITIONS})
-        endif ()
+function(parse_arguments_for_use_functions)
+    # parse arguments
+    set(OPTIONAL_ARGS OPTIONAL)
+    set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE TARGET_NAME)
+    set(MULTI_VALUE_ARGS)
+    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
-        if (${${NAME}_STATIC_LIB} IN_LIST META_PUBLIC_STATIC_LIB_DEPENDS OR ${NAME} IN_LIST META_PUBLIC_STATIC_LIB_DEPENDS)
-            list(APPEND ${PUBLIC_LIBRARIES_VARNAME} ${${NAME}_STATIC_LIB})
-            if (${NAME}_STATIC_INCLUDE_DIR)
-                list(APPEND PUBLIC_SHARED_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            endif ()
-        else ()
-            list(APPEND ${PRIVATE_LIBRARIES_VARNAME} ${${NAME}_STATIC_LIB})
-            if (${NAME}_STATIC_INCLUDE_DIR)
-                list(APPEND PRIVATE_SHARED_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            endif ()
-        endif ()
+    # validate values
+    if (ARGS_VISIBILITY)
+        validate_visibility(${ARGS_VISIBILITY})
+    else()
+        set (ARGS_VISIBILITY PRIVATE)
+    endif()
 
-        # add Qt resources of static library to be enabled
-        if (${NAME}_QT_RESOURCES)
-            message(STATUS "Adding ${${NAME}_QT_RESOURCES} to LIBRARIES_QT_RESOURCES for ${META_PROJECT_NAME}.")
-            list(APPEND LIBRARIES_QT_RESOURCES ${${NAME}_QT_RESOURCES})
-        endif ()
+    if (NOT ARGS_LIBRARIES_VARIABLE)
+        set (ARGS_LIBRARIES_VARIABLE "${ARGS_VISIBILITY}_LIBRARIES")
+    endif()
 
-    elseif ((${NAME}_DYNAMIC_LIB OR ${NAME}_SHARED_LIB)
-            AND (("${LINKAGE}" STREQUAL "AUTO_LINKAGE") OR ("${LINKAGE}" STREQUAL "SHARED")))
-        set(USE_${NAME} ON)
-        set(USE_SHARED_${NAME} ON)
-        if (NOT ${NAME}_DYNAMIC_LIB)
-            set(${NAME}_DYNAMIC_LIB ${${NAME}_SHARED_LIB})
-        endif ()
-        list(APPEND LIBRARIES ${${NAME}_DYNAMIC_LIB})
-        message(
-            STATUS
-                "Linking ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} dynamically against external library ${NAME} (${${NAME}_DYNAMIC_LIB})."
-            )
-        if (${NAME}_DYNAMIC_INCLUDE_DIR)
-            list(APPEND ADDITIONAL_SHARED_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            message(
-                STATUS
-                    "Adding include path for ${NAME} to ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}: ${${NAME}_DYNAMIC_INCLUDE_DIR}"
-                )
-        endif ()
-        if (${NAME}_DYNAMIC_COMPILE_DEFINITIONS)
-            list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${${NAME}_DYNAMIC_COMPILE_DEFINITIONS})
-        endif ()
+    # export parsed values to parent scope
+    set(ARGS_VISIBILITY "${ARGS_VISIBILITY}" PARENT_SCOPE)
+    set(ARGS_LIBRARIES_VARIABLE "${ARGS_LIBRARIES_VARIABLE}" PARENT_SCOPE)
+    set(ARGS_TARGET_NAME "${ARGS_TARGET_NAME}" PARENT_SCOPE)
+    set(ARGS_OPTIONAL "${ARGS_OPTIONAL}" PARENT_SCOPE)
+    if (NOT ARGS_OPTIONAL)
+        set(ARGS_FIND_PACKAGE "REQUIRED" PARENT_SCOPE)
+    endif()
+endfunction()
 
-        if (${${NAME}_DYNAMIC_LIB} IN_LIST META_PUBLIC_SHARED_LIB_DEPENDS OR ${NAME} IN_LIST META_PUBLIC_SHARED_LIB_DEPENDS)
-            list(APPEND ${PUBLIC_LIBRARIES_VARNAME} ${${NAME}_DYNAMIC_LIB})
-            if (${NAME}_DYNAMIC_INCLUDE_DIR)
-                list(APPEND PUBLIC_SHARED_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            endif ()
-        else ()
-            list(APPEND ${PRIVATE_LIBRARIES_VARNAME} ${${NAME}_DYNAMIC_LIB})
-            if (${NAME}_DYNAMIC_INCLUDE_DIR)
-                list(APPEND PRIVATE_SHARED_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            endif ()
-        endif ()
-    else ()
-        if (${NAME}_REQUIRED)
-            message(
-                FATAL_ERROR
-                    "External library ${NAME} required by ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} is not available for the specified linkage ${LINKAGE}."
-                )
-        else ()
-            message(
-                WARNING
-                    "External library ${NAME} required by ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} is not available for the specified linkage ${LINKAGE}."
-                )
-        endif ()
-    endif ()
+function (use_iconv)
+    parse_arguments_for_use_functions(${ARGN})
 
-    # add library to list of libraries to be provided as transitive dependencies when building static libraries - prefer
-    # static lib if linkage not explicitely specified
-    if (${NAME}_STATIC_LIB AND ("${LINKAGE}" STREQUAL "AUTO_LINKAGE") OR ("${LINKAGE}" STREQUAL "STATIC"))
-        set(USE_${NAME} ON)
-        set(USE_STATIC_${NAME} ON)
-        list(APPEND STATIC_LIBRARIES ${${NAME}_STATIC_LIB})
-        message(
-            STATUS
-                "Adding static external library ${NAME} (${${NAME}_STATIC_LIB}) to dependencies of ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}."
-            )
-        if (${NAME}_STATIC_INCLUDE_DIR)
-            list(APPEND ADDITIONAL_STATIC_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            message(
-                STATUS
-                    "Adding include path for ${NAME} to static ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}: ${${NAME}_STATIC_INCLUDE_DIR}"
-                )
-        endif ()
-
-        if (${${NAME}_STATIC_LIB} IN_LIST META_PUBLIC_STATIC_LIB_DEPENDS OR ${NAME} IN_LIST META_PUBLIC_STATIC_LIB_DEPENDS)
-            list(APPEND ${PUBLIC_STATIC_LIBRARIES_VARNAME} ${${NAME}_STATIC_LIB})
-            if (${NAME}_STATIC_INCLUDE_DIR)
-                list(APPEND PUBLIC_STATIC_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            endif ()
-        else ()
-            list(APPEND ${PRIVATE_STATIC_LIBRARIES_VARNAME} ${${NAME}_STATIC_LIB})
-            if (${NAME}_STATIC_INCLUDE_DIR)
-                list(APPEND PRIVATE_STATIC_INCLUDE_DIRS ${${NAME}_STATIC_INCLUDE_DIR})
-            endif ()
-        endif ()
-
-        # add Qt resources of static library for exporting it
-        if (${NAME}_QT_RESOURCES)
-            message(STATUS "Adding ${${NAME}_QT_RESOURCES} to STATIC_LIBRARIES_QT_RESOURCES for ${META_PROJECT_NAME}.")
-            list(APPEND STATIC_LIBRARIES_QT_RESOURCES ${${NAME}_QT_RESOURCES})
-        endif ()
-
-    elseif ((${NAME}_DYNAMIC_LIB OR ${NAME}_SHARED_LIB)
-            AND (("${LINKAGE}" STREQUAL "AUTO_LINKAGE"
-                  AND (NOT ${NAME}_STATIC_LIB
-                       OR (NOT STATIC_LINKAGE AND "${META_PROJECT_TYPE}" STREQUAL "application")
-                       OR (NOT STATIC_LIBRARY_LINKAGE
-                           AND ("${META_PROJECT_TYPE}" STREQUAL "" OR "${META_PROJECT_TYPE}" STREQUAL "library"))))
-                 OR ("${LINKAGE}" STREQUAL "SHARED")))
-        set(USE_${NAME} ON)
-        set(USE_SHARED_${NAME} ON)
-        if (NOT ${NAME}_DYNAMIC_LIB)
-            set(${NAME}_DYNAMIC_LIB ${${NAME}_SHARED_LIB})
-        endif ()
-        list(APPEND STATIC_LIBRARIES ${${NAME}_DYNAMIC_LIB})
-        message(
-            STATUS
-                "Adding dynamic external library ${NAME} (${${NAME}_DYNAMIC_LIB}) to dependencies of static ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}."
-            )
-        if (${NAME}_DYNAMIC_INCLUDE_DIR)
-            list(APPEND ADDITIONAL_SHARED_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            message(
-                STATUS
-                    "Adding include path for ${NAME} to static ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}: ${${NAME}_DYNAMIC_INCLUDE_DIR}"
-                )
-        endif ()
-
-        if (${${NAME}_DYNAMIC_LIB} IN_LIST META_PUBLIC_SHARED_LIB_DEPENDS OR ${NAME} IN_LIST META_PUBLIC_SHARED_LIB_DEPENDS)
-            list(APPEND ${PUBLIC_STATIC_LIBRARIES_VARNAME} ${${NAME}_DYNAMIC_LIB})
-            if (${NAME}_DYNAMIC_INCLUDE_DIR)
-                list(APPEND PUBLIC_STATIC_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            endif ()
-        else ()
-            list(APPEND ${PRIVATE_STATIC_LIBRARIES_VARNAME} ${${NAME}_DYNAMIC_LIB})
-            if (${NAME}_DYNAMIC_INCLUDE_DIR)
-                list(APPEND PRIVATE_STATIC_INCLUDE_DIRS ${${NAME}_DYNAMIC_INCLUDE_DIR})
-            endif ()
-        endif ()
-    else ()
-        if (${NAME}_REQUIRED)
-            message(
-                FATAL_ERROR
-                    "External library ${NAME} required by ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} is not available for the specified linkage ${LINKAGE}."
-                )
-        else ()
-            message(
-                WARNING
-                    "External library ${NAME} required by ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} is not available for the specified linkage ${LINKAGE}."
-                )
-        endif ()
-    endif ()
-endmacro ()
-
-macro (link_against_library NAME LINKAGE REQUIRED)
-    link_against_library_varnames("${NAME}"
-                                  "${LINKAGE}"
-                                  "${REQUIRED}"
-                                  PRIVATE_LIBRARIES
-                                  PUBLIC_LIBRARIES
-                                  PRIVATE_STATIC_LIBRARIES
-                                  PUBLIC_STATIC_LIBRARIES)
-endmacro ()
-
-macro (link_tests_against_library NAME LINKAGE REQUIRED)
-    link_against_library_varnames("${NAME}"
-                                  "${LINKAGE}"
-                                  "${REQUIRED}"
-                                  TEST_LIBRARIES
-                                  TEST_LIBRARIES
-                                  STATIC_TEST_LIBRARIES
-                                  STATIC_TEST_LIBRARIES)
-endmacro ()
-
-macro (find_external_library NAME LINKAGE REQUIRED)
-    set(${NAME}_DYNAMIC_INCLUDE_DIR NOTFOUND CACHE PATH "${NAME} include dir (dynamic)")
-    set(${NAME}_DYNAMIC_LIB NOTFOUND CACHE FILEPATH "${NAME} lib (dynamic)")
-    set(${NAME}_STATIC_INCLUDE_DIR NOTFOUND CACHE PATH "${NAME} include dir (static)")
-    set(${NAME}_STATIC_LIB NOTFOUND CACHE FILEPATH "${NAME} lib (static)")
-
-    save_default_library_suffixes()
-
-    if (NOT ${NAME}_DYNAMIC_LIB)
-        configure_dynamic_library_suffixes()
-        find_library(DETECTED_${NAME}_DYNAMIC_LIB ${NAME})
-        set(${NAME}_DYNAMIC_LIB ${DETECTED_${NAME}_DYNAMIC_LIB} CACHE FILEPATH "${NAME} lib (dynamic)" FORCE)
-    endif ()
-
-    if (NOT ${NAME}_STATIC_LIB)
-        configure_static_library_suffixes()
-        find_library(DETECTED_${NAME}_STATIC_LIB ${NAME})
-        set(${NAME}_STATIC_LIB ${DETECTED_${NAME}_STATIC_LIB} CACHE FILEPATH "${NAME} lib (static)" FORCE)
-    endif ()
-
-    restore_default_library_suffixes()
-endmacro ()
-
-macro (use_external_library NAME LINKAGE REQUIRED)
-    find_external_library("${NAME}" "${LINKAGE}" "${REQUIRED}")
-    link_against_library("${NAME}" "${LINKAGE}" "${REQUIRED}")
-endmacro ()
-
-function (use_external_library_from_package_dynamic NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
-    # internally used by find_external_library_from_package to find dynamic libraries
-    configure_dynamic_library_suffixes()
-    find_package(${PKGNAME} ${COMPAT_VERSION})
-    set(${NAME}_DYNAMIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (dynamic)" FORCE)
-    set(${NAME}_DYNAMIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (dynamic)" FORCE)
-endfunction ()
-
-function (use_external_library_from_package_static NAME PKGNAME INCLUDE_VAR LIBRARY_VAR COMPAT_VERSION)
-    # internally used by find_external_library_from_package to find static libraries
-    configure_static_library_suffixes()
-    find_package(${PKGNAME} ${COMPAT_VERSION})
-    set(${NAME}_STATIC_INCLUDE_DIR ${${INCLUDE_VAR}} CACHE PATH "${NAME} include dir (static)" FORCE)
-    set(${NAME}_STATIC_LIB ${${LIBRARY_VAR}} CACHE FILEPATH "${NAME} lib (static)" FORCE)
-endfunction ()
-
-macro (find_external_library_from_package NAME PKGNAME VERSION INCLUDE_VAR LIBRARY_VAR LINKAGE REQUIRED)
-    # handle specified VERSION
-    if ("${VERSION}" STREQUAL "ANY_VERSION")
-        set(${NAME}_COMPATIBLE_VERSION "")
-    else ()
-        set(${NAME}_COMPATIBLE_VERSION ${VERSION})
-    endif ()
-
-    # use the find_library approach first because it is less buggy when trying to detect static libraries caveat: this way
-    # include dirs are not detected - however those are mostly the default anyways and can also be set manually by the user
-    # in case the auto-detection is not sufficient
-    find_external_library("${NAME}" "${LINKAGE}" OPTIONAL)
-
-    # fall back to actual use of find_package use separate functions to get a new scope
-    save_default_library_suffixes()
-    if (NOT ${NAME}_DYNAMIC_LIB)
-        use_external_library_from_package_dynamic(${NAME}
-                                                  ${PKGNAME}
-                                                  ${INCLUDE_VAR}
-                                                  "${LIBRARY_VAR}"
-                                                  "${${NAME}_COMPATIBLE_VERSION}")
-    endif ()
-    if (NOT ${NAME}_STATIC_LIB)
-        use_external_library_from_package_static(${NAME}
-                                                 ${PKGNAME}
-                                                 ${INCLUDE_VAR}
-                                                 "${LIBRARY_VAR}"
-                                                 "${${NAME}_COMPATIBLE_VERSION}")
-    endif ()
-    restore_default_library_suffixes()
-endmacro ()
-
-macro (use_external_library_from_package NAME PKGNAME VERSION INCLUDE_VAR LIBRARY_VAR LINKAGE REQUIRED)
-    find_external_library_from_package("${NAME}"
-                                       "${PKGNAME}"
-                                       "${VERSION}"
-                                       "${INCLUDE_VAR}"
-                                       "${LIBRARY_VAR}"
-                                       "${LINKAGE}"
-                                       "${REQUIRED}")
-    link_against_library("${NAME}" "${LINKAGE}" "${REQUIRED}")
-endmacro ()
-
-macro (use_iconv LINKAGE REQUIRED)
+    # check whether iconv from the standard library can be used
     set(FORCE_EXTERNAL_ICONV OFF
         CACHE PATH "whether to force usage of external iconv (rather than the using the one bundled with glibc)")
     if (NOT FORCE_EXTERNAL_ICONV)
@@ -348,9 +81,93 @@ macro (use_iconv LINKAGE REQUIRED)
         check_function_exists(iconv HAS_ICONV)
     endif ()
     if (NOT FORCE_EXTERNAL_ICONV AND HAS_ICONV)
-        message(STATUS "Using iconv from the standard library for ${META_PROJECT_NAME}.")
-    else ()
-        # find external iconv library
-        use_external_library(iconv ${LINKAGE} ${REQUIRED})
-    endif ()
-endmacro ()
+        message(STATUS "Using iconv from the standard library for target ${META_PROJECT_NAME}.")
+        return()
+    endif()
+
+    # find external iconv library
+    if (NOT TARGET ICONV::LIBICONV)
+        find_library(ICONV_LIBRARY_PATH iconv)
+        if (NOT EXISTS "${ICONV_LIBRARY_PATH}")
+            if (ARGS_OPTIONAL)
+                return()
+            endif()
+            message(FATAL_ERROR "Unable to find iconv library for project ${META_PROJECT_NAME}.")
+        endif()
+        add_library(ICONV::LIBICONV STATIC IMPORTED)
+        set_property(TARGET ICONV::LIBICONV PROPERTY IMPORTED_LOCATION "${ICONV_LIBRARY_PATH}")
+    endif()
+
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};ICONV::LIBICONV" PARENT_SCOPE)
+endfunction()
+
+function (use_openssl)
+    parse_arguments_for_use_functions(${ARGN})
+
+    find_package(OpenSSL ${ARGS_FIND_PACKAGE})
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto" PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_SSL" "libssl" PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_Crypto" "libcrypto" PARENT_SCOPE)
+endfunction()
+
+function (use_crypto)
+    parse_arguments_for_use_functions(${ARGN})
+
+    find_package(OpenSSL ${ARGS_FIND_PACKAGE})
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto" PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_Crypto" "libcrypto" PARENT_SCOPE)
+endfunction()
+
+function (use_zlib)
+    parse_arguments_for_use_functions(${ARGN})
+
+    find_package(ZLIB ${ARGS_FIND_PACKAGE})
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};ZLIB::ZLIB" PARENT_SCOPE)
+    set("PKG_CONFIG_ZLIB_ZLIB" "zlib" PARENT_SCOPE)
+endfunction()
+
+function (use_target)
+    parse_arguments_for_use_functions(${ARGN})
+
+    if(NOT TARGET "${ARGS_TARGET_NAME}")
+        if (ARGS_OPTIONAL)
+            return()
+        endif()
+        message(FATAL_ERROR "Target \"${ARGS_TARGET_NAME}\" does not exist.")
+    endif()
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
+endfunction()
+
+if (META_NO_3RDPARTY_CONFIG)
+    return()
+endif()
+
+# option for deciding whether to build/use static or shared libraries
+if (("${META_PROJECT_TYPE}" STREQUAL "library")
+    OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
+    OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
+    OR ("${META_PROJECT_TYPE}" STREQUAL ""))
+    set(META_PROJECT_IS_LIBRARY YES)
+elseif ("${META_PROJECT_TYPE}" STREQUAL "application")
+    set(META_PROJECT_IS_APPLICATION YES)
+endif ()
+if (META_PROJECT_IS_LIBRARY)
+    option(BUILD_SHARED_LIBS ON "whether to build shared or static libraries")
+    option(STATIC_LIBRARY_LINKAGE "adds flags for static linkage when building dynamic libraries" OFF)
+elseif (META_PROJECT_IS_APPLICATION)
+    option(STATIC_LINKAGE "adds flags for static linkage when building applications" OFF)
+endif()
+
+# configure "static linkage"
+if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE AND META_PROJECT_IS_LIBRARY))
+    # add additional linker flags to achieve a fully statically linked build
+    if (META_PROJECT_IS_APPLICATION)
+        if (NOT APPLE)
+            list(APPEND META_ADDITIONAL_LINK_FLAGS -static)
+        endif ()
+        list(APPEND META_ADDITIONAL_LINK_FLAGS -static-libstdc++ -static-libgcc)
+    endif()
+
+    # prefer static libraries
+    configure_static_library_suffixes()
+endif()
