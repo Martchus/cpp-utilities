@@ -50,7 +50,7 @@ private:
     Indentation m_indentation;
 };
 
-Wrapper::Wrapper(const char *str, Indentation currentIndentation)
+inline Wrapper::Wrapper(const char *str, Indentation currentIndentation)
     : m_str(str)
     , m_indentation(currentIndentation)
 {
