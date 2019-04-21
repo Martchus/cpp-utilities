@@ -261,7 +261,9 @@ string TestApplication::testFilePath(const string &relativeTestFilePath) const
 
     // file still not found -> return default path
     if (!fileExists(path = "./testfiles/" + relativeTestFilePath)) {
-        cerr << Phrases::Warning << "The testfile \"" << relativeTestFilePath << "\" can not be located." << Phrases::EndFlush;
+        throw runtime_error("The testfile \"" % relativeTestFilePath % "\" can not be located. Was looking under: \""
+                            % m_testFilesPath % relativeTestFilePath % "\", \"" % m_fallbackTestFilesPath % relativeTestFilePath
+                            % "\" and \"./testfiles/" % relativeTestFilePath + "\"");
     }
     return path;
 }
