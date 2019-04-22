@@ -34,29 +34,29 @@ endif ()
 # add target for building the application
 if (ANDROID)
     # create a shared library which can be loaded from the Java-side
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${GUI_TYPE} ${ALL_FILES})
+    add_library(${META_TARGET_NAME} SHARED ${GUI_TYPE} ${ALL_FILES})
 else ()
-    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
+    add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
-message(STATUS LINKING ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+message(STATUS LINKING ${META_TARGET_NAME}
                       PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${PRIVATE_LIBRARIES}")
-target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+target_link_libraries(${META_TARGET_NAME}
                       PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${PRIVATE_LIBRARIES}")
-target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+target_include_directories(${META_TARGET_NAME}
                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
                            PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+target_compile_definitions(${META_TARGET_NAME}
                            PUBLIC
                            "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
                            "${META_PRIVATE_COMPILE_DEFINITIONS}")
-target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+target_compile_options(${META_TARGET_NAME}
                        PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
                        PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+set_target_properties(${META_TARGET_NAME}
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"
                                  LINK_SEARCH_START_STATIC
@@ -70,16 +70,16 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
     if (APPLE)
         set(BUNDLE_INSTALL_DESTINATION bin CACHE STRING "specifies the install destination for bundles")
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        install(TARGETS ${META_TARGET_NAME}
                 RUNTIME DESTINATION bin
                 BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}" COMPONENT binary)
     elseif (ANDROID)
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        install(TARGETS ${META_TARGET_NAME}
                 RUNTIME DESTINATION bin COMPONENT binary
                 LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary
                 ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary)
     else ()
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} RUNTIME DESTINATION bin COMPONENT binary)
+        install(TARGETS ${META_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
     endif ()
 
     if (NOT TARGET install-binary)
@@ -87,14 +87,14 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-binary ${META_TARGET_NAME})
 
     # add mingw-w64 specific install target
     if (NOT TARGET install-mingw-w64)
         add_custom_target(install-mingw-w64)
         add_dependencies(install-mingw-w64 install-binary)
     endif ()
-    add_dependencies(install-mingw-w64 ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-mingw-w64 ${META_TARGET_NAME})
 
     # add install target for desktop entries and icons
     foreach (DESKTOP_FILE ${DESKTOP_FILES})
@@ -109,13 +109,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=desktop -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-desktop ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-desktop ${META_TARGET_NAME})
     if (NOT TARGET install-appimage)
         add_custom_target(install-appimage
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=appimage -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-appimage ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-appimage ${META_TARGET_NAME})
 
     # add install target for stripped binaries
     if (NOT TARGET install-binary-strip)
@@ -123,7 +123,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-binary-strip ${META_TARGET_NAME})
 
     # add mingw-w64 specific install targets
     if (MINGW)
@@ -199,7 +199,7 @@ function(add_desktop_file)
         list(GET META_APP_ACTION_${ACTION_VAR} 2 ACTION_ARGS)
         set(
             DESKTOP_FILE_ADDITIONAL_ENTRIES
-            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}\n[Desktop Action ${ACTION_ID}]\nName=${ACTION_NAME}\nExec=${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTION_ARGS}"
+            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}\n[Desktop Action ${ACTION_ID}]\nName=${ACTION_NAME}\nExec=${META_TARGET_NAME} ${ACTION_ARGS}"
             )
     endforeach ()
 
@@ -210,7 +210,7 @@ function(add_desktop_file)
         DESKTOP_FILE_GENERIC_NAME "${META_GENERIC_NAME}"
         DESKTOP_FILE_DESCRIPTION "${META_APP_DESCRIPTION}"
         DESKTOP_FILE_CATEGORIES "${META_APP_CATEGORIES}"
-        DESKTOP_FILE_CMD "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
+        DESKTOP_FILE_CMD "${META_TARGET_NAME}"
         DESKTOP_FILE_ICON "${META_PROJECT_NAME}"
         DESKTOP_FILE_ADDITIONAL_ENTRIES "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
     )

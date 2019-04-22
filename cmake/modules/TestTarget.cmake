@@ -81,23 +81,23 @@ if (EXCLUDE_TESTS_FROM_ALL)
 else ()
     unset(TESTS_EXCLUSION)
 endif ()
-add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+add_executable(${META_TARGET_NAME}_tests
                ${TESTS_EXCLUSION}
                ${TEST_HEADER_FILES}
                ${TEST_SRC_FILES})
 
 # add top-level target to build all test targets conveniently, also when excluded from "all" target
 if (NOT TARGET tests)
-    add_custom_target(tests DEPENDS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    add_custom_target(tests DEPENDS ${META_TARGET_NAME}_tests)
 else ()
-    add_dependencies(tests ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    add_dependencies(tests ${META_TARGET_NAME}_tests)
 endif ()
 
 # handle testing a library (which is default project type)
 if (META_PROJECT_IS_LIBRARY)
     # when testing a library, the test application always needs to link against it
-    list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
-    message(STATUS "Linking test target against ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+    list(APPEND TEST_LIBRARIES ${META_TARGET_NAME})
+    message(STATUS "Linking test target against ${META_TARGET_NAME}")
 endif ()
 
 # handle testing an application
@@ -107,23 +107,23 @@ if (META_PROJECT_IS_APPLICATION)
         # create target for the 'testlib'
         set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
         list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
-        add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib SHARED ${TESTLIB_FILES})
-        target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        add_library(${META_TARGET_NAME}_testlib SHARED ${TESTLIB_FILES})
+        target_link_libraries(${META_TARGET_NAME}_testlib
                               PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                               PRIVATE "${PRIVATE_LIBRARIES}")
-        target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        target_include_directories(${META_TARGET_NAME}_testlib
                                    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                           $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
                                    PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-        target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        target_compile_definitions(${META_TARGET_NAME}_testlib
                                    PUBLIC
                                    "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                    PRIVATE
                                    "${META_PRIVATE_COMPILE_DEFINITIONS}")
-        target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        target_compile_options(${META_TARGET_NAME}_testlib
                                PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
                                PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-        set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        set_target_properties(${META_TARGET_NAME}_testlib
                               PROPERTIES CXX_STANDARD
                                          "${META_CXX_STANDARD}"
                                          LINK_SEARCH_START_STATIC
@@ -133,36 +133,36 @@ if (META_PROJECT_IS_APPLICATION)
                                          AUTOGEN_TARGET_DEPENDS
                                          "${AUTOGEN_DEPS}")
         if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-            target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+            target_include_directories(${META_TARGET_NAME}_testlib
                                        PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")
-            target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+            target_compile_options(${META_TARGET_NAME}_testlib
                                    PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}")
         endif ()
         # link tests against it
-        list(APPEND TEST_LIBRARIES ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib)
+        list(APPEND TEST_LIBRARIES ${META_TARGET_NAME}_testlib)
         # ensure all symbols are visible (man gcc: "Despite the nomenclature, default always means public")
-        set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_testlib
+        set_target_properties(${META_TARGET_NAME}_testlib
                               PROPERTIES CXX_VISIBILITY_PRESET default)
     endif ()
 endif ()
 
 # configure test target
-target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+target_link_libraries(${META_TARGET_NAME}_tests
                       PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}")
-target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+target_include_directories(${META_TARGET_NAME}_tests
                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
                            PRIVATE ${TEST_INCLUDE_DIRS} "${PRIVATE_INCLUDE_DIRS}")
-target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+target_compile_definitions(${META_TARGET_NAME}_tests
                            PUBLIC
                            "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
                            "${META_PRIVATE_COMPILE_DEFINITIONS}")
-target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+target_compile_options(${META_TARGET_NAME}_tests
                        PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
                        PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
+set_target_properties(${META_TARGET_NAME}_tests
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"
                                  LINK_SEARCH_START_STATIC
@@ -173,11 +173,11 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests
 # make the test recognized by ctest
 unset(RUN_TESTS_APPLICATION_ARG)
 if (META_PROJECT_TYPE STREQUAL "application")
-    set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>")
+    set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${META_TARGET_NAME}>")
 endif ()
 if (NOT META_TEST_TARGET_IS_MANUAL)
     add_test(NAME ${META_PROJECT_NAME}_run_tests
-             COMMAND ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w
+             COMMAND ${META_TARGET_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w
                      "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS})
 endif ()
 
@@ -185,22 +185,22 @@ endif ()
 if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     # define path of raw profile data
     set(LLVM_PROFILE_RAW_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests.profraw")
     # define path of list with additional raw profile data from fork processes spawned during tests
     set(LLVM_PROFILE_RAW_LIST_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profraw.list")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests.profraw.list")
     # define path of merged profile data generated from raw profiling data
     set(LLVM_PROFILE_DATA_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests.profdata")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests.profdata")
     # define paths of output files
     set(COVERAGE_REPORT_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.txt")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests_coverage.txt")
     set(COVERAGE_PER_FILE_REPORT_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_per_file.txt")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests_coverage_per_file.txt")
     set(COVERAGE_OVERALL_REPORT_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall.txt")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests_coverage_overall.txt")
     set(COVERAGE_HTML_REPORT_FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage.html")
+        "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests_coverage.html")
     set(COVERAGE_REPORT_FILES "${COVERAGE_REPORT_FILE}")
     # specify where to store raw clang profiling data via environment variable
     if (NOT META_TEST_TARGET_IS_MANUAL)
@@ -213,12 +213,12 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         OUTPUT "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}"
         COMMAND "${CMAKE_COMMAND}" -E env "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE}"
                 "LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}"
-                $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests> -p
+                $<TARGET_FILE:${META_TARGET_NAME}_tests> -p
                 "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
                 ${RUN_TESTS_APPLICATION_ARGS}
         COMMENT
-            "Executing ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests to generate raw profiling data for source-based coverage report"
-        DEPENDS "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests")
+            "Executing ${META_TARGET_NAME}_tests to generate raw profiling data for source-based coverage report"
+        DEPENDS "${META_TARGET_NAME}_tests")
     find_program(LLVM_PROFDATA_BIN llvm-profdata)
     find_program(LLVM_COV_BIN llvm-cov)
     if (LLVM_PROFDATA_BIN AND LLVM_COV_BIN)
@@ -243,10 +243,10 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         endif ()
         # determine the target file for llvm-cov
         if (NOT META_HEADER_ONLY_LIB)
-            set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}>
-                $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
+            set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${META_TARGET_NAME}>
+                $<TARGET_FILE:${META_TARGET_NAME}_tests>)
         else ()
-            set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests>)
+            set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${META_TARGET_NAME}_tests>)
         endif ()
         # generate coverage report with statistics per function
         unset(LLVM_COV_ADDITIONAL_OPTIONS)
@@ -276,7 +276,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             list(APPEND COVERAGE_REPORT_FILES "${COVERAGE_PER_FILE_REPORT_FILE}")
         endif ()
         # add target for the coverage reports
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_summary"
+        add_custom_target("${META_TARGET_NAME}_tests_coverage_summary"
                           DEPENDS ${COVERAGE_REPORT_FILES})
         # generate coverage overall report (total region/line coverage) NOTE: added before release of LLVM 5 where coverage
         # report with statistics per file could not be generated
@@ -292,7 +292,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                                    "${COVERAGE_OVERALL_REPORT_FILE}"
                            COMMENT "Generating coverage report (overall figures)"
                            DEPENDS "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}")
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_overall_summary"
+        add_custom_target("${META_TARGET_NAME}_tests_coverage_overall_summary"
                           DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}")
         # generate HTML document showing covered/uncovered code
         add_custom_command(OUTPUT "${COVERAGE_HTML_REPORT_FILE}"
@@ -302,10 +302,10 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                            COMMENT "Generating HTML document showing covered/uncovered code"
                            DEPENDS "${LLVM_PROFILE_DATA_FILE}"
                            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage_html"
+        add_custom_target("${META_TARGET_NAME}_tests_coverage_html"
                           DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
         # create target for all coverage docs
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage"
+        add_custom_target("${META_TARGET_NAME}_tests_coverage"
                           DEPENDS ${COVERAGE_REPORT_FILES}
                           DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
                           DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
@@ -313,7 +313,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         if (NOT TARGET coverage)
             add_custom_target(coverage)
         endif ()
-        add_dependencies(coverage "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests_coverage")
+        add_dependencies(coverage "${META_TARGET_NAME}_tests_coverage")
     else ()
         message(
             FATAL_ERROR "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available."
@@ -323,7 +323,7 @@ endif ()
 
 # add the test executable to the dependencies of the check target
 if (NOT META_TEST_TARGET_IS_MANUAL)
-    add_dependencies(check ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tests)
+    add_dependencies(check ${META_TARGET_NAME}_tests)
 endif ()
 
 set(META_HAVE_TESTS YES)

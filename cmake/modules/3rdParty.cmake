@@ -138,11 +138,12 @@ function (use_target)
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
 endfunction()
 
+# skip subsequent configuration if only the function includes are wanted
 if (META_NO_3RDPARTY_CONFIG)
     return()
 endif()
 
-# option for deciding whether to build/use static or shared libraries
+# add options for deciding whether to build/use static or shared libraries
 if (("${META_PROJECT_TYPE}" STREQUAL "library")
     OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
     OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")

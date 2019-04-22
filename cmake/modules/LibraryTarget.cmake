@@ -102,38 +102,38 @@ endif()
 
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} INTERFACE)
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    add_library(${META_TARGET_NAME} INTERFACE)
+    target_link_libraries(${META_TARGET_NAME}
                           INTERFACE ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}" "${PRIVATE_LIBRARIES}")
     target_include_directories(
-        ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        ${META_TARGET_NAME}
         INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
-    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    target_compile_definitions(${META_TARGET_NAME}
                                INTERFACE
                                "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                "${META_PRIVATE_COMPILE_DEFINITIONS}")
-    target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    target_compile_options(${META_TARGET_NAME}
                            INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
                                      "${META_PRIVATE_COMPILE_OPTIONS}")
 else ()
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${META_LIBRARY_TYPE} ${ALL_FILES})
-    target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
+    target_link_libraries(${META_TARGET_NAME}
                           PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                           PRIVATE "${PRIVATE_LIBRARIES}")
-    target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    target_include_directories(${META_TARGET_NAME}
                                PUBLIC $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                                       $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
                                PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    target_compile_definitions(${META_TARGET_NAME}
                                PUBLIC
                                "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                PRIVATE
                                "${META_PRIVATE_COMPILE_DEFINITIONS}")
-    target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    target_compile_options(${META_TARGET_NAME}
                            PUBLIC "${META_PUBLIC_LIB_COMPILE_OPTIONS}"
                            PRIVATE "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
-    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    set_target_properties(${META_TARGET_NAME}
                           PROPERTIES VERSION
                                      "${META_VESION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                                      SOVERSION
@@ -159,21 +159,21 @@ endif()
 if (META_HEADER_ONLY_LIB)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp"
                "// not belonging to a real target, only for header-only lib files showing up in Qt Creator")
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+    add_library(${META_TARGET_NAME}_interface_sources_for_qtcreator
                 EXCLUDE_FROM_ALL
                 "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp"
                 ${HEADER_FILES})
-    target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+    target_include_directories(${META_TARGET_NAME}_interface_sources_for_qtcreator
                                INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                                          $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
-    target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+    target_compile_definitions(${META_TARGET_NAME}_interface_sources_for_qtcreator
                                INTERFACE
                                "${META_PUBLIC_LIB_COMPILE_DEFINITIONS}"
                                "${META_PRIVATE_LIB_COMPILE_DEFINITIONS}")
     target_compile_options(
-        ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+        ${META_TARGET_NAME}_interface_sources_for_qtcreator
         INTERFACE "${META_PUBLIC_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
-    set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_interface_sources_for_qtcreator
+    set_target_properties(${META_TARGET_NAME}_interface_sources_for_qtcreator
                           PROPERTIES VERSION
                                      "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                                      SOVERSION
@@ -239,7 +239,7 @@ macro (depends_for_pc DEPENDS OUTPUT_VAR_PKGS OUTPUT_VAR_LIBS)
     endforeach ()
 endmacro ()
 unset(PC_FILES)
-set(META_PROJECT_NAME_FOR_PC "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+set(META_PROJECT_NAME_FOR_PC "${META_TARGET_NAME}")
 depends_for_pc(META_PUBLIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC)
 depends_for_pc(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC)
 foreach (COMPILE_DEFINITION ${META_PUBLIC_LIB_COMPILE_DEFINITIONS})
@@ -247,7 +247,7 @@ foreach (COMPILE_DEFINITION ${META_PUBLIC_LIB_COMPILE_DEFINITIONS})
 endforeach ()
 if (NOT META_HEADER_ONLY_LIB)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC
-        " -l${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
+        " -l${META_TARGET_NAME}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
 endif ()
 if (META_PUBLIC_LIB_DEPENDS_FOR_PC)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -L\${libdir}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
@@ -311,13 +311,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 
     # add install targets and export targets
-    install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+    install(TARGETS ${META_TARGET_NAME}
             EXPORT ${META_PROJECT_NAME}Targets
             RUNTIME DESTINATION bin COMPONENT binary
             LIBRARY DESTINATION ${LIBRARY_DESTINATION} COMPONENT binary
             ARCHIVE DESTINATION ${LIBRARY_DESTINATION} COMPONENT binary)
-    add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
-    add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-binary ${META_TARGET_NAME})
+    add_dependencies(install-binary-strip ${META_TARGET_NAME})
     install(EXPORT ${META_PROJECT_NAME}Targets
             DESTINATION "share/${META_PROJECT_NAME}/cmake"
             EXPORT_LINK_INTERFACE_LIBRARIES
@@ -390,27 +390,27 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         endif ()
         if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
-                install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip
+                install-${META_TARGET_NAME}-mingw-w64-importlib-strip
                 COMMAND
                     "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}.dll.a"
+                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a"
                 )
-            add_dependencies(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip
+            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip
                              install-binary-strip)
             add_dependencies(install-mingw-w64-strip
-                             install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-importlib-strip)
+                             install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
         if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
-                install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip
+                install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
                 COMMAND
                     "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}.a"
+                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a"
                 )
-            add_dependencies(install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip
+            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
                              install-binary-strip)
             add_dependencies(install-mingw-w64-strip
-                             install-${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}-mingw-w64-staticlib-strip)
+                             install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
         endif ()
     endif ()
 endif ()

@@ -12,10 +12,12 @@ if (NOT META_APP_DESCRIPTION)
     message(FATAL_ERROR "No project name (META_APP_DESCRIPTION) specified.")
 endif ()
 
+# define a few variables
+set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set project name (displayed in Qt Creator)
-message(STATUS "Configuring project ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+message(STATUS "Configuring project ${META_TARGET_NAME}")
 project(${META_PROJECT_NAME})
 
 # set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
@@ -55,9 +57,9 @@ if (NOT META_VERSION_PATCH)
     set(META_VERSION_PATCH 0)
 endif ()
 
-# set META_ID to META_PROJECT_NAME if not specified
+# set META_ID to target name if not specified
 if (NOT META_ID)
-    set(META_ID "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+    set(META_ID "${META_TARGET_NAME}")
 endif ()
 
 # set bugtracker URL
@@ -129,7 +131,7 @@ if (APPEND_GIT_REVISION)
 endif ()
 
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
-set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${META_TARGET_NAME}")
 
 # create header for feature detection
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
@@ -270,7 +272,7 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
     if (NOT CLANG_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
     endif ()
-    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+    add_custom_target("${META_TARGET_NAME}_tidy"
                       COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
@@ -278,14 +280,14 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
-    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+    add_dependencies(tidy "${META_TARGET_NAME}_tidy")
 
     # also add a test to verify whether sources are tidy
-    add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+    add_test(NAME "${META_TARGET_NAME}_tidy_test"
              COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
              WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-    set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+    set_tests_properties("${META_TARGET_NAME}_tidy_test"
                          PROPERTIES FAIL_REGULAR_EXPRESSION
                                     "<replacement.*>.*</replacement>"
                                     REQUIRED_FILES
@@ -301,7 +303,7 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
     if (NOT META_CMAKE_FORMAT_OPTIONS)
         set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125)
     endif ()
-    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy"
+    add_custom_target("${META_TARGET_NAME}_cmake_tidy"
                       COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
@@ -309,7 +311,7 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
-    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy")
+    add_dependencies(tidy "${META_TARGET_NAME}_cmake_tidy")
 endif ()
 
 # add target for static code analysis using clang-tidy
@@ -337,7 +339,7 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         set(CLANG_TIDY_CXX_FLAGS "")
         if (NOT META_HEADER_ONLY_LIB)
             # deduce flags from target
-            set(TARGET_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+            set(TARGET_NAME ${META_TARGET_NAME})
             if (NOT BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
                 set(TARGET_NAME "${TARGET_NAME}_static")
             endif ()
@@ -381,13 +383,13 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES} PROPERTIES SYMBOLIC YES)
 
         # add targets
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check"
+        add_custom_target("${META_TARGET_NAME}_static_check"
                           DEPENDS ${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
-                          COMMENT "Linting ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} sources using clang-tidy")
+                          COMMENT "Linting ${META_TARGET_NAME} sources using clang-tidy")
         if (NOT TARGET static-check)
             add_custom_target(static-check)
         endif ()
-        add_dependencies(static-check "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check")
+        add_dependencies(static-check "${META_TARGET_NAME}_static_check")
     endif ()
 endif ()
 
