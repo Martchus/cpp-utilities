@@ -26,7 +26,6 @@ if (DOT_BIN)
 else ()
     set(HAVE_DOT "NO")
 endif ()
-
 if (NOT DOXYGEN_BIN)
     message(
         WARNING
@@ -72,7 +71,7 @@ add_dependencies(apidoc "${META_TARGET_NAME}_apidoc")
 # add install target for API documentation
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc"
-            DESTINATION "share/${META_PROJECT_NAME}"
+            DESTINATION "${META_DATA_DIR}"
             COMPONENT api-doc
             OPTIONAL)
     if (NOT TARGET install-api-doc)

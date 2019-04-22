@@ -13,7 +13,7 @@ if (NOT "${META_PROJECT_TYPE}" STREQUAL "application")
         )
 endif ()
 
-# set the windows extension to "exe", this is required by the Windows specific WindowsResources module
+# set the windows extension to "exe", this is required by the Windows-specific WindowsResources module
 if (WIN32)
     set(WINDOWS_EXT "exe")
 endif (WIN32)
@@ -38,15 +38,11 @@ if (ANDROID)
 else ()
     add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
-message(STATUS LINKING ${META_TARGET_NAME}
-                      PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
-                      PRIVATE "${PRIVATE_LIBRARIES}")
 target_link_libraries(${META_TARGET_NAME}
                       PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${PRIVATE_LIBRARIES}")
 target_include_directories(${META_TARGET_NAME}
-                           PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
+                           PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> ${PUBLIC_INCLUDE_DIRS}
                            PRIVATE "${PRIVATE_INCLUDE_DIRS}")
 target_compile_definitions(${META_TARGET_NAME}
                            PUBLIC
@@ -66,6 +62,7 @@ set_target_properties(${META_TARGET_NAME}
                                  AUTOGEN_TARGET_DEPENDS
                                  "${AUTOGEN_DEPS}")
 
+# add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
     if (APPLE)
@@ -156,7 +153,7 @@ if (MINGW AND CMAKE_CROSSCOMPILING AND CPP_UTILITIES_SOURCE_DIR)
     endif ()
 endif ()
 
-# find template for *.desktop files
+# find template for *.desktop and AppStream files
 include(TemplateFinder)
 find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
 find_template_file("appdata.xml" CPP_UTILITIES APP_APPSTREAM_TEMPLATE_FILE)

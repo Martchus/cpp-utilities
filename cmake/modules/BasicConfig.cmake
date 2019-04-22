@@ -1,4 +1,4 @@
-# before including this module, the project meta-data must be set
+# check whether the required project meta-data has been set before including this module
 if (NOT META_PROJECT_NAME)
     message(FATAL_ERROR "No project name (META_PROJECT_NAME) specified.")
 endif ()
@@ -12,12 +12,8 @@ if (NOT META_APP_DESCRIPTION)
     message(FATAL_ERROR "No project name (META_APP_DESCRIPTION) specified.")
 endif ()
 
-# define a few variables
-set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
-
 # set project name (displayed in Qt Creator)
-message(STATUS "Configuring project ${META_TARGET_NAME}")
+message(STATUS "Configuring project ${META_PROJECT_NAME}")
 project(${META_PROJECT_NAME})
 
 # set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
@@ -35,6 +31,41 @@ if (NOT META_PROJECT_VARNAME_LOWER)
                    "${META_PROJECT_VARNAME}")
     string(TOLOWER "${META_PROJECT_VARNAME_LOWER}" META_PROJECT_VARNAME_LOWER)
 endif ()
+
+# allow setting a configuration name to allow installing multiple differently configured versions
+# within the same prefix (intended to be used for installing Qt 5 and Qt 6 version or shared and
+# static version within the same prefix)
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for ${META_PROJECT_NAME}")
+set(CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for all projects within the current build")
+if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
+    set(META_CONFIG_NAME "")
+elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
+    set(META_CONFIG_NAME "${${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME}")
+else()
+    set(META_CONFIG_NAME "${CONFIGURATION_NAME}")
+endif ()
+if (META_CONFIG_NAME)
+    set(META_CONFIG_PREFIX "${META_CONFIG_NAME}-")
+    set(META_CONFIG_SUFFIX "-${META_CONFIG_NAME}")
+endif ()
+
+# allow setting a library/application target suffix - A different configuration name might not require
+# a different target name since it might differ anyways (e.g. library extensions for static and shared
+# configuration). Hence there's not simply the configuration name used to distinguish targets as well.
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
+set(CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets the target suffix for all projects within the current build")
+if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX STREQUAL "none")
+    set(TARGET_SUFFIX "")
+elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX)
+    set(TARGET_SUFFIX "-${${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX}")
+elseif (CONFIGURATION_TARGET_SUFFIX)
+    set(TARGET_SUFFIX "-${CONFIGURATION_TARGET_SUFFIX}")
+endif ()
+
+# define a few variables
+set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+SET(META_DATA_DIR "share/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
 if (NOT META_GENERIC_NAME)
@@ -417,10 +448,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_ENABLED)
     endif ()
     set(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE YES)
     set(CLANG_SOURCE_BASED_COVERAGE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-    list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_PRIVATE_STATIC_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_SHARED_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+    list(APPEND META_PRIVATE_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+    list(APPEND META_ADDITIONAL_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
 endif ()
 
 # configure creation of install targets
@@ -434,7 +463,7 @@ endif ()
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     foreach (EXTRA_FILE ${EXTRA_FILES})
         get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
-        install(FILES ${EXTRA_FILE} DESTINATION "share/${META_PROJECT_NAME}/${EXTRA_DIR}" COMPONENT extra-files)
+        install(FILES ${EXTRA_FILE} DESTINATION "${META_DATA_DIR}/${EXTRA_DIR}" COMPONENT extra-files)
     endforeach ()
     if (NOT TARGET install-extra-files)
         add_custom_target(install-extra-files
@@ -443,7 +472,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 endif ()
 
-# determine library directory suffix note: Applications might be built as libraries under some platforms (eg. Android). Hence
+# determine library directory suffix - Applications might be built as libraries under some platforms (eg. Android). Hence
 # this is part of BasicConfig and not LibraryConfig.
 set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
 set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")

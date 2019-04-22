@@ -109,7 +109,7 @@ if (META_PROJECT_IS_APPLICATION)
         list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
         add_library(${META_TARGET_NAME}_testlib SHARED ${TESTLIB_FILES})
         target_link_libraries(${META_TARGET_NAME}_testlib
-                              PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+                              PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                               PRIVATE "${PRIVATE_LIBRARIES}")
         target_include_directories(${META_TARGET_NAME}_testlib
                                    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -148,7 +148,7 @@ endif ()
 
 # configure test target
 target_link_libraries(${META_TARGET_NAME}_tests
-                      PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+                      PUBLIC ${META_ADDITIONAL_LINK_FLAGS} ${META_ADDITIONAL_LINK_FLAGS_TEST_TARGET} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}")
 target_include_directories(${META_TARGET_NAME}_tests
                            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -202,6 +202,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     set(COVERAGE_HTML_REPORT_FILE
         "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}_tests_coverage.html")
     set(COVERAGE_REPORT_FILES "${COVERAGE_REPORT_FILE}")
+
     # specify where to store raw clang profiling data via environment variable
     if (NOT META_TEST_TARGET_IS_MANUAL)
         set_tests_properties(
@@ -209,6 +210,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             PROPERTIES ENVIRONMENT
                        "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE};LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}")
     endif ()
+
+    # add command to execute tests generating raw profiling data
     add_custom_command(
         OUTPUT "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}"
         COMMAND "${CMAKE_COMMAND}" -E env "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE}"
@@ -219,6 +222,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         COMMENT
             "Executing ${META_TARGET_NAME}_tests to generate raw profiling data for source-based coverage report"
         DEPENDS "${META_TARGET_NAME}_tests")
+
+    # add commands for processing raw profiling data
     find_program(LLVM_PROFDATA_BIN llvm-profdata)
     find_program(LLVM_COV_BIN llvm-cov)
     if (LLVM_PROFDATA_BIN AND LLVM_COV_BIN)
@@ -228,6 +233,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                                    "${LLVM_PROFILE_DATA_FILE}" -sparse "${LLVM_PROFILE_RAW_FILE}"
                            COMMENT "Generating profiling data for source-based coverage report"
                            DEPENDS "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}")
+
         # determine llvm-cov version
         execute_process(COMMAND "${LLVM_COV_BIN}" -version OUTPUT_VARIABLE LLVM_COV_VERSION)
         string(REGEX MATCH
@@ -241,6 +247,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                 FATAL_ERROR
                     "Unable to determine version of llvm-cov. Output of ${LLVM_COV_BIN} -version:\n${LLVM_COV_VERSION}")
         endif ()
+
         # determine the target file for llvm-cov
         if (NOT META_HEADER_ONLY_LIB)
             set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${META_TARGET_NAME}>
@@ -248,6 +255,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         else ()
             set(LLVM_COV_TARGET_FILE $<TARGET_FILE:${META_TARGET_NAME}_tests>)
         endif ()
+
         # generate coverage report with statistics per function
         unset(LLVM_COV_ADDITIONAL_OPTIONS)
         if (LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
@@ -263,6 +271,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                            COMMENT "Generating coverage report (statistics per function)"
                            DEPENDS "${LLVM_PROFILE_DATA_FILE}"
                            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
         # generate coverage report with statistics per file (only possible with LLVM 5 if source files are specified)
         if (LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
             add_custom_command(OUTPUT "${COVERAGE_PER_FILE_REPORT_FILE}"
@@ -275,11 +284,15 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
             list(APPEND COVERAGE_REPORT_FILES "${COVERAGE_PER_FILE_REPORT_FILE}")
         endif ()
+
         # add target for the coverage reports
         add_custom_target("${META_TARGET_NAME}_tests_coverage_summary"
                           DEPENDS ${COVERAGE_REPORT_FILES})
-        # generate coverage overall report (total region/line coverage) NOTE: added before release of LLVM 5 where coverage
-        # report with statistics per file could not be generated
+
+        # NOTE: Those commands have been added before the release of LLVM 5 where coverage reports
+        # with statistics per file could not be generated.
+
+        # generate coverage overall report (total region/line coverage)
         set(OVERALL_COVERAGE_AKW_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
         if (CPP_UTILITIES_SOURCE_DIR AND NOT EXISTS "${OVERALL_COVERAGE_AKW_SCRIPT}")
             set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
@@ -294,6 +307,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                            DEPENDS "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}")
         add_custom_target("${META_TARGET_NAME}_tests_coverage_overall_summary"
                           DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}")
+
         # generate HTML document showing covered/uncovered code
         add_custom_command(OUTPUT "${COVERAGE_HTML_REPORT_FILE}"
                            COMMAND "${LLVM_COV_BIN}" show -project-title="${META_APP_NAME}" -format=html -instr-profile
@@ -304,11 +318,13 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
         add_custom_target("${META_TARGET_NAME}_tests_coverage_html"
                           DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
+
         # create target for all coverage docs
         add_custom_target("${META_TARGET_NAME}_tests_coverage"
                           DEPENDS ${COVERAGE_REPORT_FILES}
                           DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
                           DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
+
         # add targets to global coverage target
         if (NOT TARGET coverage)
             add_custom_target(coverage)

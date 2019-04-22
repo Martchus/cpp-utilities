@@ -11,26 +11,30 @@ endif ()
 include(TemplateFinder)
 find_template_file("config.h" CPP_UTILITIES CONFIG_H_TEMPLATE_FILE)
 
-# create list of dependency versions present at link time
-include(ListToString)
+# ensure certain variables are cleared
 unset(DEPENCENCY_VERSIONS)
 unset(DEPENCENCY_VERSIONS_ARRAY)
 unset(LINK_LIBRARIES_LIST)
 unset(INTERFACE_LINK_LIBRARIES_LIST)
 unset(PROCESSED_DEPENDENCIES)
 unset(HAVE_OPENSSL)
+
+# get list of dependencies the main target links to
 if (NOT META_HEADER_ONLY_LIB)
     get_target_property(LINK_LIBRARIES_LIST "${META_TARGET_NAME}" LINK_LIBRARIES)
 endif()
 get_target_property(INTERFACE_LINK_LIBRARIES_LIST "${META_TARGET_NAME}" INTERFACE_LINK_LIBRARIES)
+
+# make list with link-time dependency versions and display names
 foreach (DEPENDENCY IN LISTS LINK_LIBRARIES_LIST INTERFACE_LINK_LIBRARIES_LIST)
+    # skip non-targets and already processed dependencies
     if (NOT TARGET "${DEPENDENCY}" OR "${DEPENDENCY}" IN_LIST PROCESSED_DEPENDENCIES)
         continue()
     endif()
-    unset(DEPENDENCY_DISPLAY_NAME)
-    unset(DEPENDENCY_VER)
 
     # find version and display name for target
+    unset(DEPENDENCY_VER)
+    unset(DEPENDENCY_DISPLAY_NAME)
     if (DEPENDENCY MATCHES "((Static)?Qt5)::([A-Za-z0-9]+)")
         # read meta-data of Qt module
         set(DEPENDENCY_MODULE_PREFIX "${CMAKE_MATCH_1}")
@@ -52,18 +56,19 @@ foreach (DEPENDENCY IN LISTS LINK_LIBRARIES_LIST INTERFACE_LINK_LIBRARIES_LIST)
         endif ()
         set(DEPENDENCY_VER "${${DEPENDENCY_VARNAME}_VERSION}")
     endif ()
-    # FIXME: provide meta-data for other libs, too
 
-    if (DEPENDENCY_VER
-        AND NOT
-            "${DEPENDENCY_VER}"
-            STREQUAL
-            "DEPENDENCY_VER-NOTFOUND")
-        list(APPEND PROCESSED_DEPENDENCIES "${DEPENDENCY}")
-        list(APPEND DEPENCENCY_VERSIONS "${DEPENDENCY_DISPLAY_NAME}: ${DEPENDENCY_VER}")
+    # TODO: provide meta-data for other libs, too
+
+    if (NOT DEPENDENCY_VER OR "${DEPENDENCY_VER}" STREQUAL "DEPENDENCY_VER-NOTFOUND")
+        continue()
     endif ()
+    list(APPEND PROCESSED_DEPENDENCIES "${DEPENDENCY}")
+    list(APPEND DEPENCENCY_VERSIONS "${DEPENDENCY_DISPLAY_NAME}: ${DEPENDENCY_VER}")
 endforeach ()
+
+# format "DEPENCENCY_VERSIONS_ARRAY"
 if (DEPENCENCY_VERSIONS)
+    include(ListToString)
     list_to_string("," " \\\n    \"" "\"" "${DEPENCENCY_VERSIONS}" DEPENCENCY_VERSIONS_ARRAY)
 endif ()
 
