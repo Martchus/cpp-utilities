@@ -769,7 +769,7 @@ void ArgumentParserTests::testHelp()
     envArg.appendValueName("file");
     parser.helpArg().setRequired(true);
     parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.noColorArg(), &parser.helpArg() });
-    dependencyVersions2 = { "somelib", "some other lib" };
+    dependencyVersions = { "somelib", "some other lib" };
 
     // parse args and assert output
     const char *const argv[] = { "app", "-h" };

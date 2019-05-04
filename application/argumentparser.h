@@ -21,8 +21,7 @@ CPP_UTILITIES_EXPORT extern const char *applicationName;
 CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
 CPP_UTILITIES_EXPORT extern const char *applicationVersion;
 CPP_UTILITIES_EXPORT extern const char *applicationUrl;
-CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersions;
-CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
+CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions;
 
 /*!
  * \def SET_DEPENDENCY_INFO
@@ -30,7 +29,7 @@ CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
  *        used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions2 = DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
 
 /*!
  * \def SET_APPLICATION_INFO

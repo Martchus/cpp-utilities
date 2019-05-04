@@ -433,10 +433,7 @@ const char *applicationVersion = nullptr;
 /// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
 const char *applicationUrl = nullptr;
 /// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
-/// \deprecated Not used anymore. Use dependencyVersions2 instead.
-std::initializer_list<const char *> dependencyVersions;
-/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
-std::vector<const char *> dependencyVersions2;
+std::vector<const char *> dependencyVersions;
 
 // TODO v5 use a struct for these properties
 
