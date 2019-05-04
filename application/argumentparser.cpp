@@ -620,11 +620,12 @@ void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments
  */
 void Argument::addSubArgument(Argument *arg)
 {
-    if (find(m_subArgs.cbegin(), m_subArgs.cend(), arg) == m_subArgs.cend()) {
-        m_subArgs.push_back(arg);
-        if (find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
-            arg->m_parents.push_back(this);
-        }
+    if (find(m_subArgs.cbegin(), m_subArgs.cend(), arg) != m_subArgs.cend()) {
+        return;
+    }
+    m_subArgs.push_back(arg);
+    if (find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
+        arg->m_parents.push_back(this);
     }
 }
 
@@ -668,12 +669,13 @@ Argument *Argument::conflictsWithArgument() const
  */
 Argument *Argument::wouldConflictWithArgument() const
 {
-    if (!isCombinable()) {
-        for (Argument *parent : m_parents) {
-            for (Argument *sibling : parent->subArguments()) {
-                if (sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
-                    return sibling;
-                }
+    if (isCombinable()) {
+        return nullptr;
+    }
+    for (Argument *parent : m_parents) {
+        for (Argument *sibling : parent->subArguments()) {
+            if (sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
+                return sibling;
             }
         }
     }
@@ -742,27 +744,25 @@ ArgumentParser::ArgumentParser()
  */
 void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArguments)
 {
-    if (mainArguments.size()) {
-        for (Argument *arg : mainArguments) {
-            arg->m_isMainArg = true;
-        }
-        m_mainArgs.assign(mainArguments);
-        if (!m_defaultArg) {
-            if (!(*mainArguments.begin())->requiredValueCount()) {
-                bool subArgsRequired = false;
-                for (const Argument *subArg : (*mainArguments.begin())->subArguments()) {
-                    if (subArg->isRequired()) {
-                        subArgsRequired = true;
-                        break;
-                    }
-                }
-                if (!subArgsRequired) {
-                    m_defaultArg = *mainArguments.begin();
-                }
-            }
-        }
-    } else {
+    if (!mainArguments.size()) {
         m_mainArgs.clear();
+    }
+    for (Argument *arg : mainArguments) {
+        arg->m_isMainArg = true;
+    }
+    m_mainArgs.assign(mainArguments);
+    if (m_defaultArg || (*mainArguments.begin())->requiredValueCount()) {
+        return;
+    }
+    bool subArgsRequired = false;
+    for (const Argument *subArg : (*mainArguments.begin())->subArguments()) {
+        if (subArg->isRequired()) {
+            subArgsRequired = true;
+            break;
+        }
+    }
+    if (!subArgsRequired) {
+        m_defaultArg = *mainArguments.begin();
     }
 }
 
@@ -1587,25 +1587,26 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             throw Failure(argsToString("The argument \"", conflictingArgument->name(), "\" can not be combined with \"", arg->name(), "\"."));
         }
         for (size_t i = 0; i != occurrences; ++i) {
-            if (!arg->allRequiredValuesPresent(i)) {
-                stringstream ss(stringstream::in | stringstream::out);
-                ss << "Not all parameter for argument \"" << arg->name() << "\" ";
-                if (i) {
-                    ss << " (" << (i + 1) << " occurrence) ";
-                }
-                ss << "provided. You have to provide the following parameter:";
-                size_t valueNamesPrint = 0;
-                for (const auto &name : arg->m_valueNames) {
-                    ss << ' ' << name;
-                    ++valueNamesPrint;
-                }
-                if (arg->m_requiredValueCount != Argument::varValueCount) {
-                    while (valueNamesPrint < arg->m_requiredValueCount) {
-                        ss << "\nvalue " << (++valueNamesPrint);
-                    }
-                }
-                throw Failure(ss.str());
+            if (arg->allRequiredValuesPresent(i)) {
+                continue;
             }
+            stringstream ss(stringstream::in | stringstream::out);
+            ss << "Not all parameter for argument \"" << arg->name() << "\" ";
+            if (i) {
+                ss << " (" << (i + 1) << " occurrence) ";
+            }
+            ss << "provided. You have to provide the following parameter:";
+            size_t valueNamesPrint = 0;
+            for (const auto &name : arg->m_valueNames) {
+                ss << ' ' << name;
+                ++valueNamesPrint;
+            }
+            if (arg->m_requiredValueCount != Argument::varValueCount) {
+                while (valueNamesPrint < arg->m_requiredValueCount) {
+                    ss << "\nvalue " << (++valueNamesPrint);
+                }
+            }
+            throw Failure(ss.str());
         }
 
         // check contraints of sub arguments recursively
