@@ -121,6 +121,7 @@ option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" O
 option(FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER "forces use of Boost.Iostreams for native file buffer" OFF)
 if (USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
+    set(NATIVE_FILE_STREAM_IMPL_FILES io/nativefilestream.cpp tests/iotests.cpp)
 
     # check whether __gnu_cxx::stdio_filebuf is available
     try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE
@@ -129,19 +130,24 @@ if (USE_NATIVE_FILE_BUFFER)
                 ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
                 OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG)
 
+
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
     if (GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
-        set_property(SOURCE io/nativefilestream.cpp
-                     APPEND
-                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+        foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
+            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                         APPEND
+                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+        endforeach ()
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
         find_package(Boost REQUIRED COMPONENTS iostreams)
         use_target(TARGET_NAME Boost::iostreams)
-        set_property(SOURCE io/nativefilestream.cpp
-                     APPEND
-                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+        foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
+            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                         APPEND
+                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+        endforeach ()
     endif ()
 else ()
     message(STATUS "Using std::fstream for NativeFileStream")

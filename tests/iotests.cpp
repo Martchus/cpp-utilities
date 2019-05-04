@@ -448,7 +448,11 @@ void IoTests::testNativeFileStream()
         CPPUNIT_FAIL("expected exception");
     } catch (const std::ios_base::failure &failure) {
 #ifdef PLATFORM_WINDOWS
+#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
+        CPPUNIT_ASSERT_EQUAL("_wopen failed: iostream error"s, string(failure.what()));
+#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
         CPPUNIT_ASSERT_EQUAL("CreateFileW failed: iostream error"s, string(failure.what()));
+#endif
 #else
         CPPUNIT_ASSERT_EQUAL("open failed: iostream error"s, string(failure.what()));
 #endif
