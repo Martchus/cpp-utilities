@@ -831,7 +831,7 @@ inline void Argument::setFlags(Argument::Flags flags, bool add)
 {
     m_flags = add ? (m_flags | flags)
                   : static_cast<Argument::Flags>(static_cast<std::underlying_type<Argument::Flags>::type>(m_flags)
-                        & ~static_cast<std::underlying_type<Argument::Flags>::type>(flags));
+                      & ~static_cast<std::underlying_type<Argument::Flags>::type>(flags));
 }
 
 /*!
