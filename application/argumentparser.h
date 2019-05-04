@@ -17,11 +17,21 @@ class ArgumentParserTests;
 
 namespace ApplicationUtilities {
 
-CPP_UTILITIES_EXPORT extern const char *applicationName;
-CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
-CPP_UTILITIES_EXPORT extern const char *applicationVersion;
-CPP_UTILITIES_EXPORT extern const char *applicationUrl;
-CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions;
+/*!
+ * \brief Stores information about an application.
+ */
+struct ApplicationInfo {
+    const char *name = nullptr;
+    const char *author = nullptr;
+    const char *version = nullptr;
+    const char *url = nullptr;
+    std::vector<const char *> dependencyVersions;
+};
+
+/*!
+ * \brief Stores global application info used by ArgumentParser::printHelp() and AboutDialog.
+ */
+CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
 
 /*!
  * \def SET_DEPENDENCY_INFO
@@ -29,7 +39,7 @@ CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions;
  *        used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions = DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::applicationInfo.dependencyVersions = DEPENCENCY_VERSIONS
 
 /*!
  * \def SET_APPLICATION_INFO
@@ -37,10 +47,10 @@ CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions;
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #define SET_APPLICATION_INFO                                                                                                                         \
-    ::ApplicationUtilities::applicationName = APP_NAME;                                                                                              \
-    ::ApplicationUtilities::applicationAuthor = APP_AUTHOR;                                                                                          \
-    ::ApplicationUtilities::applicationVersion = APP_VERSION;                                                                                        \
-    ::ApplicationUtilities::applicationUrl = APP_URL;                                                                                                \
+    ::ApplicationUtilities::applicationInfo.name = APP_NAME;                                                                                         \
+    ::ApplicationUtilities::applicationInfo.author = APP_AUTHOR;                                                                                     \
+    ::ApplicationUtilities::applicationInfo.version = APP_VERSION;                                                                                   \
+    ::ApplicationUtilities::applicationInfo.url = APP_URL;                                                                                           \
     SET_DEPENDENCY_INFO
 
 class Argument;

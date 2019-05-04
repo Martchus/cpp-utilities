@@ -424,18 +424,7 @@ ostream &operator<<(ostream &os, const Wrapper &wrapper)
     return os;
 }
 
-/// \brief Specifies the name of the application (used by ArgumentParser::printHelp()).
-const char *applicationName = nullptr;
-/// \brief Specifies the author of the application (used by ArgumentParser::printHelp()).
-const char *applicationAuthor = nullptr;
-/// \brief Specifies the version of the application (used by ArgumentParser::printHelp()).
-const char *applicationVersion = nullptr;
-/// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
-const char *applicationUrl = nullptr;
-/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
-std::vector<const char *> dependencyVersions;
-
-// TODO v5 use a struct for these properties
+CPP_UTILITIES_EXPORT ApplicationInfo applicationInfo;
 
 /// \cond
 
@@ -784,33 +773,34 @@ void ArgumentParser::addMainArgument(Argument *argument)
 void ArgumentParser::printHelp(ostream &os) const
 {
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
-    if (applicationName && *applicationName) {
-        os << applicationName;
-        if (applicationVersion && *applicationVersion) {
+    if (applicationInfo.name && *applicationInfo.name) {
+        os << applicationInfo.name;
+        if (applicationInfo.version && *applicationInfo.version) {
             os << ',' << ' ';
         }
     }
-    if (applicationVersion && *applicationVersion) {
-        os << "version " << applicationVersion;
+    if (applicationInfo.version && *applicationInfo.version) {
+        os << "version " << applicationInfo.version;
     }
-    if (dependencyVersions.size()) {
-        if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
+    if (applicationInfo.dependencyVersions.size()) {
+        if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)) {
             os << '\n';
             EscapeCodes::setStyle(os);
         }
-        auto i = dependencyVersions.begin(), end = dependencyVersions.end();
+        auto i = applicationInfo.dependencyVersions.begin(), end = applicationInfo.dependencyVersions.end();
         os << "Linked against: " << *i;
         for (++i; i != end; ++i) {
             os << ',' << ' ' << *i;
         }
     }
-    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions.size()) {
+    if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)
+        || applicationInfo.dependencyVersions.size()) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);
     if (!m_mainArgs.empty()) {
         bool hasOperations = false;
-        for (const Argument *arg : m_mainArgs) {
+        for (const Argument *const arg : m_mainArgs) {
             if (arg->denotesOperation()) {
                 hasOperations = true;
                 break;
@@ -821,14 +811,14 @@ void ArgumentParser::printHelp(ostream &os) const
         if (hasOperations) {
             // split top-level operations and other configurations
             os << "Available operations:";
-            for (const Argument *arg : m_mainArgs) {
+            for (const Argument *const arg : m_mainArgs) {
                 if (arg->denotesOperation() && strcmp(arg->name(), "help")) {
                     os << '\n';
                     arg->printInfo(os);
                 }
             }
             os << "\nAvailable top-level options:";
-            for (const Argument *arg : m_mainArgs) {
+            for (const Argument *const arg : m_mainArgs) {
                 if (!arg->denotesOperation() && strcmp(arg->name(), "help")) {
                     os << '\n';
                     arg->printInfo(os);
@@ -837,7 +827,7 @@ void ArgumentParser::printHelp(ostream &os) const
         } else {
             // just show all args if no operations are available
             os << "Available arguments:";
-            for (const Argument *arg : m_mainArgs) {
+            for (const Argument *const arg : m_mainArgs) {
                 if (strcmp(arg->name(), "help")) {
                     os << '\n';
                     arg->printInfo(os);
@@ -845,8 +835,8 @@ void ArgumentParser::printHelp(ostream &os) const
             }
         }
     }
-    if (applicationUrl && *applicationUrl) {
-        os << "\nProject website: " << applicationUrl << endl;
+    if (applicationInfo.url && *applicationInfo.url) {
+        os << "\nProject website: " << applicationInfo.url << endl;
     }
 }
 
