@@ -21,9 +21,9 @@ using namespace CPPUNIT_NS;
 // compile-time checks for binary conversion
 static_assert(toSynchsafeInt(255) == 383, "toSynchsafeInt()");
 static_assert(toNormalInt(383) == 255, "toNormalInt()");
-static_assert(swapOrder(static_cast<uint16>(0xABCD)) == 0xCDAB, "swapOrder(uint16)");
-static_assert(swapOrder(static_cast<uint32>(0xABCDEF12)) == 0x12EFCDAB, "swapOrder(uint32)");
-static_assert(swapOrder(static_cast<uint64>(0xABCDEF1234567890)) == 0x9078563412EFCDAB, "swapOrder(uint64)");
+static_assert(swapOrder(static_cast<std::uint16_t>(0xABCD)) == 0xCDAB, "swapOrder(uint16)");
+static_assert(swapOrder(static_cast<std::uint32_t>(0xABCDEF12)) == 0x12EFCDAB, "swapOrder(uint32)");
+static_assert(swapOrder(static_cast<std::uint64_t>(0xABCDEF1234567890)) == 0x9078563412EFCDAB, "swapOrder(uint64)");
 
 /*!
  * \brief The ConversionTests class tests classes and methods of the ConversionUtilities namespace.
@@ -140,7 +140,7 @@ void ConversionTests::testConversion(
 void ConversionTests::testBinaryConversions()
 {
     // test to...() / getBytes() with random numbers
-    for (byte b = 1; b < 100; ++b) {
+    for (auto b = 1; b < 100; ++b) {
         TEST_BE_CONVERSION(toUInt16);
         TEST_BE_CONVERSION(toUInt32);
         TEST_BE_CONVERSION(toUInt64);
@@ -163,21 +163,21 @@ void ConversionTests::testBinaryConversions()
  */
 void ConversionTests::testSwapOrderFunctions()
 {
-    CPPUNIT_ASSERT(swapOrder(static_cast<uint16>(0x7825)) == 0x2578);
-    CPPUNIT_ASSERT(swapOrder(static_cast<uint32>(0x12345678)) == 0x78563412);
-    CPPUNIT_ASSERT(swapOrder(static_cast<uint64>(0x1122334455667788)) == 0x8877665544332211);
+    CPPUNIT_ASSERT(swapOrder(static_cast<std::uint16_t>(0x7825)) == 0x2578);
+    CPPUNIT_ASSERT(swapOrder(static_cast<std::uint32_t>(0x12345678)) == 0x78563412);
+    CPPUNIT_ASSERT(swapOrder(static_cast<std::uint64_t>(0x1122334455667788)) == 0x8877665544332211);
 }
 
 /*!
  * \brief Internally used for string encoding tests to check results.
  */
-void assertEqual(const char *message, const byte *expectedValues, size_t expectedSize, const StringData &actualValues)
+void assertEqual(const char *message, const std::uint8_t *expectedValues, size_t expectedSize, const StringData &actualValues)
 {
     // check whether number of elements matches
     CPPUNIT_ASSERT_EQUAL_MESSAGE(message, expectedSize, actualValues.second);
     // check whether contents match
     auto *end = expectedValues + expectedSize;
-    auto *i = reinterpret_cast<byte *>(actualValues.first.get());
+    auto *i = reinterpret_cast<std::uint8_t *>(actualValues.first.get());
     for (; expectedValues != end; ++expectedValues, ++i) {
         CPPUNIT_ASSERT_EQUAL_MESSAGE(message, asHexNumber(*expectedValues), asHexNumber(*i));
     }
@@ -207,14 +207,14 @@ void assertEqual(const char *message, const byte *expectedValues, size_t expecte
 void ConversionTests::testStringEncodingConversions()
 {
     // define test string "ABCD" for the different encodings
-    const byte simpleString[] = { 'A', 'B', 'C', 'D' };
-    const uint16 simpleUtf16LEString[] = { 0x0041, 0x0042, 0x0043, 0x0044 };
-    const uint16 simpleUtf16BEString[] = { 0x4100, 0x4200, 0x4300, 0x4400 };
+    const std::uint8_t simpleString[] = { 'A', 'B', 'C', 'D' };
+    const std::uint16_t simpleUtf16LEString[] = { 0x0041, 0x0042, 0x0043, 0x0044 };
+    const std::uint16_t simpleUtf16BEString[] = { 0x4100, 0x4200, 0x4300, 0x4400 };
     // define test string "ABÖCD" for the different encodings
-    const byte latin1String[] = { 'A', 'B', 0xD6, 'C', 'D' };
-    const byte utf8String[] = { 'A', 'B', 0xC3, 0x96, 'C', 'D' };
-    const uint16 utf16LEString[] = { 0x0041, 0x0042, 0x00D6, 0x0043, 0x0044 };
-    const uint16 utf16BEString[] = { 0x4100, 0x4200, 0xD600, 0x4300, 0x4400 };
+    const std::uint8_t latin1String[] = { 'A', 'B', 0xD6, 'C', 'D' };
+    const std::uint8_t utf8String[] = { 'A', 'B', 0xC3, 0x96, 'C', 'D' };
+    const std::uint16_t utf16LEString[] = { 0x0041, 0x0042, 0x00D6, 0x0043, 0x0044 };
+    const std::uint16_t utf16BEString[] = { 0x4100, 0x4200, 0xD600, 0x4300, 0x4400 };
     // test conversion to UTF-8
     assertEqual("Latin-1 to UTF-8 (simple)", simpleString, 4, convertLatin1ToUtf8(reinterpret_cast<const char *>(simpleString), 4));
     assertEqual("Latin-1 to UTF-8", utf8String, 6, convertLatin1ToUtf8(reinterpret_cast<const char *>(latin1String), 5));
@@ -227,13 +227,13 @@ void ConversionTests::testStringEncodingConversions()
     // test conversion from UTF-8
     assertEqual("UTF-8 to Latin-1 (simple)", simpleString, 4, convertUtf8ToLatin1(reinterpret_cast<const char *>(simpleString), 4));
     assertEqual("UTF-8 to Latin-1", latin1String, 5, convertUtf8ToLatin1(reinterpret_cast<const char *>(utf8String), 6));
-    assertEqual("UTF-8 to UFT-16LE (simple)", reinterpret_cast<const byte *>(LE_STR_FOR_ENDIANNESS(simpleUtf16)), 8,
+    assertEqual("UTF-8 to UFT-16LE (simple)", reinterpret_cast<const std::uint8_t *>(LE_STR_FOR_ENDIANNESS(simpleUtf16)), 8,
         convertUtf8ToUtf16LE(reinterpret_cast<const char *>(simpleString), 4));
-    assertEqual("UTF-8 to UFT-16LE", reinterpret_cast<const byte *>(LE_STR_FOR_ENDIANNESS(utf16)), 10,
+    assertEqual("UTF-8 to UFT-16LE", reinterpret_cast<const std::uint8_t *>(LE_STR_FOR_ENDIANNESS(utf16)), 10,
         convertUtf8ToUtf16LE(reinterpret_cast<const char *>(utf8String), 6));
-    assertEqual("UTF-8 to UFT-16BE (simple)", reinterpret_cast<const byte *>(BE_STR_FOR_ENDIANNESS(simpleUtf16)), 8,
+    assertEqual("UTF-8 to UFT-16BE (simple)", reinterpret_cast<const std::uint8_t *>(BE_STR_FOR_ENDIANNESS(simpleUtf16)), 8,
         convertUtf8ToUtf16BE(reinterpret_cast<const char *>(simpleString), 4));
-    assertEqual("UTF-8 to UFT-16BE", reinterpret_cast<const byte *>(BE_STR_FOR_ENDIANNESS(utf16)), 10,
+    assertEqual("UTF-8 to UFT-16BE", reinterpret_cast<const std::uint8_t *>(BE_STR_FOR_ENDIANNESS(utf16)), 10,
         convertUtf8ToUtf16BE(reinterpret_cast<const char *>(utf8String), 6));
     CPPUNIT_ASSERT_THROW(convertString("invalid charset", "UTF-8", "foo", 3, 1.0f), ConversionException);
 }
@@ -246,45 +246,45 @@ void ConversionTests::testStringConversions()
     // stringToNumber() / numberToString() with zero and random numbers
     CPPUNIT_ASSERT_EQUAL("0"s, numberToString<unsigned int>(0));
     CPPUNIT_ASSERT_EQUAL("0"s, numberToString<signed int>(0));
-    uniform_int_distribution<int64> randomDistSigned(numeric_limits<int64>::min());
-    uniform_int_distribution<uint64> randomDistUnsigned(0);
+    uniform_int_distribution<std::int64_t> randomDistSigned(numeric_limits<std::int64_t>::min());
+    uniform_int_distribution<std::uint64_t> randomDistUnsigned(0);
     const string stringMsg("string"), wideStringMsg("wide string"), bufferMsg("buffer");
-    for (byte b = 1; b < 100; ++b) {
+    for (std::uint8_t b = 1; b < 100; ++b) {
         auto signedRandom = randomDistSigned(m_randomEngine);
         auto unsignedRandom = randomDistUnsigned(m_randomEngine);
-        for (const auto base : initializer_list<byte>{ 2, 8, 10, 16 }) {
-            const auto asString = numberToString<uint64, string>(unsignedRandom, static_cast<string::value_type>(base));
-            const auto asWideString = numberToString<uint64, wstring>(unsignedRandom, base);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, unsignedRandom, stringToNumber<uint64>(asString, static_cast<string::value_type>(base)));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, unsignedRandom, stringToNumber<uint64>(asWideString, base));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, unsignedRandom, bufferToNumber<uint64>(asString.data(), asString.size(), base));
+        for (const auto base : initializer_list<std::uint8_t>{ 2, 8, 10, 16 }) {
+            const auto asString = numberToString<std::uint64_t, string>(unsignedRandom, static_cast<string::value_type>(base));
+            const auto asWideString = numberToString<std::uint64_t, wstring>(unsignedRandom, base);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, unsignedRandom, stringToNumber<std::uint64_t>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, unsignedRandom, stringToNumber<std::uint64_t>(asWideString, base));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, unsignedRandom, bufferToNumber<std::uint64_t>(asString.data(), asString.size(), base));
         }
-        for (const auto base : initializer_list<byte>{ 10 }) {
-            const auto asString = numberToString<int64, string>(signedRandom, static_cast<string::value_type>(base));
-            const auto asWideString = numberToString<int64, wstring>(signedRandom, base);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, signedRandom, stringToNumber<int64>(asString, static_cast<string::value_type>(base)));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, signedRandom, stringToNumber<int64>(asWideString, base));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, signedRandom, bufferToNumber<int64>(asString.data(), asString.size(), base));
+        for (const auto base : initializer_list<std::uint8_t>{ 10 }) {
+            const auto asString = numberToString<std::int64_t, string>(signedRandom, static_cast<string::value_type>(base));
+            const auto asWideString = numberToString<std::int64_t, wstring>(signedRandom, base);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, signedRandom, stringToNumber<std::int64_t>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, signedRandom, stringToNumber<std::int64_t>(asWideString, base));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, signedRandom, bufferToNumber<std::int64_t>(asString.data(), asString.size(), base));
         }
     }
 
     // stringToNumber() with spaces at the beginning, leading zeroes, different types and other corner cases
-    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>("01"));
-    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(L"01"s));
-    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<int32>(u"01"s));
-    CPPUNIT_ASSERT_EQUAL(-23, stringToNumber<int32>(" - 023"s));
-    CPPUNIT_ASSERT_EQUAL(-23, bufferToNumber<int32>(" - 023", 6));
-    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>("01"));
-    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(L"01"s));
-    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<uint32>(u"01"s));
-    CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<uint32>("  023"s));
-    CPPUNIT_ASSERT_EQUAL(23u, bufferToNumber<uint32>("  023", 5));
-    CPPUNIT_ASSERT_EQUAL(255u, stringToNumber<uint32>("fF", 16));
-    CPPUNIT_ASSERT_THROW(stringToNumber<uint32>("fF", 15), ConversionException);
-    CPPUNIT_ASSERT_THROW(stringToNumber<uint32>("(", 15), ConversionException);
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<std::int32_t>("01"));
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<std::int32_t>(L"01"s));
+    CPPUNIT_ASSERT_EQUAL(1, stringToNumber<std::int32_t>(u"01"s));
+    CPPUNIT_ASSERT_EQUAL(-23, stringToNumber<std::int32_t>(" - 023"s));
+    CPPUNIT_ASSERT_EQUAL(-23, bufferToNumber<std::int32_t>(" - 023", 6));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<std::uint32_t>("01"));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<std::uint32_t>(L"01"s));
+    CPPUNIT_ASSERT_EQUAL(1u, stringToNumber<std::uint32_t>(u"01"s));
+    CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<std::uint32_t>("  023"s));
+    CPPUNIT_ASSERT_EQUAL(23u, bufferToNumber<std::uint32_t>("  023", 5));
+    CPPUNIT_ASSERT_EQUAL(255u, stringToNumber<std::uint32_t>("fF", 16));
+    CPPUNIT_ASSERT_THROW(stringToNumber<std::uint32_t>("fF", 15), ConversionException);
+    CPPUNIT_ASSERT_THROW(stringToNumber<std::uint32_t>("(", 15), ConversionException);
 
     // interpretIntegerAsString()
-    CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<uint32>(0x54455354));
+    CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<std::uint32_t>(0x54455354));
 
     // splitString() / joinStrings()
     vector<string> splitTestExpected({ "1", "2,3" });
@@ -327,13 +327,13 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("foo"s, truncateTest);
 
     // encodeBase64() / decodeBase64() with random data
-    uniform_int_distribution<byte> randomDistChar;
-    byte originalBase64Data[4047];
-    for (byte &c : originalBase64Data) {
+    uniform_int_distribution<std::uint8_t> randomDistChar;
+    std::uint8_t originalBase64Data[4047];
+    for (std::uint8_t &c : originalBase64Data) {
         c = randomDistChar(m_randomEngine);
     }
     auto encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data));
-    auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size()));
+    auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), static_cast<std::uint32_t>(encodedBase64Data.size()));
     CPPUNIT_ASSERT(decodedBase64Data.second == sizeof(originalBase64Data));
     for (unsigned int i = 0; i < sizeof(originalBase64Data); ++i) {
         CPPUNIT_ASSERT(decodedBase64Data.first[i] == originalBase64Data[i]);
@@ -341,11 +341,11 @@ void ConversionTests::testStringConversions()
     // test padding
     encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data) - 1);
     CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 1));
-    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size())));
+    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<std::uint32_t>(encodedBase64Data.size())));
     encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data) - 2);
     CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 1));
     CPPUNIT_ASSERT_EQUAL('=', encodedBase64Data.at(encodedBase64Data.size() - 2));
-    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<uint32>(encodedBase64Data.size())));
+    CPPUNIT_ASSERT_NO_THROW(decodeBase64(encodedBase64Data.data(), static_cast<std::uint32_t>(encodedBase64Data.size())));
     // test check for invalid size
     CPPUNIT_ASSERT_THROW(decodeBase64(encodedBase64Data.data(), 3), ConversionException);
 

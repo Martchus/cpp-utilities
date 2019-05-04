@@ -183,7 +183,9 @@ bool ArgumentReader::read(ArgumentVector &args)
         if (values && lastArgInLevel->requiredValueCount() != Argument::varValueCount && values->size() < lastArgInLevel->requiredValueCount()) {
             // read arg as value and continue with next arg
             values->emplace_back(argDenotation ? argDenotation : *argv);
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
             continue;
         }
 
@@ -198,12 +200,21 @@ bool ArgumentReader::read(ArgumentVector &args)
             argDenotation = *argv;
             if (!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
                 // skip empty arguments
-                ++index, ++argv, argDenotation = nullptr;
+                ++index;
+                ++argv;
+                argDenotation = nullptr;
                 continue;
             }
             abbreviationFound = false;
             argDenotationType = Value;
-            *argDenotation == '-' && (++argDenotation, ++argDenotationType) && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+            if (*argDenotation == '-') {
+                ++argDenotation;
+                ++argDenotationType;
+                if (*argDenotation == '-') {
+                    ++argDenotation;
+                    ++argDenotationType;
+                }
+            }
         }
 
         // try to find matching Argument instance
@@ -250,10 +261,14 @@ bool ArgumentReader::read(ArgumentVector &args)
                 }
 
                 // read sub arguments, distinguish whether further abbreviations follow
-                ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
+                ++index;
+                ++parser.m_actualArgc;
+                lastArg = lastArgInLevel = matchingArg;
+                lastArgDenotation = argv;
                 if (argDenotationType != Abbreviation || !argDenotation || !*argDenotation) {
                     // no further abbreviations follow -> read sub args for next argv
-                    ++argv, argDenotation = nullptr;
+                    ++argv;
+                    argDenotation = nullptr;
                     read(lastArg->m_subArgs);
                     argDenotation = nullptr;
                     break;
@@ -292,13 +307,15 @@ bool ArgumentReader::read(ArgumentVector &args)
                 if (parentArgument == pathEnd) {
                     break;
                 }
-            };
+            }
         }
 
         // unknown argument might just be a parameter value of the last argument
         if (lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
             values->emplace_back(abbreviationFound ? argDenotation : *argv);
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
             continue;
         }
 
@@ -307,7 +324,8 @@ bool ArgumentReader::read(ArgumentVector &args)
             if (arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
                 (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                 lastArgDenotation = argv;
-                ++index, ++argv;
+                ++index;
+                ++argv;
                 break;
             }
         }
@@ -334,7 +352,9 @@ bool ArgumentReader::read(ArgumentVector &args)
             values = &matchingArg->m_occurrences.back().values;
 
             // read sub arguments
-            ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, argDenotation = nullptr;
+            ++parser.m_actualArgc;
+            lastArg = lastArgInLevel = matchingArg;
+            argDenotation = nullptr;
             read(lastArg->m_subArgs);
             argDenotation = nullptr;
             continue;
@@ -347,7 +367,9 @@ bool ArgumentReader::read(ArgumentVector &args)
         }
         if (completionMode) {
             // ignore unknown denotation
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
         } else {
             switch (parser.m_unknownArgBehavior) {
             case UnknownArgumentBehavior::Warn:
@@ -355,7 +377,9 @@ bool ArgumentReader::read(ArgumentVector &args)
                 FALLTHROUGH;
             case UnknownArgumentBehavior::Ignore:
                 // ignore unknown denotation
-                ++index, ++argv, argDenotation = nullptr;
+                ++index;
+                ++argv;
+                argDenotation = nullptr;
                 break;
             case UnknownArgumentBehavior::Fail:
                 return false;
@@ -400,27 +424,7 @@ ostream &operator<<(ostream &os, const Wrapper &wrapper)
     return os;
 }
 
-/// \brief Specifies the name of the application (used by ArgumentParser::printHelp()).
-const char *applicationName = nullptr;
-/// \brief Specifies the author of the application (used by ArgumentParser::printHelp()).
-const char *applicationAuthor = nullptr;
-/// \brief Specifies the version of the application (used by ArgumentParser::printHelp()).
-const char *applicationVersion = nullptr;
-/// \brief Specifies the URL to the application website (used by ArgumentParser::printHelp()).
-const char *applicationUrl = nullptr;
-/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
-/// \deprecated Not used anymore. Use dependencyVersions2 instead.
-std::initializer_list<const char *> dependencyVersions;
-/// \brief Specifies the dependency versions the application was linked against (used by ArgumentParser::printHelp()).
-std::vector<const char *> dependencyVersions2;
-
-// TODO v5 use a struct for these properties
-
-/*!
- * \brief Specifies a function quit the application.
- * \remarks Currently only used after printing Bash completion. Default is std::exit().
- */
-void (*exitFunction)(int) = &exit;
+CPP_UTILITIES_EXPORT ApplicationInfo applicationInfo;
 
 /// \cond
 
@@ -455,10 +459,9 @@ Argument::Argument(const char *name, char abbreviation, const char *description,
     , m_example(example)
     , m_minOccurrences(0)
     , m_maxOccurrences(1)
-    , m_combinable(false)
-    , m_denotesOperation(false)
     , m_requiredValueCount(0)
-    , m_implicit(false)
+    , m_flags(Flags::None)
+    , m_deprecatedBy(nullptr)
     , m_isMainArg(false)
     , m_valueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::Files | ValueCompletionBehavior::Directories
           | ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)
@@ -496,6 +499,9 @@ const char *Argument::firstValue() const
  */
 void Argument::printInfo(ostream &os, unsigned char indentation) const
 {
+    if (isDeprecated()) {
+        return;
+    }
     Indentation ident(indentation);
     os << ident;
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
@@ -540,11 +546,16 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
         os << '\n' << ident << "default environment variable: " << Wrapper(environmentVariable(), ident + 30);
     }
     os << '\n';
-    for (const auto *arg : subArguments()) {
+    bool hasSubArgs = false;
+    for (const auto *const arg : subArguments()) {
+        if (arg->isDeprecated()) {
+            continue;
+        }
+        hasSubArgs = true;
         arg->printInfo(os, ident.level);
     }
     if (notEmpty(example())) {
-        if (ident.level == 2 && !subArguments().empty()) {
+        if (ident.level == 2 && hasSubArgs) {
             os << '\n';
         }
         os << ident << "example: " << Wrapper(example(), ident + 9);
@@ -607,11 +618,12 @@ void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments
  */
 void Argument::addSubArgument(Argument *arg)
 {
-    if (find(m_subArgs.cbegin(), m_subArgs.cend(), arg) == m_subArgs.cend()) {
-        m_subArgs.push_back(arg);
-        if (find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
-            arg->m_parents.push_back(this);
-        }
+    if (find(m_subArgs.cbegin(), m_subArgs.cend(), arg) != m_subArgs.cend()) {
+        return;
+    }
+    m_subArgs.push_back(arg);
+    if (find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
+        arg->m_parents.push_back(this);
     }
 }
 
@@ -655,12 +667,13 @@ Argument *Argument::conflictsWithArgument() const
  */
 Argument *Argument::wouldConflictWithArgument() const
 {
-    if (!isCombinable()) {
-        for (Argument *parent : m_parents) {
-            for (Argument *sibling : parent->subArguments()) {
-                if (sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
-                    return sibling;
-                }
+    if (isCombinable()) {
+        return nullptr;
+    }
+    for (Argument *parent : m_parents) {
+        for (Argument *sibling : parent->subArguments()) {
+            if (sibling != this && sibling->isPresent() && !sibling->isCombinable()) {
+                return sibling;
             }
         }
     }
@@ -714,6 +727,7 @@ ArgumentParser::ArgumentParser()
     , m_executable(nullptr)
     , m_unknownArgBehavior(UnknownArgumentBehavior::Fail)
     , m_defaultArg(nullptr)
+    , m_helpArg(*this)
 {
 }
 
@@ -728,27 +742,26 @@ ArgumentParser::ArgumentParser()
  */
 void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArguments)
 {
-    if (mainArguments.size()) {
-        for (Argument *arg : mainArguments) {
-            arg->m_isMainArg = true;
-        }
-        m_mainArgs.assign(mainArguments);
-        if (!m_defaultArg) {
-            if (!(*mainArguments.begin())->requiredValueCount()) {
-                bool subArgsRequired = false;
-                for (const Argument *subArg : (*mainArguments.begin())->subArguments()) {
-                    if (subArg->isRequired()) {
-                        subArgsRequired = true;
-                        break;
-                    }
-                }
-                if (!subArgsRequired) {
-                    m_defaultArg = *mainArguments.begin();
-                }
-            }
-        }
-    } else {
+    if (!mainArguments.size()) {
         m_mainArgs.clear();
+        return;
+    }
+    for (Argument *arg : mainArguments) {
+        arg->m_isMainArg = true;
+    }
+    m_mainArgs.assign(mainArguments);
+    if (m_defaultArg || (*mainArguments.begin())->requiredValueCount()) {
+        return;
+    }
+    bool subArgsRequired = false;
+    for (const Argument *subArg : (*mainArguments.begin())->subArguments()) {
+        if (subArg->isRequired()) {
+            subArgsRequired = true;
+            break;
+        }
+    }
+    if (!subArgsRequired) {
+        m_defaultArg = *mainArguments.begin();
     }
 }
 
@@ -770,33 +783,34 @@ void ArgumentParser::addMainArgument(Argument *argument)
 void ArgumentParser::printHelp(ostream &os) const
 {
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
-    if (applicationName && *applicationName) {
-        os << applicationName;
-        if (applicationVersion && *applicationVersion) {
+    if (applicationInfo.name && *applicationInfo.name) {
+        os << applicationInfo.name;
+        if (applicationInfo.version && *applicationInfo.version) {
             os << ',' << ' ';
         }
     }
-    if (applicationVersion && *applicationVersion) {
-        os << "version " << applicationVersion;
+    if (applicationInfo.version && *applicationInfo.version) {
+        os << "version " << applicationInfo.version;
     }
-    if (dependencyVersions2.size()) {
-        if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
+    if (applicationInfo.dependencyVersions.size()) {
+        if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)) {
             os << '\n';
             EscapeCodes::setStyle(os);
         }
-        auto i = dependencyVersions2.begin(), end = dependencyVersions2.end();
+        auto i = applicationInfo.dependencyVersions.begin(), end = applicationInfo.dependencyVersions.end();
         os << "Linked against: " << *i;
         for (++i; i != end; ++i) {
             os << ',' << ' ' << *i;
         }
     }
-    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions2.size()) {
+    if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)
+        || applicationInfo.dependencyVersions.size()) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);
     if (!m_mainArgs.empty()) {
         bool hasOperations = false;
-        for (const Argument *arg : m_mainArgs) {
+        for (const Argument *const arg : m_mainArgs) {
             if (arg->denotesOperation()) {
                 hasOperations = true;
                 break;
@@ -807,32 +821,35 @@ void ArgumentParser::printHelp(ostream &os) const
         if (hasOperations) {
             // split top-level operations and other configurations
             os << "Available operations:";
-            for (const Argument *arg : m_mainArgs) {
-                if (arg->denotesOperation() && strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+            for (const Argument *const arg : m_mainArgs) {
+                if (!arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
             os << "\nAvailable top-level options:";
-            for (const Argument *arg : m_mainArgs) {
-                if (!arg->denotesOperation() && strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+            for (const Argument *const arg : m_mainArgs) {
+                if (arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
         } else {
             // just show all args if no operations are available
             os << "Available arguments:";
-            for (const Argument *arg : m_mainArgs) {
-                if (strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+            for (const Argument *const arg : m_mainArgs) {
+                if (arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
         }
     }
-    if (applicationUrl && *applicationUrl) {
-        os << "\nProject website: " << applicationUrl << endl;
+    if (applicationInfo.url && *applicationInfo.url) {
+        os << "\nProject website: " << applicationInfo.url << endl;
     }
 }
 
@@ -900,7 +917,7 @@ void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgume
         if (behavior & ParseArgumentBehavior::ExitOnFailure) {
             CMD_UTILS_START_CONSOLE;
             cerr << failure;
-            exit(1);
+            invokeExit(1);
         }
         throw;
     }
@@ -944,13 +961,14 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     const bool completionMode = !strcmp(*++argv, "--bash-completion-for");
 
     // determine the index of the current word for completion and the number of arguments to be passed to ArgumentReader
-    unsigned int currentWordIndex, argcForReader;
+    unsigned int currentWordIndex = 0, argcForReader;
     if (completionMode) {
         // the first argument after "--bash-completion-for" is the index of the current word
         try {
             currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
             if (argc) {
-                ++argv, --argc;
+                ++argv;
+                --argc;
             }
         } catch (const ConversionException &) {
             currentWordIndex = static_cast<unsigned int>(argc - 1);
@@ -963,7 +981,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // read specified arguments
     ArgumentReader reader(*this, argv, argv + argcForReader, completionMode);
     const bool allArgsProcessed(reader.read());
-    NoColorArgument::apply();
+    m_noColorArg.apply();
 
     // fail when not all arguments could be processed, except when in completion mode
     if (!completionMode && !allArgsProcessed) {
@@ -974,7 +992,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // print Bash completion and prevent the applicaton to continue with the regular execution
     if (completionMode) {
         printBashCompletion(argc, argv, currentWordIndex, reader);
-        exitFunction(0);
+        invokeExit(0);
     }
 }
 
@@ -1107,7 +1125,7 @@ ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
 
     // determine last detected arg
     if (completion.lastDetectedArg) {
-        completion.lastDetectedArgIndex = reader.lastArgDenotation - argv;
+        completion.lastDetectedArgIndex = static_cast<size_t>(reader.lastArgDenotation - argv);
         completion.lastDetectedArgPath = completion.lastDetectedArg->path(completion.lastDetectedArg->occurrences() - 1);
     }
 
@@ -1316,7 +1334,14 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         } else {
             opening = *completionInfo.lastSpecifiedArg;
         }
-        *opening == '-' && (++opening, ++openingDenotationType) && *opening == '-' && (++opening, ++openingDenotationType);
+        if (*opening == '-') {
+            ++opening;
+            ++openingDenotationType;
+            if (*opening == '-') {
+                ++opening;
+                ++openingDenotationType;
+            }
+        }
         openingLen = strlen(opening);
     }
 
@@ -1369,7 +1394,8 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                         cout << *i;
                     }
                 }
-                ++i, ++wordIndex;
+                ++i;
+                ++wordIndex;
                 switch (*i) {
                 case ' ':
                 case '\n':
@@ -1564,24 +1590,26 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             throw Failure(argsToString("The argument \"", conflictingArgument->name(), "\" can not be combined with \"", arg->name(), "\"."));
         }
         for (size_t i = 0; i != occurrences; ++i) {
-            if (!arg->allRequiredValuesPresent(i)) {
-                stringstream ss(stringstream::in | stringstream::out);
-                ss << "Not all parameter for argument \"" << arg->name() << "\" ";
-                if (i) {
-                    ss << " (" << (i + 1) << " occurrence) ";
-                }
-                ss << "provided. You have to provide the following parameter:";
-                size_t valueNamesPrint = 0;
-                for (const auto &name : arg->m_valueNames) {
-                    ss << ' ' << name, ++valueNamesPrint;
-                }
-                if (arg->m_requiredValueCount != Argument::varValueCount) {
-                    while (valueNamesPrint < arg->m_requiredValueCount) {
-                        ss << "\nvalue " << (++valueNamesPrint);
-                    }
-                }
-                throw Failure(ss.str());
+            if (arg->allRequiredValuesPresent(i)) {
+                continue;
             }
+            stringstream ss(stringstream::in | stringstream::out);
+            ss << "Not all parameter for argument \"" << arg->name() << "\" ";
+            if (i) {
+                ss << " (" << (i + 1) << " occurrence) ";
+            }
+            ss << "provided. You have to provide the following parameter:";
+            size_t valueNamesPrint = 0;
+            for (const auto &name : arg->m_valueNames) {
+                ss << ' ' << name;
+                ++valueNamesPrint;
+            }
+            if (arg->m_requiredValueCount != Argument::varValueCount) {
+                while (valueNamesPrint < arg->m_requiredValueCount) {
+                    ss << "\nvalue " << (++valueNamesPrint);
+                }
+            }
+            throw Failure(ss.str());
         }
 
         // check contraints of sub arguments recursively
@@ -1608,6 +1636,18 @@ void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
         // invoke the callbacks for sub arguments recursively
         invokeCallbacks(arg->m_subArgs);
     }
+}
+
+/*!
+ * \brief Exits using the assigned function or std::exit().
+ */
+void ArgumentParser::invokeExit(int code)
+{
+    if (m_exitFunction) {
+        m_exitFunction(code);
+        return;
+    }
+    std::exit(code);
 }
 
 /*!
@@ -1658,8 +1698,6 @@ HelpArgument::HelpArgument(ArgumentParser &parser)
  * \sa NoColorArgument::NoColorArgument(), EscapeCodes::enabled
  */
 
-NoColorArgument *NoColorArgument::s_instance = nullptr;
-
 /*!
  * \brief Constructs a new NoColorArgument argument.
  * \remarks This will also set EscapeCodes::enabled to the value of the environment variable ENABLE_ESCAPE_CODES.
@@ -1672,11 +1710,6 @@ NoColorArgument::NoColorArgument()
 #endif
 {
     setCombinable(true);
-
-    if (s_instance) {
-        return;
-    }
-    s_instance = this;
 
     // set the environmentvariable: note that this is not directly used and just assigned for printing help
     setEnvironmentVariable("ENABLE_ESCAPE_CODES");
@@ -1702,21 +1735,11 @@ NoColorArgument::NoColorArgument()
 }
 
 /*!
- * \brief Destroys the object.
- */
-NoColorArgument::~NoColorArgument()
-{
-    if (s_instance == this) {
-        s_instance = nullptr;
-    }
-}
-
-/*!
  * \brief Sets EscapeCodes::enabled according to the presense of the first instantiation of NoColorArgument.
  */
-void NoColorArgument::apply()
+void NoColorArgument::apply() const
 {
-    if (NoColorArgument::s_instance && NoColorArgument::s_instance->isPresent()) {
+    if (isPresent()) {
 #ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT
         EscapeCodes::enabled = false;
 #else
@@ -1733,7 +1756,7 @@ void ValueConversion::Helper::ArgumentValueConversionError::throwFailure(const s
     throw Failure(argumentPath.empty()
             ? argsToString("Conversion of top-level value \"", valueToConvert, "\" to type \"", targetTypeName, "\" failed: ", errorMessage)
             : argsToString("Conversion of value \"", valueToConvert, "\" (for argument --", argumentPath.back()->name(), ") to type \"",
-                  targetTypeName, "\" failed: ", errorMessage));
+                targetTypeName, "\" failed: ", errorMessage));
 }
 
 /*!
@@ -1744,7 +1767,7 @@ void ArgumentOccurrence::throwNumberOfValuesNotSufficient(unsigned long valuesTo
     throw Failure(path.empty()
             ? argsToString("Expected ", valuesToConvert, " top-level values to be present but only ", values.size(), " have been specified.")
             : argsToString("Expected ", valuesToConvert, " values for argument --", path.back()->name(), " to be present but only ", values.size(),
-                  " have been specified."));
+                " have been specified."));
 }
 
 } // namespace ApplicationUtilities

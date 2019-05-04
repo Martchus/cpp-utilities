@@ -621,10 +621,10 @@ template <typename T> std::string interpretIntegerAsString(T integer, int startO
     return std::string(buffer + startOffset, sizeof(T) - startOffset);
 }
 
-CPP_UTILITIES_EXPORT std::string dataSizeToString(uint64 sizeInByte, bool includeByte = false);
+CPP_UTILITIES_EXPORT std::string dataSizeToString(std::uint64_t sizeInByte, bool includeByte = false);
 CPP_UTILITIES_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
-CPP_UTILITIES_EXPORT std::string encodeBase64(const byte *data, uint32 dataSize);
-CPP_UTILITIES_EXPORT std::pair<std::unique_ptr<byte[]>, uint32> decodeBase64(const char *encodedStr, const uint32 strSize);
+CPP_UTILITIES_EXPORT std::string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize);
+CPP_UTILITIES_EXPORT std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize);
 } // namespace ConversionUtilities
 
 #endif // CONVERSION_UTILITIES_STRINGCONVERSION_H

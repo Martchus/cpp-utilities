@@ -1,4 +1,4 @@
-# before including this module, the project meta-data must be set
+# check whether the required project meta-data has been set before including this module
 if (NOT META_PROJECT_NAME)
     message(FATAL_ERROR "No project name (META_PROJECT_NAME) specified.")
 endif ()
@@ -13,7 +13,7 @@ if (NOT META_APP_DESCRIPTION)
 endif ()
 
 # set project name (displayed in Qt Creator)
-message(STATUS "Configuring project ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+message(STATUS "Configuring project ${META_PROJECT_NAME}")
 project(${META_PROJECT_NAME})
 
 # set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
@@ -31,6 +31,41 @@ if (NOT META_PROJECT_VARNAME_LOWER)
                    "${META_PROJECT_VARNAME}")
     string(TOLOWER "${META_PROJECT_VARNAME_LOWER}" META_PROJECT_VARNAME_LOWER)
 endif ()
+
+# allow setting a configuration name to allow installing multiple differently configured versions within the same prefix
+# (intended to be used for installing Qt 5 and Qt 6 version or shared and static version within the same prefix)
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for ${META_PROJECT_NAME}")
+set(CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for all projects within the current build")
+if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
+    set(META_CONFIG_NAME "")
+elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
+    set(META_CONFIG_NAME "${${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME}")
+else ()
+    set(META_CONFIG_NAME "${CONFIGURATION_NAME}")
+endif ()
+if (META_CONFIG_NAME)
+    set(META_CONFIG_PREFIX "${META_CONFIG_NAME}-")
+    set(META_CONFIG_SUFFIX "-${META_CONFIG_NAME}")
+endif ()
+
+# allow setting a library/application target suffix - A different configuration name might not require a different target
+# name since it might differ anyways (e.g. library extensions for static and shared configuration). Hence there's not simply
+# the configuration name used to distinguish targets as well.
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX ""
+    CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
+set(CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets the target suffix for all projects within the current build")
+if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX STREQUAL "none")
+    set(TARGET_SUFFIX "")
+elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX)
+    set(TARGET_SUFFIX "-${${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX}")
+elseif (CONFIGURATION_TARGET_SUFFIX)
+    set(TARGET_SUFFIX "-${CONFIGURATION_TARGET_SUFFIX}")
+endif ()
+
+# define a few variables
+set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+set(META_DATA_DIR "share/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
 if (NOT META_GENERIC_NAME)
@@ -53,9 +88,9 @@ if (NOT META_VERSION_PATCH)
     set(META_VERSION_PATCH 0)
 endif ()
 
-# set META_ID to META_PROJECT_NAME if not specified
+# set META_ID to target name if not specified
 if (NOT META_ID)
-    set(META_ID "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+    set(META_ID "${META_TARGET_NAME}")
 endif ()
 
 # set bugtracker URL
@@ -127,7 +162,7 @@ if (APPEND_GIT_REVISION)
 endif ()
 
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
-set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
+set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${META_TARGET_NAME}")
 
 # create header for feature detection
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
@@ -165,41 +200,6 @@ if (LOGGING_ENABLED)
     message(STATUS "Logging is enabled.")
 endif ()
 
-# options for deciding whether to build static and/or shared libraries
-if (("${META_PROJECT_TYPE}" STREQUAL "library")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL ""))
-    option(ENABLE_STATIC_LIBS "whether building static libraries is enabled (disabled by default)" OFF)
-    option(DISABLE_SHARED_LIBS "whether building dynamic libraries is disabled (enabled by default)" OFF)
-    if (DISABLE_SHARED_LIBS)
-        set(BUILD_SHARED_LIBS OFF)
-    else ()
-        set(BUILD_SHARED_LIBS ON)
-    endif ()
-    if (ENABLE_STATIC_LIBS)
-        set(BUILD_STATIC_LIBS ON)
-    else ()
-        set(BUILD_STATIC_LIBS OFF)
-    endif ()
-endif ()
-
-# options for forcing static linkage when building applications or dynamic libraries
-if (("${META_PROJECT_TYPE}" STREQUAL "library")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "plugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
-    OR ("${META_PROJECT_TYPE}" STREQUAL ""))
-    option(STATIC_LIBRARY_LINKAGE "forces static linkage when building dynamic libraries" OFF)
-elseif ("${META_PROJECT_TYPE}" STREQUAL "application")
-    option(STATIC_LINKAGE "forces static linkage when building applications" OFF)
-endif ()
-
-# additional linker flags used when static linkage is enabled
-if (NOT APPLE)
-    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static)
-endif ()
-list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS -static-libstdc++ -static-libgcc)
-
 # determine whether the project is a header-only library
 if (SRC_FILES OR GUI_SRC_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR QML_SRC_FILES OR RES_FILES)
     set(META_HEADER_ONLY_LIB NO)
@@ -210,6 +210,9 @@ else ()
     endif ()
     message(STATUS "Project ${META_PROJECT_NAME} is header-only library.")
 endif ()
+
+# ensure 3rdParty has been included to configure BUILD_SHARED_LIBS and STATIC_LINKAGE/STATIC_LIBRARY_LINKAGE
+include(3rdParty)
 
 # options for enabling/disabling Qt GUI (if available)
 if (WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR META_HAS_WIDGETS_GUI)
@@ -300,7 +303,7 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
     if (NOT CLANG_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
     endif ()
-    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy"
+    add_custom_target("${META_TARGET_NAME}_tidy"
                       COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
@@ -308,14 +311,14 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
-    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy")
+    add_dependencies(tidy "${META_TARGET_NAME}_tidy")
 
     # also add a test to verify whether sources are tidy
-    add_test(NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+    add_test(NAME "${META_TARGET_NAME}_tidy_test"
              COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
              WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-    set_tests_properties("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_tidy_test"
+    set_tests_properties("${META_TARGET_NAME}_tidy_test"
                          PROPERTIES FAIL_REGULAR_EXPRESSION
                                     "<replacement.*>.*</replacement>"
                                     REQUIRED_FILES
@@ -331,7 +334,7 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
     if (NOT META_CMAKE_FORMAT_OPTIONS)
         set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125)
     endif ()
-    add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy"
+    add_custom_target("${META_TARGET_NAME}_cmake_tidy"
                       COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
@@ -339,7 +342,7 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
-    add_dependencies(tidy "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_cmake_tidy")
+    add_dependencies(tidy "${META_TARGET_NAME}_cmake_tidy")
 endif ()
 
 # add target for static code analysis using clang-tidy
@@ -367,7 +370,7 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         set(CLANG_TIDY_CXX_FLAGS "")
         if (NOT META_HEADER_ONLY_LIB)
             # deduce flags from target
-            set(TARGET_NAME ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+            set(TARGET_NAME ${META_TARGET_NAME})
             if (NOT BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
                 set(TARGET_NAME "${TARGET_NAME}_static")
             endif ()
@@ -411,13 +414,13 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES} PROPERTIES SYMBOLIC YES)
 
         # add targets
-        add_custom_target("${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check"
+        add_custom_target("${META_TARGET_NAME}_static_check"
                           DEPENDS ${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
-                          COMMENT "Linting ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} sources using clang-tidy")
+                          COMMENT "Linting ${META_TARGET_NAME} sources using clang-tidy")
         if (NOT TARGET static-check)
             add_custom_target(static-check)
         endif ()
-        add_dependencies(static-check "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}_static_check")
+        add_dependencies(static-check "${META_TARGET_NAME}_static_check")
     endif ()
 endif ()
 
@@ -445,10 +448,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_ENABLED)
     endif ()
     set(CLANG_SOURCE_BASED_COVERAGE_AVAILABLE YES)
     set(CLANG_SOURCE_BASED_COVERAGE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-    list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_PRIVATE_STATIC_LIB_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_SHARED_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
-    list(APPEND META_ADDITIONAL_STATIC_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+    list(APPEND META_PRIVATE_COMPILE_OPTIONS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
+    list(APPEND META_ADDITIONAL_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
 endif ()
 
 # configure creation of install targets
@@ -462,7 +463,7 @@ endif ()
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     foreach (EXTRA_FILE ${EXTRA_FILES})
         get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
-        install(FILES ${EXTRA_FILE} DESTINATION "share/${META_PROJECT_NAME}/${EXTRA_DIR}" COMPONENT extra-files)
+        install(FILES ${EXTRA_FILE} DESTINATION "${META_DATA_DIR}/${EXTRA_DIR}" COMPONENT extra-files)
     endforeach ()
     if (NOT TARGET install-extra-files)
         add_custom_target(install-extra-files
@@ -471,7 +472,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 endif ()
 
-# determine library directory suffix note: Applications might be built as libraries under some platforms (eg. Android). Hence
+# determine library directory suffix - Applications might be built as libraries under some platforms (eg. Android). Hence
 # this is part of BasicConfig and not LibraryConfig.
 set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
 set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")

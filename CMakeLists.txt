@@ -16,8 +16,6 @@ set(HEADER_FILES
     conversion/conversionexception.h
     conversion/stringconversion.h
     conversion/stringbuilder.h
-    conversion/types.h
-    conversion/widen.h
     io/ansiescapecodes.h
     io/binaryreader.h
     io/binarywriter.h
@@ -25,13 +23,11 @@ set(HEADER_FILES
     io/copy.h
     io/inifile.h
     io/path.h
-    io/catchiofailure.h
     io/nativefilestream.h
     io/misc.h
     math/math.h
     misc/memory.h
     misc/multiarray.h
-    misc/random.h
     misc/traits.h
     misc/levenshtein.h
     tests/testutils.h
@@ -54,11 +50,9 @@ set(SRC_FILES
     io/bitreader.cpp
     io/inifile.cpp
     io/path.cpp
-    io/catchiofailure.cpp
     io/nativefilestream.cpp
     io/misc.cpp
     math/math.cpp
-    misc/random.cpp
     misc/levenshtein.cpp
     tests/testutils.cpp)
 
@@ -88,8 +82,6 @@ set(CMAKE_MODULE_FILES
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
-    cmake/templates/SharedConfig.cmake.in
-    cmake/templates/StaticConfig.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
     cmake/templates/appdata.xml.in
@@ -116,9 +108,9 @@ set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_FEATURES_FOR_COMPILER_DETECTION_HEADER cxx_thread_local)
-set(META_VERSION_MAJOR 4)
-set(META_VERSION_MINOR 17)
-set(META_VERSION_PATCH 1)
+set(META_VERSION_MAJOR 5)
+set(META_VERSION_MINOR 0)
+set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
 include(3rdParty)
@@ -129,6 +121,7 @@ option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" O
 option(FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER "forces use of Boost.Iostreams for native file buffer" OFF)
 if (USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
+    set(NATIVE_FILE_STREAM_IMPL_FILES io/nativefilestream.cpp tests/iotests.cpp)
 
     # check whether __gnu_cxx::stdio_filebuf is available
     try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE
@@ -140,16 +133,20 @@ if (USE_NATIVE_FILE_BUFFER)
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
     if (GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
-        set_property(SOURCE io/nativefilestream.cpp
-                     APPEND
-                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+        foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
+            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                         APPEND
+                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+        endforeach ()
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
-        set(boost_iostreams_DYNAMIC_COMPILE_DEFINITIONS BOOST_IOSTREAMS_DYN_LINK)
-        use_external_library(boost_iostreams AUTO_LINKAGE REQUIRED)
-        set_property(SOURCE io/nativefilestream.cpp
-                     APPEND
-                     PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+        find_package(Boost REQUIRED COMPONENTS iostreams)
+        use_target(TARGET_NAME Boost::iostreams)
+        foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
+            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                         APPEND
+                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+        endforeach ()
     endif ()
 else ()
     message(STATUS "Using std::fstream for NativeFileStream")

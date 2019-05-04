@@ -7,7 +7,6 @@
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
-#include "../io/catchiofailure.h"
 #include "../io/copy.h"
 #include "../io/inifile.h"
 #include "../io/misc.h"
@@ -44,9 +43,6 @@ using namespace CPPUNIT_NS;
  */
 class IoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(IoTests);
-#ifndef PLATFORM_WINDOWS
-    CPPUNIT_TEST(testFailure);
-#endif
     CPPUNIT_TEST(testBinaryReader);
     CPPUNIT_TEST(testBinaryWriter);
     CPPUNIT_TEST(testBitReader);
@@ -64,9 +60,6 @@ public:
     void setUp();
     void tearDown();
 
-#ifndef PLATFORM_WINDOWS
-    void testFailure();
-#endif
     void testBinaryReader();
     void testBinaryWriter();
     void testBitReader();
@@ -89,34 +82,6 @@ void IoTests::setUp()
 void IoTests::tearDown()
 {
 }
-
-#ifndef PLATFORM_WINDOWS
-/*!
- * \brief Tests workaround for GCC Bug 66145.
- * \sa https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145
- * \remarks
- * For some reason this unit test doesn't pass under Windows (using GCC 8.2.0). However, when testing
- * statically linked binaries manually, it works. So ignore it for now since the workaround will be
- * removed in v5 anyways.
- */
-void IoTests::testFailure()
-{
-    // check whether workaround works
-    try {
-        fstream stream;
-        stream.exceptions(ios_base::failbit | ios_base::badbit);
-        stream.open("path/to/file/which/does/not/exist", ios_base::in);
-    } catch (...) {
-        catchIoFailure();
-    }
-
-    // check other relevatn exceptions, too
-    vector<int> testVec;
-    map<string, string> testMap;
-    CPPUNIT_ASSERT_THROW(testVec.at(1), out_of_range);
-    CPPUNIT_ASSERT_THROW(testMap.at("test"), out_of_range);
-}
-#endif
 
 /*!
  * \brief Tests the most important methods of the BinaryReader.
@@ -175,9 +140,9 @@ void IoTests::testBinaryReader()
     testFile.seekg(-4, ios_base::cur);
     CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(5, 0x0066));
     testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<uint16>(0x6600)));
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<std::uint16_t>(0x6600)));
     testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<uint16>(0x0066)));
+    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<std::uint16_t>(0x0066)));
     CPPUNIT_ASSERT_THROW(reader.readLengthPrefixedString(), ConversionException);
     CPPUNIT_ASSERT_MESSAGE("pos in stream not advanced on conversion error", reader.readByte() == 0);
 
@@ -278,38 +243,24 @@ void IoTests::testBinaryWriter()
  */
 void IoTests::testBitReader()
 {
-    const byte testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20, 0xFF, 0xFA };
+    const std::uint8_t testData[] = { 0x81, 0x90, 0x3C, 0x44, 0x28, 0x00, 0x44, 0x10, 0x20, 0xFF, 0xFA };
     BitReader reader(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT(reader.readBit() == 1);
     reader.skipBits(6);
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(3), reader.showBits<byte>(2));
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(3), reader.readBits<byte>(2));
-    CPPUNIT_ASSERT_EQUAL(static_cast<uint32>(0x103C4428 << 1), reader.readBits<uint32>(32));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(3), reader.showBits<std::uint8_t>(2));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(3), reader.readBits<std::uint8_t>(2));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint32_t>(0x103C4428 << 1), reader.readBits<std::uint32_t>(32));
     reader.align();
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0x44), reader.readBits<byte>(8));
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(7), reader.readUnsignedExpGolombCodedBits<byte>());
-    CPPUNIT_ASSERT_EQUAL(static_cast<sbyte>(4), reader.readSignedExpGolombCodedBits<sbyte>());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0), reader.readBit());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0), reader.readBit());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0x44), reader.readBits<std::uint8_t>(8));
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(7), reader.readUnsignedExpGolombCodedBits<std::uint8_t>());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::int8_t>(4), reader.readSignedExpGolombCodedBits<std::int8_t>());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0), reader.readBit());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0), reader.readBit());
     reader.skipBits(8 + 4);
     CPPUNIT_ASSERT_EQUAL(4_st, reader.bitsAvailable());
-    CPPUNIT_ASSERT_EQUAL(static_cast<byte>(0xA), reader.readBits<byte>(4));
-    try {
-        reader.readBit();
-        CPPUNIT_FAIL("no exception");
-    } catch (...) {
-#ifndef PLATFORM_WINDOWS
-        catchIoFailure();
-#endif
-    }
-    try {
-        reader.skipBits(1);
-        CPPUNIT_FAIL("no exception");
-    } catch (...) {
-#ifndef PLATFORM_WINDOWS
-        catchIoFailure();
-#endif
-    }
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint8_t>(0xA), reader.readBits<std::uint8_t>(4));
+    CPPUNIT_ASSERT_THROW(reader.readBit(), std::ios_base::failure);
+    CPPUNIT_ASSERT_THROW(reader.skipBits(1), std::ios_base::failure);
     reader.reset(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(8 * sizeof(testData)), reader.bitsAvailable());
 }
@@ -406,7 +357,7 @@ void IoTests::testCopy()
 
     // test
     testFile.seekg(0);
-    for (byte i = 0; i < 50; ++i) {
+    for (auto i = 0; i < 50; ++i) {
         CPPUNIT_ASSERT(testFile.get() == outputStream.get());
     }
 }
@@ -433,15 +384,7 @@ void IoTests::testReadFile()
         readFile(iniFilePath));
 
     // fail by exceeding max size
-    try {
-        readFile(iniFilePath, 10);
-        cout << "no exception" << endl;
-        CPPUNIT_FAIL("no exception");
-    } catch (...) {
-#ifndef PLATFORM_WINDOWS
-        catchIoFailure();
-#endif
-    }
+    CPPUNIT_ASSERT_THROW(readFile(iniFilePath, 10), std::ios_base::failure);
 
     // handle UTF-8 in path and file contents correctly via NativeFileStream
 #if !defined(PLATFORM_WINDOWS) || defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER)
@@ -503,11 +446,15 @@ void IoTests::testNativeFileStream()
     try {
         fileStream.open("non existing file", ios_base::in | ios_base::out | ios_base::binary);
         CPPUNIT_FAIL("expected exception");
-    } catch (...) {
+    } catch (const std::ios_base::failure &failure) {
 #ifdef PLATFORM_WINDOWS
-        //CPPUNIT_ASSERT_EQUAL(string(catchIoFailure()), "CreateFileW failed: iostream error"s);
+#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
+        CPPUNIT_ASSERT_EQUAL("_wopen failed: iostream error"s, string(failure.what()));
+#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
+        CPPUNIT_ASSERT_EQUAL("CreateFileW failed: iostream error"s, string(failure.what()));
+#endif
 #else
-        CPPUNIT_ASSERT_EQUAL(string(catchIoFailure()), "open failed: iostream error"s);
+        CPPUNIT_ASSERT_EQUAL("open failed: iostream error"s, string(failure.what()));
 #endif
     }
     fileStream.clear();
@@ -516,7 +463,7 @@ void IoTests::testNativeFileStream()
 #ifndef PLATFORM_WINDOWS
     auto readWriteFileDescriptor = open(txtFilePath.data(), O_RDWR);
     CPPUNIT_ASSERT(readWriteFileDescriptor);
-    fileStream.openFromFileDescriptor(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
+    fileStream.open(readWriteFileDescriptor, ios_base::in | ios_base::out | ios_base::binary);
     CPPUNIT_ASSERT(fileStream.is_open());
     CPPUNIT_ASSERT_EQUAL(static_cast<char>(fileStream.get()), 'f');
     fileStream.seekg(0, ios_base::end);
@@ -526,13 +473,13 @@ void IoTests::testNativeFileStream()
     CPPUNIT_ASSERT(!fileStream.is_open());
 #endif
     try {
-        fileStream.openFromFileDescriptor(-1, ios_base::in | ios_base::out | ios_base::binary);
+        fileStream.open(-1, ios_base::in | ios_base::out | ios_base::binary);
         fileStream.get();
         CPPUNIT_FAIL("expected exception");
-    } catch (...) {
+    } catch (const std::ios_base::failure &failure) {
 #ifndef PLATFORM_WINDOWS
-        const string msg = catchIoFailure();
-        TESTUTILS_ASSERT_LIKE("expected error message", "(fdopen failed|failed reading: Bad file descriptor): iostream error", msg);
+        TESTUTILS_ASSERT_LIKE(
+            "expected error message", "(fdopen failed|failed reading: Bad file descriptor): iostream error"s, string(failure.what()));
 #endif
     }
     fileStream.clear();
@@ -564,7 +511,7 @@ void IoTests::testNativeFileStream()
     const auto appendFileHandle = fopen(txtFilePath.data(), "a");
 #endif
     CPPUNIT_ASSERT(appendFileHandle);
-    fileStream2.openFromFileDescriptor(fileno(appendFileHandle), ios_base::out | ios_base::app);
+    fileStream2.open(fileno(appendFileHandle), ios_base::out | ios_base::app);
     CPPUNIT_ASSERT(fileStream2.is_open());
     fileStream2 << "foo";
     fileStream2.close();

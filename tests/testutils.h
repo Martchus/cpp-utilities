@@ -2,8 +2,6 @@
 #define TESTUTILS_H
 
 #include "../application/argumentparser.h"
-#include "../conversion/stringbuilder.h" // FIXME: remove in v5
-#include "../conversion/types.h"
 #include "../misc/traits.h"
 
 #include <iomanip>
@@ -22,7 +20,8 @@ enum class WorkingCopyMode {
 
 class CPP_UTILITIES_EXPORT TestApplication {
 public:
-    TestApplication(int argc, char **argv);
+    explicit TestApplication();
+    explicit TestApplication(int argc, const char *const *argv);
     ~TestApplication();
 
     operator bool() const;
@@ -44,7 +43,6 @@ private:
     static std::string readTestfilePathFromSrcRef();
 
     ApplicationUtilities::ArgumentParser m_parser;
-    ApplicationUtilities::HelpArgument m_helpArg;
     ApplicationUtilities::Argument m_testFilesPathArg;
     ApplicationUtilities::Argument m_applicationPathArg;
     ApplicationUtilities::Argument m_workingDirArg;
@@ -279,18 +277,18 @@ constexpr std::size_t operator"" _st(unsigned long long size)
  * \brief Literal for uint64 to ease asserting uint64 with CPPUNIT_ASSERT_EQUAL.
  * \remarks Just using "ul"-suffix does not compile under 32-bit architecture!
  */
-constexpr uint64 operator"" _uint64(unsigned long long size)
+constexpr std::uint64_t operator"" _uint64(unsigned long long size)
 {
-    return static_cast<uint64>(size);
+    return static_cast<std::uint64_t>(size);
 }
 
 /*!
  * \brief Literal for int64 to ease asserting int64 with CPPUNIT_ASSERT_EQUAL.
  * \remarks Just using "l"-suffix does not compile under 32-bit architecture!
  */
-constexpr int64 operator"" _int64(unsigned long long size)
+constexpr std::int64_t operator"" _int64(unsigned long long size)
 {
-    return static_cast<int64>(size);
+    return static_cast<std::int64_t>(size);
 }
 } // namespace Literals
 } // namespace TestUtilities

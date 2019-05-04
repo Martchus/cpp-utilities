@@ -97,8 +97,8 @@ void BinaryReader::bufferVariableLengthInteger()
 {
     static constexpr int maxPrefixLength = 8;
     int prefixLength = 1;
-    const byte beg = static_cast<byte>(m_stream->peek());
-    byte mask = 0x80;
+    const auto beg = static_cast<std::uint8_t>(m_stream->peek());
+    std::uint8_t mask = 0x80;
     while (prefixLength <= maxPrefixLength && (beg & mask) == 0) {
         ++prefixLength;
         mask >>= 1;
@@ -109,17 +109,6 @@ void BinaryReader::bufferVariableLengthInteger()
     memset(m_buffer, 0, maxPrefixLength);
     m_stream->read(m_buffer + (maxPrefixLength - prefixLength), prefixLength);
     *(m_buffer + (maxPrefixLength - prefixLength)) ^= mask;
-}
-
-/*!
- * \brief Reads a length prefixed string from the current stream.
- * \remarks Reads the length prefix from the stream and then a string of the denoted length.
- *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
- * \todo Make inline in v5.
- */
-string BinaryReader::readLengthPrefixedString()
-{
-    return readString(readVariableLengthUIntBE());
 }
 
 /*!
@@ -143,7 +132,7 @@ string BinaryReader::readString(size_t length)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readTerminatedString(byte termination)
+string BinaryReader::readTerminatedString(uint8_t termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
     ss.exceptions(ios_base::badbit | ios_base::failbit);
@@ -164,12 +153,12 @@ string BinaryReader::readTerminatedString(byte termination)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readTerminatedString(size_t maxBytesToRead, byte termination)
+string BinaryReader::readTerminatedString(size_t maxBytesToRead, std::uint8_t termination)
 {
     unique_ptr<char[]> buff = make_unique<char[]>(maxBytesToRead);
     for (char *i = buff.get(), *end = i + maxBytesToRead; i < end; ++i) {
         m_stream->get(*i);
-        if (*(reinterpret_cast<byte *>(i)) == termination) {
+        if (*(reinterpret_cast<std::uint8_t *>(i)) == termination) {
             return string(buff.get(), i - buff.get());
         }
     }
@@ -186,7 +175,7 @@ string BinaryReader::readTerminatedString(size_t maxBytesToRead, byte terminatio
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringBE(std::uint16_t termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
     ss.exceptions(ios_base::badbit | ios_base::failbit);
@@ -213,7 +202,7 @@ string BinaryReader::readMultibyteTerminatedStringBE(uint16 termination)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringLE(std::uint16_t termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
     ss.exceptions(ios_base::badbit | ios_base::failbit);
@@ -242,7 +231,7 @@ string BinaryReader::readMultibyteTerminatedStringLE(uint16 termination)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, std::uint16_t termination)
 {
     unique_ptr<char[]> buff = make_unique<char[]>(maxBytesToRead);
     char *delimChars = m_buffer;
@@ -269,7 +258,7 @@ string BinaryReader::readMultibyteTerminatedStringBE(std::size_t maxBytesToRead,
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, uint16 termination)
+string BinaryReader::readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, std::uint16_t termination)
 {
     unique_ptr<char[]> buff = make_unique<char[]>(maxBytesToRead);
     char *delimChars = m_buffer;
@@ -292,11 +281,11 @@ string BinaryReader::readMultibyteTerminatedStringLE(std::size_t maxBytesToRead,
  * \remarks Ogg compatible version
  * \sa <a href="http://en.wikipedia.org/wiki/Cyclic_redundancy_check">Cyclic redundancy check - Wikipedia</a>
  */
-uint32 BinaryReader::readCrc32(size_t length)
+std::uint32_t BinaryReader::readCrc32(size_t length)
 {
-    uint32 crc = 0x00;
-    for (uint32 i = 0; i < length; ++i) {
-        crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<byte>(m_stream->get())];
+    std::uint32_t crc = 0x00;
+    for (std::uint32_t i = 0; i < length; ++i) {
+        crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<std::uint8_t>(m_stream->get())];
     }
     return crc;
 }
@@ -309,11 +298,11 @@ uint32 BinaryReader::readCrc32(size_t length)
  * \remarks Ogg compatible version
  * \sa <a href="http://en.wikipedia.org/wiki/Cyclic_redundancy_check">Cyclic redundancy check - Wikipedia</a>
  */
-uint32 BinaryReader::computeCrc32(const char *buffer, size_t length)
+std::uint32_t BinaryReader::computeCrc32(const char *buffer, size_t length)
 {
-    uint32 crc = 0x00;
+    std::uint32_t crc = 0x00;
     for (const char *i = buffer, *end = buffer + length; i != end; ++i) {
-        crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<byte>(*i)];
+        crc = (crc << 8) ^ crc32Table[((crc >> 24) & 0xff) ^ static_cast<std::uint8_t>(*i)];
     }
     return crc;
 }
@@ -323,7 +312,7 @@ uint32 BinaryReader::computeCrc32(const char *buffer, size_t length)
  * \remarks Internally used by readCrc32() method.
  * \sa readCrc32()
  */
-const uint32 BinaryReader::crc32Table[] = { 0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
+const std::uint32_t BinaryReader::crc32Table[] = { 0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
     0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd, 0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9,
     0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75, 0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
     0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039, 0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5, 0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81,

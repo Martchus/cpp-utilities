@@ -7,10 +7,11 @@ namespace ChronoUtilities {
 
 class CPP_UTILITIES_EXPORT Period {
 public:
-    Period(const DateTime &begin, const DateTime &end);
-    int years() const;
-    int months() const;
-    int days() const;
+    constexpr Period();
+    Period(DateTime begin, DateTime end);
+    constexpr int years() const;
+    constexpr int months() const;
+    constexpr int days() const;
 
 private:
     int m_years;
@@ -18,10 +19,17 @@ private:
     int m_days;
 };
 
+constexpr Period::Period()
+    : m_years(0)
+    , m_months(0)
+    , m_days(0)
+{
+}
+
 /*!
  * \brief Returns the years component of the period represented by the current instance.
  */
-inline int Period::years() const
+constexpr int Period::years() const
 {
     return m_years;
 }
@@ -29,7 +37,7 @@ inline int Period::years() const
 /*!
  * \brief Returns the months component of the period represented by the current instance.
  */
-inline int Period::months() const
+constexpr int Period::months() const
 {
     return m_months;
 }
@@ -37,7 +45,7 @@ inline int Period::months() const
 /*!
  * \brief Returns the days component of the period represented by the current instance.
  */
-inline int Period::days() const
+constexpr int Period::days() const
 {
     return m_days;
 }

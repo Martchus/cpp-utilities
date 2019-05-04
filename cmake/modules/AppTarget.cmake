@@ -13,30 +13,10 @@ if (NOT "${META_PROJECT_TYPE}" STREQUAL "application")
         )
 endif ()
 
-# set the windows extension to "exe", this is required by the Windows specific WindowsResources module
+# set the windows extension to "exe", this is required by the Windows-specific WindowsResources module
 if (WIN32)
     set(WINDOWS_EXT "exe")
 endif (WIN32)
-
-# set compile definitions
-if (NOT META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS ${META_PUBLIC_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PUBLIC_SHARED_COMPILE_DEFINITIONS})
-endif ()
-if (NOT META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS)
-    set(META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS ${META_PRIVATE_COMPILE_DEFINITIONS}
-        ${META_ADDITIONAL_PRIVATE_SHARED_COMPILE_DEFINITIONS})
-    if (STATIC_LINKAGE)
-        list(APPEND META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS APP_STATICALLY_LINKED)
-    endif ()
-endif ()
-
-# set linker flags
-if (STATIC_LINKAGE)
-    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${META_ADDITIONAL_STATIC_LINK_FLAGS})
-else ()
-    set(ACTUAL_ADDITIONAL_LINK_FLAGS ${META_ADDITIONAL_LINK_FLAGS})
-endif ()
 
 # define relevant files
 set(ALL_FILES
@@ -52,28 +32,25 @@ if (NOT BUILTIN_TRANSLATIONS)
 endif ()
 
 # add target for building the application
-if (NOT ANDROID)
-    add_executable(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${GUI_TYPE} ${ALL_FILES})
+if (ANDROID)
+    # create a shared library which can be loaded from the Java-side
+    add_library(${META_TARGET_NAME} SHARED ${GUI_TYPE} ${ALL_FILES})
 else ()
-    # create a library which can be loaded from the Java-side
-    add_library(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} SHARED ${GUI_TYPE} ${ALL_FILES})
+    add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
-target_link_libraries(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                      PUBLIC ${ACTUAL_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+target_link_libraries(${META_TARGET_NAME}
+                      PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                       PRIVATE "${PRIVATE_LIBRARIES}")
-target_include_directories(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                           PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_SHARED_INCLUDE_DIRS}
-                           PRIVATE "${PRIVATE_SHARED_INCLUDE_DIRS}")
-target_compile_definitions(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+target_include_directories(${META_TARGET_NAME}
+                           PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> ${PUBLIC_INCLUDE_DIRS}
+                           PRIVATE "${PRIVATE_INCLUDE_DIRS}")
+target_compile_definitions(${META_TARGET_NAME}
                            PUBLIC
-                           "${META_PUBLIC_SHARED_LIB_COMPILE_DEFINITIONS}"
+                           "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
-                           "${META_PRIVATE_SHARED_LIB_COMPILE_DEFINITIONS}")
-target_compile_options(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
-                       PUBLIC "${META_PUBLIC_SHARED_LIB_COMPILE_OPTIONS}"
-                       PRIVATE "${META_PRIVATE_SHARED_LIB_COMPILE_OPTIONS}")
-set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+                           "${META_PRIVATE_COMPILE_DEFINITIONS}")
+target_compile_options(${META_TARGET_NAME} PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}" PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
+set_target_properties(${META_TARGET_NAME}
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"
                                  LINK_SEARCH_START_STATIC
@@ -83,20 +60,21 @@ set_target_properties(${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
                                  AUTOGEN_TARGET_DEPENDS
                                  "${AUTOGEN_DEPS}")
 
+# add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
     if (APPLE)
         set(BUNDLE_INSTALL_DESTINATION bin CACHE STRING "specifies the install destination for bundles")
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        install(TARGETS ${META_TARGET_NAME}
                 RUNTIME DESTINATION bin
                 BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}" COMPONENT binary)
     elseif (ANDROID)
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}
+        install(TARGETS ${META_TARGET_NAME}
                 RUNTIME DESTINATION bin COMPONENT binary
                 LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary
                 ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary)
     else ()
-        install(TARGETS ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} RUNTIME DESTINATION bin COMPONENT binary)
+        install(TARGETS ${META_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
     endif ()
 
     if (NOT TARGET install-binary)
@@ -104,14 +82,14 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-binary ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-binary ${META_TARGET_NAME})
 
     # add mingw-w64 specific install target
     if (NOT TARGET install-mingw-w64)
         add_custom_target(install-mingw-w64)
         add_dependencies(install-mingw-w64 install-binary)
     endif ()
-    add_dependencies(install-mingw-w64 ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-mingw-w64 ${META_TARGET_NAME})
 
     # add install target for desktop entries and icons
     foreach (DESKTOP_FILE ${DESKTOP_FILES})
@@ -126,13 +104,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=desktop -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-desktop ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-desktop ${META_TARGET_NAME})
     if (NOT TARGET install-appimage)
         add_custom_target(install-appimage
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=appimage -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-appimage ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-appimage ${META_TARGET_NAME})
 
     # add install target for stripped binaries
     if (NOT TARGET install-binary-strip)
@@ -140,7 +118,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
-    add_dependencies(install-binary-strip ${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX})
+    add_dependencies(install-binary-strip ${META_TARGET_NAME})
 
     # add mingw-w64 specific install targets
     if (MINGW)
@@ -173,22 +151,27 @@ if (MINGW AND CMAKE_CROSSCOMPILING AND CPP_UTILITIES_SOURCE_DIR)
     endif ()
 endif ()
 
-# find template for *.desktop files
+# find template for *.desktop and AppStream files
 include(TemplateFinder)
 find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
 find_template_file("appdata.xml" CPP_UTILITIES APP_APPSTREAM_TEMPLATE_FILE)
 
-# function to add *.desktop files with additional entries FIXME v5: use "include(CMakeParseArguments)" like in
-# ReflectionGenerator.cmake
-function (add_custom_desktop_file_with_additional_entries
-          FILE_NAME
-          DESKTOP_FILE_APP_NAME
-          DESKTOP_FILE_GENERIC_NAME
-          DESKTOP_FILE_DESCRIPTION
-          DESKTOP_FILE_CATEGORIES
-          DESKTOP_FILE_CMD
-          DESKTOP_FILE_ICON
-          DESKTOP_FILE_ADDITIONAL_ENTRIES)
+# define generic function to add *.desktop files
+include(CMakeParseArguments)
+function (add_custom_desktop_file)
+    # parse arguments
+    set(ONE_VALUE_ARGS
+        FILE_NAME
+        DESKTOP_FILE_APP_NAME
+        DESKTOP_FILE_GENERIC_NAME
+        DESKTOP_FILE_DESCRIPTION
+        DESKTOP_FILE_CATEGORIES
+        DESKTOP_FILE_CMD
+        DESKTOP_FILE_ICON)
+    set(MULTI_VALUE_ARGS)
+    set(OPTIONAL_ARGS DESKTOP_FILE_ADDITIONAL_ENTRIES)
+    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+
     # create desktop file from template
     configure_file("${APP_DESKTOP_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resources/${FILE_NAME}.desktop")
     # add install for the desktop file
@@ -197,26 +180,7 @@ function (add_custom_desktop_file_with_additional_entries
             COMPONENT desktop)
 endfunction ()
 
-# function to add *.desktop files
-function (add_custom_desktop_file
-          FILE_NAME
-          DESKTOP_FILE_APP_NAME
-          DESKTOP_FILE_GENERIC_NAME
-          DESKTOP_FILE_DESCRIPTION
-          DESKTOP_FILE_CATEGORIES
-          DESKTOP_FILE_CMD
-          DESKTOP_FILE_ICON)
-    add_custom_desktop_file_with_additional_entries("${FILE_NAME}"
-                                                    "${DESKTOP_FILE_APP_NAME}"
-                                                    "${DESKTOP_FILE_GENERIC_NAME}"
-                                                    "${DESKTOP_FILE_DESCRIPTION}"
-                                                    "${DESKTOP_FILE_CATEGORIES}"
-                                                    "${DESKTOP_FILE_CMD}"
-                                                    "${DESKTOP_FILE_ICON}"
-                                                    "")
-endfunction ()
-
-# convenience function to add *.desktop file and meta info from project meta data
+# define function to add *.desktop file and meta info from project meta data
 function (add_desktop_file)
     # compose actions
     set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
@@ -226,19 +190,27 @@ function (add_desktop_file)
         list(GET META_APP_ACTION_${ACTION_VAR} 2 ACTION_ARGS)
         set(
             DESKTOP_FILE_ADDITIONAL_ENTRIES
-            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}\n[Desktop Action ${ACTION_ID}]\nName=${ACTION_NAME}\nExec=${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX} ${ACTION_ARGS}"
+            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}\n[Desktop Action ${ACTION_ID}]\nName=${ACTION_NAME}\nExec=${META_TARGET_NAME} ${ACTION_ARGS}"
             )
     endforeach ()
 
     # create desktop file
-    add_custom_desktop_file_with_additional_entries("${META_ID}"
-                                                    "${META_APP_NAME}"
-                                                    "${META_GENERIC_NAME}"
-                                                    "${META_APP_DESCRIPTION}"
-                                                    "${META_APP_CATEGORIES}"
-                                                    "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}"
-                                                    "${META_PROJECT_NAME}"
-                                                    "${DESKTOP_FILE_ADDITIONAL_ENTRIES}")
+    add_custom_desktop_file(FILE_NAME
+                            "${META_ID}"
+                            DESKTOP_FILE_APP_NAME
+                            "${META_APP_NAME}"
+                            DESKTOP_FILE_GENERIC_NAME
+                            "${META_GENERIC_NAME}"
+                            DESKTOP_FILE_DESCRIPTION
+                            "${META_APP_DESCRIPTION}"
+                            DESKTOP_FILE_CATEGORIES
+                            "${META_APP_CATEGORIES}"
+                            DESKTOP_FILE_CMD
+                            "${META_TARGET_NAME}"
+                            DESKTOP_FILE_ICON
+                            "${META_PROJECT_NAME}"
+                            DESKTOP_FILE_ADDITIONAL_ENTRIES
+                            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}")
 
     # read body for appstream desktop file from resources
     set(META_APP_APPDATA_BODY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/body.appdata.xml")

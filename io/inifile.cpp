@@ -1,5 +1,4 @@
 #include "./inifile.h"
-#include "./catchiofailure.h"
 
 #include <iostream>
 
@@ -135,15 +134,13 @@ void IniFile::parse(std::istream &inputStream)
                 break;
             }
         }
-    } catch (...) {
-        const char *what = catchIoFailure();
-        if (inputStream.eof()) {
-            // we just reached the end of the file
-            // don't forget to save the last key/value pair
-            finishKeyValue();
-        } else {
-            throwIoFailure(what);
+    } catch (const std::ios_base::failure &) {
+        if (!inputStream.eof()) {
+            throw;
         }
+        // we just reached the end of the file
+        // don't forget to save the last key/value pair
+        finishKeyValue();
     }
 }
 

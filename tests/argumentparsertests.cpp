@@ -68,6 +68,7 @@ public:
 
 private:
     void callback();
+    [[noreturn]] void failOnExit(int code);
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ArgumentParserTests);
@@ -82,6 +83,11 @@ void ArgumentParserTests::setUp()
 
 void ArgumentParserTests::tearDown()
 {
+}
+
+[[noreturn]] void ArgumentParserTests::failOnExit(int code)
+{
+    CPPUNIT_FAIL(argsToString("Exited unexpectedly with code ", code));
 }
 
 /*!
@@ -116,9 +122,9 @@ void ArgumentParserTests::testParsing()
 {
     // setup parser with some test argument definitions
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     SET_APPLICATION_INFO;
     QT_CONFIG_ARGUMENTS qtConfigArgs;
-    HelpArgument helpArg(parser);
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
     Argument fileArg("file", 'f', "specifies the path of the file to be opened");
@@ -145,8 +151,8 @@ void ArgumentParserTests::testParsing()
     Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({ &fieldsArg, &filesArg, &verboseArg, &notAlbumArg });
-    NoColorArgument noColorArg;
-    parser.setMainArguments({ &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &helpArg, &noColorArg });
+    parser.setMainArguments(
+        { &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &parser.noColorArg(), &parser.helpArg() });
 
     // no args present
     parser.parseArgs(0, nullptr);
@@ -265,7 +271,8 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_THROW(fileArg.values().at(1), out_of_range);
 
     // constraint checking: no multiple occurrences (not resetting verboseArg on purpose)
-    displayFileInfoArg.reset(), fileArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
     try {
         parser.parseArgs(4, argv4);
         CPPUNIT_FAIL("Exception expected.");
@@ -275,7 +282,8 @@ void ArgumentParserTests::testParsing()
     }
 
     // constraint checking: no contraint (not resetting verboseArg on purpose)
-    displayFileInfoArg.reset(), fileArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
     verboseArg.setConstraints(0, Argument::varValueCount);
     parser.parseArgs(4, argv4);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
@@ -288,7 +296,9 @@ void ArgumentParserTests::testParsing()
 
     // contraint checking: error about missing mandatory argument
     const char *argv5[] = { "tageditor", "-i", "-f", "test" };
-    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
+    verboseArg.reset();
     try {
         parser.parseArgs(4, argv5);
         CPPUNIT_FAIL("Exception expected.");
@@ -361,7 +371,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
-    CPPUNIT_ASSERT(noColorArg.isPresent());
+    CPPUNIT_ASSERT(parser.noColorArg().isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
     CPPUNIT_ASSERT_EQUAL("test-v"s, string(fileArg.values(0).front()));
 
@@ -452,6 +462,7 @@ void ArgumentParserTests::testParsing()
 void ArgumentParserTests::testCallbacks()
 {
     ArgumentParser parser;
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     Argument callbackArg("with-callback", 't', "callback test");
     callbackArg.setRequiredValueCount(2);
     callbackArg.setCallback([](const ArgumentOccurrence &occurrence) {
@@ -495,7 +506,7 @@ static bool exitCalled = false;
 void ArgumentParserTests::testBashCompletion()
 {
     ArgumentParser parser;
-    HelpArgument helpArg(parser);
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     Argument verboseArg("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
     Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
@@ -528,7 +539,7 @@ void ArgumentParserTests::testBashCompletion()
     Argument setArg("set", 's', "sets tag values");
     setArg.setSubArguments({ &valuesArg, &filesArg, &selectorsArg });
 
-    parser.setMainArguments({ &helpArg, &displayFileInfoArg, &getArg, &setArg });
+    parser.setMainArguments({ &displayFileInfoArg, &getArg, &setArg, &parser.noColorArg(), &parser.helpArg() });
 
     // fail due to operation flags not set
     const char *const argv1[] = { "se" };
@@ -560,7 +571,7 @@ void ArgumentParserTests::testBashCompletion()
     // advance the cursor position -> the completion should propose the next argument
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -569,7 +580,7 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     filesArg.setDenotesOperation(true);
     {
-        const OutputCheck c("COMPREPLY=('files' '--selectors' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv2, argv2 + 1).read();
         parser.printBashCompletion(1, argv2, 1, reader);
     }
@@ -578,7 +589,7 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     filesArg.setDenotesOperation(false);
     {
-        const OutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n");
+        const OutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' '--no-color' )\n");
         reader.reset(nullptr, nullptr).read();
         parser.printBashCompletion(0, nullptr, 0, reader);
     }
@@ -587,7 +598,7 @@ void ArgumentParserTests::testBashCompletion()
     const char *const argv3[] = { "get", "--fields" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' )\n");
+        const OutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--files' '--no-color' )\n");
         reader.reset(argv3, argv3 + 2).read();
         parser.printBashCompletion(2, argv3, 2, reader);
     }
@@ -637,7 +648,7 @@ void ArgumentParserTests::testBashCompletion()
     // pre-defined values for implicit argument
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--fields' '--files' )\n");
+        const OutputCheck c("COMPREPLY=('title' 'album' 'artist' 'trackpos' '--fields' '--files' '--no-color' )\n");
         reader.reset(argv3, argv3 + 1).read();
         parser.printBashCompletion(1, argv3, 2, reader);
     }
@@ -661,7 +672,7 @@ void ArgumentParserTests::testBashCompletion()
     const char *const argv6[] = { "set", "--" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--selectors' '--values' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--no-color' '--selectors' '--values' )\n");
         reader.reset(argv6, argv6 + 2).read();
         parser.printBashCompletion(2, argv6, 1, reader);
     }
@@ -670,7 +681,7 @@ void ArgumentParserTests::testBashCompletion()
     const char *const argv7[] = { "-i", "--sub", "--" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('--files' '--nested-sub' '--verbose' )\n");
+        const OutputCheck c("COMPREPLY=('--files' '--nested-sub' '--no-color' '--verbose' )\n");
         reader.reset(argv7, argv7 + 3).read();
         parser.printBashCompletion(3, argv7, 2, reader);
     }
@@ -700,13 +711,13 @@ void ArgumentParserTests::testBashCompletion()
     }
 
     // override exit function to prevent readArgs() from terminating the test run
-    exitFunction = [](int) { exitCalled = true; };
+    parser.setExitFunction([](int) { exitCalled = true; });
 
     // call completion via readArgs() with current word index
     const char *const argv10[] = { "/some/path/tageditor", "--bash-completion-for", "0" };
     parser.resetArgs();
     {
-        const OutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' )\n");
+        const OutputCheck c("COMPREPLY=('display-file-info' 'get' 'set' '--help' '--no-color' )\n");
         parser.readArgs(3, argv10);
     }
     CPPUNIT_ASSERT(!strcmp("/some/path/tageditor", parser.executable()));
@@ -736,8 +747,7 @@ void ArgumentParserTests::testHelp()
 
     // setup parser
     ArgumentParser parser;
-    HelpArgument helpArg(parser);
-    helpArg.setRequired(true);
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     OperationArgument verboseArg("verbose", 'v', "be verbose", "actually not an operation");
     verboseArg.setCombinable(true);
     ConfigValueArgument nestedSubArg("nested-sub", '\0', "nested sub arg", { "value1", "value2" });
@@ -757,11 +767,11 @@ void ArgumentParserTests::testHelp()
     envArg.setEnvironmentVariable("FILES");
     envArg.setRequiredValueCount(2);
     envArg.appendValueName("file");
-    parser.addMainArgument(&helpArg);
-    parser.addMainArgument(&verboseArg);
-    parser.addMainArgument(&filesArg);
-    parser.addMainArgument(&envArg);
-    dependencyVersions2 = { "somelib", "some other lib" };
+    Argument deprecatedArg("deprecated");
+    deprecatedArg.markAsDeprecated(&filesArg);
+    parser.helpArg().setRequired(true);
+    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &deprecatedArg, &parser.noColorArg(), &parser.helpArg() });
+    applicationInfo.dependencyVersions = { "somelib", "some other lib" };
 
     // parse args and assert output
     const char *const argv[] = { "app", "-h" };
@@ -788,12 +798,17 @@ void ArgumentParserTests::testHelp()
                             "  env\n"
                             "  default environment variable: FILES\n"
                             "\n"
+                            "\e[1m--no-color\e[0m\n"
+                            "  disables formatted/colorized output\n"
+                            "  default environment variable: ENABLE_ESCAPE_CODES\n"
+                            "\n"
                             "Project website: " APP_URL "\n");
         EscapeCodes::enabled = true;
         parser.parseArgs(2, argv);
     }
 
     verboseArg.setDenotesOperation(false);
+    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.helpArg() });
     {
         const OutputCheck c(APP_NAME ", version " APP_VERSION "\n"
                                      "Linked against: somelib, some other lib\n"
@@ -830,7 +845,8 @@ void ArgumentParserTests::testHelp()
 void ArgumentParserTests::testSetMainArguments()
 {
     ArgumentParser parser;
-    HelpArgument helpArg(parser);
+    parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
+    HelpArgument &helpArg(parser.helpArg());
     Argument subArg("sub-arg", 's', "mandatory sub arg");
     subArg.setRequired(true);
     helpArg.addSubArgument(&subArg);
@@ -857,9 +873,6 @@ void ArgumentParserTests::testNoColorArgument()
     // assume escape codes are enabled by default
     EscapeCodes::enabled = true;
 
-    // ensure the initialization is not skipped
-    NoColorArgument::s_instance = nullptr;
-
     {
         unsetenv("ENABLE_ESCAPE_CODES");
         NoColorArgument noColorArg;
@@ -868,8 +881,6 @@ void ArgumentParserTests::testNoColorArgument()
         noColorArg.m_occurrences.emplace_back(0);
         noColorArg.apply();
         CPPUNIT_ASSERT_MESSAGE("default negated if present", !EscapeCodes::enabled);
-        const NoColorArgument secondInstance;
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("s_instance not altered by 2nd instance", &noColorArg, NoColorArgument::s_instance);
     }
     {
         setenv("ENABLE_ESCAPE_CODES", "  0 ", 1);

@@ -17,12 +17,21 @@ class ArgumentParserTests;
 
 namespace ApplicationUtilities {
 
-CPP_UTILITIES_EXPORT extern const char *applicationName;
-CPP_UTILITIES_EXPORT extern const char *applicationAuthor;
-CPP_UTILITIES_EXPORT extern const char *applicationVersion;
-CPP_UTILITIES_EXPORT extern const char *applicationUrl;
-CPP_UTILITIES_EXPORT extern std::initializer_list<const char *> dependencyVersions;
-CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
+/*!
+ * \brief Stores information about an application.
+ */
+struct ApplicationInfo {
+    const char *name = nullptr;
+    const char *author = nullptr;
+    const char *version = nullptr;
+    const char *url = nullptr;
+    std::vector<const char *> dependencyVersions;
+};
+
+/*!
+ * \brief Stores global application info used by ArgumentParser::printHelp() and AboutDialog.
+ */
+CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
 
 /*!
  * \def SET_DEPENDENCY_INFO
@@ -30,11 +39,7 @@ CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
  *        used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
-#ifndef APP_STATICALLY_LINKED
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions2 = DEPENCENCY_VERSIONS
-#else
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::dependencyVersions2 = STATIC_DEPENCENCY_VERSIONS
-#endif
+#define SET_DEPENDENCY_INFO ::ApplicationUtilities::applicationInfo.dependencyVersions = DEPENCENCY_VERSIONS
 
 /*!
  * \def SET_APPLICATION_INFO
@@ -42,13 +47,11 @@ CPP_UTILITIES_EXPORT extern std::vector<const char *> dependencyVersions2;
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #define SET_APPLICATION_INFO                                                                                                                         \
-    ::ApplicationUtilities::applicationName = APP_NAME;                                                                                              \
-    ::ApplicationUtilities::applicationAuthor = APP_AUTHOR;                                                                                          \
-    ::ApplicationUtilities::applicationVersion = APP_VERSION;                                                                                        \
-    ::ApplicationUtilities::applicationUrl = APP_URL;                                                                                                \
+    ::ApplicationUtilities::applicationInfo.name = APP_NAME;                                                                                         \
+    ::ApplicationUtilities::applicationInfo.author = APP_AUTHOR;                                                                                     \
+    ::ApplicationUtilities::applicationInfo.version = APP_VERSION;                                                                                   \
+    ::ApplicationUtilities::applicationInfo.url = APP_URL;                                                                                           \
     SET_DEPENDENCY_INFO
-
-CPP_UTILITIES_EXPORT extern void (*exitFunction)(int);
 
 class Argument;
 class ArgumentParser;
@@ -124,9 +127,6 @@ constexpr bool operator&(ValueCompletionBehavior lhs, ValueCompletionBehavior rh
     return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
 }
 /// \endcond
-
-// TODO v5: Make function private
-Argument CPP_UTILITIES_EXPORT *firstPresentUncombinableArg(const ArgumentVector &args, const Argument *except);
 
 /*!
  * \brief Contains functions to convert raw argument values to certain types.
@@ -260,6 +260,14 @@ class CPP_UTILITIES_EXPORT Argument {
 public:
     typedef std::function<void(const ArgumentOccurrence &)> CallbackFunction;
 
+    enum class Flags : std::uint64_t {
+        None = 0x0,
+        Combinable = 0x1,
+        Implicit = 0x2,
+        Operation = 0x4,
+        Deprecated = 0x8,
+    };
+
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
     ~Argument();
 
@@ -290,10 +298,13 @@ public:
     const std::vector<Argument *> &path(std::size_t occurrence = 0) const;
     bool isRequired() const;
     void setRequired(bool required);
+    Argument::Flags flags() const;
+    void setFlags(Argument::Flags flags);
+    void setFlags(Argument::Flags flags, bool add);
     bool isCombinable() const;
-    void setCombinable(bool value);
+    void setCombinable(bool combinable);
     bool isImplicit() const;
-    void setImplicit(bool value);
+    void setImplicit(bool implicit);
     bool denotesOperation() const;
     void setDenotesOperation(bool denotesOperation);
     const CallbackFunction &callback() const;
@@ -323,6 +334,9 @@ public:
     std::size_t index(std::size_t occurrence) const;
     std::size_t minOccurrences() const;
     std::size_t maxOccurrences() const;
+    bool isDeprecated() const;
+    const Argument *deprecatedBy() const;
+    void markAsDeprecated(const Argument *deprecatedBy = nullptr);
     bool isMainArgument() const;
     bool isParentPresent() const;
     Argument *conflictsWithArgument() const;
@@ -350,19 +364,30 @@ private:
     const char *m_example;
     std::size_t m_minOccurrences;
     std::size_t m_maxOccurrences;
-    bool m_combinable;
-    bool m_denotesOperation;
     std::size_t m_requiredValueCount;
     std::vector<const char *> m_valueNames;
-    bool m_implicit;
+    Flags m_flags;
     std::vector<ArgumentOccurrence> m_occurrences;
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
+    const Argument *m_deprecatedBy;
     bool m_isMainArg;
     ValueCompletionBehavior m_valueCompletionBehavior;
     const char *m_preDefinedCompletionValues;
 };
+
+/// \cond
+constexpr Argument::Flags operator|(Argument::Flags lhs, Argument::Flags rhs)
+{
+    return static_cast<Argument::Flags>(static_cast<unsigned char>(lhs) | static_cast<unsigned char>(rhs));
+}
+
+constexpr bool operator&(Argument::Flags lhs, Argument::Flags rhs)
+{
+    return static_cast<bool>(static_cast<unsigned char>(lhs) & static_cast<unsigned char>(rhs));
+}
+/// \endcond
 
 /*!
  * \brief Converts the present values for the specified \a occurrence to the specified target types. There must be as many values present as types are specified.
@@ -388,6 +413,30 @@ template <typename... TargetType> std::vector<std::tuple<TargetType...>> Argumen
     }
     return res;
 }
+
+class CPP_UTILITIES_EXPORT HelpArgument : public Argument {
+public:
+    HelpArgument(ArgumentParser &parser);
+};
+
+class CPP_UTILITIES_EXPORT OperationArgument : public Argument {
+public:
+    OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
+};
+
+class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument {
+public:
+    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr,
+        std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
+};
+
+class CPP_UTILITIES_EXPORT NoColorArgument : public Argument {
+    friend ArgumentParserTests;
+
+public:
+    NoColorArgument();
+    void apply() const;
+};
 
 struct ArgumentCompletionInfo;
 
@@ -424,6 +473,11 @@ public:
     void setDefaultArgument(Argument *argument);
     Argument *specifiedOperation() const;
     bool isUncombinableMainArgPresent() const;
+    void setExitFunction(std::function<void(int)> exitFunction);
+    const HelpArgument &helpArg() const;
+    HelpArgument &helpArg();
+    const NoColorArgument &noColorArg() const;
+    NoColorArgument &noColorArg();
 
 private:
     // declare internal operations
@@ -434,12 +488,16 @@ private:
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);
+    void invokeExit(int code);
 
     ArgumentVector m_mainArgs;
     unsigned int m_actualArgc;
     const char *m_executable;
     UnknownArgumentBehavior m_unknownArgBehavior;
     Argument *m_defaultArg;
+    HelpArgument m_helpArg;
+    NoColorArgument m_noColorArg;
+    std::function<void(int)> m_exitFunction;
 };
 
 /*!
@@ -657,7 +715,7 @@ inline bool Argument::allRequiredValuesPresent(std::size_t occurrence) const
  */
 inline bool Argument::isImplicit() const
 {
-    return m_implicit;
+    return m_flags & Flags::Implicit;
 }
 
 /*!
@@ -666,7 +724,7 @@ inline bool Argument::isImplicit() const
  */
 inline void Argument::setImplicit(bool implicit)
 {
-    m_implicit = implicit;
+    setFlags(Flags::Implicit, implicit);
 }
 
 /*!
@@ -711,6 +769,30 @@ inline std::size_t Argument::minOccurrences() const
 inline std::size_t Argument::maxOccurrences() const
 {
     return m_maxOccurrences;
+}
+
+inline bool Argument::isDeprecated() const
+{
+    return m_flags & Flags::Deprecated;
+}
+
+/*!
+ * \brief Returns the argument which obsoletes this argument.
+ */
+inline const Argument *Argument::deprecatedBy() const
+{
+    return m_deprecatedBy;
+}
+
+/*!
+ * \brief Marks the argument as deprecated.
+ *
+ * If another argument should be used instead, specify it via \a deprecatedBy.
+ */
+inline void Argument::markAsDeprecated(const Argument *deprecatedBy)
+{
+    setFlags(Flags::Deprecated, true);
+    m_deprecatedBy = deprecatedBy;
 }
 
 /*!
@@ -765,6 +847,32 @@ inline void Argument::setRequired(bool required)
 }
 
 /*!
+ * \brief Returns Argument::Flags for the argument.
+ */
+inline Argument::Flags Argument::flags() const
+{
+    return m_flags;
+}
+
+/*!
+ * \brief Replaces all Argument::Flags for the argument with the \a flags.
+ */
+inline void Argument::setFlags(Argument::Flags flags)
+{
+    m_flags = flags;
+}
+
+/*!
+ * \brief Adds or removes the specified \a flags.
+ */
+inline void Argument::setFlags(Argument::Flags flags, bool add)
+{
+    m_flags = add ? (m_flags | flags)
+                  : static_cast<Argument::Flags>(static_cast<std::underlying_type<Argument::Flags>::type>(m_flags)
+                      & ~static_cast<std::underlying_type<Argument::Flags>::type>(flags));
+}
+
+/*!
  * \brief Returns an indication whether the argument is combinable.
  *
  * The parser will complain if two arguments labeled as uncombinable are
@@ -774,7 +882,7 @@ inline void Argument::setRequired(bool required)
  */
 inline bool Argument::isCombinable() const
 {
-    return m_combinable;
+    return m_flags & Flags::Combinable;
 }
 
 /*!
@@ -785,9 +893,9 @@ inline bool Argument::isCombinable() const
  *
  * \sa isCombinable()
  */
-inline void Argument::setCombinable(bool value)
+inline void Argument::setCombinable(bool combinable)
 {
-    m_combinable = value;
+    setFlags(Flags::Combinable, combinable);
 }
 
 /*!
@@ -802,7 +910,7 @@ inline void Argument::setCombinable(bool value)
  */
 inline bool Argument::denotesOperation() const
 {
-    return m_denotesOperation;
+    return m_flags & Flags::Operation;
 }
 
 /*!
@@ -811,7 +919,7 @@ inline bool Argument::denotesOperation() const
  */
 inline void Argument::setDenotesOperation(bool denotesOperation)
 {
-    m_denotesOperation = denotesOperation;
+    setFlags(Flags::Operation, denotesOperation);
 }
 
 /*!
@@ -932,6 +1040,24 @@ inline void Argument::reset()
     m_occurrences.clear();
 }
 
+inline OperationArgument::OperationArgument(const char *name, char abbreviation, const char *description, const char *example)
+    : Argument(name, abbreviation, description, example)
+{
+    setDenotesOperation(true);
+}
+
+/*!
+ * \brief Constructs a new ConfigValueArgument with the specified parameter. The initial value of requiredValueCount() is set to size of specified \a valueNames.
+ */
+inline ConfigValueArgument::ConfigValueArgument(
+    const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames)
+    : Argument(name, abbreviation, description)
+{
+    setCombinable(true);
+    setRequiredValueCount(valueNames.size());
+    setValueNames(valueNames);
+}
+
 /*!
  * \brief Returns information about all occurrences of the argument which have been detected when parsing.
  * \remarks The convenience methods isPresent(), values() and path() provide direct access to these information for a particular occurrence.
@@ -1034,51 +1160,46 @@ inline void ArgumentParser::invokeCallbacks()
     invokeCallbacks(m_mainArgs);
 }
 
-class CPP_UTILITIES_EXPORT HelpArgument : public Argument {
-public:
-    HelpArgument(ArgumentParser &parser);
-};
-
-class CPP_UTILITIES_EXPORT OperationArgument : public Argument {
-public:
-    OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
-};
-
-inline OperationArgument::OperationArgument(const char *name, char abbreviation, const char *description, const char *example)
-    : Argument(name, abbreviation, description, example)
+/*!
+ * \brief Specifies a function quit the application.
+ * \remarks Currently only used after printing Bash completion. Default is std::exit().
+ */
+inline void ArgumentParser::setExitFunction(std::function<void(int)> exitFunction)
 {
-    setDenotesOperation(true);
+    m_exitFunction = exitFunction;
 }
-
-class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument {
-public:
-    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr,
-        std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
-};
 
 /*!
- * \brief Constructs a new ConfigValueArgument with the specified parameter. The initial value of requiredValueCount() is set to size of specified \a valueNames.
+ * \brief Returns the `--help` argument.
  */
-inline ConfigValueArgument::ConfigValueArgument(
-    const char *name, char abbreviation, const char *description, std::initializer_list<const char *> valueNames)
-    : Argument(name, abbreviation, description)
+inline const HelpArgument &ArgumentParser::helpArg() const
 {
-    setCombinable(true);
-    setRequiredValueCount(valueNames.size());
-    setValueNames(valueNames);
+    return m_helpArg;
 }
 
-class CPP_UTILITIES_EXPORT NoColorArgument : public Argument {
-    friend ArgumentParserTests;
+/*!
+ * \brief Returns the `--help` argument.
+ */
+inline HelpArgument &ArgumentParser::helpArg()
+{
+    return m_helpArg;
+}
 
-public:
-    NoColorArgument();
-    ~NoColorArgument();
-    static void apply();
+/*!
+ * \brief Returns the `--no-color` argument.
+ */
+inline const NoColorArgument &ArgumentParser::noColorArg() const
+{
+    return m_noColorArg;
+}
 
-private:
-    static NoColorArgument *s_instance;
-};
+/*!
+ * \brief Returns the `--no-color` argument.
+ */
+inline NoColorArgument &ArgumentParser::noColorArg()
+{
+    return m_noColorArg;
+}
 
 } // namespace ApplicationUtilities
 

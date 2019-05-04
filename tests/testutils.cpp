@@ -4,7 +4,6 @@
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
-#include "../io/catchiofailure.h"
 #include "../io/misc.h"
 #include "../io/nativefilestream.h"
 #include "../io/path.h"
@@ -106,12 +105,20 @@ TestApplication *TestApplication::m_instance = nullptr;
  */
 
 /*!
- * \brief Constructs a TestApplication instance.
+ * \brief Constructs a TestApplication instance without further arguments.
  * \throws Throws std::runtime_error if an instance has already been created.
  */
-TestApplication::TestApplication(int argc, char **argv)
-    : m_helpArg(m_parser)
-    , m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
+TestApplication::TestApplication()
+    : TestApplication(0, nullptr)
+{
+}
+
+/*!
+ * \brief Constructs a TestApplication instance for the specified arguments.
+ * \throws Throws std::runtime_error if an instance has already been created.
+ */
+TestApplication::TestApplication(int argc, const char *const *argv)
+    : m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
     , m_applicationPathArg("app-path", 'a', "specifies the path of the application to be tested")
     , m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files")
     , m_unitsArg("units", 'u', "specifies the units to test; omit to test all units")
@@ -142,7 +149,8 @@ TestApplication::TestApplication(int argc, char **argv)
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
         m_unitsArg.setCombinable(true);
-        m_parser.setMainArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_helpArg });
+        m_parser.setMainArguments(
+            { &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_parser.noColorArg(), &m_parser.helpArg() });
 
         // parse arguments
         try {
@@ -154,7 +162,7 @@ TestApplication::TestApplication(int argc, char **argv)
         }
 
         // print help
-        if (m_helpArg.isPresent()) {
+        if (m_parser.helpArg().isPresent()) {
             exit(0);
         }
     }
@@ -253,7 +261,9 @@ string TestApplication::testFilePath(const string &relativeTestFilePath) const
 
     // file still not found -> return default path
     if (!fileExists(path = "./testfiles/" + relativeTestFilePath)) {
-        cerr << Phrases::Warning << "The testfile \"" << relativeTestFilePath << "\" can not be located." << Phrases::EndFlush;
+        throw runtime_error("The testfile \"" % relativeTestFilePath % "\" can not be located. Was looking under: \"" % m_testFilesPath
+                % relativeTestFilePath % "\", \"" % m_fallbackTestFilesPath % relativeTestFilePath % "\" and \"./testfiles/" % relativeTestFilePath
+            + "\"");
     }
     return path;
 }
@@ -592,10 +602,9 @@ string TestApplication::readTestfilePathFromSrcRef()
 #endif // PLATFORM_UNIX
 
         return srcDirContent += "/testfiles/";
-    } catch (...) {
+    } catch (const std::ios_base::failure &) {
         cerr << Phrases::Warning << "The file \"srcdirref\" can not be opened. It likely just doesn't exist in the working directory."
              << Phrases::EndFlush;
-        catchIoFailure();
     }
     return string();
 }

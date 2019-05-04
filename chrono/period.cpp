@@ -30,10 +30,8 @@ namespace ChronoUtilities {
  *
  * The resulting Period will contain the number of years, month and days which have been passed
  * between \a begin and \a end.
- *
- * \todo Pass DateTime objects by value in v5.
  */
-Period::Period(const DateTime &begin, const DateTime &end)
+Period::Period(DateTime begin, DateTime end)
 {
     m_years = end.year() - begin.year();
     m_months = end.month() - begin.month();

@@ -33,7 +33,7 @@ Failure::Failure(const std::string &what)
 /*!
  * Destroys the Failure.
  */
-Failure::~Failure() USE_NOTHROW
+Failure::~Failure() noexcept
 {
 }
 
@@ -41,7 +41,7 @@ Failure::~Failure() USE_NOTHROW
  * Returns a C-style character string describing the cause
  * of the Failure.
  */
-const char *Failure::what() const USE_NOTHROW
+const char *Failure::what() const noexcept
 {
     return m_what.c_str();
 }

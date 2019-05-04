@@ -1,7 +1,6 @@
 #include "./nativefilestream.h"
 
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
-#include "./catchiofailure.h"
 
 #ifdef PLATFORM_WINDOWS
 #include "../conversion/stringconversion.h"
@@ -143,9 +142,6 @@ NativeFileStream::NativeFileStream()
 NativeFileStream::NativeFileStream(NativeFileStream &&other)
     : iostream(other.m_filebuf.release())
     , m_filebuf(rdbuf())
-#if !defined(__ANDROID_API__) || !defined(__ANDROID_API_N__) || (__ANDROID_API__ < __ANDROID_API_N__)
-    , m_fileHandle(other.m_fileHandle)
-#endif
 {
 }
 
@@ -188,9 +184,8 @@ void NativeFileStream::open(const string &path, ios_base::openmode openMode)
  * \todo
  * - Maybe use setstate() instead of throwing exceptions directly for consistent error handling
  *   with std::fstream::open(). However, that makes passing specific error messages difficult.
- * - Rename to open() in v5.
  */
-void NativeFileStream::openFromFileDescriptor(int fileDescriptor, ios_base::openmode openMode)
+void NativeFileStream::open(int fileDescriptor, ios_base::openmode openMode)
 {
     setFileBuffer(makeFileBuffer(fileDescriptor, openMode));
 }
@@ -232,12 +227,12 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(con
 #ifdef PLATFORM_WINDOWS
     const int fileHandle = _wopen(widePath.get(), nativeParams.openMode, nativeParams.permissions);
     if (fileHandle == -1) {
-        ::IoUtilities::throwIoFailure("_wopen failed");
+        throw std::ios_base::failure("_wopen failed");
     }
 #else
     const auto fileHandle = fopen(path.data(), nativeParams.openMode.data());
     if (!fileHandle) {
-        ::IoUtilities::throwIoFailure("fopen failed");
+        throw std::ios_base::failure("fopen failed");
     }
 #endif
     return make_unique<StreamBuffer>(fileHandle, openMode);
@@ -248,12 +243,12 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(con
     const auto fileDescriptor
         = CreateFileW(widePath.get(), nativeParams.access, nativeParams.shareMode, nullptr, nativeParams.creation, FILE_ATTRIBUTE_NORMAL);
     if (fileDescriptor == INVALID_HANDLE_VALUE) {
-        ::IoUtilities::throwIoFailure("CreateFileW failed");
+        throw std::ios_base::failure("CreateFileW failed");
     }
 #else
     const auto fileDescriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fileDescriptor == -1) {
-        ::IoUtilities::throwIoFailure("open failed");
+        throw std::ios_base::failure("open failed");
     }
 #endif
     return make_unique<StreamBuffer>(fileDescriptor, boost::iostreams::close_handle);
@@ -261,7 +256,7 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(con
 }
 
 /*!
- * \brief Internally called by openFromFileDescriptor().
+ * \brief Internally called by open().
  */
 std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int fileDescriptor, ios_base::openmode openMode)
 {
@@ -273,16 +268,16 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int
 #ifdef PLATFORM_WINDOWS
     const auto fileHandle = _get_osfhandle(fileDescriptor);
     if (fileHandle == -1) {
-        ::IoUtilities::throwIoFailure("_get_osfhandle failed");
+        throw std::ios_base::failure("_get_osfhandle failed");
     }
     const auto osFileHandle = _open_osfhandle(fileHandle, nativeParams.flags);
     if (osFileHandle == -1) {
-        ::IoUtilities::throwIoFailure("_open_osfhandle failed");
+        throw std::ios_base::failure("_open_osfhandle failed");
     }
 #else
     const auto fileHandle = fdopen(fileDescriptor, nativeParams.openMode.data());
     if (!fileHandle) {
-        ::IoUtilities::throwIoFailure("fdopen failed");
+        throw std::ios_base::failure("fdopen failed");
     }
 #endif
     return make_unique<StreamBuffer>(fileDescriptor, openMode);
@@ -302,7 +297,7 @@ std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &pat
 {
     auto widePath = ::ConversionUtilities::convertMultiByteToWide(path);
     if (!widePath.first) {
-        ::IoUtilities::throwIoFailure("Unable to convert path to UTF-16");
+        throw std::ios_base::failure("Unable to convert path to UTF-16");
     }
     return std::move(widePath.first);
 }

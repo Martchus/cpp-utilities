@@ -74,10 +74,10 @@ void BinaryWriter::setStream(ostream *stream, bool giveOwnership)
 /*!
  * \brief Writes the specified integer \a value. Conversion to bytes is done using the specified function.
  */
-void BinaryWriter::writeVariableLengthInteger(uint64 value, void (*getBytes)(uint64, char *))
+void BinaryWriter::writeVariableLengthInteger(std::uint64_t value, void (*getBytes)(std::uint64_t, char *))
 {
-    uint64 boundCheck = 0x80;
-    byte prefixLength = 1;
+    std::uint64_t boundCheck = 0x80;
+    std::uint8_t prefixLength = 1;
     for (; boundCheck != 0x8000000000000000; boundCheck <<= 7, ++prefixLength) {
         if (value < boundCheck) {
             getBytes(value | boundCheck, m_buffer);
@@ -88,32 +88,4 @@ void BinaryWriter::writeVariableLengthInteger(uint64 value, void (*getBytes)(uin
         throw ConversionException("The variable-length integer to be written exceeds the maximum.");
     }
     m_stream->write(m_buffer + 8 - prefixLength, prefixLength);
-}
-
-/*!
- * \brief Writes the length of a string and the string itself to the current stream.
- *
- * Advances the current position of the stream by the length of the string plus the size of the length prefix.
- *
- * \throws Throws ConversionException if the string size exceeds the maximum.
- * \todo Make inline in v5.
- */
-void BinaryWriter::writeLengthPrefixedString(const string &value)
-{
-    writeVariableLengthUIntBE(value.size());
-    m_stream->write(value.data(), static_cast<streamsize>(value.size()));
-}
-
-/*!
- * \brief Writes the length of a string and the string itself to the current stream.
- *
- * Advances the current position of the stream by the length of the string plus the size of the length prefix.
- *
- * \throws Throws ConversionException if the string size exceeds the maximum.
- * \todo Make inline in v5.
- */
-void BinaryWriter::writeLengthPrefixedCString(const char *value, size_t size)
-{
-    writeVariableLengthUIntBE(size);
-    m_stream->write(value, static_cast<streamsize>(size));
 }

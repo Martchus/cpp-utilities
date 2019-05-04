@@ -27,72 +27,72 @@ public:
     bool canRead() const;
     std::istream::pos_type readStreamsize();
     void read(char *buffer, std::streamsize length);
-    void read(byte *buffer, std::streamsize length);
+    void read(std::uint8_t *buffer, std::streamsize length);
     void read(std::vector<char> &buffer, std::streamsize length);
-    int16 readInt16BE();
-    uint16 readUInt16BE();
-    int32 readInt24BE();
-    uint32 readUInt24BE();
-    int32 readInt32BE();
-    uint32 readUInt32BE();
-    int64 readInt40BE();
-    uint64 readUInt40BE();
-    int64 readInt56BE();
-    uint64 readUInt56BE();
-    int64 readInt64BE();
-    uint64 readUInt64BE();
-    uint64 readVariableLengthUIntBE();
-    float32 readFloat32BE();
-    float64 readFloat64BE();
-    int16 readInt16LE();
-    uint16 readUInt16LE();
-    int32 readInt24LE();
-    uint32 readUInt24LE();
-    int32 readInt32LE();
-    uint32 readUInt32LE();
-    int64 readInt40LE();
-    uint64 readUInt40LE();
-    int64 readInt56LE();
-    uint64 readUInt56LE();
-    int64 readInt64LE();
-    uint64 readUInt64LE();
-    uint64 readVariableLengthUIntLE();
-    float32 readFloat32LE();
-    float64 readFloat64LE();
+    std::int16_t readInt16BE();
+    std::uint16_t readUInt16BE();
+    std::int32_t readInt24BE();
+    std::uint32_t readUInt24BE();
+    std::int32_t readInt32BE();
+    std::uint32_t readUInt32BE();
+    std::int64_t readInt40BE();
+    std::uint64_t readUInt40BE();
+    std::int64_t readInt56BE();
+    std::uint64_t readUInt56BE();
+    std::int64_t readInt64BE();
+    std::uint64_t readUInt64BE();
+    std::uint64_t readVariableLengthUIntBE();
+    float readFloat32BE();
+    double readFloat64BE();
+    std::int16_t readInt16LE();
+    std::uint16_t readUInt16LE();
+    std::int32_t readInt24LE();
+    std::uint32_t readUInt24LE();
+    std::int32_t readInt32LE();
+    std::uint32_t readUInt32LE();
+    std::int64_t readInt40LE();
+    std::uint64_t readUInt40LE();
+    std::int64_t readInt56LE();
+    std::uint64_t readUInt56LE();
+    std::int64_t readInt64LE();
+    std::uint64_t readUInt64LE();
+    std::uint64_t readVariableLengthUIntLE();
+    float readFloat32LE();
+    double readFloat64LE();
     char readChar();
-    byte readByte();
+    std::uint8_t readByte();
     bool readBool();
     std::string readLengthPrefixedString();
     std::string readString(std::size_t length);
-    std::string readTerminatedString(byte termination = 0);
-    std::string readTerminatedString(size_t maxBytesToRead, byte termination = 0);
-    std::string readMultibyteTerminatedStringBE(uint16 termination = 0);
-    std::string readMultibyteTerminatedStringLE(uint16 termination = 0);
-    std::string readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, uint16 termination = 0);
-    std::string readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, uint16 termination = 0);
-    uint32 readSynchsafeUInt32BE();
-    float32 readFixed8BE();
-    float32 readFixed16BE();
-    uint32 readSynchsafeUInt32LE();
-    float32 readFixed8LE();
-    float32 readFixed16LE();
-    uint32 readCrc32(std::size_t length);
-    static uint32 computeCrc32(const char *buffer, std::size_t length);
-    static const uint32 crc32Table[];
+    std::string readTerminatedString(std::uint8_t termination = 0);
+    std::string readTerminatedString(size_t maxBytesToRead, std::uint8_t termination = 0);
+    std::string readMultibyteTerminatedStringBE(std::uint16_t termination = 0);
+    std::string readMultibyteTerminatedStringLE(std::uint16_t termination = 0);
+    std::string readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, std::uint16_t termination = 0);
+    std::string readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, std::uint16_t termination = 0);
+    std::uint32_t readSynchsafeUInt32BE();
+    float readFixed8BE();
+    float readFixed16BE();
+    std::uint32_t readSynchsafeUInt32LE();
+    float readFixed8LE();
+    float readFixed16LE();
+    std::uint32_t readCrc32(std::size_t length);
+    static std::uint32_t computeCrc32(const char *buffer, std::size_t length);
+    static const std::uint32_t crc32Table[];
 
     // declare further overloads for read() to ease use of BinaryReader in templates
     void read(char &oneCharacter);
-    void read(byte &oneByte);
+    void read(std::uint8_t &oneByte);
     void read(bool &oneBool);
     void read(std::string &lengthPrefixedString);
-    void read(int16 &one16BitInt);
-    void read(uint16 &one16BitUInt);
-    void read(int32 &one32BitInt);
-    void read(uint32 &one32BitUInt);
-    void read(int64 &one64BitInt);
-    void read(uint64 &one64BitUInt);
-    void read(float32 &one32BitFloat);
-    void read(float64 &one64BitFloat);
+    void read(std::int16_t &one16BitInt);
+    void read(std::uint16_t &one16BitUInt);
+    void read(std::int32_t &one32BitInt);
+    void read(std::uint32_t &one32BitUInt);
+    void read(std::int64_t &one64BitInt);
+    void read(std::uint64_t &one64BitUInt);
+    void read(float &one32BitFloat);
+    void read(double &one64BitFloat);
 
 private:
     void bufferVariableLengthInteger();
@@ -195,7 +195,7 @@ inline void BinaryReader::read(char *buffer, std::streamsize length)
 /*!
  * \brief Reads the specified number of bytes from the stream in the character array.
  */
-inline void BinaryReader::read(byte *buffer, std::streamsize length)
+inline void BinaryReader::read(uint8_t *buffer, std::streamsize length)
 {
     m_stream->read(reinterpret_cast<char *>(buffer), length);
 }
@@ -212,25 +212,25 @@ inline void BinaryReader::read(std::vector<char> &buffer, std::streamsize length
 /*!
  * \brief Reads a 16-bit big endian signed integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline int16 BinaryReader::readInt16BE()
+inline std::int16_t BinaryReader::readInt16BE()
 {
-    m_stream->read(m_buffer, sizeof(int16));
+    m_stream->read(m_buffer, sizeof(std::int16_t));
     return ConversionUtilities::BE::toInt16(m_buffer);
 }
 
 /*!
  * \brief Reads a 16-bit big endian unsigned integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline uint16 BinaryReader::readUInt16BE()
+inline std::uint16_t BinaryReader::readUInt16BE()
 {
-    m_stream->read(m_buffer, sizeof(uint16));
+    m_stream->read(m_buffer, sizeof(std::uint16_t));
     return ConversionUtilities::BE::toUInt16(m_buffer);
 }
 
 /*!
  * \brief Reads a 24-bit big endian signed integer from the current stream and advances the current position of the stream by three bytes.
  */
-inline int32 BinaryReader::readInt24BE()
+inline std::int32_t BinaryReader::readInt24BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
@@ -244,7 +244,7 @@ inline int32 BinaryReader::readInt24BE()
 /*!
  * \brief Reads a 24-bit big endian unsigned integer from the current stream and advances the current position of the stream by three bytes.
  */
-inline uint32 BinaryReader::readUInt24BE()
+inline std::uint32_t BinaryReader::readUInt24BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
@@ -254,25 +254,25 @@ inline uint32 BinaryReader::readUInt24BE()
 /*!
  * \brief Reads a 32-bit big endian signed integer from the current stream and advances the current position of the stream by four bytes.
  */
-inline int32 BinaryReader::readInt32BE()
+inline std::int32_t BinaryReader::readInt32BE()
 {
-    m_stream->read(m_buffer, sizeof(int32));
+    m_stream->read(m_buffer, sizeof(std::int32_t));
     return ConversionUtilities::BE::toInt32(m_buffer);
 }
 
 /*!
  * \brief Reads a 32-bit big endian unsigned integer from the current stream and advances the current position of the stream by four bytes.
  */
-inline uint32 BinaryReader::readUInt32BE()
+inline std::uint32_t BinaryReader::readUInt32BE()
 {
-    m_stream->read(m_buffer, sizeof(uint32));
+    m_stream->read(m_buffer, sizeof(std::uint32_t));
     return ConversionUtilities::BE::toUInt32(m_buffer);
 }
 
 /*!
  * \brief Reads a 40-bit big endian signed integer from the current stream and advances the current position of the stream by five bytes.
  */
-inline int64 BinaryReader::readInt40BE()
+inline std::int64_t BinaryReader::readInt40BE()
 {
     *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
@@ -286,7 +286,7 @@ inline int64 BinaryReader::readInt40BE()
 /*!
  * \brief Reads a 40-bit big endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
  */
-inline uint64 BinaryReader::readUInt40BE()
+inline std::uint64_t BinaryReader::readUInt40BE()
 {
     *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
@@ -296,7 +296,7 @@ inline uint64 BinaryReader::readUInt40BE()
 /*!
  * \brief Reads a 56-bit big endian signed integer from the current stream and advances the current position of the stream by seven bytes.
  */
-inline int64 BinaryReader::readInt56BE()
+inline std::int64_t BinaryReader::readInt56BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 7);
@@ -310,7 +310,7 @@ inline int64 BinaryReader::readInt56BE()
 /*!
  * \brief Reads a 56-bit big endian unsigned integer from the current stream and advances the current position of the stream by seven bytes.
  */
-inline uint64 BinaryReader::readUInt56BE()
+inline std::uint64_t BinaryReader::readUInt56BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 7);
@@ -320,18 +320,18 @@ inline uint64 BinaryReader::readUInt56BE()
 /*!
  * \brief Reads a 64-bit big endian signed integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline int64 BinaryReader::readInt64BE()
+inline std::int64_t BinaryReader::readInt64BE()
 {
-    m_stream->read(m_buffer, sizeof(int64));
+    m_stream->read(m_buffer, sizeof(std::int64_t));
     return ConversionUtilities::BE::toInt64(m_buffer);
 }
 
 /*!
  * \brief Reads a 64-bit big endian unsigned integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline uint64 BinaryReader::readUInt64BE()
+inline std::uint64_t BinaryReader::readUInt64BE()
 {
-    m_stream->read(m_buffer, sizeof(uint64));
+    m_stream->read(m_buffer, sizeof(std::uint64_t));
     return ConversionUtilities::BE::toUInt64(m_buffer);
 }
 
@@ -339,7 +339,7 @@ inline uint64 BinaryReader::readUInt64BE()
  * \brief Reads an up to 8 byte long big endian unsigned integer from the current stream and advances the current position of the stream by one to eight byte.
  * \throws Throws ConversionException if the size of the integer exceeds the maximum.
  */
-inline uint64 BinaryReader::readVariableLengthUIntBE()
+inline std::uint64_t BinaryReader::readVariableLengthUIntBE()
 {
     bufferVariableLengthInteger();
     return ConversionUtilities::BE::toUInt64(m_buffer);
@@ -348,43 +348,43 @@ inline uint64 BinaryReader::readVariableLengthUIntBE()
 /*!
  * \brief Reads a 32-bit big endian floating point value from the current stream and advances the current position of the stream by four bytes.
  */
-inline float32 BinaryReader::readFloat32BE()
+inline float BinaryReader::readFloat32BE()
 {
-    m_stream->read(m_buffer, sizeof(float32));
+    m_stream->read(m_buffer, sizeof(float));
     return ConversionUtilities::BE::toFloat32(m_buffer);
 }
 
 /*!
  * \brief Reads a 64-bit big endian floating point value from the current stream and advances the current position of the stream by eight bytes.
  */
-inline float64 BinaryReader::readFloat64BE()
+inline double BinaryReader::readFloat64BE()
 {
-    m_stream->read(m_buffer, sizeof(float64));
+    m_stream->read(m_buffer, sizeof(double));
     return ConversionUtilities::BE::toFloat64(m_buffer);
 }
 
 /*!
  * \brief Reads a 16-bit little endian signed integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline int16 BinaryReader::readInt16LE()
+inline std::int16_t BinaryReader::readInt16LE()
 {
-    m_stream->read(m_buffer, sizeof(int16));
+    m_stream->read(m_buffer, sizeof(std::int16_t));
     return ConversionUtilities::LE::toInt16(m_buffer);
 }
 
 /*!
  * \brief Reads a 16-bit little endian unsigned integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline uint16 BinaryReader::readUInt16LE()
+inline std::uint16_t BinaryReader::readUInt16LE()
 {
-    m_stream->read(m_buffer, sizeof(uint16));
+    m_stream->read(m_buffer, sizeof(std::uint16_t));
     return ConversionUtilities::LE::toUInt16(m_buffer);
 }
 
 /*!
  * \brief Reads a 24-bit little endian signed integer from the current stream and advances the current position of the stream by three bytes.
  */
-inline int32 BinaryReader::readInt24LE()
+inline std::int32_t BinaryReader::readInt24LE()
 {
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
@@ -398,7 +398,7 @@ inline int32 BinaryReader::readInt24LE()
 /*!
  * \brief Reads a 24-bit little endian unsigned integer from the current stream and advances the current position of the stream by three bytes.
  */
-inline uint32 BinaryReader::readUInt24LE()
+inline std::uint32_t BinaryReader::readUInt24LE()
 {
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
@@ -408,25 +408,25 @@ inline uint32 BinaryReader::readUInt24LE()
 /*!
  * \brief Reads a 32-bit little endian signed integer from the current stream and advances the current position of the stream by four bytes.
  */
-inline int32 BinaryReader::readInt32LE()
+inline std::int32_t BinaryReader::readInt32LE()
 {
-    m_stream->read(m_buffer, sizeof(int32));
+    m_stream->read(m_buffer, sizeof(std::int32_t));
     return ConversionUtilities::LE::toInt32(m_buffer);
 }
 
 /*!
  * \brief Reads a 32-bit little endian unsigned integer from the current stream and advances the current position of the stream by four bytes.
  */
-inline uint32 BinaryReader::readUInt32LE()
+inline std::uint32_t BinaryReader::readUInt32LE()
 {
-    m_stream->read(m_buffer, sizeof(uint32));
+    m_stream->read(m_buffer, sizeof(std::uint32_t));
     return ConversionUtilities::LE::toUInt32(m_buffer);
 }
 
 /*!
  * \brief Reads a 40-bit little endian signed integer from the current stream and advances the current position of the stream by five bytes.
  */
-inline int64 BinaryReader::readInt40LE()
+inline std::int64_t BinaryReader::readInt40LE()
 {
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
@@ -440,7 +440,7 @@ inline int64 BinaryReader::readInt40LE()
 /*!
  * \brief Reads a 40-bit little endian unsigned integer from the current stream and advances the current position of the stream by five bytes.
  */
-inline uint64 BinaryReader::readUInt40LE()
+inline std::uint64_t BinaryReader::readUInt40LE()
 {
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
@@ -450,7 +450,7 @@ inline uint64 BinaryReader::readUInt40LE()
 /*!
  * \brief Reads a 56-bit little endian signed integer from the current stream and advances the current position of the stream by seven bytes.
  */
-inline int64 BinaryReader::readInt56LE()
+inline std::int64_t BinaryReader::readInt56LE()
 {
     *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 7);
@@ -464,7 +464,7 @@ inline int64 BinaryReader::readInt56LE()
 /*!
  * \brief Reads a 56-bit little endian unsigned integer from the current stream and advances the current position of the stream by seven bytes.
  */
-inline uint64 BinaryReader::readUInt56LE()
+inline std::uint64_t BinaryReader::readUInt56LE()
 {
     *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 7);
@@ -474,18 +474,18 @@ inline uint64 BinaryReader::readUInt56LE()
 /*!
  * \brief Reads a 64-bit little endian signed integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline int64 BinaryReader::readInt64LE()
+inline std::int64_t BinaryReader::readInt64LE()
 {
-    m_stream->read(m_buffer, sizeof(int64));
+    m_stream->read(m_buffer, sizeof(std::int64_t));
     return ConversionUtilities::LE::toInt64(m_buffer);
 }
 
 /*!
  * \brief Reads a 64-bit little endian unsigned integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline uint64 BinaryReader::readUInt64LE()
+inline std::uint64_t BinaryReader::readUInt64LE()
 {
-    m_stream->read(m_buffer, sizeof(uint64));
+    m_stream->read(m_buffer, sizeof(std::uint64_t));
     return ConversionUtilities::LE::toUInt64(m_buffer);
 }
 
@@ -493,7 +493,7 @@ inline uint64 BinaryReader::readUInt64LE()
  * \brief Reads an up to 8 byte long little endian unsigned integer from the current stream and advances the current position of the stream by one to eight byte.
  * \throws Throws ConversionException if the size of the integer exceeds the maximum.
  */
-inline uint64 BinaryReader::readVariableLengthUIntLE()
+inline std::uint64_t BinaryReader::readVariableLengthUIntLE()
 {
     bufferVariableLengthInteger();
     return ConversionUtilities::LE::toUInt64(m_buffer);
@@ -502,18 +502,18 @@ inline uint64 BinaryReader::readVariableLengthUIntLE()
 /*!
  * \brief Reads a 32-bit little endian floating point value from the current stream and advances the current position of the stream by four bytes.
  */
-inline float32 BinaryReader::readFloat32LE()
+inline float BinaryReader::readFloat32LE()
 {
-    m_stream->read(m_buffer, sizeof(float32));
+    m_stream->read(m_buffer, sizeof(float));
     return ConversionUtilities::LE::toFloat32(m_buffer);
 }
 
 /*!
  * \brief Reads a 64-bit little endian floating point value from the current stream and advances the current position of the stream by eight bytes.
  */
-inline float64 BinaryReader::readFloat64LE()
+inline double BinaryReader::readFloat64LE()
 {
-    m_stream->read(m_buffer, sizeof(float64));
+    m_stream->read(m_buffer, sizeof(double));
     return ConversionUtilities::LE::toFloat64(m_buffer);
 }
 
@@ -529,10 +529,10 @@ inline char BinaryReader::readChar()
 /*!
  * \brief Reads a single byte/unsigned character from the current stream and advances the current position of the stream by one byte.
  */
-inline byte BinaryReader::readByte()
+inline uint8_t BinaryReader::readByte()
 {
     m_stream->read(m_buffer, sizeof(char));
-    return static_cast<byte>(m_buffer[0]);
+    return static_cast<std::uint8_t>(m_buffer[0]);
 }
 
 /*!
@@ -545,11 +545,21 @@ inline bool BinaryReader::readBool()
 }
 
 /*!
+ * \brief Reads a length prefixed string from the current stream.
+ * \remarks Reads the length prefix from the stream and then a string of the denoted length.
+ *          Advances the current position of the stream by the denoted length of the string plus the prefix length.
+ */
+inline std::string BinaryReader::readLengthPrefixedString()
+{
+    return readString(readVariableLengthUIntBE());
+}
+
+/*!
  * \brief Reads a 32-bit big endian synchsafe integer from the current stream and advances the current position of the stream by four bytes.
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-inline uint32 BinaryReader::readSynchsafeUInt32BE()
+inline std::uint32_t BinaryReader::readSynchsafeUInt32BE()
 {
     return ConversionUtilities::toNormalInt(readUInt32BE());
 }
@@ -557,7 +567,7 @@ inline uint32 BinaryReader::readSynchsafeUInt32BE()
 /*!
  * \brief Reads a 8.8 fixed point big endian representation from the current stream and returns it as 32-bit floating point value.
  */
-inline float32 BinaryReader::readFixed8BE()
+inline float BinaryReader::readFixed8BE()
 {
     return ConversionUtilities::toFloat32(readUInt16BE());
 }
@@ -565,7 +575,7 @@ inline float32 BinaryReader::readFixed8BE()
 /*!
  * \brief Reads a 16.16 fixed point big endian representation from the current stream and returns it as 32-bit floating point value.
  */
-inline float32 BinaryReader::readFixed16BE()
+inline float BinaryReader::readFixed16BE()
 {
     return ConversionUtilities::toFloat32(readUInt32BE());
 }
@@ -575,7 +585,7 @@ inline float32 BinaryReader::readFixed16BE()
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-inline uint32 BinaryReader::readSynchsafeUInt32LE()
+inline std::uint32_t BinaryReader::readSynchsafeUInt32LE()
 {
     return ConversionUtilities::toNormalInt(readUInt32LE());
 }
@@ -583,7 +593,7 @@ inline uint32 BinaryReader::readSynchsafeUInt32LE()
 /*!
  * \brief Reads a 8.8 fixed point little endian representation from the current stream and returns it as 32-bit floating point value.
  */
-inline float32 BinaryReader::readFixed8LE()
+inline float BinaryReader::readFixed8LE()
 {
     return ConversionUtilities::toFloat32(readUInt16LE());
 }
@@ -591,7 +601,7 @@ inline float32 BinaryReader::readFixed8LE()
 /*!
  * \brief Reads a 16.16 fixed point little endian representation from the current stream and returns it as 32-bit floating point value.
  */
-inline float32 BinaryReader::readFixed16LE()
+inline float BinaryReader::readFixed16LE()
 {
     return ConversionUtilities::toFloat32(readUInt32LE());
 }
@@ -607,7 +617,7 @@ inline void BinaryReader::read(char &oneCharacter)
 /*!
  * \brief Reads a single byte/unsigned character from the current stream and advances the current position of the stream by one byte.
  */
-inline void BinaryReader::read(byte &oneByte)
+inline void BinaryReader::read(uint8_t &oneByte)
 {
     oneByte = readByte();
 }
@@ -635,7 +645,7 @@ inline void BinaryReader::read(std::string &lengthPrefixedString)
 /*!
  * \brief Reads a 16-bit big endian signed integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline void BinaryReader::read(int16 &one16BitInt)
+inline void BinaryReader::read(std::int16_t &one16BitInt)
 {
     one16BitInt = readInt16BE();
 }
@@ -643,7 +653,7 @@ inline void BinaryReader::read(int16 &one16BitInt)
 /*!
  * \brief Reads a 16-bit big endian unsigned integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline void BinaryReader::read(uint16 &one16BitUInt)
+inline void BinaryReader::read(std::uint16_t &one16BitUInt)
 {
     one16BitUInt = readUInt16BE();
 }
@@ -651,7 +661,7 @@ inline void BinaryReader::read(uint16 &one16BitUInt)
 /*!
  * \brief Reads a 16-bit big endian signed integer from the current stream and advances the current position of the stream by two bytes.
  */
-inline void BinaryReader::read(int32 &one32BitInt)
+inline void BinaryReader::read(std::int32_t &one32BitInt)
 {
     one32BitInt = readInt32BE();
 }
@@ -659,7 +669,7 @@ inline void BinaryReader::read(int32 &one32BitInt)
 /*!
  * \brief Reads a 32-bit big endian unsigned integer from the current stream and advances the current position of the stream by four bytes.
  */
-inline void BinaryReader::read(uint32 &one32BitUInt)
+inline void BinaryReader::read(std::uint32_t &one32BitUInt)
 {
     one32BitUInt = readUInt32BE();
 }
@@ -667,7 +677,7 @@ inline void BinaryReader::read(uint32 &one32BitUInt)
 /*!
  * \brief Reads a 64-bit big endian signed integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline void BinaryReader::read(int64 &one64BitInt)
+inline void BinaryReader::read(std::int64_t &one64BitInt)
 {
     one64BitInt = readInt64BE();
 }
@@ -675,7 +685,7 @@ inline void BinaryReader::read(int64 &one64BitInt)
 /*!
  * \brief Reads a 64-bit big endian unsigned integer from the current stream and advances the current position of the stream by eight bytes.
  */
-inline void BinaryReader::read(uint64 &one64BitUInt)
+inline void BinaryReader::read(std::uint64_t &one64BitUInt)
 {
     one64BitUInt = readUInt64BE();
 }
@@ -683,7 +693,7 @@ inline void BinaryReader::read(uint64 &one64BitUInt)
 /*!
  * \brief Reads a 32-bit big endian floating point value from the current stream and advances the current position of the stream by four bytes.
  */
-inline void BinaryReader::read(float32 &one32BitFloat)
+inline void BinaryReader::read(float &one32BitFloat)
 {
     one32BitFloat = readFloat32BE();
 }
@@ -691,7 +701,7 @@ inline void BinaryReader::read(float32 &one32BitFloat)
 /*!
  * \brief Reads a 64-bit big endian floating point value from the current stream and advances the current position of the stream by eight bytes.
  */
-inline void BinaryReader::read(float64 &one64BitFloat)
+inline void BinaryReader::read(double &one64BitFloat)
 {
     one64BitFloat = readFloat64BE();
 }
