@@ -265,6 +265,7 @@ public:
         Combinable = 0x1,
         Implicit = 0x2,
         Operation = 0x4,
+        Deprecated = 0x8,
     };
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
@@ -333,6 +334,9 @@ public:
     std::size_t index(std::size_t occurrence) const;
     std::size_t minOccurrences() const;
     std::size_t maxOccurrences() const;
+    bool isDeprecated() const;
+    const Argument *deprecatedBy() const;
+    void markAsDeprecated(const Argument *deprecatedBy = nullptr);
     bool isMainArgument() const;
     bool isParentPresent() const;
     Argument *conflictsWithArgument() const;
@@ -367,6 +371,7 @@ private:
     ArgumentVector m_subArgs;
     CallbackFunction m_callbackFunction;
     ArgumentVector m_parents;
+    const Argument *m_deprecatedBy;
     bool m_isMainArg;
     ValueCompletionBehavior m_valueCompletionBehavior;
     const char *m_preDefinedCompletionValues;
@@ -764,6 +769,30 @@ inline std::size_t Argument::minOccurrences() const
 inline std::size_t Argument::maxOccurrences() const
 {
     return m_maxOccurrences;
+}
+
+inline bool Argument::isDeprecated() const
+{
+    return m_flags & Flags::Deprecated;
+}
+
+/*!
+ * \brief Returns the argument which obsoletes this argument.
+ */
+inline const Argument *Argument::deprecatedBy() const
+{
+    return m_deprecatedBy;
+}
+
+/*!
+ * \brief Marks the argument as deprecated.
+ *
+ * If another argument should be used instead, specify it via \a deprecatedBy.
+ */
+inline void Argument::markAsDeprecated(const Argument *deprecatedBy)
+{
+    setFlags(Flags::Deprecated, true);
+    m_deprecatedBy = deprecatedBy;
 }
 
 /*!

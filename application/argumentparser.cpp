@@ -461,6 +461,7 @@ Argument::Argument(const char *name, char abbreviation, const char *description,
     , m_maxOccurrences(1)
     , m_requiredValueCount(0)
     , m_flags(Flags::None)
+    , m_deprecatedBy(nullptr)
     , m_isMainArg(false)
     , m_valueCompletionBehavior(ValueCompletionBehavior::PreDefinedValues | ValueCompletionBehavior::Files | ValueCompletionBehavior::Directories
           | ValueCompletionBehavior::FileSystemIfNoPreDefinedValues)
@@ -498,6 +499,9 @@ const char *Argument::firstValue() const
  */
 void Argument::printInfo(ostream &os, unsigned char indentation) const
 {
+    if (isDeprecated()) {
+        return;
+    }
     Indentation ident(indentation);
     os << ident;
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
@@ -542,11 +546,16 @@ void Argument::printInfo(ostream &os, unsigned char indentation) const
         os << '\n' << ident << "default environment variable: " << Wrapper(environmentVariable(), ident + 30);
     }
     os << '\n';
-    for (const auto *arg : subArguments()) {
+    bool hasSubArgs = false;
+    for (const auto *const arg : subArguments()) {
+        if (arg->isDeprecated()) {
+            continue;
+        }
+        hasSubArgs = true;
         arg->printInfo(os, ident.level);
     }
     if (notEmpty(example())) {
-        if (ident.level == 2 && !subArguments().empty()) {
+        if (ident.level == 2 && hasSubArgs) {
             os << '\n';
         }
         os << ident << "example: " << Wrapper(example(), ident + 9);
@@ -735,6 +744,7 @@ void ArgumentParser::setMainArguments(const ArgumentInitializerList &mainArgumen
 {
     if (!mainArguments.size()) {
         m_mainArgs.clear();
+        return;
     }
     for (Argument *arg : mainArguments) {
         arg->m_isMainArg = true;
@@ -812,26 +822,29 @@ void ArgumentParser::printHelp(ostream &os) const
             // split top-level operations and other configurations
             os << "Available operations:";
             for (const Argument *const arg : m_mainArgs) {
-                if (arg->denotesOperation() && strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+                if (!arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
             os << "\nAvailable top-level options:";
             for (const Argument *const arg : m_mainArgs) {
-                if (!arg->denotesOperation() && strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+                if (arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
         } else {
             // just show all args if no operations are available
             os << "Available arguments:";
             for (const Argument *const arg : m_mainArgs) {
-                if (strcmp(arg->name(), "help")) {
-                    os << '\n';
-                    arg->printInfo(os);
+                if (arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                    continue;
                 }
+                os << '\n';
+                arg->printInfo(os);
             }
         }
     }

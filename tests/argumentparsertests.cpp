@@ -767,8 +767,10 @@ void ArgumentParserTests::testHelp()
     envArg.setEnvironmentVariable("FILES");
     envArg.setRequiredValueCount(2);
     envArg.appendValueName("file");
+    Argument deprecatedArg("deprecated");
+    deprecatedArg.markAsDeprecated(&filesArg);
     parser.helpArg().setRequired(true);
-    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.noColorArg(), &parser.helpArg() });
+    parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &deprecatedArg, &parser.noColorArg(), &parser.helpArg() });
     applicationInfo.dependencyVersions = { "somelib", "some other lib" };
 
     // parse args and assert output
