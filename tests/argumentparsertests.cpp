@@ -271,7 +271,8 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_THROW(fileArg.values().at(1), out_of_range);
 
     // constraint checking: no multiple occurrences (not resetting verboseArg on purpose)
-    displayFileInfoArg.reset(), fileArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
     try {
         parser.parseArgs(4, argv4);
         CPPUNIT_FAIL("Exception expected.");
@@ -281,7 +282,8 @@ void ArgumentParserTests::testParsing()
     }
 
     // constraint checking: no contraint (not resetting verboseArg on purpose)
-    displayFileInfoArg.reset(), fileArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
     verboseArg.setConstraints(0, Argument::varValueCount);
     parser.parseArgs(4, argv4);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
@@ -294,7 +296,9 @@ void ArgumentParserTests::testParsing()
 
     // contraint checking: error about missing mandatory argument
     const char *argv5[] = { "tageditor", "-i", "-f", "test" };
-    displayFileInfoArg.reset(), fileArg.reset(), verboseArg.reset();
+    displayFileInfoArg.reset();
+    fileArg.reset();
+    verboseArg.reset();
     try {
         parser.parseArgs(4, argv5);
         CPPUNIT_FAIL("Exception expected.");

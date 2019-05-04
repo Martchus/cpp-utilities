@@ -183,7 +183,9 @@ bool ArgumentReader::read(ArgumentVector &args)
         if (values && lastArgInLevel->requiredValueCount() != Argument::varValueCount && values->size() < lastArgInLevel->requiredValueCount()) {
             // read arg as value and continue with next arg
             values->emplace_back(argDenotation ? argDenotation : *argv);
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
             continue;
         }
 
@@ -198,12 +200,21 @@ bool ArgumentReader::read(ArgumentVector &args)
             argDenotation = *argv;
             if (!*argDenotation && (!lastArgInLevel || values->size() >= lastArgInLevel->requiredValueCount())) {
                 // skip empty arguments
-                ++index, ++argv, argDenotation = nullptr;
+                ++index;
+                ++argv;
+                argDenotation = nullptr;
                 continue;
             }
             abbreviationFound = false;
             argDenotationType = Value;
-            *argDenotation == '-' && (++argDenotation, ++argDenotationType) && *argDenotation == '-' && (++argDenotation, ++argDenotationType);
+            if (*argDenotation == '-') {
+                ++argDenotation;
+                ++argDenotationType;
+                if (*argDenotation == '-') {
+                    ++argDenotation;
+                    ++argDenotationType;
+                }
+            }
         }
 
         // try to find matching Argument instance
@@ -250,10 +261,14 @@ bool ArgumentReader::read(ArgumentVector &args)
                 }
 
                 // read sub arguments, distinguish whether further abbreviations follow
-                ++index, ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, lastArgDenotation = argv;
+                ++index;
+                ++parser.m_actualArgc;
+                lastArg = lastArgInLevel = matchingArg;
+                lastArgDenotation = argv;
                 if (argDenotationType != Abbreviation || !argDenotation || !*argDenotation) {
                     // no further abbreviations follow -> read sub args for next argv
-                    ++argv, argDenotation = nullptr;
+                    ++argv;
+                    argDenotation = nullptr;
                     read(lastArg->m_subArgs);
                     argDenotation = nullptr;
                     break;
@@ -292,13 +307,15 @@ bool ArgumentReader::read(ArgumentVector &args)
                 if (parentArgument == pathEnd) {
                     break;
                 }
-            };
+            }
         }
 
         // unknown argument might just be a parameter value of the last argument
         if (lastArgInLevel && values->size() < lastArgInLevel->requiredValueCount()) {
             values->emplace_back(abbreviationFound ? argDenotation : *argv);
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
             continue;
         }
 
@@ -307,7 +324,8 @@ bool ArgumentReader::read(ArgumentVector &args)
             if (arg->denotesOperation() && arg->name() && !strcmp(arg->name(), *argv)) {
                 (matchingArg = arg)->m_occurrences.emplace_back(index, parentPath, parentArg);
                 lastArgDenotation = argv;
-                ++index, ++argv;
+                ++index;
+                ++argv;
                 break;
             }
         }
@@ -334,7 +352,9 @@ bool ArgumentReader::read(ArgumentVector &args)
             values = &matchingArg->m_occurrences.back().values;
 
             // read sub arguments
-            ++parser.m_actualArgc, lastArg = lastArgInLevel = matchingArg, argDenotation = nullptr;
+            ++parser.m_actualArgc;
+            lastArg = lastArgInLevel = matchingArg;
+            argDenotation = nullptr;
             read(lastArg->m_subArgs);
             argDenotation = nullptr;
             continue;
@@ -347,7 +367,9 @@ bool ArgumentReader::read(ArgumentVector &args)
         }
         if (completionMode) {
             // ignore unknown denotation
-            ++index, ++argv, argDenotation = nullptr;
+            ++index;
+            ++argv;
+            argDenotation = nullptr;
         } else {
             switch (parser.m_unknownArgBehavior) {
             case UnknownArgumentBehavior::Warn:
@@ -355,7 +377,9 @@ bool ArgumentReader::read(ArgumentVector &args)
                 FALLTHROUGH;
             case UnknownArgumentBehavior::Ignore:
                 // ignore unknown denotation
-                ++index, ++argv, argDenotation = nullptr;
+                ++index;
+                ++argv;
+                argDenotation = nullptr;
                 break;
             case UnknownArgumentBehavior::Fail:
                 return false;
@@ -772,18 +796,18 @@ void ArgumentParser::printHelp(ostream &os) const
     if (applicationVersion && *applicationVersion) {
         os << "version " << applicationVersion;
     }
-    if (dependencyVersions2.size()) {
+    if (dependencyVersions.size()) {
         if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion)) {
             os << '\n';
             EscapeCodes::setStyle(os);
         }
-        auto i = dependencyVersions2.begin(), end = dependencyVersions2.end();
+        auto i = dependencyVersions.begin(), end = dependencyVersions.end();
         os << "Linked against: " << *i;
         for (++i; i != end; ++i) {
             os << ',' << ' ' << *i;
         }
     }
-    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions2.size()) {
+    if ((applicationName && *applicationName) || (applicationVersion && *applicationVersion) || dependencyVersions.size()) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);
@@ -937,13 +961,14 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     const bool completionMode = !strcmp(*++argv, "--bash-completion-for");
 
     // determine the index of the current word for completion and the number of arguments to be passed to ArgumentReader
-    unsigned int currentWordIndex, argcForReader;
+    unsigned int currentWordIndex = 0, argcForReader;
     if (completionMode) {
         // the first argument after "--bash-completion-for" is the index of the current word
         try {
             currentWordIndex = (--argc ? stringToNumber<unsigned int, string>(*(++argv)) : 0);
             if (argc) {
-                ++argv, --argc;
+                ++argv;
+                --argc;
             }
         } catch (const ConversionException &) {
             currentWordIndex = static_cast<unsigned int>(argc - 1);
@@ -1100,7 +1125,7 @@ ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
 
     // determine last detected arg
     if (completion.lastDetectedArg) {
-        completion.lastDetectedArgIndex = reader.lastArgDenotation - argv;
+        completion.lastDetectedArgIndex = static_cast<size_t>(reader.lastArgDenotation - argv);
         completion.lastDetectedArgPath = completion.lastDetectedArg->path(completion.lastDetectedArg->occurrences() - 1);
     }
 
@@ -1309,7 +1334,14 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         } else {
             opening = *completionInfo.lastSpecifiedArg;
         }
-        *opening == '-' && (++opening, ++openingDenotationType) && *opening == '-' && (++opening, ++openingDenotationType);
+        if (*opening == '-') {
+            ++opening;
+            ++openingDenotationType;
+            if (*opening == '-') {
+                ++opening;
+                ++openingDenotationType;
+            }
+        }
         openingLen = strlen(opening);
     }
 
@@ -1362,7 +1394,8 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                         cout << *i;
                     }
                 }
-                ++i, ++wordIndex;
+                ++i;
+                ++wordIndex;
                 switch (*i) {
                 case ' ':
                 case '\n':
@@ -1566,7 +1599,8 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
                 ss << "provided. You have to provide the following parameter:";
                 size_t valueNamesPrint = 0;
                 for (const auto &name : arg->m_valueNames) {
-                    ss << ' ' << name, ++valueNamesPrint;
+                    ss << ' ' << name;
+                    ++valueNamesPrint;
                 }
                 if (arg->m_requiredValueCount != Argument::varValueCount) {
                     while (valueNamesPrint < arg->m_requiredValueCount) {
