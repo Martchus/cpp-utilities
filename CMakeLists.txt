@@ -130,7 +130,6 @@ if (USE_NATIVE_FILE_BUFFER)
                 ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
                 OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG)
 
-
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
     if (GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")

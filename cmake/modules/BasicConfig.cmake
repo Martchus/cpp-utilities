@@ -32,16 +32,15 @@ if (NOT META_PROJECT_VARNAME_LOWER)
     string(TOLOWER "${META_PROJECT_VARNAME_LOWER}" META_PROJECT_VARNAME_LOWER)
 endif ()
 
-# allow setting a configuration name to allow installing multiple differently configured versions
-# within the same prefix (intended to be used for installing Qt 5 and Qt 6 version or shared and
-# static version within the same prefix)
+# allow setting a configuration name to allow installing multiple differently configured versions within the same prefix
+# (intended to be used for installing Qt 5 and Qt 6 version or shared and static version within the same prefix)
 set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for ${META_PROJECT_NAME}")
 set(CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for all projects within the current build")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
     set(META_CONFIG_NAME "")
 elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
     set(META_CONFIG_NAME "${${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME}")
-else()
+else ()
     set(META_CONFIG_NAME "${CONFIGURATION_NAME}")
 endif ()
 if (META_CONFIG_NAME)
@@ -49,10 +48,11 @@ if (META_CONFIG_NAME)
     set(META_CONFIG_SUFFIX "-${META_CONFIG_NAME}")
 endif ()
 
-# allow setting a library/application target suffix - A different configuration name might not require
-# a different target name since it might differ anyways (e.g. library extensions for static and shared
-# configuration). Hence there's not simply the configuration name used to distinguish targets as well.
-set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
+# allow setting a library/application target suffix - A different configuration name might not require a different target
+# name since it might differ anyways (e.g. library extensions for static and shared configuration). Hence there's not simply
+# the configuration name used to distinguish targets as well.
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX ""
+    CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
 set(CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets the target suffix for all projects within the current build")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX STREQUAL "none")
     set(TARGET_SUFFIX "")
@@ -64,7 +64,7 @@ endif ()
 
 # define a few variables
 set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-SET(META_DATA_DIR "share/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+set(META_DATA_DIR "share/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitely

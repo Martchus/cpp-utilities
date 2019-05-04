@@ -27,10 +27,7 @@ else ()
     set(HAVE_DOT "NO")
 endif ()
 if (NOT DOXYGEN_BIN)
-    message(
-        WARNING
-            "Doxygen not found, unable to add target for generating API documentation for ${META_TARGET_NAME}"
-        )
+    message(WARNING "Doxygen not found, unable to add target for generating API documentation for ${META_TARGET_NAME}")
     return()
 endif ()
 
@@ -61,8 +58,7 @@ list_to_string(" " "\"${DOXY_PATH_PREFIX}" "\"" "${DOXY_INPUT_FILES}" DOXY_INPUT
 configure_file("${DOXYGEN_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config")
 
 # add target for generating API documentation
-add_custom_target("${META_TARGET_NAME}_apidoc"
-                  COMMAND "${DOXYGEN_BIN}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config")
+add_custom_target("${META_TARGET_NAME}_apidoc" COMMAND "${DOXYGEN_BIN}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config")
 if (NOT TARGET apidoc)
     add_custom_target(apidoc)
 endif ()
@@ -70,10 +66,7 @@ add_dependencies(apidoc "${META_TARGET_NAME}_apidoc")
 
 # add install target for API documentation
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc"
-            DESTINATION "${META_DATA_DIR}"
-            COMPONENT api-doc
-            OPTIONAL)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc" DESTINATION "${META_DATA_DIR}" COMPONENT api-doc OPTIONAL)
     if (NOT TARGET install-api-doc)
         add_custom_target(install-api-doc
                           COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=api-doc -P
@@ -81,7 +74,4 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 endif ()
 
-message(
-    STATUS
-        "Generating target for generating API documentation for ${META_TARGET_NAME} with Doxygen"
-    )
+message(STATUS "Generating target for generating API documentation for ${META_TARGET_NAME} with Doxygen")

@@ -49,9 +49,7 @@ target_compile_definitions(${META_TARGET_NAME}
                            "${META_PUBLIC_COMPILE_DEFINITIONS}"
                            PRIVATE
                            "${META_PRIVATE_COMPILE_DEFINITIONS}")
-target_compile_options(${META_TARGET_NAME}
-                       PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
-                       PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
+target_compile_options(${META_TARGET_NAME} PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}" PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(${META_TARGET_NAME}
                       PROPERTIES CXX_STANDARD
                                  "${META_CXX_STANDARD}"
@@ -160,7 +158,7 @@ find_template_file("appdata.xml" CPP_UTILITIES APP_APPSTREAM_TEMPLATE_FILE)
 
 # define generic function to add *.desktop files
 include(CMakeParseArguments)
-function(add_custom_desktop_file)
+function (add_custom_desktop_file)
     # parse arguments
     set(ONE_VALUE_ARGS
         FILE_NAME
@@ -169,13 +167,9 @@ function(add_custom_desktop_file)
         DESKTOP_FILE_DESCRIPTION
         DESKTOP_FILE_CATEGORIES
         DESKTOP_FILE_CMD
-        DESKTOP_FILE_ICON
-    )
-    set(MULTI_VALUE_ARGS
-    )
-    set(OPTIONAL_ARGS
-        DESKTOP_FILE_ADDITIONAL_ENTRIES
-    )
+        DESKTOP_FILE_ICON)
+    set(MULTI_VALUE_ARGS)
+    set(OPTIONAL_ARGS DESKTOP_FILE_ADDITIONAL_ENTRIES)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
     # create desktop file from template
@@ -187,7 +181,7 @@ function(add_custom_desktop_file)
 endfunction ()
 
 # define function to add *.desktop file and meta info from project meta data
-function(add_desktop_file)
+function (add_desktop_file)
     # compose actions
     set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
     foreach (ACTION_VAR ${META_APP_ACTIONS})
@@ -201,16 +195,22 @@ function(add_desktop_file)
     endforeach ()
 
     # create desktop file
-    add_custom_desktop_file(
-        FILE_NAME "${META_ID}"
-        DESKTOP_FILE_APP_NAME "${META_APP_NAME}"
-        DESKTOP_FILE_GENERIC_NAME "${META_GENERIC_NAME}"
-        DESKTOP_FILE_DESCRIPTION "${META_APP_DESCRIPTION}"
-        DESKTOP_FILE_CATEGORIES "${META_APP_CATEGORIES}"
-        DESKTOP_FILE_CMD "${META_TARGET_NAME}"
-        DESKTOP_FILE_ICON "${META_PROJECT_NAME}"
-        DESKTOP_FILE_ADDITIONAL_ENTRIES "${DESKTOP_FILE_ADDITIONAL_ENTRIES}"
-    )
+    add_custom_desktop_file(FILE_NAME
+                            "${META_ID}"
+                            DESKTOP_FILE_APP_NAME
+                            "${META_APP_NAME}"
+                            DESKTOP_FILE_GENERIC_NAME
+                            "${META_GENERIC_NAME}"
+                            DESKTOP_FILE_DESCRIPTION
+                            "${META_APP_DESCRIPTION}"
+                            DESKTOP_FILE_CATEGORIES
+                            "${META_APP_CATEGORIES}"
+                            DESKTOP_FILE_CMD
+                            "${META_TARGET_NAME}"
+                            DESKTOP_FILE_ICON
+                            "${META_PROJECT_NAME}"
+                            DESKTOP_FILE_ADDITIONAL_ENTRIES
+                            "${DESKTOP_FILE_ADDITIONAL_ENTRIES}")
 
     # read body for appstream desktop file from resources
     set(META_APP_APPDATA_BODY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/body.appdata.xml")

@@ -47,7 +47,7 @@ endif (MINGW)
 # set compile definitions for static build
 if (NOT BUILD_SHARED_LIBS)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME_UPPER}_STATIC)
-endif()
+endif ()
 
 # add global library-specific header
 find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
@@ -100,26 +100,23 @@ if (BUILD_SHARED_LIBS)
     else ()
         set(META_LIBRARY_TYPE SHARED)
     endif ()
-else()
+else ()
     set(META_LIBRARY_TYPE STATIC)
-endif()
+endif ()
 
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)
     add_library(${META_TARGET_NAME} INTERFACE)
     target_link_libraries(${META_TARGET_NAME}
                           INTERFACE ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}" "${PRIVATE_LIBRARIES}")
-    target_include_directories(
-        ${META_TARGET_NAME}
-        INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
-                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
+    target_include_directories(${META_TARGET_NAME}
+                               INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                                         $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
     target_compile_definitions(${META_TARGET_NAME}
                                INTERFACE
                                "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                "${META_PRIVATE_COMPILE_DEFINITIONS}")
-    target_compile_options(${META_TARGET_NAME}
-                           INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
-                                     "${META_PRIVATE_COMPILE_OPTIONS}")
+    target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
 else ()
     add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
     target_link_libraries(${META_TARGET_NAME}
@@ -161,11 +158,18 @@ endforeach ()
 # populate META_PRIVATE_LIB_DEPENDS (only required when building static libraries)
 if (NOT BUILD_SHARED_LIBS)
     foreach (DEPENDENCY ${PRIVATE_LIBRARIES})
-        if (NOT "${DEPENDENCY}" IN_LIST META_PUBLIC_LIB_DEPENDS AND NOT "${DEPENDENCY}" IN_LIST META_PRIVATE_LIB_DEPENDS)
+        if (NOT
+            "${DEPENDENCY}"
+            IN_LIST
+            META_PUBLIC_LIB_DEPENDS
+            AND NOT
+                "${DEPENDENCY}"
+                IN_LIST
+                META_PRIVATE_LIB_DEPENDS)
             list(APPEND META_PRIVATE_LIB_DEPENDS ${DEPENDENCY})
         endif ()
     endforeach ()
-endif()
+endif ()
 
 # Qt Creator does not show INTERFACE_SOURCES in project tree, so create a custom target as workaround
 if (META_HEADER_ONLY_LIB)
@@ -182,9 +186,8 @@ if (META_HEADER_ONLY_LIB)
                                INTERFACE
                                "${META_PUBLIC_LIB_COMPILE_DEFINITIONS}"
                                "${META_PRIVATE_LIB_COMPILE_DEFINITIONS}")
-    target_compile_options(
-        ${META_TARGET_NAME}_interface_sources_for_qtcreator
-        INTERFACE "${META_PUBLIC_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
+    target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator
+                           INTERFACE "${META_PUBLIC_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
     set_target_properties(${META_TARGET_NAME}_interface_sources_for_qtcreator
                           PROPERTIES VERSION
                                      "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
@@ -206,15 +209,15 @@ endif ()
 find_template_file("Config.cmake" CPP_UTILITIES CONFIG_TEMPLATE_FILE)
 foreach (CONFIG_TARGET ${CONFIG_TARGETS})
     configure_package_config_file("${CONFIG_TEMPLATE_FILE}"
-        "${CONFIG_TARGET}"
-        INSTALL_DESTINATION
-        "${CMAKE_CONFIG_INSTALL_DESTINATION}"
-        PATH_VARS
-        CMAKE_MODULE_INSTALL_DESTINATION
-        CMAKE_CONFIG_INSTALL_DESTINATION
-        HEADER_INSTALL_DESTINATION
-        BIN_INSTALL_DESTINATION
-        LIB_INSTALL_DESTINATION)
+                                  "${CONFIG_TARGET}"
+                                  INSTALL_DESTINATION
+                                  "${CMAKE_CONFIG_INSTALL_DESTINATION}"
+                                  PATH_VARS
+                                  CMAKE_MODULE_INSTALL_DESTINATION
+                                  CMAKE_CONFIG_INSTALL_DESTINATION
+                                  HEADER_INSTALL_DESTINATION
+                                  BIN_INSTALL_DESTINATION
+                                  LIB_INSTALL_DESTINATION)
 endforeach ()
 list(APPEND CMAKE_CONFIG_FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}ConfigVersion.cmake")
@@ -245,19 +248,21 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
             if (EXISTS "${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES}")
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES}")
                 continue()
-            endif()
+            endif ()
             if (META_CURRENT_CONFIGURATION)
-                get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}" "${DEPENDENCY}" "IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}")
+                get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}" "${DEPENDENCY}"
+                                    "IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}")
                 if (EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
-                    set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
+                    set(${OUTPUT_VAR_LIBS}
+                        "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
                     continue()
-                endif()
-            endif()
+                endif ()
+            endif ()
             get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION" "${DEPENDENCY}" IMPORTED_LOCATION)
             if (EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                 continue()
-            endif()
+            endif ()
         else ()
             # add raw dependency
             set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
@@ -267,8 +272,7 @@ endmacro ()
 compute_dependencies_for_package_config(META_PUBLIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC)
 compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC)
 if (NOT META_HEADER_ONLY_LIB)
-    set(META_PUBLIC_LIB_DEPENDS_FOR_PC
-        " -l${META_TARGET_NAME}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
+    set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -l${META_TARGET_NAME}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
 endif ()
 if (META_PUBLIC_LIB_DEPENDS_FOR_PC)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -L\${libdir}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
@@ -326,13 +330,16 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         else ()
             if (COMMAND query_qmake_variable)
                 query_qmake_variable(QT_INSTALL_PLUGINS)
-            endif()
+            endif ()
             if (QT_INSTALL_PLUGINS)
                 set(LIBRARY_DESTINATION ${QT_INSTALL_PLUGINS})
-            else()
+            else ()
                 set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX}/qt/plugins)
-                message(WARNING "Unable to detect appropriate install directory for Qt plugins  (assuming \"${LIBRARY_DESTINATION}\").")
-            endif()
+                message(
+                    WARNING
+                        "Unable to detect appropriate install directory for Qt plugins  (assuming \"${LIBRARY_DESTINATION}\")."
+                    )
+            endif ()
         endif ()
         if (META_PLUGIN_CATEGORY)
             set(LIBRARY_DESTINATION ${LIBRARY_DESTINATION}/${META_PLUGIN_CATEGORY})
@@ -358,7 +365,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT META_IS_PLUGIN)
         foreach (HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
             get_filename_component(HEADER_DIR "${HEADER_FILE}" DIRECTORY)
-            install(FILES "${HEADER_FILE}" DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}" COMPONENT header)
+            install(FILES "${HEADER_FILE}"
+                    DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}"
+                    COMPONENT header)
         endforeach ()
         if (NOT TARGET install-header)
             add_custom_target(install-header
@@ -370,9 +379,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for CMake modules
     foreach (CMAKE_MODULE_FILE ${CMAKE_MODULE_FILES})
         get_filename_component(CMAKE_MODULE_DIR ${CMAKE_MODULE_FILE} DIRECTORY)
-        install(FILES ${CMAKE_MODULE_FILE}
-                DESTINATION ${META_DATA_DIR}/${CMAKE_MODULE_DIR}
-                COMPONENT cmake-modules)
+        install(FILES ${CMAKE_MODULE_FILE} DESTINATION ${META_DATA_DIR}/${CMAKE_MODULE_DIR} COMPONENT cmake-modules)
     endforeach ()
     if (NOT TARGET install-cmake-modules)
         add_custom_target(install-cmake-modules
@@ -383,9 +390,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for CMake templates
     foreach (CMAKE_TEMPLATE_FILE ${CMAKE_TEMPLATE_FILES})
         get_filename_component(CMAKE_TEMPLATE_DIR ${CMAKE_TEMPLATE_FILE} DIRECTORY)
-        install(FILES ${CMAKE_TEMPLATE_FILE}
-                DESTINATION ${META_DATA_DIR}/${CMAKE_TEMPLATE_DIR}
-                COMPONENT cmake-templates)
+        install(FILES ${CMAKE_TEMPLATE_FILE} DESTINATION ${META_DATA_DIR}/${CMAKE_TEMPLATE_DIR} COMPONENT cmake-templates)
     endforeach ()
     if (NOT TARGET install-cmake-templates)
         add_custom_target(install-cmake-templates
@@ -422,26 +427,17 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-importlib-strip
-                COMMAND
-                    "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a"
-                )
-            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip
-                             install-binary-strip)
-            add_dependencies(install-mingw-w64-strip
-                             install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
+                COMMAND "${STRIP_BINARY_PATH}" -g
+                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a")
+            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
+            add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
         if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
-            add_custom_target(
-                install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                COMMAND
-                    "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a"
-                )
-            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                             install-binary-strip)
-            add_dependencies(install-mingw-w64-strip
-                             install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
+            add_custom_target(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
+                              COMMAND "${STRIP_BINARY_PATH}" -g
+                                      "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a")
+            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
+            add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
         endif ()
     endif ()
 endif ()

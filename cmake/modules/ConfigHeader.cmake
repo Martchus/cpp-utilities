@@ -22,7 +22,7 @@ unset(HAVE_OPENSSL)
 # get list of dependencies the main target links to
 if (NOT META_HEADER_ONLY_LIB)
     get_target_property(LINK_LIBRARIES_LIST "${META_TARGET_NAME}" LINK_LIBRARIES)
-endif()
+endif ()
 get_target_property(INTERFACE_LINK_LIBRARIES_LIST "${META_TARGET_NAME}" INTERFACE_LINK_LIBRARIES)
 
 # make list with link-time dependency versions and display names
@@ -30,7 +30,7 @@ foreach (DEPENDENCY IN LISTS LINK_LIBRARIES_LIST INTERFACE_LINK_LIBRARIES_LIST)
     # skip non-targets and already processed dependencies
     if (NOT TARGET "${DEPENDENCY}" OR "${DEPENDENCY}" IN_LIST PROCESSED_DEPENDENCIES)
         continue()
-    endif()
+    endif ()
 
     # find version and display name for target
     unset(DEPENDENCY_VER)
@@ -77,10 +77,7 @@ configure_file("${CONFIG_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resource
 
 # ensure generated include files can be included via #include "resources/config.h"
 if (NOT META_HEADER_ONLY_LIB)
-    foreach (TARGET_NAME
-             ${META_TARGET_NAME}
-             ${META_TARGET_NAME}_tests
-             ${META_TARGET_NAME}_testlib)
+    foreach (TARGET_NAME ${META_TARGET_NAME} ${META_TARGET_NAME}_tests ${META_TARGET_NAME}_testlib)
         if (TARGET ${TARGET_NAME})
             target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
         endif ()
