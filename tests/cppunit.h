@@ -36,11 +36,13 @@ int main(int argc, char **argv)
             try {
                 runner.addTest(overallTest->findTest(unit));
             } catch (const invalid_argument &) {
-                cerr << "The specified test unit \"" << unit << "\" is not available and will be ignored." << endl;
+                cerr << "The specified test unit \"" << unit << "\" is not available and will be ignored.\n";
             }
         }
     }
-    return !runner.run(string(), false);
+    const auto ok = runner.run(string(), false);
+    cerr << (ok ? "Tests successful\n" : "Tests failed\n");
+    return !ok;
 }
 
 #endif // TESTUTILS_CPPUNIT_H
