@@ -167,15 +167,22 @@ function (add_custom_desktop_file)
         DESKTOP_FILE_DESCRIPTION
         DESKTOP_FILE_CATEGORIES
         DESKTOP_FILE_CMD
-        DESKTOP_FILE_ICON)
+        DESKTOP_FILE_ICON
+        DESKTOP_FILE_ADDITIONAL_ENTRIES)
     set(MULTI_VALUE_ARGS)
-    set(OPTIONAL_ARGS DESKTOP_FILE_ADDITIONAL_ENTRIES)
+    set(OPTIONAL_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+    if (NOT ARGS_FILE_NAME OR NOT ARGS_DESKTOP_FILE_APP_NAME OR NOT ARGS_DESKTOP_FILE_CMD)
+        message(FATAL_ERROR "Not all mandatory arguments specified.")
+    endif ()
+    if (NOT ARGS_DESKTOP_FILE_GENERIC_NAME)
+        set(ARGS_DESKTOP_FILE_GENERIC_NAME "${ARGS_DESKTOP_FILE_APP_NAME}")
+    endif ()
 
     # create desktop file from template
-    configure_file("${APP_DESKTOP_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resources/${FILE_NAME}.desktop")
+    configure_file("${APP_DESKTOP_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resources/${ARGS_FILE_NAME}.desktop")
     # add install for the desktop file
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${FILE_NAME}.desktop"
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${ARGS_FILE_NAME}.desktop"
             DESTINATION "share/applications"
             COMPONENT desktop)
 endfunction ()
