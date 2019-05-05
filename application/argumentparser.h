@@ -25,6 +25,9 @@ struct ApplicationInfo {
     const char *author = nullptr;
     const char *version = nullptr;
     const char *url = nullptr;
+    const char *description = nullptr;
+    const char *license = nullptr;
+    const char *credits = nullptr;
     std::vector<const char *> dependencyVersions;
 };
 
@@ -51,6 +54,9 @@ CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
     ::ApplicationUtilities::applicationInfo.author = APP_AUTHOR;                                                                                     \
     ::ApplicationUtilities::applicationInfo.version = APP_VERSION;                                                                                   \
     ::ApplicationUtilities::applicationInfo.url = APP_URL;                                                                                           \
+    ::ApplicationUtilities::applicationInfo.description = APP_DESCRIPTION;                                                                           \
+    ::ApplicationUtilities::applicationInfo.license = PROJECT_LICENSE;                                                                               \
+    ::ApplicationUtilities::applicationInfo.credits = APP_CREDITS;                                                                                   \
     SET_DEPENDENCY_INFO
 
 class Argument;
