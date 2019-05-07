@@ -136,7 +136,7 @@ else ()
                            PRIVATE "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
     set_target_properties(${META_TARGET_NAME}
                           PROPERTIES VERSION
-                                     "${META_VESION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+                                     "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                                      SOVERSION
                                      "${META_SOVERSION}"
                                      CXX_STANDARD
