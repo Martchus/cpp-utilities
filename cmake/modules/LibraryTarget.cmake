@@ -199,10 +199,22 @@ if (META_HEADER_ONLY_LIB)
                                      "${AUTOGEN_DEPS}")
 endif ()
 
+# generate CMake code to configure CMake-target to pkg-config module mapping
+set(TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING "set(PKG_CONFIG_${META_TARGET_NAME} \"${META_PROJECT_NAME}${META_CONFIG_SUFFIX}\")")
+foreach (INTERFACE_REQUIRED_PKG_CONFIG_MODULE ${INTERFACE_REQUIRED_PKG_CONFIG_MODULES})
+    string(REPLACE "::" "_" INTERFACE_REQUIRED_PKG_CONFIG_MODULE_VARNAME "${INTERFACE_REQUIRED_PKG_CONFIG_MODULE}")
+    set(TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING
+        "${TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING}\nset(PKG_CONFIG_${INTERFACE_REQUIRED_PKG_CONFIG_MODULE_VARNAME} \"${PKG_CONFIG_${INTERFACE_REQUIRED_PKG_CONFIG_MODULE_VARNAME}}\")")
+endforeach ()
+
 # create the CMake package config file from template
 if (INTERFACE_REQUIRED_PACKAGES)
     list(REMOVE_ITEM INTERFACE_REQUIRED_PACKAGES "")
     list(REMOVE_DUPLICATES INTERFACE_REQUIRED_PACKAGES)
+endif ()
+if (INTERFACE_REQUIRED_PKG_CONFIG_MODULES)
+    list(REMOVE_ITEM INTERFACE_REQUIRED_PKG_CONFIG_MODULES "")
+    list(REMOVE_DUPLICATES INTERFACE_REQUIRED_PKG_CONFIG_MODULES)
 endif ()
 set(CONFIG_TARGETS "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Config.cmake")
 if (META_CONFIG_SUFFIX)
@@ -242,15 +254,24 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
                        DEPENDENCY_VARNAME
                        "${DEPENDENCY}")
         if (PKG_CONFIG_${DEPENDENCY_VARNAME})
-            # add pkg-config name of the dependency
-            set(${OUTPUT_VAR_PKGS} "${${OUTPUT_VAR_PKGS}} ${PKG_CONFIG_${DEPENDENCY_VARNAME}}")
+            # add pkg-config modules for the dependency
+            foreach (PKG_CONFIG_MODULE ${PKG_CONFIG_${DEPENDENCY_VARNAME}})
+                set(${OUTPUT_VAR_PKGS} "${${OUTPUT_VAR_PKGS}} ${PKG_CONFIG_MODULE}")
+            endforeach ()
         elseif (TARGET "${DEPENDENCY}")
-            # add library location of the target
+            # add interface link libraries of the target
             get_target_property("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES" "${DEPENDENCY}" "INTERFACE_LINK_LIBRARIES")
-            if (EXISTS "${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES}")
-                set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES}")
+            set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING FALSE)
+            foreach (LIBRARY ${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES})
+                if (EXISTS ${LIBRARY})
+                    set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${LIBRARY}")
+                    set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING TRUE)
+                endif ()
+            endforeach ()
+            if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING)
                 continue()
             endif ()
+            # add library location of the target
             if (META_CURRENT_CONFIGURATION)
                 get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}" "${DEPENDENCY}"
                                     "IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}")
