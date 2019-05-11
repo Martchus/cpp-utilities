@@ -253,18 +253,9 @@ string TestApplication::testFilePath(const string &relativeTestFilePath) const
  *
  * \remarks The test file is located using testFilePath().
  */
-string TestApplication::workingCopyPathMode(const string &relativeTestFilePath, WorkingCopyMode mode) const
+string TestApplication::workingCopyPath(const string &relativeTestFilePath, WorkingCopyMode mode) const
 {
     return workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, mode);
-}
-
-/*!
- * \brief Returns the full path to a working copy of the test file with the specified \a relativeTestFilePath.
- * \remarks The test file is located using testFilePath().
- */
-string TestApplication::workingCopyPath(const string &relativeTestFilePath) const
-{
-    return workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, WorkingCopyMode::CreateCopy);
 }
 
 /*!

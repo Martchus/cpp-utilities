@@ -11,7 +11,7 @@
 namespace TestUtilities {
 
 /*!
- * \brief The WorkingCopyMode enum specifies additional options to influence behavior of TestApplication::workingCopyPathMode().
+ * \brief The WorkingCopyMode enum specifies additional options to influence behavior of TestApplication::workingCopyPath().
  */
 enum class WorkingCopyMode {
     CreateCopy, /**< a working copy of the test file is created */
@@ -26,8 +26,7 @@ public:
 
     operator bool() const;
     std::string testFilePath(const std::string &relativeTestFilePath) const;
-    std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode) const;
-    std::string workingCopyPath(const std::string &relativeTestFilePath) const;
+    std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
     std::string workingCopyPathAs(const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath,
         WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
 #ifdef PLATFORM_UNIX
@@ -110,16 +109,7 @@ inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relative
  * \brief Convenience function to invoke TestApplication::workingCopyPath().
  * \remarks A TestApplication must be present.
  */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relativeTestFilePath)
-{
-    return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, WorkingCopyMode::CreateCopy);
-}
-
-/*!
- * \brief Convenience function to invoke TestApplication::workingCopyPathMode().
- * \remarks A TestApplication must be present.
- */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPathMode(const std::string &relativeTestFilePath, WorkingCopyMode mode)
+inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy)
 {
     return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, mode);
 }
