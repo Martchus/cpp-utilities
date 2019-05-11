@@ -129,15 +129,6 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     }
     m_instance = this;
 
-    // determine fallback path for testfiles which is used when --test-files-path/-p not present
-    // -> read TEST_FILE_PATH environment variable
-    m_fallbackTestFilesPath = readTestfilePathFromEnv();
-    // -> find source directory if TEST_FILE_PATH not present
-    bool fallbackIsSourceDir = m_fallbackTestFilesPath.empty();
-    if (fallbackIsSourceDir) {
-        m_fallbackTestFilesPath = readTestfilePathFromSrcRef();
-    }
-
     // handle specified arguments (if present)
     if (argc && argv) {
         // setup argument parser
@@ -146,6 +137,7 @@ TestApplication::TestApplication(int argc, const char *const *argv)
             arg->setValueNames({ "path" });
             arg->setCombinable(true);
         }
+        m_testFilesPathArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
         m_unitsArg.setCombinable(true);
@@ -167,29 +159,33 @@ TestApplication::TestApplication(int argc, const char *const *argv)
         }
     }
 
-    // handle path for testfiles and working-copy
-    cerr << "Directories used to search for testfiles:" << endl;
+    // set paths for testfiles
+    // -> set paths set via CLI argument
     if (m_testFilesPathArg.isPresent()) {
-        if (*m_testFilesPathArg.values().front()) {
-            cerr << ((m_testFilesPath = m_testFilesPathArg.values().front()) += '/') << endl;
-        } else {
-            cerr << (m_testFilesPath = "./") << endl;
+        for (const char *const testFilesPath : m_testFilesPathArg.values()) {
+            if (*testFilesPath) {
+                m_testFilesPaths.emplace_back(argsToString(testFilesPath, '/'));
+            } else {
+                m_testFilesPaths.emplace_back("./");
+            }
         }
-    } else {
-        // use fallback path if --test-files-path/-p not present
-        m_testFilesPath.swap(m_fallbackTestFilesPath);
-        cerr << m_testFilesPath << endl;
     }
-    // if it wasn't already the case, use the source directory as fallback dir
-    if (m_fallbackTestFilesPath.empty() && !fallbackIsSourceDir) {
-        m_fallbackTestFilesPath = readTestfilePathFromSrcRef();
-        fallbackIsSourceDir = true;
+    // -> read TEST_FILE_PATH environment variable
+    bool hasTestFilePathFromEnv;
+    if (auto testFilePathFromEnv = readTestfilePathFromEnv(); (hasTestFilePathFromEnv = !testFilePathFromEnv.empty())) {
+        m_testFilesPaths.emplace_back(move(testFilePathFromEnv));
     }
-    if (!m_fallbackTestFilesPath.empty() && m_testFilesPath != m_fallbackTestFilesPath) {
-        cerr << m_fallbackTestFilesPath << endl;
+    // -> find source directory
+    if (auto testFilePathFromSrcDirRef = readTestfilePathFromSrcRef(); !testFilePathFromSrcDirRef.empty()) {
+        m_testFilesPaths.emplace_back(move(testFilePathFromSrcDirRef));
     }
-    cerr << "./testfiles/" << endl << endl;
-    cerr << "Directory used to store working copies:" << endl;
+    // -> try testfiles directory in working directory
+    m_testFilesPaths.emplace_back("./testfiles/");
+    for (const auto &testFilesPath : m_testFilesPaths) {
+        cerr << testFilesPath << '\n';
+    }
+
+    // set path for working-copy
     if (m_workingDirArg.isPresent()) {
         if (*m_workingDirArg.values().front()) {
             (m_workingDir = m_workingDirArg.values().front()) += '/';
@@ -201,15 +197,13 @@ TestApplication::TestApplication(int argc, const char *const *argv)
             m_workingDir = argsToString(workingDirEnv, '/');
         }
     } else {
-        if (m_testFilesPathArg.isPresent()) {
-            m_workingDir = m_testFilesPath + "workingdir/";
-        } else if (!m_fallbackTestFilesPath.empty() && !fallbackIsSourceDir) {
-            m_workingDir = m_fallbackTestFilesPath + "workingdir/";
+        if ((m_testFilesPathArg.isPresent() && !m_testFilesPathArg.values().empty()) || hasTestFilePathFromEnv) {
+            m_workingDir = m_testFilesPaths.front() + "workingdir/";
         } else {
             m_workingDir = "./testfiles/workingdir/";
         }
     }
-    cerr << m_workingDir << endl << endl;
+    cerr << "Directory used to store working copies:\n" << m_workingDir << '\n';
 
     // clear list of all additional profiling files created when forking the test application
     if (const char *profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
@@ -235,37 +229,21 @@ TestApplication::~TestApplication()
  * to at least one of the considered test file search directories.
  *
  * The following directories are searched for test files in the given order:
- * 1. The directory specified as CLI argument.
- * 2. The fallback directory, which can be set by setting the environment
- *    variable `TEST_FILE_PATH`.
- * 3. The source directory, if it could be determined via "srcref"-file
- *    unless both, the CLI argument and environment variable are present.
+ * 1. The directories specified as CLI argument.
+ * 2. The directory set via the environment variable `TEST_FILE_PATH`.
+ * 3. The subdirectory "testfiles" within the source directory, if it could be determined via "srcref"-file.
+ * 4. The subdirectory "testfiles" within present working directory.
  */
 string TestApplication::testFilePath(const string &relativeTestFilePath) const
 {
     string path;
-
-    // check the path specified by command line argument or via environment variable
-    if (!m_testFilesPath.empty()) {
-        if (fileExists(path = m_testFilesPath + relativeTestFilePath)) {
+    for (const auto &testFilesPath : m_testFilesPaths) {
+        if (fileExists(path = testFilesPath + relativeTestFilePath)) {
             return path;
         }
     }
-
-    // check the fallback path (value from environment variable or source directory)
-    if (!m_fallbackTestFilesPath.empty()) {
-        if (fileExists(path = m_fallbackTestFilesPath + relativeTestFilePath)) {
-            return path;
-        }
-    }
-
-    // file still not found -> return default path
-    if (!fileExists(path = "./testfiles/" + relativeTestFilePath)) {
-        throw runtime_error("The testfile \"" % relativeTestFilePath % "\" can not be located. Was looking under: \"" % m_testFilesPath
-                % relativeTestFilePath % "\", \"" % m_fallbackTestFilesPath % relativeTestFilePath % "\" and \"./testfiles/" % relativeTestFilePath
-            + "\"");
-    }
-    return path;
+    throw runtime_error("The testfile \"" % relativeTestFilePath % "\" can not be located. Was looking under:"
+        + joinStrings(m_testFilesPaths, "\n", false, string(), relativeTestFilePath));
 }
 
 /*!

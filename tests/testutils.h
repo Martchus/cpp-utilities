@@ -47,8 +47,7 @@ private:
     ApplicationUtilities::Argument m_applicationPathArg;
     ApplicationUtilities::Argument m_workingDirArg;
     ApplicationUtilities::Argument m_unitsArg;
-    std::string m_testFilesPath;
-    std::string m_fallbackTestFilesPath;
+    std::vector<std::string> m_testFilesPaths;
     std::string m_workingDir;
     bool m_valid;
     static TestApplication *m_instance;
