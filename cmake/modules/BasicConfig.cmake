@@ -74,7 +74,7 @@ endif ()
 
 # set default CXX_STANDARD for all library, application and test targets
 if (NOT META_CXX_STANDARD)
-    set(META_CXX_STANDARD 14)
+    set(META_CXX_STANDARD 17)
 endif ()
 
 # set version to 0.0.0 if not specified explicitely
