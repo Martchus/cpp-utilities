@@ -146,7 +146,7 @@ template <class StringType = std::string, class... Args> inline StringType tuple
 
 template <class StringType = std::string, class... Args> inline StringType argsToString(Args &&... args)
 {
-    return tupleToString(std::make_tuple(args...));
+    return tupleToString(std::make_tuple(std::forward<Args>(args)...));
 }
 
 /*!
