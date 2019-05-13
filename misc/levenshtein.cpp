@@ -1,7 +1,7 @@
 #include "./levenshtein.h"
-#include "./multiarray.h"
 
-#include "../math/math.h"
+#include "./math.h"
+#include "./multiarray.h"
 
 #include <iostream>
 #include <limits>

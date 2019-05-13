@@ -25,7 +25,7 @@ set(HEADER_FILES
     io/path.h
     io/nativefilestream.h
     io/misc.h
-    math/math.h
+    misc/math.h
     misc/memory.h
     misc/multiarray.h
     misc/traits.h
@@ -52,7 +52,7 @@ set(SRC_FILES
     io/path.cpp
     io/nativefilestream.cpp
     io/misc.cpp
-    math/math.cpp
+    misc/math.cpp
     misc/levenshtein.cpp
     tests/testutils.cpp)
 

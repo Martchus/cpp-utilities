@@ -1,4 +1,4 @@
-#include "../math/math.h"
+#include "../misc/math.h"
 #include "../tests/testutils.h"
 
 #include <cppunit/TestFixture.h>
@@ -66,19 +66,19 @@ void MathTests::testFactorial()
 
 void MathTests::testPowerModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(25_uint64, powerModulo(5, 2, 30));
-    CPPUNIT_ASSERT_EQUAL(5_uint64, powerModulo(5, 2, 20));
+    CPPUNIT_ASSERT_EQUAL(25u, powerModulo(5u, 2u, 30u));
+    CPPUNIT_ASSERT_EQUAL(5u, powerModulo(5u, 2u, 20u));
 }
 
 void MathTests::testInverseModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(-12_int64, inverseModulo(2, 25));
-    CPPUNIT_ASSERT_EQUAL(-8_int64, inverseModulo(3, 25));
+    CPPUNIT_ASSERT_EQUAL(-12u, inverseModulo(2u, 25u));
+    CPPUNIT_ASSERT_EQUAL(-8u, inverseModulo(3u, 25u));
 }
 
 void MathTests::testOrderModulo()
 {
-    CPPUNIT_ASSERT_EQUAL(20_uint64, orderModulo(2, 25));
-    CPPUNIT_ASSERT_EQUAL(5_uint64, orderModulo(6, 25));
-    CPPUNIT_ASSERT_EQUAL(0_uint64, orderModulo(5, 25));
+    CPPUNIT_ASSERT_EQUAL(20u, orderModulo(2u, 25u));
+    CPPUNIT_ASSERT_EQUAL(5u, orderModulo(6u, 25u));
+    CPPUNIT_ASSERT_EQUAL(0u, orderModulo(5u, 25u));
 }
