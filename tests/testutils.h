@@ -20,11 +20,13 @@ enum class WorkingCopyMode {
 
 class CPP_UTILITIES_EXPORT TestApplication {
 public:
+    // construction/destruction
     explicit TestApplication();
     explicit TestApplication(int argc, const char *const *argv);
     ~TestApplication();
-
     operator bool() const;
+
+    // helper for tests
     std::string testFilePath(const std::string &relativeTestFilePath) const;
     std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
     std::string workingCopyPathAs(const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath,
@@ -32,8 +34,15 @@ public:
 #ifdef PLATFORM_UNIX
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
+
+    // read-only accessors
+    const std::vector<std::string> &testFilePaths() const;
+    const std::string &workingDirectory() const;
+    const char *applicationPath();
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
+
+    // static read-only accessors
     static const TestApplication *instance();
     static const char *appPath();
 
@@ -76,7 +85,31 @@ inline const TestApplication *TestApplication::instance()
  */
 inline const char *TestApplication::appPath()
 {
-    return m_instance && m_instance->m_applicationPathArg.firstValue() ? m_instance->m_applicationPathArg.firstValue() : "";
+    return m_instance ? m_instance->applicationPath() : "";
+}
+
+/*!
+ * \brief Returns the list of directories to look for test files.
+ */
+inline const std::vector<std::string> &TestApplication::testFilePaths() const
+{
+    return m_testFilesPaths;
+}
+
+/*!
+ * \brief Returns the directory which is supposed to used for storing files created by tests.
+ */
+inline const std::string &TestApplication::workingDirectory() const
+{
+    return m_workingDir;
+}
+
+/*!
+ * \brief Returns the application path or an empty string if no application path has been set.
+ */
+inline const char *TestApplication::applicationPath()
+{
+    return m_applicationPathArg.firstValue() ? m_applicationPathArg.firstValue() : "";
 }
 
 /*!
