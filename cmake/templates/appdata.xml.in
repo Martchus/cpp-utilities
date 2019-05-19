@@ -11,7 +11,7 @@
   <launchable type="desktop-id">@META_ID@.desktop</launchable>
   <developer_name>@META_APP_AUTHOR@</developer_name>
   <provides>
-    <binary>@META_TARGET_NAME@/binary>
+    <binary>@META_TARGET_NAME@</binary>
   </provides>
   <releases>
     <release version="@META_APP_VERSION@"/>
