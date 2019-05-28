@@ -85,7 +85,9 @@ if (NOT BUILTIN_TRANSLATIONS)
 endif ()
 
 # determine include path used when building the project itself
-if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if (TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE)
+    # use existing TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE if already defined
+elseif (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
     # use special include directory if available
     set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 else ()
