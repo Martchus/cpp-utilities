@@ -42,8 +42,8 @@ Besides, the library provides a few useful algorithms and data structures:
 ## Build instructions
 ### Requirements
 #### Build-only dependencies
-* C++ compiler supporting C++14, tested with
-    - clang++ to compile for GNU/Linux and MacOS X
+* C++ compiler supporting C++17, tested with
+    - clang++ to compile for GNU/Linux and Android
     - g++ to compile for GNU/Linux and Windows
 * CMake (at least 3.3.0)
 * cppunit for unit tests (optional)
@@ -54,9 +54,9 @@ Besides, the library provides a few useful algorithms and data structures:
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
-    * C++ standard library supporting C++14, tested with
-        - libstdc++ under GNU/Linux, Windows and MacOS X
-        - libc++ under GNU/Linux
+    * C++ standard library supporting C++17, tested with
+        - libstdc++ under GNU/Linux and Windows
+        - libc++ under GNU/Linux and Android
     * iconv (might be part of glibc or provided as extra library)
 * For dependencies of my other projects check the README.md of these projects.
 
@@ -79,8 +79,7 @@ make DESTDIR="/temporary/install/location" install
 * The make option ```-j``` can be used for concurrent compilation.
 * ```LIB_SUFFIX```, ```LIB_SUFFIX_32``` and ```LIB_SUFFIX_64``` can be set to
   specify a suffix for the library directory, eg. lib*64* or lib*32*. The 32/64 variants are only used when building for 32/64-bit architecture.
-* By default the build system will *build* shared libs. To *build* also static libraries, set `ENABLE_STATIC_LIBS=ON`. To disable building shared libs
-  set `DISABLE_SHARED_LIBS=ON`.
+* By default the build system will *build* static libs. To *build* shared libraries *instead*, set `BUILD_SHARED_LIBS=ON`.
 * By default the build system will prefer *linking against* shared libraries. To force *linking against* static libraries set `STATIC_LINKAGE=ON`.
   However, this will only affect applications. To force linking statically when building shared libraries set `STATIC_LIBRARY_LINKAGE=ON`.
 * If thread local storage is not supported by your compiler/platform (might be the case on MacOS), you can disable making use of it

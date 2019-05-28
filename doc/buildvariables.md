@@ -241,12 +241,9 @@ and qtutilities.
 * `META_PRIVATE/PUBLIC_COMPILE_DEFINITIONS`: specifies private/public compile
   definitions
 * `LIBRARIES`: specifies libraries to link against
-* `META_PUBLIC_QT_MODULES`: specifies Qt modules used in the public library
-  interface
-* `META_PUBLIC_SHARED_LIB_DEPENDS`: specifies shared libraries used in the public
-  library interface
-* `META_PUBLIC_STATIC_LIB_DEPENDS`: specifies static libraries used in the public
-  library interface
+* `ADDITIONAL_QT_MODULES`: specifies additional Qt modules to link against
+* `ADDITIONAL_KF_MODULES`: specifies additional KDE frameworks modules to link
+  against
 
 ## Provided modules
 c++utilities and qtutilities provide CMake modules to reduce boilerplate code
