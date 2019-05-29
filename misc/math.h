@@ -60,9 +60,9 @@ constexpr IntegralType powerModulo(const IntegralType base, const IntegralType e
 template <typename IntegralType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
 constexpr IntegralType inverseModulo(IntegralType number, IntegralType module)
 {
-    IntegralType y1 = 0, y2 = 1, tmp;
+    IntegralType y1 = 0, y2 = 1;
     while (number != 1) {
-        tmp = y1 - (module / number) * y2;
+        IntegralType tmp = y1 - (module / number) * y2;
         y1 = y2;
         y2 = tmp;
         tmp = module % number;
