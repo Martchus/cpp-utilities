@@ -33,6 +33,8 @@ set(@META_PROJECT_VARNAME_UPPER@_QT_RESOURCES @QT_RESOURCES@)
 # define mapping from CMake targets to pkg-config module names
 @TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING@
 
+# define additional find_package arguments for required CMake-packages
+@ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES@
 # define library config, add imported target
 set(@META_PROJECT_VARNAME_UPPER@_PACKAGE "@META_PROJECT_NAME@@META_CONFIG_SUFFIX@")
 set(@META_PROJECT_VARNAME_UPPER@_LIB "@META_TARGET_NAME@")
@@ -62,9 +64,21 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
     foreach (_REQUIRED_PACKAGE ${@META_PROJECT_VARNAME_UPPER@_REQUIRED_PACKAGES})
         string(REGEX MATCH _REQUIRED_PACKAGE_MATCH "(.*)-([^-]*)" "${_REQUIRED_PACKAGE}")
         if (_REQUIRED_PACKAGE_MATCH)
-            find_package("${CMAKE_MATCH_1}" "${CMAKE_MATCH_2}" REQUIRED)
+            set(_REQUIRED_PACKAGE "${CMAKE_MATCH_1}")
+            set(_REQUIRED_VERSION "${CMAKE_MATCH_2}")
         else ()
-            find_package("${_REQUIRED_PACKAGE}" REQUIRED)
+            unset(_REQUIRED_VERSION)
+        endif ()
+        string(REPLACE "::" "_" _REQUIRED_PACKAGE_VARNAME "${_REQUIRED_PACKAGE}")
+        if (@META_PROJECT_VARNAME_UPPER@_FIND_PACKAGE_ARGS_${_REQUIRED_PACKAGE_VARNAME})
+            set(_FIND_PACKAGE_ARGS ${@META_PROJECT_VARNAME_UPPER@_FIND_PACKAGE_ARGS_${_REQUIRED_PACKAGE_VARNAME}})
+        else ()
+            set(_FIND_PACKAGE_ARGS REQUIRED)
+        endif ()
+        if (_REQUIRED_VERSION)
+            find_package("${_REQUIRED_PACKAGE}" "${_REQUIRED_VERSION}" ${_FIND_PACKAGE_ARGS})
+        else ()
+            find_package("${_REQUIRED_PACKAGE}" ${_FIND_PACKAGE_ARGS})
         endif()
     endforeach()
 

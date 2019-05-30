@@ -201,6 +201,16 @@ if (META_HEADER_ONLY_LIB)
                                      "${AUTOGEN_DEPS}")
 endif ()
 
+# generate CMake code to configure additional arguments for required CMake-packages
+set(ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES)
+foreach (INTERFACE_REQUIRED_PACKAGE ${INTERFACE_REQUIRED_PACKAGES})
+    if (PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE})
+        set(ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES
+            "${ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES}set(${META_PROJECT_VARNAME_UPPER}_FIND_PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE} \"${PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE}}\")\n"
+            )
+    endif ()
+endforeach ()
+
 # generate CMake code to configure CMake-target to pkg-config module mapping
 set(TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING
     "set(PKG_CONFIG_${META_TARGET_NAME} \"${META_PROJECT_NAME}${META_CONFIG_SUFFIX}\")")
