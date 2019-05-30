@@ -25,6 +25,8 @@ The library utilizes:
     - reading/writing INI files
     - reading bitwise
     - writing formatted output using ANSI escape sequences
+    - instantiating a standard IO stream from a native file descriptor to support UTF-8 encoded
+      file paths under Windows and Android's `content://` URLs
 * using SFINAE by providing additional traits, eg. for checking whether a type is iteratable
 * testing with *CppUnit*
     - finding testfiles and make working copies of testfiles
@@ -57,7 +59,8 @@ Besides, the library provides a few useful algorithms and data structures:
     * C++ standard library supporting C++17, tested with
         - libstdc++ under GNU/Linux and Windows
         - libc++ under GNU/Linux and Android
-    * iconv (might be part of glibc or provided as extra library)
+    * glibc with iconv support or standalone iconv library
+    * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional)
 * For dependencies of my other projects check the README.md of these projects.
 
 ### How to build
@@ -97,7 +100,7 @@ make DESTDIR="/temporary/install/location" install
   ${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
   make DESTDIR="/temporary/install/location" install-mingw-w64-strip
   ```
- 
+
 * To create the \*.ico file for the application icon ffmpeg/avconv is required.
 * The target ```install-mingw-w64-strip``` can be used as in the example above to only install files
   suitable for creating a cross-compiler package and additionally strip the binaries.
