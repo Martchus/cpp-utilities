@@ -450,8 +450,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                          install-cmake-templates)
     endif ()
 
-    # add mingw-w64 specific install targets
+    # add targets to ease creating mingw-w64 packages under Arch Linux
     if (MINGW)
+        option(ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING "enable targets to ease creating mingw-w64 packages under Arch Linux" OFF)
+    else ()
+        set(ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING OFF)
+    endif ()
+    if (ENABLE_TARGETS_FOR_MINGW64_CROSS_PACKAGING)
         if (NOT TARGET install-mingw-w64)
             add_custom_target(install-mingw-w64)
         endif ()
