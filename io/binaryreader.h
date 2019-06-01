@@ -65,7 +65,7 @@ public:
     std::string readLengthPrefixedString();
     std::string readString(std::size_t length);
     std::string readTerminatedString(std::uint8_t termination = 0);
-    std::string readTerminatedString(size_t maxBytesToRead, std::uint8_t termination = 0);
+    std::string readTerminatedString(std::size_t maxBytesToRead, std::uint8_t termination = 0);
     std::string readMultibyteTerminatedStringBE(std::uint16_t termination = 0);
     std::string readMultibyteTerminatedStringLE(std::uint16_t termination = 0);
     std::string readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, std::uint16_t termination = 0);
@@ -195,7 +195,7 @@ inline void BinaryReader::read(char *buffer, std::streamsize length)
 /*!
  * \brief Reads the specified number of bytes from the stream in the character array.
  */
-inline void BinaryReader::read(uint8_t *buffer, std::streamsize length)
+inline void BinaryReader::read(std::uint8_t *buffer, std::streamsize length)
 {
     m_stream->read(reinterpret_cast<char *>(buffer), length);
 }
@@ -617,7 +617,7 @@ inline void BinaryReader::read(char &oneCharacter)
 /*!
  * \brief Reads a single byte/unsigned character from the current stream and advances the current position of the stream by one byte.
  */
-inline void BinaryReader::read(uint8_t &oneByte)
+inline void BinaryReader::read(std::uint8_t &oneByte)
 {
     oneByte = readByte();
 }

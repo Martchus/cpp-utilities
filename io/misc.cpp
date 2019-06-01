@@ -12,7 +12,7 @@ namespace IoUtilities {
  * \throws Throws std::ios_base::failure when an error occurs or the specified \a maxSize
  *         would be exceeded.
  */
-string readFile(const string &path, std::string::size_type maxSize)
+std::string readFile(const std::string &path, std::string::size_type maxSize)
 {
     NativeFileStream file;
     file.exceptions(ios_base::failbit | ios_base::badbit);

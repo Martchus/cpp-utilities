@@ -132,7 +132,7 @@ string BinaryReader::readString(size_t length)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readTerminatedString(uint8_t termination)
+std::string BinaryReader::readTerminatedString(std::uint8_t termination)
 {
     stringstream ss(ios_base::in | ios_base::out | ios_base::binary);
     ss.exceptions(ios_base::badbit | ios_base::failbit);
@@ -153,7 +153,7 @@ string BinaryReader::readTerminatedString(uint8_t termination)
  * \deprecated This method is likely refactored/removed in v5.
  * \todo Refactor/remove in v5.
  */
-string BinaryReader::readTerminatedString(size_t maxBytesToRead, std::uint8_t termination)
+string BinaryReader::readTerminatedString(std::size_t maxBytesToRead, std::uint8_t termination)
 {
     unique_ptr<char[]> buff = make_unique<char[]>(maxBytesToRead);
     for (char *i = buff.get(), *end = i + maxBytesToRead; i < end; ++i) {
