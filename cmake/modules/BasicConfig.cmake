@@ -51,7 +51,8 @@ endif ()
 # allow setting a library/application target suffix - A different configuration name might not require a different target
 # name since it might differ anyways (e.g. library extensions for static and shared configuration). Hence there's not simply
 # the configuration name used to distinguish targets as well.
-set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX ""
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX
+    ""
     CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
 set(CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets the target suffix for all projects within the current build")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX STREQUAL "none")
@@ -275,7 +276,11 @@ set(FORMATABLE_FILES
     ${QML_SRC_FILES})
 # only format C/C++ files (and not eg. QML files)
 if (FORMATABLE_FILES)
-    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cpp|h|hpp)")
+    list(FILTER
+         FORMATABLE_FILES
+         INCLUDE
+         REGEX
+         ".*\\.(c|cpp|h|hpp)")
 endif ()
 
 # determine source files which might be passed to cmake-format
@@ -285,7 +290,7 @@ set(FORMATABLE_FILES_CMAKE ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt ${CMAKE_MO
 if (EXISTS "${CLANG_FORMAT_RULES}")
     add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
                        COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}"
-                               "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                                                     "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
                        COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}")
 else ()
     message(WARNING "Format rules for clang-format not found.")
@@ -332,7 +337,7 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
         message(FATAL_ERROR "Unable to add tidy target; cmake-format not found")
     endif ()
     if (NOT META_CMAKE_FORMAT_OPTIONS)
-        set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125)
+        set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125 --autosort=False)
     endif ()
     add_custom_target("${META_TARGET_NAME}_cmake_tidy"
                       COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
@@ -348,7 +353,8 @@ endif ()
 # add target for static code analysis using clang-tidy
 if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
     option(CLANG_TIDY_ENABLED "enables creation of static-check target using clang-tidy" OFF)
-    set(CLANG_TIDY_CHECKS ""
+    set(CLANG_TIDY_CHECKS
+        ""
         CACHE STRING
               "-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,performance-*,portability-*,readability-*,android-*")
     if (CLANG_TIDY_ENABLED)
@@ -411,7 +417,10 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         endforeach ()
 
         # mark all symbolic output files actually as symbolic
-        set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES} PROPERTIES SYMBOLIC YES)
+        set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
+                                    PROPERTIES
+                                    SYMBOLIC
+                                    YES)
 
         # add targets
         add_custom_target("${META_TARGET_NAME}_static_check"
@@ -436,11 +445,7 @@ endif ()
 # enable source code based coverage analysis using clang
 option(CLANG_SOURCE_BASED_COVERAGE_ENABLED "enables creation of coverage targets for source-based coverage with clang" OFF)
 if (CLANG_SOURCE_BASED_COVERAGE_ENABLED)
-    if (NOT CMAKE_HOST_UNIX
-        OR NOT
-           "${CMAKE_CXX_COMPILER_ID}"
-           STREQUAL
-           "Clang")
+    if (NOT CMAKE_HOST_UNIX OR NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         message(FATAL_ERROR "Source-based coverage only available under UNIX with Clang")
     endif ()
     if (NOT META_PROJECT_TYPE STREQUAL "application" AND DISABLE_SHARED_LIBS)
@@ -467,7 +472,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endforeach ()
     if (NOT TARGET install-extra-files)
         add_custom_target(install-extra-files
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=extra-files -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()

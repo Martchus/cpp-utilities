@@ -40,9 +40,12 @@ if (WINDOWS_ICON_ENABLED)
             set(WINDOWS_ICON_RC_ENTRY "IDI_ICON1   ICON    DISCARDABLE \"${WINDOWS_ICON_PATH}\"")
             add_custom_command(OUTPUT "${WINDOWS_ICON_PATH}"
                                COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" -vf crop=${PNG_ICON_CROP},scale=64:64
-                                       "${WINDOWS_ICON_PATH}"
+                                                                                  "${WINDOWS_ICON_PATH}"
                                DEPENDS "${PNG_ICON_PATH}")
-            set_source_files_properties("${WINDOWS_RC_FILE}" PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}")
+            set_source_files_properties("${WINDOWS_RC_FILE}"
+                                        PROPERTIES
+                                        OBJECT_DEPENDS
+                                        "${WINDOWS_ICON_PATH}")
             message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
         elseif (NOT USING_DEFAULT_PNG_ICON_PATH)
             message(FATAL_ERROR "The specified PNG_ICON_PATH \"${PNG_ICON_PATH}\" is invalid.")

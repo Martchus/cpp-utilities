@@ -44,9 +44,19 @@ endfunction ()
 function (parse_arguments_for_use_functions)
     # parse arguments
     set(OPTIONAL_ARGS OPTIONAL)
-    set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE PACKAGES_VARIABLE PKG_CONFIG_MODULES_VARIABLE TARGET_NAME PACKAGE_NAME)
+    set(ONE_VALUE_ARGS
+        VISIBILITY
+        LIBRARIES_VARIABLE
+        PACKAGES_VARIABLE
+        PKG_CONFIG_MODULES_VARIABLE
+        TARGET_NAME
+        PACKAGE_NAME)
     set(MULTI_VALUE_ARGS PKG_CONFIG_MODULES PACKAGE_ARGS)
-    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+    cmake_parse_arguments(ARGS
+                          "${OPTIONAL_ARGS}"
+                          "${ONE_VALUE_ARGS}"
+                          "${MULTI_VALUE_ARGS}"
+                          ${ARGN})
 
     # validate values
     if (ARGS_VISIBILITY)
@@ -93,7 +103,8 @@ function (use_iconv)
     parse_arguments_for_use_functions(${ARGN})
 
     # check whether iconv from the standard library can be used
-    set(FORCE_EXTERNAL_ICONV OFF
+    set(FORCE_EXTERNAL_ICONV
+        OFF
         CACHE PATH "whether to force usage of external iconv (rather than the using the one bundled with glibc)")
     if (NOT FORCE_EXTERNAL_ICONV)
         # check whether iconv exists in standard lib
@@ -145,7 +156,8 @@ function (use_crypto)
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto" PARENT_SCOPE)
     set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};OpenSSL" PARENT_SCOPE)
     if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
-        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto;-lws2_32;-lgdi32;-lcrypt32"
+        set("${ARGS_LIBRARIES_VARIABLE}"
+            "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto;-lws2_32;-lgdi32;-lcrypt32"
             PARENT_SCOPE)
     endif ()
     set("PKG_CONFIG_OpenSSL_Crypto" "libcrypto" PARENT_SCOPE)
@@ -204,7 +216,7 @@ function (use_package)
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
     set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}" PARENT_SCOPE)
     set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}" "${ARGS_PACKAGE_ARGS}" PARENT_SCOPE)
-endfunction()
+endfunction ()
 
 function (use_pkg_config_module)
     # parse and validate arguments

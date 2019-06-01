@@ -140,7 +140,12 @@ if (USE_NATIVE_FILE_BUFFER)
         endforeach ()
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
-        use_package(TARGET_NAME Boost::iostreams PACKAGE_NAME Boost PACKAGE_ARGS "REQUIRED;COMPONENTS;iostreams")
+        use_package(TARGET_NAME
+                    Boost::iostreams
+                    PACKAGE_NAME
+                    Boost
+                    PACKAGE_ARGS
+                    "REQUIRED;COMPONENTS;iostreams")
         foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
             set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
                          APPEND

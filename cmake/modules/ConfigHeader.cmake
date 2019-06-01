@@ -26,7 +26,11 @@ endif ()
 get_target_property(INTERFACE_LINK_LIBRARIES_LIST "${META_TARGET_NAME}" INTERFACE_LINK_LIBRARIES)
 
 # make list with link-time dependency versions and display names
-foreach (DEPENDENCY IN LISTS LINK_LIBRARIES_LIST INTERFACE_LINK_LIBRARIES_LIST)
+foreach (DEPENDENCY
+         IN
+         LISTS
+         LINK_LIBRARIES_LIST
+         INTERFACE_LINK_LIBRARIES_LIST)
     # skip non-targets and already processed dependencies
     if (NOT TARGET "${DEPENDENCY}" OR "${DEPENDENCY}" IN_LIST PROCESSED_DEPENDENCIES)
         continue()
@@ -69,7 +73,11 @@ endforeach ()
 # format "DEPENCENCY_VERSIONS_ARRAY"
 if (DEPENCENCY_VERSIONS)
     include(ListToString)
-    list_to_string("," " \\\n    \"" "\"" "${DEPENCENCY_VERSIONS}" DEPENCENCY_VERSIONS_ARRAY)
+    list_to_string(","
+                   " \\\n    \""
+                   "\""
+                   "${DEPENCENCY_VERSIONS}"
+                   DEPENCENCY_VERSIONS_ARRAY)
 endif ()
 
 # add configuration header
@@ -77,7 +85,10 @@ configure_file("${CONFIG_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resource
 
 # ensure generated include files can be included via #include "resources/config.h"
 if (NOT META_HEADER_ONLY_LIB)
-    foreach (TARGET_NAME ${META_TARGET_NAME} ${META_TARGET_NAME}_tests ${META_TARGET_NAME}_testlib)
+    foreach (TARGET_NAME
+             ${META_TARGET_NAME}
+             ${META_TARGET_NAME}_tests
+             ${META_TARGET_NAME}_testlib)
         if (TARGET ${TARGET_NAME})
             target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
         endif ()

@@ -4,7 +4,10 @@ if (DEFINED TEMPLATE_FINDER_LOADED)
 endif ()
 set(TEMPLATE_FINDER_LOADED YES)
 
-function (find_template_file FILE_NAME PROJECT_VAR_NAME OUTPUT_VAR)
+function (find_template_file
+          FILE_NAME
+          PROJECT_VAR_NAME
+          OUTPUT_VAR)
     if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/${FILE_NAME}.in")
         # check own source directory
         set(${OUTPUT_VAR} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/${FILE_NAME}.in" PARENT_SCOPE)

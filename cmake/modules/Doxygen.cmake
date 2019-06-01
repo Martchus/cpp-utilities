@@ -52,7 +52,11 @@ set(DOXY_MAIN_PAGE_FILE "${DOXY_PATH_PREFIX}${DOXY_MAIN_PAGE_FILE}")
 
 # convert DOXY_INPUT_FILES to whitespace-separated list
 include(ListToString)
-list_to_string(" " "\"${DOXY_PATH_PREFIX}" "\"" "${DOXY_INPUT_FILES}" DOXY_INPUT_FILES_WHITESPACE_SEPARATED)
+list_to_string(" "
+               "\"${DOXY_PATH_PREFIX}"
+               "\""
+               "${DOXY_INPUT_FILES}"
+               DOXY_INPUT_FILES_WHITESPACE_SEPARATED)
 
 # generate Doxygen configuration
 configure_file("${DOXYGEN_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config")
@@ -69,7 +73,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc" DESTINATION "${META_DATA_DIR}" COMPONENT api-doc OPTIONAL)
     if (NOT TARGET install-api-doc)
         add_custom_target(install-api-doc
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=api-doc -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=api-doc -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()

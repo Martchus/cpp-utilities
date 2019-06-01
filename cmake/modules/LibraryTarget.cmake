@@ -160,14 +160,7 @@ endforeach ()
 # populate META_PRIVATE_LIB_DEPENDS (only required when building static libraries)
 if (NOT BUILD_SHARED_LIBS)
     foreach (DEPENDENCY ${PRIVATE_LIBRARIES})
-        if (NOT
-            "${DEPENDENCY}"
-            IN_LIST
-            META_PUBLIC_LIB_DEPENDS
-            AND NOT
-                "${DEPENDENCY}"
-                IN_LIST
-                META_PRIVATE_LIB_DEPENDS)
+        if (NOT "${DEPENDENCY}" IN_LIST META_PUBLIC_LIB_DEPENDS AND NOT "${DEPENDENCY}" IN_LIST META_PRIVATE_LIB_DEPENDS)
             list(APPEND META_PRIVATE_LIB_DEPENDS ${DEPENDENCY})
         endif ()
     endforeach ()
@@ -176,11 +169,9 @@ endif ()
 # Qt Creator does not show INTERFACE_SOURCES in project tree, so create a custom target as workaround
 if (META_HEADER_ONLY_LIB)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp"
-               "// not belonging to a real target, only for header-only lib files showing up in Qt Creator")
-    add_library(${META_TARGET_NAME}_interface_sources_for_qtcreator
-                EXCLUDE_FROM_ALL
-                "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp"
-                ${HEADER_FILES})
+         "// not belonging to a real target, only for header-only lib files showing up in Qt Creator")
+    add_library(${META_TARGET_NAME}_interface_sources_for_qtcreator EXCLUDE_FROM_ALL
+                "${CMAKE_CURRENT_BINARY_DIR}/headeronly.cpp" ${HEADER_FILES})
     target_include_directories(${META_TARGET_NAME}_interface_sources_for_qtcreator
                                INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                                          $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
@@ -205,7 +196,8 @@ endif ()
 set(ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES)
 foreach (INTERFACE_REQUIRED_PACKAGE ${INTERFACE_REQUIRED_PACKAGES})
     if (PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE})
-        set(ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES
+        set(
+            ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES
             "${ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES}set(${META_PROJECT_VARNAME_UPPER}_FIND_PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE} \"${PACKAGE_ARGS_${INTERFACE_REQUIRED_PACKAGE}}\")\n"
             )
     endif ()
@@ -260,7 +252,10 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME
                                  COMPATIBILITY SameMajorVersion)
 
 # compute dependencies for pkg-config file
-macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VAR_LIBS)
+macro (compute_dependencies_for_package_config
+       DEPENDS
+       OUTPUT_VAR_PKGS
+       OUTPUT_VAR_LIBS)
     unset(${OUTPUT_VAR_PKGS})
     unset(${OUTPUT_VAR_LIBS})
     foreach (DEPENDENCY ${${DEPENDS}})
@@ -336,7 +331,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     install(FILES ${CMAKE_CONFIG_FILES} DESTINATION "${META_DATA_DIR}/cmake" COMPONENT cmake-config)
     if (NOT TARGET install-cmake-config)
         add_custom_target(install-cmake-config
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-config -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-config -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -346,21 +342,24 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
     if (NOT TARGET install-pkg-config)
         add_custom_target(install-pkg-config
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=pkg-config -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=pkg-config -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
     # add install target for libs
     if (NOT TARGET install-binary)
         add_custom_target(install-binary
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
     # add install target for stripped libs
     if (NOT TARGET install-binary-strip)
         add_custom_target(install-binary-strip
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -412,7 +411,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         endforeach ()
         if (NOT TARGET install-header)
             add_custom_target(install-header
-                              COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=header -P
+                              COMMAND "${CMAKE_COMMAND}"
+                                      -DCMAKE_INSTALL_COMPONENT=header -P
                                       "${CMAKE_BINARY_DIR}/cmake_install.cmake")
         endif ()
     endif ()
@@ -424,7 +424,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endforeach ()
     if (NOT TARGET install-cmake-modules)
         add_custom_target(install-cmake-modules
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-modules -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-modules -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -435,14 +436,18 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endforeach ()
     if (NOT TARGET install-cmake-templates)
         add_custom_target(install-cmake-templates
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=cmake-templates -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-templates -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
     # add install target for all the cmake stuff
     if (NOT TARGET install-cmake-stuff)
         add_custom_target(install-cmake-stuff)
-        add_dependencies(install-cmake-stuff install-cmake-config install-cmake-modules install-cmake-templates)
+        add_dependencies(install-cmake-stuff
+                         install-cmake-config
+                         install-cmake-modules
+                         install-cmake-templates)
     endif ()
 
     # add mingw-w64 specific install targets
@@ -450,11 +455,19 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (NOT TARGET install-mingw-w64)
             add_custom_target(install-mingw-w64)
         endif ()
-        add_dependencies(install-mingw-w64 install-binary install-header install-cmake-stuff install-pkg-config)
+        add_dependencies(install-mingw-w64
+                         install-binary
+                         install-header
+                         install-cmake-stuff
+                         install-pkg-config)
         if (NOT TARGET install-mingw-w64-strip)
             add_custom_target(install-mingw-w64-strip)
         endif ()
-        add_dependencies(install-mingw-w64-strip install-binary-strip install-header install-cmake-stuff install-pkg-config)
+        add_dependencies(install-mingw-w64-strip
+                         install-binary-strip
+                         install-header
+                         install-cmake-stuff
+                         install-pkg-config)
         if (LOCALIZATION_TARGET)
             add_dependencies(install-mingw-w64 ${LOCALIZATION_TARGET})
             add_dependencies(install-mingw-w64-strip ${LOCALIZATION_TARGET})
@@ -468,14 +481,16 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-importlib-strip
-                COMMAND "${STRIP_BINARY_PATH}" -g
+                COMMAND "${STRIP_BINARY_PATH}"
+                        -g
                         "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
         if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                              COMMAND "${STRIP_BINARY_PATH}" -g
+                              COMMAND "${STRIP_BINARY_PATH}"
+                                      -g
                                       "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)

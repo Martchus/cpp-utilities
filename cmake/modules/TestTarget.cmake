@@ -24,12 +24,10 @@ if (NOT META_NO_CPP_UNIT)
         pkg_search_module(CPP_UNIT_CONFIG_${META_PROJECT_NAME} cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
         if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
             set(CPP_UNIT_LIB "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}"
-                "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}"
-                CACHE FILEPATH "cppunit lib"
-                FORCE)
-            set(CPP_UNIT_INCLUDE_DIR ${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}
-                CACHE FILEPATH "cppunit include dir"
-                FORCE)
+                             "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}" CACHE FILEPATH "cppunit lib" FORCE)
+            set(CPP_UNIT_INCLUDE_DIR
+                ${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}
+                CACHE FILEPATH "cppunit include dir" FORCE)
             link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
         else ()
             # fall back to find_library
@@ -102,7 +100,13 @@ if (META_PROJECT_IS_APPLICATION)
     # using functions directly from the tests might be required -> also create a 'testlib' and link tests against it
     if (LINK_TESTS_AGAINST_APP_TARGET)
         # create target for the 'testlib'
-        set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
+        set(TESTLIB_FILES
+            ${HEADER_FILES}
+            ${SRC_FILES}
+            ${WIDGETS_FILES}
+            ${QML_FILES}
+            ${RES_FILES}
+            ${QM_FILES})
         list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
         add_library(${META_TARGET_NAME}_testlib SHARED ${TESTLIB_FILES})
         target_link_libraries(${META_TARGET_NAME}_testlib
@@ -173,7 +177,10 @@ if (META_PROJECT_TYPE STREQUAL "application")
 endif ()
 if (NOT META_TEST_TARGET_IS_MANUAL)
     add_test(NAME ${META_PROJECT_NAME}_run_tests
-             COMMAND ${META_TARGET_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w
+             COMMAND ${META_TARGET_NAME}_tests
+                     -p
+                     "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
+                     -w
                      "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS})
 endif ()
 
@@ -203,10 +210,16 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     # add command to execute tests generating raw profiling data
     add_custom_command(
         OUTPUT "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}"
-        COMMAND "${CMAKE_COMMAND}" -E env "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE}"
-                "LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}" $<TARGET_FILE:${META_TARGET_NAME}_tests> -p
-                "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
-                ${RUN_TESTS_APPLICATION_ARGS}
+        COMMAND "${CMAKE_COMMAND}"
+                -E
+                env
+                "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE}"
+                "LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}"
+                $<TARGET_FILE:${META_TARGET_NAME}_tests>
+                -p
+                "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
+                -w
+                "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS}
         COMMENT "Executing ${META_TARGET_NAME}_tests to generate raw profiling data for source-based coverage report"
         DEPENDS "${META_TARGET_NAME}_tests")
 
@@ -216,8 +229,16 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     if (LLVM_PROFDATA_BIN AND LLVM_COV_BIN)
         # merge profiling data
         add_custom_command(OUTPUT "${LLVM_PROFILE_DATA_FILE}"
-                           COMMAND cat "${LLVM_PROFILE_RAW_LIST_FILE}" | xargs "${LLVM_PROFDATA_BIN}" merge -o
-                                   "${LLVM_PROFILE_DATA_FILE}" -sparse "${LLVM_PROFILE_RAW_FILE}"
+                           COMMAND cat
+                                   "${LLVM_PROFILE_RAW_LIST_FILE}"
+                                   |
+                                   xargs
+                                   "${LLVM_PROFDATA_BIN}"
+                                   merge
+                                   -o
+                                   "${LLVM_PROFILE_DATA_FILE}"
+                                   -sparse
+                                   "${LLVM_PROFILE_RAW_FILE}"
                            COMMENT "Generating profiling data for source-based coverage report"
                            DEPENDS "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}")
 
@@ -250,9 +271,18 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             list(APPEND LLVM_COV_ADDITIONAL_OPTIONS -show-functions)
         endif ()
         add_custom_command(OUTPUT "${COVERAGE_REPORT_FILE}"
-                           COMMAND "${LLVM_COV_BIN}" report -format=text -stats -instr-profile "${LLVM_PROFILE_DATA_FILE}"
-                                   ${LLVM_COV_ADDITIONAL_OPTIONS} ${LLVM_COV_TARGET_FILE} ${HEADER_FILES} ${SRC_FILES}
-                                   ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES} ${QML_SOURCE_FILES} >
+                           COMMAND "${LLVM_COV_BIN}" report
+                                   -format=text -stats -instr-profile
+                                   "${LLVM_PROFILE_DATA_FILE}"
+                                   ${LLVM_COV_ADDITIONAL_OPTIONS}
+                                   ${LLVM_COV_TARGET_FILE}
+                                   ${HEADER_FILES}
+                                   ${SRC_FILES}
+                                   ${WIDGETS_HEADER_FILES}
+                                   ${WIDGETS_SOURCE_FILES}
+                                   ${QML_HEADER_FILES}
+                                   ${QML_SOURCE_FILES}
+                                   >
                                    "${COVERAGE_REPORT_FILE}"
                            COMMENT "Generating coverage report (statistics per function)"
                            DEPENDS "${LLVM_PROFILE_DATA_FILE}"
@@ -261,10 +291,18 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         # generate coverage report with statistics per file (only possible with LLVM 5 if source files are specified)
         if (LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
             add_custom_command(OUTPUT "${COVERAGE_PER_FILE_REPORT_FILE}"
-                               COMMAND "${LLVM_COV_BIN}" report -format=text -stats -instr-profile
-                                       "${LLVM_PROFILE_DATA_FILE}" ${LLVM_COV_TARGET_FILE} ${HEADER_FILES} ${SRC_FILES}
-                                       ${WIDGETS_HEADER_FILES} ${WIDGETS_SOURCE_FILES} ${QML_HEADER_FILES}
-                                       ${QML_SOURCE_FILES} > "${COVERAGE_PER_FILE_REPORT_FILE}"
+                               COMMAND "${LLVM_COV_BIN}" report
+                                       -format=text -stats -instr-profile
+                                       "${LLVM_PROFILE_DATA_FILE}"
+                                       ${LLVM_COV_TARGET_FILE}
+                                       ${HEADER_FILES}
+                                       ${SRC_FILES}
+                                       ${WIDGETS_HEADER_FILES}
+                                       ${WIDGETS_SOURCE_FILES}
+                                       ${QML_HEADER_FILES}
+                                       ${QML_SOURCE_FILES}
+                                       >
+                                       "${COVERAGE_PER_FILE_REPORT_FILE}"
                                COMMENT "Generating coverage report (statistics per file)"
                                DEPENDS "${LLVM_PROFILE_DATA_FILE}"
                                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -286,7 +324,11 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_CONFIG_DIRS}/tests/calculateoverallcoverage.awk")
         endif ()
         add_custom_command(OUTPUT "${COVERAGE_OVERALL_REPORT_FILE}"
-                           COMMAND awk -f "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}" >
+                           COMMAND awk
+                                   -f
+                                   "${OVERALL_COVERAGE_AKW_SCRIPT}"
+                                   "${COVERAGE_REPORT_FILE}"
+                                   >
                                    "${COVERAGE_OVERALL_REPORT_FILE}"
                            COMMENT "Generating coverage report (overall figures)"
                            DEPENDS "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}")
@@ -294,9 +336,16 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
 
         # generate HTML document showing covered/uncovered code
         add_custom_command(OUTPUT "${COVERAGE_HTML_REPORT_FILE}"
-                           COMMAND "${LLVM_COV_BIN}" show -project-title="${META_APP_NAME}" -format=html -instr-profile
-                                   "${LLVM_PROFILE_DATA_FILE}" ${LLVM_COV_TARGET_FILE} ${HEADER_FILES} ${SRC_FILES}
-                                   ${WIDGETS_FILES} ${QML_FILES} > "${COVERAGE_HTML_REPORT_FILE}"
+                           COMMAND "${LLVM_COV_BIN}" show
+                                   -project-title="${META_APP_NAME}" -format=html -instr-profile
+                                   "${LLVM_PROFILE_DATA_FILE}"
+                                   ${LLVM_COV_TARGET_FILE}
+                                   ${HEADER_FILES}
+                                   ${SRC_FILES}
+                                   ${WIDGETS_FILES}
+                                   ${QML_FILES}
+                                   >
+                                   "${COVERAGE_HTML_REPORT_FILE}"
                            COMMENT "Generating HTML document showing covered/uncovered code"
                            DEPENDS "${LLVM_PROFILE_DATA_FILE}"
                            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

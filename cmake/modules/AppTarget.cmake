@@ -34,7 +34,7 @@ endif ()
 # add target for building the application
 if (ANDROID)
     # create a shared library which can be loaded from the Java-side
-    add_library(${META_TARGET_NAME} SHARED ${GUI_TYPE} ${ALL_FILES})
+    add_library(${META_TARGET_NAME} SHARED ${ALL_FILES})
 else ()
     add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
@@ -79,7 +79,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
 
     if (NOT TARGET install-binary)
         add_custom_target(install-binary
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=binary -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-binary ${META_TARGET_NAME})
@@ -101,13 +102,15 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endforeach ()
     if (NOT TARGET install-desktop)
         add_custom_target(install-desktop
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=desktop -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=desktop -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-desktop ${META_TARGET_NAME})
     if (NOT TARGET install-appimage)
         add_custom_target(install-appimage
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=appimage -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_COMPONENT=appimage -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-appimage ${META_TARGET_NAME})
@@ -115,7 +118,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for stripped binaries
     if (NOT TARGET install-binary-strip)
         add_custom_target(install-binary-strip
-                          COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
+                          COMMAND "${CMAKE_COMMAND}"
+                                  -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-binary-strip ${META_TARGET_NAME})
@@ -171,7 +175,11 @@ function (add_custom_desktop_file)
         DESKTOP_FILE_ADDITIONAL_ENTRIES)
     set(MULTI_VALUE_ARGS)
     set(OPTIONAL_ARGS)
-    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+    cmake_parse_arguments(ARGS
+                          "${OPTIONAL_ARGS}"
+                          "${ONE_VALUE_ARGS}"
+                          "${MULTI_VALUE_ARGS}"
+                          ${ARGN})
     if (NOT ARGS_FILE_NAME OR NOT ARGS_DESKTOP_FILE_APP_NAME OR NOT ARGS_DESKTOP_FILE_CMD)
         message(FATAL_ERROR "Not all mandatory arguments specified.")
     endif ()
