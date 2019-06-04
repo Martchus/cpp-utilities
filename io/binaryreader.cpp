@@ -159,7 +159,7 @@ string BinaryReader::readTerminatedString(std::size_t maxBytesToRead, std::uint8
     for (char *i = buff.get(), *end = i + maxBytesToRead; i < end; ++i) {
         m_stream->get(*i);
         if (*(reinterpret_cast<std::uint8_t *>(i)) == termination) {
-            return string(buff.get(), i - buff.get());
+            return string(buff.get(), static_cast<size_t>(i - buff.get()));
         }
     }
     return string(buff.get(), maxBytesToRead);
