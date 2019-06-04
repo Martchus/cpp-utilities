@@ -88,7 +88,7 @@ string BinaryReader::readString(size_t length)
 {
     string res;
     res.resize(length);
-    m_stream->read(&res[0], length);
+    m_stream->read(&res[0], static_cast<streamsize>(length));
     return res;
 }
 
@@ -98,9 +98,6 @@ string BinaryReader::readString(size_t length)
  * Advances the current position of the stream by the string length plus one byte.
  *
  * \param termination The byte to be recognized as termination value.
- *
- * \deprecated This method is likely refactored/removed in v5.
- * \todo Refactor/remove in v5.
  */
 std::string BinaryReader::readTerminatedString(std::uint8_t termination)
 {
@@ -119,20 +116,19 @@ std::string BinaryReader::readTerminatedString(std::uint8_t termination)
  *
  * \param maxBytesToRead The maximal number of bytes to read.
  * \param termination The value to be recognized as termination.
- *
- * \deprecated This method is likely refactored/removed in v5.
- * \todo Refactor/remove in v5.
  */
 string BinaryReader::readTerminatedString(std::size_t maxBytesToRead, std::uint8_t termination)
 {
-    unique_ptr<char[]> buff = make_unique<char[]>(maxBytesToRead);
-    for (char *i = buff.get(), *end = i + maxBytesToRead; i < end; ++i) {
-        m_stream->get(*i);
-        if (*(reinterpret_cast<std::uint8_t *>(i)) == termination) {
-            return string(buff.get(), static_cast<size_t>(i - buff.get()));
+    string res;
+    res.reserve(maxBytesToRead);
+    while (res.size() < maxBytesToRead) {
+        const auto c = static_cast<char>(m_stream->get());
+        if (static_cast<std::uint8_t>(c) == termination) {
+            return res;
         }
+        res += c;
     }
-    return string(buff.get(), maxBytesToRead);
+    return res;
 }
 
 /*!
