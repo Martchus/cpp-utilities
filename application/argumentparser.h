@@ -319,7 +319,7 @@ public:
     void setSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArgument(Argument *arg);
     bool hasSubArguments() const;
-    const ArgumentVector parents() const;
+    const ArgumentVector &parents() const;
     void printInfo(std::ostream &os, unsigned char indentation = 0) const;
 
     // declare getter/setter/properties for bash completion: those properties must be set *before parsing
@@ -979,10 +979,8 @@ inline bool Argument::hasSubArguments() const
  *
  * If this argument is used as a main argument shouldn't be used as
  * secondary argument at the same time and thus have no parents.
- *
- * \todo Return by reference in v5.
  */
-inline const ArgumentVector Argument::parents() const
+inline const ArgumentVector &Argument::parents() const
 {
     return m_parents;
 }
