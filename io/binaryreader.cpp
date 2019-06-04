@@ -23,43 +23,13 @@ using namespace ConversionUtilities;
  */
 
 /*!
- * \brief Constructs a new BinaryReader.
- * \param stream Specifies the stream to read from.
- */
-BinaryReader::BinaryReader(istream *stream)
-    : m_stream(stream)
-    , m_ownership(false)
-{
-}
-
-/*!
- * \brief Copies the specified BinaryReader.
- * \remarks The copy will not take ownership over the stream.
- */
-BinaryReader::BinaryReader(const BinaryReader &other)
-    : m_stream(other.m_stream)
-    , m_ownership(false)
-{
-}
-
-/*!
- * \brief Destroys the BinaryReader.
- */
-BinaryReader::~BinaryReader()
-{
-    if (m_ownership) {
-        delete m_stream;
-    }
-}
-
-/*!
  * \brief Assigns the stream the reader will read from when calling one of the read-methods.
  *
  * You can assign a null pointer when ensuring that none of the read-methods is called
  * until a stream is assigned.
  *
  * \param stream Specifies the stream to be assigned.
- * \param giveOwnership Indicated whether the reader should take ownership (default is false).
+ * \param giveOwnership Specifies whether the reader should take ownership.
  *
  * \sa setStream()
  */

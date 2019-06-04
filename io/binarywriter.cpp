@@ -17,43 +17,13 @@ using namespace ConversionUtilities;
  */
 
 /*!
- * \brief Constructs a new BinaryWriter.
- * \param stream Specifies the stream to write to.
- */
-BinaryWriter::BinaryWriter(ostream *stream)
-    : m_stream(stream)
-    , m_ownership(false)
-{
-}
-
-/*!
- * \brief Copies the specified BinaryWriter.
- * \remarks The copy will not take ownership over the stream.
- */
-BinaryWriter::BinaryWriter(const BinaryWriter &other)
-    : m_stream(other.m_stream)
-    , m_ownership(false)
-{
-}
-
-/*!
- * \brief Destroys the BinaryWriter.
- */
-BinaryWriter::~BinaryWriter()
-{
-    if (m_ownership) {
-        delete m_stream;
-    }
-}
-
-/*!
  * \brief Assigns the stream the writer will write to when calling one of the write-methods.
  *
  * You can assign a null pointer when ensuring that none of the write-methods is called
  * until a stream is assigned.
  *
  * \param stream Specifies the stream to be assigned.
- * \param giveOwnership Indicated whether the reader should take ownership (default is false).
+ * \param giveOwnership Specifies whether the writer should take ownership.
  *
  * \sa setStream()
  */

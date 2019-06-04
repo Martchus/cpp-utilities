@@ -13,7 +13,7 @@ namespace IoUtilities {
 
 class CPP_UTILITIES_EXPORT BinaryWriter {
 public:
-    BinaryWriter(std::ostream *stream);
+    BinaryWriter(std::ostream *stream, bool giveOwnership = false);
     BinaryWriter(const BinaryWriter &other);
     BinaryWriter &operator=(const BinaryWriter &rhs) = delete;
     ~BinaryWriter();
@@ -94,6 +94,37 @@ private:
     bool m_ownership;
     char m_buffer[8];
 };
+
+/*!
+ * \brief Constructs a new BinaryWriter.
+ * \param stream Specifies the stream to write to.
+ * \param giveOwnership Specifies whether the writer should take ownership.
+ */
+inline BinaryWriter::BinaryWriter(std::ostream *stream, bool giveOwnership)
+    : m_stream(stream)
+    , m_ownership(giveOwnership)
+{
+}
+
+/*!
+ * \brief Copies the specified BinaryWriter.
+ * \remarks The copy will not take ownership over the stream.
+ */
+inline BinaryWriter::BinaryWriter(const BinaryWriter &other)
+    : m_stream(other.m_stream)
+    , m_ownership(false)
+{
+}
+
+/*!
+ * \brief Destroys the BinaryWriter.
+ */
+inline BinaryWriter::~BinaryWriter()
+{
+    if (m_ownership) {
+        delete m_stream;
+    }
+}
 
 /*!
  * \brief Returns a pointer to the stream the writer will write to when calling one of the write-methods.

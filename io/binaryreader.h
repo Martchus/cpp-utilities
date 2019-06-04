@@ -11,7 +11,7 @@ namespace IoUtilities {
 class CPP_UTILITIES_EXPORT BinaryReader {
 
 public:
-    BinaryReader(std::istream *stream);
+    BinaryReader(std::istream *stream, bool giveOwnership = false);
     BinaryReader(const BinaryReader &other);
     BinaryReader &operator=(const BinaryReader &rhs) = delete;
     ~BinaryReader();
@@ -97,6 +97,37 @@ private:
     bool m_ownership;
     char m_buffer[8];
 };
+
+/*!
+ * \brief Constructs a new BinaryReader.
+ * \param stream Specifies the stream to read from.
+ * \param giveOwnership Specifies whether the reader should take ownership.
+ */
+inline BinaryReader::BinaryReader(std::istream *stream, bool giveOwnership)
+    : m_stream(stream)
+    , m_ownership(giveOwnership)
+{
+}
+
+/*!
+ * \brief Copies the specified BinaryReader.
+ * \remarks The copy will not take ownership over the stream.
+ */
+inline BinaryReader::BinaryReader(const BinaryReader &other)
+    : m_stream(other.m_stream)
+    , m_ownership(false)
+{
+}
+
+/*!
+ * \brief Destroys the BinaryReader.
+ */
+inline BinaryReader::~BinaryReader()
+{
+    if (m_ownership) {
+        delete m_stream;
+    }
+}
 
 /*!
  * \brief Returns a pointer to the stream the reader will read from when calling one of the read-methods.
