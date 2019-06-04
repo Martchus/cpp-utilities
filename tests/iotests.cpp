@@ -135,14 +135,6 @@ void IoTests::testBinaryReader()
     CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString());
     testFile.seekg(-4, ios_base::cur);
     CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString(5, 0));
-    testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(5, 0x6600));
-    testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(5, 0x0066));
-    testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringBE(static_cast<std::uint16_t>(0x6600)));
-    testFile.seekg(-4, ios_base::cur);
-    CPPUNIT_ASSERT_EQUAL("de"s, reader.readMultibyteTerminatedStringLE(static_cast<std::uint16_t>(0x0066)));
     CPPUNIT_ASSERT_THROW(reader.readLengthPrefixedString(), ConversionException);
     CPPUNIT_ASSERT_MESSAGE("pos in stream not advanced on conversion error", reader.readByte() == 0);
 

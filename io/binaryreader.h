@@ -66,10 +66,6 @@ public:
     std::string readString(std::size_t length);
     std::string readTerminatedString(std::uint8_t termination = 0);
     std::string readTerminatedString(std::size_t maxBytesToRead, std::uint8_t termination = 0);
-    std::string readMultibyteTerminatedStringBE(std::uint16_t termination = 0);
-    std::string readMultibyteTerminatedStringLE(std::uint16_t termination = 0);
-    std::string readMultibyteTerminatedStringBE(std::size_t maxBytesToRead, std::uint16_t termination = 0);
-    std::string readMultibyteTerminatedStringLE(std::size_t maxBytesToRead, std::uint16_t termination = 0);
     std::uint32_t readSynchsafeUInt32BE();
     float readFixed8BE();
     float readFixed16BE();
