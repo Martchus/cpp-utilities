@@ -156,6 +156,10 @@ else ()
     message(STATUS "Using std::fstream for NativeFileStream")
 endif ()
 
+# configure required libraries for std::filestream
+message(STATUS "calling use_filesystem()")
+use_standard_filesystem()
+
 # configure forcing UTF-8 code page under Windows
 option(FORCE_UTF8_CODEPAGE "forces use of UTF-8 code page under Windows via ApplicationUtilities::startConsole()" OFF)
 if (FORCE_UTF8_CODEPAGE)

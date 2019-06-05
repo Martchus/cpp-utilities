@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -19,6 +20,7 @@
 
 using namespace std;
 using namespace std::placeholders;
+using namespace std::literals;
 using namespace ConversionUtilities;
 using namespace EscapeCodes;
 using namespace IoUtilities;
@@ -1515,36 +1517,40 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     }
 
     // -> completion for files and dirs
-    DirectoryEntryType entryTypes = DirectoryEntryType::None;
-    if (completionInfo.completeFiles) {
-        entryTypes |= DirectoryEntryType::File;
-    }
-    if (completionInfo.completeDirs) {
-        entryTypes |= DirectoryEntryType::Directory;
-    }
-    if (entryTypes != DirectoryEntryType::None) {
-        const string replace("'"), with("'\"'\"'");
-        if (argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening) {
-            list<string> entries = directoryEntries(actualDir.c_str(), entryTypes);
-            findAndReplace(actualDir, replace, with);
-            for (string &dirEntry : entries) {
-                if (!startsWith(dirEntry, actualFile)) {
+    if (completionInfo.completeFiles || completionInfo.completeDirs) {
+        using namespace std::filesystem;
+        const auto replace = "'"s, with = "'\"'\"'"s;
+        const auto useActualDir = argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening;
+        const auto dirEntries = [&] {
+            directory_iterator i;
+            if (useActualDir) {
+                i = directory_iterator(actualDir);
+                findAndReplace(actualDir, replace, with);
+            } else {
+                i = directory_iterator(".");
+            }
+            return i;
+        }();
+        for (const auto &dirEntry : dirEntries) {
+            if (!completionInfo.completeDirs && dirEntry.is_directory()) {
+                continue;
+            }
+            if (!completionInfo.completeFiles && !dirEntry.is_directory()) {
+                continue;
+            }
+            auto dirEntryName = dirEntry.path().filename().string();
+            if (useActualDir) {
+                if (!startsWith(dirEntryName, actualFile)) {
                     continue;
                 }
                 cout << '\'';
                 if (actualDir != ".") {
                     cout << actualDir;
                 }
-                findAndReplace(dirEntry, replace, with);
-                cout << dirEntry << '\'' << ' ';
-                haveFileOrDirCompletions = true;
             }
-        } else {
-            for (string &dirEntry : directoryEntries(".", entryTypes)) {
-                findAndReplace(dirEntry, replace, with);
-                cout << '\'' << dirEntry << '\'' << ' ';
-                haveFileOrDirCompletions = true;
-            }
+            findAndReplace(dirEntryName, replace, with);
+            cout << dirEntryName << '\'' << ' ';
+            haveFileOrDirCompletions = true;
         }
     }
     cout << ')';
