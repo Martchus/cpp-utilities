@@ -668,6 +668,18 @@ void ArgumentParserTests::testBashCompletion()
         parser.printBashCompletion(3, argv5, 2, reader);
     }
 
+    // directory names
+    string directoryPath = iniFilePath.substr(0, iniFilePath.size() - 4);
+    filesArg.setValueCompletionBehavior(ValueCompletionBehavior::Directories);
+    parser.resetArgs();
+    const char *const argv14[] = { "get", "--files", directoryPath.c_str() };
+    {
+        // order for file names is not specified
+        const OutputCheck c("COMPREPLY=('" % directoryPath + "subdir' ); compopt -o filenames\n");
+        reader.reset(argv14, argv14 + 3).read();
+        parser.printBashCompletion(3, argv14, 2, reader);
+    }
+
     // sub arguments
     const char *const argv6[] = { "set", "--" };
     parser.resetArgs();
