@@ -229,7 +229,7 @@ inline void BinaryWriter::writeChar(char value)
 /*!
  * \brief Writes a single byte to the current stream and advances the current position of the stream by one byte.
  */
-inline void BinaryWriter::writeByte(uint8_t value)
+inline void BinaryWriter::writeByte(std::uint8_t value)
 {
     m_buffer[0] = *reinterpret_cast<char *>(&value);
     m_stream->write(m_buffer, 1);
