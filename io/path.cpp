@@ -4,23 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#if defined(PLATFORM_UNIX)
-#include <dirent.h>
-#include <pwd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#elif defined(PLATFORM_WINDOWS)
-#ifdef UNICODE
-#undef UNICODE
-#endif
-#ifdef _UNICODE
-#undef _UNICODE
-#endif
-#include <windows.h>
-#else
-#error Platform not supported.
-#endif
 
 using namespace std;
 
@@ -84,39 +67,4 @@ void removeInvalidChars(std::string &fileName)
     }
 }
 
-/*!
- * \brief Returns the names of the directory entries in the specified \a path with the specified \a types.
- * \deprecated This function has FIXMEs. Since it can be replaced by using fs abstraction lib it is a good candidate for being replaced.
- */
-std::list<std::string> directoryEntries(const char *path, DirectoryEntryType types)
-{
-#ifdef PLATFORM_UNIX
-    list<string> entries;
-    if (auto dir = opendir(path)) {
-        while (auto dirEntry = readdir(dir)) {
-            bool filter = false;
-            switch (dirEntry->d_type) {
-            case DT_REG:
-                filter = (types & DirectoryEntryType::File) != DirectoryEntryType::None;
-                break;
-            case DT_DIR:
-                filter = (types & DirectoryEntryType::Directory) != DirectoryEntryType::None;
-                break;
-            case DT_LNK:
-                filter = (types & DirectoryEntryType::Symlink) != DirectoryEntryType::None;
-                break;
-            default:
-                filter = (types & DirectoryEntryType::All) != DirectoryEntryType::None;
-            }
-            if (filter) {
-                entries.emplace_back(dirEntry->d_name);
-            }
-        }
-        closedir(dir);
-    }
-    return entries;
-#else
-    return list<string>(); // TODO
-#endif
-}
 } // namespace IoUtilities

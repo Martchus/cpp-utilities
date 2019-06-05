@@ -272,22 +272,6 @@ void IoTests::testPathUtilities()
     string invalidPath("lib/c++uti*lities.so?");
     removeInvalidChars(invalidPath);
     CPPUNIT_ASSERT(invalidPath == "libc++utilities.so");
-#ifdef PLATFORM_UNIX
-    const string iniFilePath = TestUtilities::testFilePath("test.ini");
-    const string testFilesDir = iniFilePath.substr(0, iniFilePath.size() - 9);
-    auto testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::All);
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") != testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") != testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") != testFilesDirEntries.cend());
-    testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::Directory);
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") == testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") != testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") != testFilesDirEntries.cend());
-    testFilesDirEntries = directoryEntries(testFilesDir.c_str(), DirectoryEntryType::File);
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "test.ini") != testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), ".") == testFilesDirEntries.cend());
-    CPPUNIT_ASSERT(find(testFilesDirEntries.cbegin(), testFilesDirEntries.cend(), "..") == testFilesDirEntries.cend());
-#endif
 }
 
 /*!

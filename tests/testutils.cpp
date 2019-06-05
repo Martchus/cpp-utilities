@@ -552,25 +552,17 @@ string TestApplication::readTestfilePathFromSrcRef()
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
             return string();
         }
+        srcDirContent += "/testfiles/";
 
         // check whether the referenced source directory contains a "testfiles" directory
-#ifdef PLATFORM_UNIX // directoryEntries() is not implemented under Windows so we can only to the check under UNIX
-        bool hasTestfilesDir = false;
-        for (const string &dir : directoryEntries(srcDirContent.data(), DirectoryEntryType::Directory)) {
-            if (dir == "testfiles") {
-                hasTestfilesDir = true;
-                break;
-            }
-        }
-        if (!hasTestfilesDir) {
+        if (!dirExists(srcDirContent)) {
             cerr << Phrases::Warning
                  << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
                  << Phrases::End << "Referenced source directory: " << srcDirContent << endl;
             return string();
         }
-#endif // PLATFORM_UNIX
+        return srcDirContent;
 
-        return srcDirContent += "/testfiles/";
     } catch (const std::ios_base::failure &) {
         cerr << Phrases::Warning << "The file \"srcdirref\" can not be opened. It likely just doesn't exist in the working directory."
              << Phrases::EndFlush;
