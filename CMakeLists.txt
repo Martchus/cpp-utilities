@@ -157,7 +157,6 @@ else ()
 endif ()
 
 # configure required libraries for std::filestream
-message(STATUS "calling use_filesystem()")
 use_standard_filesystem()
 
 # configure forcing UTF-8 code page under Windows
