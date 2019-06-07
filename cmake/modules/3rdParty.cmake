@@ -308,14 +308,15 @@ function (use_standard_filesystem)
         return ()
     endif ()
 
-    # find the static version of the library
-    # note: Preferring the static version here because the ABI might not be stable. (stdc++fs seems to be only available as static lib anyways.)
+    # prefer the static version of the library because the ABI might not be stable
+    # note: stdc++fs seems to be only available as static lib anyways
     configure_static_library_suffixes()
     set(USED_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
     find_library(STANDARD_FILE_SYSTEM_LIBRARY "${REQUIRED_LIBRARY}")
     configure_dynamic_library_suffixes()
     if (NOT STANDARD_FILE_SYSTEM_LIBRARY)
-        message(FATAL_ERROR "Unable to find standard file system library \"${REQUIRED_LIBRARY}\" using CMAKE_FIND_LIBRARY_SUFFIXES \"${USED_SUFFIXES}\".")
+        # fallback to using -l if the library is hidden in some sub directory
+        set (STANDARD_FILE_SYSTEM_LIBRARY "-l${REQUIRED_LIBRARY}")
     endif ()
 
     message(STATUS "Linking ${META_PROJECT_NAME} against library \"${STANDARD_FILE_SYSTEM_LIBRARY}\" for std::filesystem support.")
