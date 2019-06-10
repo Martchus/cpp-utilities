@@ -25,7 +25,6 @@ set(HEADER_FILES
     io/nativefilestream.h
     io/misc.h
     misc/math.h
-    misc/memory.h
     misc/multiarray.h
     misc/parseerror.h
     misc/traits.h
