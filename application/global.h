@@ -85,20 +85,6 @@
 #endif
 
 /*!
- * \def DECLARE_ENUM
- * \brief Declares an enum without preventing lupdate to parse the file correctly.
- */
-
-#define DECLARE_ENUM(name, base) enum name : base
-
-/*!
- * \def DECLARE_ENUM_CLASS
- * \brief Declares an enum without preventing lupdate to parse the file correctly.
- */
-
-#define DECLARE_ENUM_CLASS(name, base) enum class name : base
-
-/*!
  * \def VAR_UNUSED
  * \brief Prevents warnings about unused variables.
  */
