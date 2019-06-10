@@ -1,12 +1,12 @@
 #include "./testutils.h"
 
-#include "../application/failure.h"
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
 #include "../io/misc.h"
 #include "../io/nativefilestream.h"
 #include "../io/path.h"
+#include "../misc/parseerror.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -146,8 +146,8 @@ TestApplication::TestApplication(int argc, const char *const *argv)
 
         // parse arguments
         try {
-            m_parser.parseArgs(argc, argv);
-        } catch (const Failure &failure) {
+            m_parser.parseArgs(argc, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
+        } catch (const ParseError &failure) {
             cerr << failure;
             m_valid = false;
             return;

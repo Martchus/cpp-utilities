@@ -460,9 +460,7 @@ public:
 
     // declare operations which will consider previously assigned argument definitions and maybe modify parsing results
     void printHelp(std::ostream &os) const;
-    void parseArgs(int argc, const char *const *argv);
-    void parseArgsOrExit(int argc, const char *const *argv);
-    void parseArgsExt(int argc, const char *const *argv,
+    void parseArgs(int argc, const char *const *argv,
         ParseArgumentBehavior behavior
         = ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks | ParseArgumentBehavior::ExitOnFailure);
     void readArgs(int argc, const char *const *argv);

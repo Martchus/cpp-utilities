@@ -1,13 +1,13 @@
 #include "./argumentparser.h"
 #include "./argumentparserprivate.h"
 #include "./commandlineutils.h"
-#include "./failure.h"
 
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 #include "../io/ansiescapecodes.h"
 #include "../io/path.h"
 #include "../misc/levenshtein.h"
+#include "../misc/parseerror.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -857,36 +857,6 @@ void ArgumentParser::printHelp(ostream &os) const
 
 /*!
  * \brief Parses the specified command line arguments.
- * \remarks
- *  - The results are stored in the Argument instances assigned as main arguments and sub arguments.
- *  - Calls the assigned callbacks if no constraints are violated.
- *  - This method will not return in case shell completion is requested. This behavior can be altered
- *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
- * \throws Throws Failure if the specified arguments are invalid or violate the constraints defined
- *         by the Argument instances.
- * \sa readArgs(), parseArgsOrExit()
- */
-void ArgumentParser::parseArgs(int argc, const char *const *argv)
-{
-    parseArgsExt(argc, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
-}
-
-/*!
- * \brief Parses the specified command line arguments.
- * \remarks The same as parseArgs(), except that this method will not throw an exception in the error
- *          case. Instead, it will print an error message and terminate the application with exit
- *          code 1.
- * \sa parseArgs(), readArgs()
- * \deprecated In next major release, this method will be removed. parseArgs() can serve the same
- *             purpose then.
- */
-void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
-{
-    parseArgsExt(argc, argv);
-}
-
-/*!
- * \brief Parses the specified command line arguments.
  *
  * The behavior is configurable by specifying the \a behavior argument. See ParseArgumentBehavior for
  * the options. By default, all options are present.
@@ -898,11 +868,10 @@ void ArgumentParser::parseArgsOrExit(int argc, const char *const *argv)
  *  - This method will not return in case shell completion is requested. This behavior can be altered
  *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid and the ParseArgumentBehavior::ExitOnFailure
- *         flag is not present.
+ *         flag is *not* present.
  * \sa parseArgs(), readArgs(), parseArgsOrExit()
- * \deprecated In next major release, this method will be available as parseArgs().
  */
-void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgumentBehavior behavior)
+void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentBehavior behavior)
 {
     try {
         readArgs(argc, argv);
@@ -915,7 +884,7 @@ void ArgumentParser::parseArgsExt(int argc, const char *const *argv, ParseArgume
         if (behavior & ParseArgumentBehavior::InvokeCallbacks) {
             invokeCallbacks(m_mainArgs);
         }
-    } catch (const Failure &failure) {
+    } catch (const ParseError &failure) {
         if (behavior & ParseArgumentBehavior::ExitOnFailure) {
             CMD_UTILS_START_CONSOLE;
             cerr << failure;
@@ -988,7 +957,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // fail when not all arguments could be processed, except when in completion mode
     if (!completionMode && !allArgsProcessed) {
         const auto suggestions(findSuggestions(argc, argv, static_cast<unsigned int>(argc - 1), reader));
-        throw Failure(argsToString("The specified argument \"", *reader.argv, "\" is unknown.", suggestions));
+        throw ParseError(argsToString("The specified argument \"", *reader.argv, "\" is unknown.", suggestions));
     }
 
     // print Bash completion and prevent the applicaton to continue with the regular execution
@@ -1577,11 +1546,11 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
     for (const Argument *arg : args) {
         const auto occurrences = arg->occurrences();
         if (arg->isParentPresent() && occurrences > arg->maxOccurrences()) {
-            throw Failure(argsToString("The argument \"", arg->name(), "\" mustn't be specified more than ", arg->maxOccurrences(),
+            throw ParseError(argsToString("The argument \"", arg->name(), "\" mustn't be specified more than ", arg->maxOccurrences(),
                 (arg->maxOccurrences() == 1 ? " time." : " times.")));
         }
         if (arg->isParentPresent() && occurrences < arg->minOccurrences()) {
-            throw Failure(argsToString("The argument \"", arg->name(), "\" must be specified at least ", arg->minOccurrences(),
+            throw ParseError(argsToString("The argument \"", arg->name(), "\" must be specified at least ", arg->minOccurrences(),
                 (arg->minOccurrences() == 1 ? " time." : " times.")));
         }
         Argument *conflictingArgument = nullptr;
@@ -1593,7 +1562,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             conflictingArgument = arg->conflictsWithArgument();
         }
         if (conflictingArgument) {
-            throw Failure(argsToString("The argument \"", conflictingArgument->name(), "\" can not be combined with \"", arg->name(), "\"."));
+            throw ParseError(argsToString("The argument \"", conflictingArgument->name(), "\" can not be combined with \"", arg->name(), "\"."));
         }
         for (size_t i = 0; i != occurrences; ++i) {
             if (arg->allRequiredValuesPresent(i)) {
@@ -1615,7 +1584,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
                     ss << "\nvalue " << (++valueNamesPrint);
                 }
             }
-            throw Failure(ss.str());
+            throw ParseError(ss.str());
         }
 
         // check contraints of sub arguments recursively
@@ -1759,7 +1728,7 @@ void NoColorArgument::apply() const
  */
 void ValueConversion::Helper::ArgumentValueConversionError::throwFailure(const std::vector<Argument *> &argumentPath) const
 {
-    throw Failure(argumentPath.empty()
+    throw ParseError(argumentPath.empty()
             ? argsToString("Conversion of top-level value \"", valueToConvert, "\" to type \"", targetTypeName, "\" failed: ", errorMessage)
             : argsToString("Conversion of value \"", valueToConvert, "\" (for argument --", argumentPath.back()->name(), ") to type \"",
                 targetTypeName, "\" failed: ", errorMessage));
@@ -1770,7 +1739,7 @@ void ValueConversion::Helper::ArgumentValueConversionError::throwFailure(const s
  */
 void ArgumentOccurrence::throwNumberOfValuesNotSufficient(unsigned long valuesToConvert) const
 {
-    throw Failure(path.empty()
+    throw ParseError(path.empty()
             ? argsToString("Expected ", valuesToConvert, " top-level values to be present but only ", values.size(), " have been specified.")
             : argsToString("Expected ", valuesToConvert, " values for argument --", path.back()->name(), " to be present but only ", values.size(),
                 " have been specified."));

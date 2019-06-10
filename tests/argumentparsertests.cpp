@@ -7,11 +7,12 @@
 #include "../application/argumentparser.h"
 #include "../application/argumentparserprivate.h"
 #include "../application/commandlineutils.h"
-#include "../application/failure.h"
 #include "../application/fakeqtconfigarguments.h"
 
 #include "../io/ansiescapecodes.h"
 #include "../io/path.h"
+
+#include "../misc/parseerror.h"
 
 #include "resources/config.h"
 
@@ -155,7 +156,7 @@ void ArgumentParserTests::testParsing()
         { &qtConfigArgs.qtWidgetsGuiArg(), &printFieldNamesArg, &displayTagInfoArg, &displayFileInfoArg, &parser.noColorArg(), &parser.helpArg() });
 
     // no args present
-    parser.parseArgs(0, nullptr);
+    parser.parseArgs(0, nullptr, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!parser.executable());
     CPPUNIT_ASSERT(!parser.specifiedOperation());
     CPPUNIT_ASSERT_EQUAL(0u, parser.actualArgumentCount());
@@ -164,9 +165,9 @@ void ArgumentParserTests::testParsing()
     const char *argv[] = { "tageditor", "get", "album", "title", "diskpos", "-f", "somefile" };
     // try to parse, this should fail
     try {
-        parser.parseArgs(7, argv);
+        parser.parseArgs(7, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT_EQUAL("The argument \"files\" can not be combined with \"fields\"."s, string(e.what()));
         // test printing btw
         stringstream ss;
@@ -180,7 +181,7 @@ void ArgumentParserTests::testParsing()
     // arguments read correctly after successful parse
     filesArg.setCombinable(true);
     parser.resetArgs();
-    parser.parseArgs(7, argv);
+    parser.parseArgs(7, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     // check results
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -198,7 +199,7 @@ void ArgumentParserTests::testParsing()
     const char *argv2[] = { "tageditor", "", "-p", "album", "title", "diskpos", "", "--files", "somefile" };
     // reparse the args
     parser.resetArgs();
-    parser.parseArgs(9, argv2);
+    parser.parseArgs(9, argv2, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     // check results again
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -217,9 +218,9 @@ void ArgumentParserTests::testParsing()
     const char *argv3[] = { "tageditor", "album", "title", "diskpos", "--files", "somefile" };
     try {
         parser.resetArgs();
-        parser.parseArgs(6, argv3);
+        parser.parseArgs(6, argv3, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
     }
 
@@ -227,9 +228,9 @@ void ArgumentParserTests::testParsing()
     const char *argv18[] = { "tageditor", "get", "album", "title", "diskpos", "--verbose", "--fi" };
     try {
         parser.resetArgs();
-        parser.parseArgs(7, argv18);
+        parser.parseArgs(7, argv18, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean --files or --no-color?"s, string(e.what()));
     }
 
@@ -246,7 +247,7 @@ void ArgumentParserTests::testParsing()
 #endif
         parser.resetArgs();
         EscapeCodes::enabled = false;
-        parser.parseArgs(6, argv3);
+        parser.parseArgs(6, argv3, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
 
         // none of the arguments should be present now
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
@@ -260,7 +261,7 @@ void ArgumentParserTests::testParsing()
     const char *argv4[] = { "tageditor", "-i", "-vf", "test" };
     parser.setUnknownArgumentBehavior(UnknownArgumentBehavior::Fail);
     parser.resetArgs();
-    parser.parseArgs(4, argv4);
+    parser.parseArgs(4, argv4, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(verboseArg.isPresent());
@@ -274,9 +275,9 @@ void ArgumentParserTests::testParsing()
     displayFileInfoArg.reset();
     fileArg.reset();
     try {
-        parser.parseArgs(4, argv4);
+        parser.parseArgs(4, argv4, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" mustn't be specified more than 1 time."));
     }
@@ -285,13 +286,13 @@ void ArgumentParserTests::testParsing()
     displayFileInfoArg.reset();
     fileArg.reset();
     verboseArg.setConstraints(0, Argument::varValueCount);
-    parser.parseArgs(4, argv4);
+    parser.parseArgs(4, argv4, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // constraint checking: mandatory argument
     verboseArg.setRequired(true);
     parser.resetArgs();
-    parser.parseArgs(4, argv4);
+    parser.parseArgs(4, argv4, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // contraint checking: error about missing mandatory argument
@@ -300,9 +301,9 @@ void ArgumentParserTests::testParsing()
     fileArg.reset();
     verboseArg.reset();
     try {
-        parser.parseArgs(4, argv5);
+        parser.parseArgs(4, argv5, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" must be specified at least 1 time."));
     }
@@ -311,7 +312,7 @@ void ArgumentParserTests::testParsing()
     // combined abbreviation with nesting "-pf"
     const char *argv10[] = { "tageditor", "-pf", "test" };
     parser.resetArgs();
-    parser.parseArgs(3, argv10);
+    parser.parseArgs(3, argv10, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!fileArg.isPresent());
@@ -323,16 +324,16 @@ void ArgumentParserTests::testParsing()
     // constraint checking: no complains about missing -i
     const char *argv6[] = { "tageditor", "-g" };
     parser.resetArgs();
-    parser.parseArgs(2, argv6);
+    parser.parseArgs(2, argv6, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // constraint checking: dependend arguments (-f requires -i or -p)
     const char *argv7[] = { "tageditor", "-f", "test" };
     parser.resetArgs();
     try {
-        parser.parseArgs(3, argv7);
+        parser.parseArgs(3, argv7, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
     }
@@ -340,7 +341,7 @@ void ArgumentParserTests::testParsing()
     // equation sign syntax
     const char *argv11[] = { "tageditor", "-if=test-v" };
     parser.resetArgs();
-    parser.parseArgs(2, argv11);
+    parser.parseArgs(2, argv11, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
@@ -348,7 +349,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_EQUAL("test-v"s, string(fileArg.values(0).front()));
     const char *argv15[] = { "tageditor", "-i", "--file=test", "-v" };
     parser.resetArgs();
-    parser.parseArgs(4, argv15);
+    parser.parseArgs(4, argv15, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT(verboseArg.isPresent());
@@ -358,7 +359,7 @@ void ArgumentParserTests::testParsing()
     // specifying value directly after abbreviation
     const char *argv12[] = { "tageditor", "-iftest" };
     parser.resetArgs();
-    parser.parseArgs(2, argv12);
+    parser.parseArgs(2, argv12, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
@@ -367,7 +368,7 @@ void ArgumentParserTests::testParsing()
     // specifying top-level argument after abbreviation
     const char *argv17[] = { "tageditor", "-if=test-v", "--no-color" };
     parser.resetArgs();
-    parser.parseArgs(3, argv17);
+    parser.parseArgs(3, argv17, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
@@ -378,7 +379,7 @@ void ArgumentParserTests::testParsing()
     // default argument
     const char *argv8[] = { "tageditor" };
     parser.resetArgs();
-    parser.parseArgs(1, argv8);
+    parser.parseArgs(1, argv8, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
     CPPUNIT_ASSERT(!verboseArg.isPresent());
@@ -396,7 +397,7 @@ void ArgumentParserTests::testParsing()
     const char *argv13[] = { "tageditor", "get", "--fields", "album=test", "title", "diskpos", "--files", "somefile" };
     verboseArg.setRequired(false);
     parser.resetArgs();
-    parser.parseArgs(8, argv13);
+    parser.parseArgs(8, argv13, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     // this should still work without complaints
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
@@ -416,9 +417,9 @@ void ArgumentParserTests::testParsing()
     fieldsArg.setRequiredValueCount(4);
     parser.resetArgs();
     try {
-        parser.parseArgs(5, argv9);
+        parser.parseArgs(5, argv9, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL(
             "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"s,
@@ -430,9 +431,9 @@ void ArgumentParserTests::testParsing()
     fieldsArg.setRequiredValueCount(Argument::varValueCount);
     parser.resetArgs();
     try {
-        parser.parseArgs(6, argv16);
+        parser.parseArgs(6, argv16, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
-    } catch (const Failure &e) {
+    } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown.\nDid you mean --help or get?"s, string(e.what()));
     }
@@ -441,7 +442,7 @@ void ArgumentParserTests::testParsing()
     const char *argv14[] = { "tageditor", "get", "fields", "album=test", "-f", "somefile" };
     parser.resetArgs();
     fieldsArg.setDenotesOperation(true);
-    parser.parseArgs(6, argv14);
+    parser.parseArgs(6, argv14, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album=test"));
@@ -449,7 +450,7 @@ void ArgumentParserTests::testParsing()
     // implicit flag still works when argument doesn't denote operation
     parser.resetArgs();
     fieldsArg.setDenotesOperation(false);
-    parser.parseArgs(6, argv14);
+    parser.parseArgs(6, argv14, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
     CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "fields"));
@@ -480,7 +481,7 @@ void ArgumentParserTests::testCallbacks()
     // test whether callback is invoked when argument with callback is specified
     const char *argv[] = { "test", "-t", "val1", "val2" };
     try {
-        parser.parseArgs(4, argv);
+        parser.parseArgs(4, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     } catch (int i) {
         CPPUNIT_ASSERT_EQUAL(i, 42);
     }
@@ -488,7 +489,7 @@ void ArgumentParserTests::testCallbacks()
     // test whether callback is not invoked when argument with callback is not specified
     callbackArg.reset();
     const char *argv2[] = { "test", "-l", "val1", "val2" };
-    parser.parseArgs(4, argv2);
+    parser.parseArgs(4, argv2, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
 }
 
 #ifndef PLATFORM_WINDOWS
@@ -816,7 +817,7 @@ void ArgumentParserTests::testHelp()
                             "\n"
                             "Project website: " APP_URL "\n");
         EscapeCodes::enabled = true;
-        parser.parseArgs(2, argv);
+        parser.parseArgs(2, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     }
 
     verboseArg.setDenotesOperation(false);
@@ -846,7 +847,7 @@ void ArgumentParserTests::testHelp()
                                      "Project website: " APP_URL "\n");
         EscapeCodes::enabled = false;
         parser.resetArgs();
-        parser.parseArgs(2, argv);
+        parser.parseArgs(2, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     }
 }
 #endif
@@ -942,13 +943,13 @@ void ArgumentParserTests::testValueConversion()
     try {
         occurrence.convertValues<string, unsigned int, double, int, int>();
         CPPUNIT_FAIL("Expected exception");
-    } catch (const Failure &failure) {
+    } catch (const ParseError &failure) {
         CPPUNIT_ASSERT_EQUAL("Expected 5 top-level values to be present but only 4 have been specified."s, string(failure.what()));
     }
     try {
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
-    } catch (const Failure &failure) {
+    } catch (const ParseError &failure) {
         CPPUNIT_ASSERT_EQUAL(
             "Conversion of top-level value \"foo\" to type \"i\" failed: The character \"f\" is no valid digit."s, string(failure.what()));
     }
@@ -956,13 +957,13 @@ void ArgumentParserTests::testValueConversion()
     try {
         occurrence.convertValues<string, unsigned int, double, int, int>();
         CPPUNIT_FAIL("Expected exception");
-    } catch (const Failure &failure) {
+    } catch (const ParseError &failure) {
         CPPUNIT_ASSERT_EQUAL("Expected 5 values for argument --test to be present but only 4 have been specified."s, string(failure.what()));
     }
     try {
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
-    } catch (const Failure &failure) {
+    } catch (const ParseError &failure) {
         CPPUNIT_ASSERT_EQUAL("Conversion of value \"foo\" (for argument --test) to type \"i\" failed: The character \"f\" is no valid digit."s,
             string(failure.what()));
     }

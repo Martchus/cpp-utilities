@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 set(HEADER_FILES
     application/argumentparser.h
     application/commandlineutils.h
-    application/failure.h
     application/fakeqtconfigarguments.h
     application/global.h
     chrono/datetime.h
@@ -28,6 +27,7 @@ set(HEADER_FILES
     misc/math.h
     misc/memory.h
     misc/multiarray.h
+    misc/parseerror.h
     misc/traits.h
     misc/levenshtein.h
     tests/testutils.h
@@ -37,7 +37,6 @@ set(SRC_FILES
     application/argumentparserprivate.h
     application/argumentparser.cpp
     application/commandlineutils.cpp
-    application/failure.cpp
     application/fakeqtconfigarguments.cpp
     chrono/datetime.cpp
     chrono/period.cpp
@@ -53,6 +52,7 @@ set(SRC_FILES
     io/nativefilestream.cpp
     io/misc.cpp
     misc/math.cpp
+    misc/parseerror.cpp
     misc/levenshtein.cpp
     tests/testutils.cpp)
 
