@@ -284,7 +284,10 @@ function (use_standard_filesystem)
     set(CMAKE_REQUIRED_FLAGS -std=c++17)
     set(REQUIRED_LIBRARY FAILED)
     set(INDEX 0)
-    foreach (LIBRARY "" "stdc++fs" "c++fs")
+    foreach (LIBRARY
+             ""
+             "stdc++fs"
+             "c++fs")
         if (NOT LIBRARY STREQUAL "")
             set(CMAKE_REQUIRED_LIBRARIES ${DEFAULT_REQUIRED_LIBRARIES} -l${LIBRARY})
         endif ()
@@ -298,28 +301,33 @@ function (use_standard_filesystem)
 
     # handle error
     if (REQUIRED_LIBRARY STREQUAL "FAILED")
-        message(FATAL_ERROR "Unable to compile a simple std::filesystem example. A compiler supporting C++17 is required to build this project.")
-        return ()
+        message(
+            FATAL_ERROR
+                "Unable to compile a simple std::filesystem example. A compiler supporting C++17 is required to build this project."
+            )
+        return()
     endif ()
 
     # handle case when no library is required
     if (REQUIRED_LIBRARY STREQUAL "")
         message(STATUS "Linking ${META_PROJECT_NAME} against special library for std::filesystem support is not required.")
-        return ()
+        return()
     endif ()
 
-    # prefer the static version of the library because the ABI might not be stable
-    # note: stdc++fs seems to be only available as static lib anyways
+    # prefer the static version of the library because the ABI might not be stable note: stdc++fs seems to be only available
+    # as static lib anyways
     configure_static_library_suffixes()
     set(USED_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
     find_library(STANDARD_FILE_SYSTEM_LIBRARY "${REQUIRED_LIBRARY}")
     configure_dynamic_library_suffixes()
     if (NOT STANDARD_FILE_SYSTEM_LIBRARY)
         # fallback to using -l if the library is hidden in some sub directory
-        set (STANDARD_FILE_SYSTEM_LIBRARY "-l${REQUIRED_LIBRARY}")
+        set(STANDARD_FILE_SYSTEM_LIBRARY "-l${REQUIRED_LIBRARY}")
     endif ()
 
-    message(STATUS "Linking ${META_PROJECT_NAME} against library \"${STANDARD_FILE_SYSTEM_LIBRARY}\" for std::filesystem support.")
+    message(
+        STATUS
+            "Linking ${META_PROJECT_NAME} against library \"${STANDARD_FILE_SYSTEM_LIBRARY}\" for std::filesystem support.")
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${STANDARD_FILE_SYSTEM_LIBRARY}" PARENT_SCOPE)
 endfunction ()
 

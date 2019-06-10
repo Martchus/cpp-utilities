@@ -452,7 +452,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
 
     # add targets to ease creating mingw-w64 packages under Arch Linux
     if (MINGW)
-        option(ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING "enable targets to ease creating mingw-w64 packages under Arch Linux" OFF)
+        option(ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING "enable targets to ease creating mingw-w64 packages under Arch Linux"
+               OFF)
     else ()
         set(ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING OFF)
     endif ()

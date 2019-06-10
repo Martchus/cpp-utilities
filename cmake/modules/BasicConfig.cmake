@@ -337,7 +337,11 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
         message(FATAL_ERROR "Unable to add tidy target; cmake-format not found")
     endif ()
     if (NOT META_CMAKE_FORMAT_OPTIONS)
-        set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125 --autosort=False)
+        set(META_CMAKE_FORMAT_OPTIONS
+            --tab-size=4
+            --separate-ctrl-name-with-space=True
+            --line-width=125
+            --autosort=False)
     endif ()
     add_custom_target("${META_TARGET_NAME}_cmake_tidy"
                       COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
