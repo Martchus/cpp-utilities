@@ -3,7 +3,7 @@
 
 #include "./argumentparser.h"
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT FakeQtConfigArguments {
 public:
@@ -43,10 +43,10 @@ inline bool FakeQtConfigArguments::areQtGuiArgsPresent() const
     return m_qtWidgetsGuiArg.isPresent() || m_qtQuickGuiArg.isPresent();
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities
 
 #ifndef QT_CONFIG_ARGUMENTS
-#define QT_CONFIG_ARGUMENTS ApplicationUtilities::FakeQtConfigArguments
+#define QT_CONFIG_ARGUMENTS CppUtilities::FakeQtConfigArguments
 #endif
 
 #endif // APPLICATIONUTILITIES_FAKEQTCONFIGARGUMENTS_H

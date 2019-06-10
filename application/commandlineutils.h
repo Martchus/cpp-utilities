@@ -10,7 +10,7 @@
 #include <vector>
 #endif
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief The Response enum is used to specify the default response for the confirmPrompt() method.
@@ -88,6 +88,6 @@ inline CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &out, Indentat
     return out;
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities
 
 #endif // APPLICATIONUTILITIES_COMMANDLINEUTILS_H

@@ -14,12 +14,8 @@
 #include <regex>
 
 using namespace std;
-using namespace ConversionUtilities;
-using namespace IoUtilities;
-using namespace MiscUtilities;
-using namespace TestUtilities;
-using namespace TestUtilities::Literals;
-
+using namespace CppUtilities;
+using namespace CppUtilities::Literals;
 using namespace CPPUNIT_NS;
 
 /*!

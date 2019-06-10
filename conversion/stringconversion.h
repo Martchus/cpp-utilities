@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace ConversionUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief The StringDataDeleter struct deletes the data of a StringData instance.
@@ -298,7 +298,7 @@ template <typename CharType> constexpr CharType digitToChar(CharType digit)
  * \sa stringToNumber()
  */
 template <typename IntegralType, class StringType = std::string,
-    Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
+    CppUtilities::Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
 StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
 {
     std::size_t resSize = 0;
@@ -617,7 +617,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned c
 template <typename T> std::string interpretIntegerAsString(T integer, int startOffset = 0)
 {
     char buffer[sizeof(T)];
-    ConversionUtilities::BE::getBytes(integer, buffer);
+    BE::getBytes(integer, buffer);
     return std::string(buffer + startOffset, sizeof(T) - startOffset);
 }
 
@@ -625,6 +625,6 @@ CPP_UTILITIES_EXPORT std::string dataSizeToString(std::uint64_t sizeInByte, bool
 CPP_UTILITIES_EXPORT std::string bitrateToString(double speedInKbitsPerSecond, bool useByteInsteadOfBits = false);
 CPP_UTILITIES_EXPORT std::string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize);
 CPP_UTILITIES_EXPORT std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize);
-} // namespace ConversionUtilities
+} // namespace CppUtilities
 
 #endif // CONVERSION_UTILITIES_STRINGCONVERSION_H

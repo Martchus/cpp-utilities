@@ -4,6 +4,8 @@
 #include <iterator>
 #include <type_traits>
 
+namespace CppUtilities {
+
 /// \brief Contains traits for conveniently exploiting SFINAE.
 namespace Traits {
 
@@ -120,8 +122,8 @@ template <typename T> struct IsComplete<T, decltype(void(sizeof(T)))> : Bool<tru
  */
 #define CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(CheckName, CheckCode)                                                                                 \
     namespace Detail {                                                                                                                               \
-    template <typename T> auto CheckName(int) -> decltype(CheckCode, ::Traits::Bool<true>{});                                                        \
-    template <typename T>::Traits::Bool<false> CheckName(...);                                                                                       \
+    template <typename T> auto CheckName(int) -> decltype(CheckCode, ::CppUtilities::Traits::Bool<true>{});                                          \
+    template <typename T>::CppUtilities::Traits::Bool<false> CheckName(...);                                                                         \
     }                                                                                                                                                \
     template <typename T> using CheckName = decltype(Detail::CheckName<T>(0))
 
@@ -177,5 +179,7 @@ template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr cons
 }
 
 } // namespace Traits
+
+} // namespace CppUtilities
 
 #endif // CPP_UTILITIES_TRAITS_H

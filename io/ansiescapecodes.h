@@ -7,6 +7,7 @@
 #include <ostream>
 #include <tuple>
 
+namespace CppUtilities {
 namespace EscapeCodes {
 
 extern CPP_UTILITIES_EXPORT bool enabled;
@@ -150,5 +151,6 @@ enum class Phrases {
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 
 } // namespace EscapeCodes
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_ANSIESCAPECODES

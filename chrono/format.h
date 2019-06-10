@@ -6,17 +6,17 @@
 
 #include <ostream>
 
-inline std::ostream &operator<<(std::ostream &out, const ChronoUtilities::DateTime &value)
+inline std::ostream &operator<<(std::ostream &out, const CppUtilities::DateTime &value)
 {
-    return out << value.toString(ChronoUtilities::DateTimeOutputFormat::DateAndTime, false);
+    return out << value.toString(CppUtilities::DateTimeOutputFormat::DateAndTime, false);
 }
 
-inline std::ostream &operator<<(std::ostream &out, const ChronoUtilities::TimeSpan &value)
+inline std::ostream &operator<<(std::ostream &out, const CppUtilities::TimeSpan &value)
 {
-    return out << value.toString(ChronoUtilities::TimeSpanOutputFormat::Normal, false);
+    return out << value.toString(CppUtilities::TimeSpanOutputFormat::Normal, false);
 }
 
-inline std::ostream &operator<<(std::ostream &out, const ChronoUtilities::Period &value)
+inline std::ostream &operator<<(std::ostream &out, const CppUtilities::Period &value)
 {
     return out << value.years() << " years, " << value.months() << " months, " << value.days() << " days";
 }

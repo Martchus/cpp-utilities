@@ -27,11 +27,8 @@
 #endif
 
 using namespace std;
-using namespace ApplicationUtilities;
-using namespace ConversionUtilities;
-using namespace IoUtilities;
-using namespace TestUtilities;
-using namespace TestUtilities::Literals;
+using namespace CppUtilities;
+using namespace CppUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 
@@ -655,9 +652,9 @@ void ArgumentParserTests::testBashCompletion()
     }
 
     // file names
-    string iniFilePath = TestUtilities::testFilePath("test.ini");
+    string iniFilePath = CppUtilities::testFilePath("test.ini");
     iniFilePath.resize(iniFilePath.size() - 4);
-    string mkvFilePath = TestUtilities::testFilePath("test 'with quote'.mkv");
+    string mkvFilePath = CppUtilities::testFilePath("test 'with quote'.mkv");
     mkvFilePath.resize(mkvFilePath.size() - 17);
     parser.resetArgs();
     const char *const argv5[] = { "get", "--files", iniFilePath.c_str() };

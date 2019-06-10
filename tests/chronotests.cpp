@@ -12,9 +12,8 @@
 #include <iostream>
 
 using namespace std;
-using namespace ConversionUtilities;
-using namespace ChronoUtilities;
-using namespace TestUtilities::Literals;
+using namespace CppUtilities;
+using namespace CppUtilities::Literals;
 
 using namespace CPPUNIT_NS;
 

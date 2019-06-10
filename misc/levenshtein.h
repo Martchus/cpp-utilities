@@ -6,7 +6,7 @@
 #include <cstring>
 #include <string>
 
-namespace MiscUtilities {
+namespace CppUtilities {
 
 CPP_UTILITIES_EXPORT std::size_t computeDamerauLevenshteinDistance(const char *str1, std::size_t size1, const char *str2, std::size_t size2);
 
@@ -20,6 +20,6 @@ inline std::size_t computeDamerauLevenshteinDistance(const char *str1, const cha
     return computeDamerauLevenshteinDistance(str1, std::strlen(str1), str2, std::strlen(str2));
 }
 
-} // namespace MiscUtilities
+} // namespace CppUtilities
 
 #endif // CPP_UTILITIES_LEVENSHTEIN_H

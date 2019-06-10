@@ -31,11 +31,8 @@
 #endif
 
 using namespace std;
-using namespace IoUtilities;
-using namespace TestUtilities;
-using namespace TestUtilities::Literals;
-using namespace ConversionUtilities;
-
+using namespace CppUtilities;
+using namespace CppUtilities::Literals;
 using namespace CPPUNIT_NS;
 
 /*!
@@ -91,7 +88,7 @@ void IoTests::testBinaryReader()
     // read test file
     fstream testFile;
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
-    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
+    testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
     CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(398));
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
@@ -156,7 +153,7 @@ void IoTests::testBinaryWriter()
     // prepare reading expected data
     fstream testFile;
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
-    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
+    testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
 
     // prepare output stream
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
@@ -282,7 +279,7 @@ void IoTests::testIniFile()
     // prepare reading test file
     fstream inputFile;
     inputFile.exceptions(ios_base::failbit | ios_base::badbit);
-    inputFile.open(TestUtilities::testFilePath("test.ini"), ios_base::in);
+    inputFile.open(testFilePath("test.ini"), ios_base::in);
 
     IniFile ini;
     ini.parse(inputFile);
@@ -323,7 +320,7 @@ void IoTests::testCopy()
     // prepare streams
     fstream testFile;
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
-    testFile.open(TestUtilities::testFilePath("some_data"), ios_base::in | ios_base::binary);
+    testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);
 

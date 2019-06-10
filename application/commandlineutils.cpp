@@ -13,7 +13,7 @@
 
 using namespace std;
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Prompts for confirmation displaying the specified \a message.
@@ -158,4 +158,4 @@ pair<vector<unique_ptr<char[]>>, vector<char *>> convertArgsToUtf8()
 }
 #endif
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities

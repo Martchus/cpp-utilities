@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT IniFile {
 public:
@@ -49,6 +49,6 @@ inline const std::vector<std::pair<std::string, std::multimap<std::string, std::
     return m_data;
 }
 
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_INIFILE_H

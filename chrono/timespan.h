@@ -8,10 +8,7 @@
 #include <limits>
 #include <string>
 
-/*!
- * \brief Contains classes providing a means for handling date and time information.
- */
-namespace ChronoUtilities {
+namespace CppUtilities {
 
 class DateTime;
 
@@ -409,11 +406,11 @@ constexpr inline bool TimeSpan::isInfinity() const
 {
     return m_ticks == std::numeric_limits<decltype(m_ticks)>::max();
 }
-} // namespace ChronoUtilities
+} // namespace CppUtilities
 
 namespace std {
-template <> struct hash<ChronoUtilities::TimeSpan> {
-    inline size_t operator()(const ChronoUtilities::TimeSpan &timeSpan) const
+template <> struct hash<CppUtilities::TimeSpan> {
+    inline size_t operator()(const CppUtilities::TimeSpan &timeSpan) const
     {
         return hash<decltype(timeSpan.totalTicks())>()(timeSpan.totalTicks());
     }

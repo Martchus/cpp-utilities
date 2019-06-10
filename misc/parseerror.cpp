@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \class ApplicationUtilities::ParseError
@@ -31,4 +31,4 @@ std::ostream &operator<<(std::ostream &o, const ParseError &failure)
              << endl;
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities

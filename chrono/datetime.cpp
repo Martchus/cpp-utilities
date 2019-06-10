@@ -8,8 +8,8 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace ChronoUtilities;
-using namespace ConversionUtilities;
+
+namespace CppUtilities {
 
 const int DateTime::m_daysPerYear = 365;
 const int DateTime::m_daysPer4Years = 1461;
@@ -34,7 +34,7 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
 }
 
 /*!
- * \class ChronoUtilities::DateTime
+ * \class DateTime
  * \brief Represents an instant in time, typically expressed as a date and time of day.
  * \remarks
  *  - Time values are measured in 100-nanosecond units called ticks,
@@ -407,3 +407,5 @@ int DateTime::getDatePart(DatePart part) const
     }
     return 0;
 }
+
+} // namespace CppUtilities

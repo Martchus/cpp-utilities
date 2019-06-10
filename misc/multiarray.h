@@ -5,7 +5,7 @@
 #include <tuple>
 #include <vector>
 
-namespace MiscUtilities {
+namespace CppUtilities {
 
 /// \cond
 namespace Detail {
@@ -184,6 +184,6 @@ template <typename ValueType, typename... DimensionSizes> inline auto makeNoneOw
     return MultiArray<ValueType, NoneOwningMultiArray, DimensionSizes...>(dimensionSizes...);
 }
 
-} // namespace MiscUtilities
+} // namespace CppUtilities
 
 #endif // CPP_UTILITIES_MULTI_ARRAY_H

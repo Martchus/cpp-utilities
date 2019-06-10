@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-namespace TestUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief The StandardOutputCheck class asserts whether the (standard) output written in the enclosing code block
@@ -83,11 +83,11 @@ inline OutputCheck::~OutputCheck() noexcept(false)
         return;
     }
     if (m_expectedOutput != actualOutput && m_alternativeOutput != actualOutput) {
-        using namespace ConversionUtilities;
+        using namespace CppUtilities;
         CPPUNIT_FAIL("Output is not either \"" % m_expectedOutput % "\" or \"" % m_alternativeOutput % "\". Got instead:\n" + actualOutput);
     }
 }
 
-} // namespace TestUtilities
+} // namespace CppUtilities
 
 #endif // TESTUTILS_OUTPUTCHECK_H

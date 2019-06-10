@@ -3,7 +3,7 @@
 #include "../conversion/stringconversion.h"
 #include "../tests/testutils.h"
 
-using namespace TestUtilities;
+using namespace CppUtilities;
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -14,7 +14,6 @@ using namespace TestUtilities;
 #include <sstream>
 
 using namespace std;
-using namespace ConversionUtilities;
 
 using namespace CPPUNIT_NS;
 

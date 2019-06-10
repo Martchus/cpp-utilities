@@ -8,7 +8,7 @@
 #include <limits>
 #include <string>
 
-namespace ChronoUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Specifies the output format.
@@ -513,11 +513,11 @@ inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
     m_ticks -= timeSpan.m_ticks;
     return *this;
 }
-} // namespace ChronoUtilities
+} // namespace CppUtilities
 
 namespace std {
-template <> struct hash<ChronoUtilities::DateTime> {
-    inline size_t operator()(const ChronoUtilities::DateTime &dateTime) const
+template <> struct hash<CppUtilities::DateTime> {
+    inline size_t operator()(const CppUtilities::DateTime &dateTime) const
     {
         return hash<decltype(dateTime.totalTicks())>()(dateTime.totalTicks());
     }

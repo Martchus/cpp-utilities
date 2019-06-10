@@ -71,7 +71,7 @@
 #error "Middle endian byte order is not supported!"
 #endif
 
-namespace ConversionUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Encapsulates binary conversion functions using the big endian byte order.
@@ -173,6 +173,6 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
         | ((value & 0x000000FF00000000) >> (1 * 8)) | ((value & 0x00000000FF000000) << (1 * 8)) | ((value & 0x0000000000FF0000) << (3 * 8))
         | ((value & 0x000000000000FF00) << (5 * 8)) | ((value) << (7 * 8));
 }
-} // namespace ConversionUtilities
+} // namespace CppUtilities
 
 #endif // CONVERSION_UTILITIES_BINARY_CONVERSION_H

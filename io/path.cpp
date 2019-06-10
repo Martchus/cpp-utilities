@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Returns the file name and extension of the specified \a path string.
@@ -67,4 +67,4 @@ void removeInvalidChars(std::string &fileName)
     }
 }
 
-} // namespace IoUtilities
+} // namespace CppUtilities

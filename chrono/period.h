@@ -3,7 +3,7 @@
 
 #include "./datetime.h"
 
-namespace ChronoUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT Period {
 public:
@@ -52,6 +52,6 @@ constexpr int Period::days() const
 
 DateTime CPP_UTILITIES_EXPORT operator+(DateTime begin, Period period);
 
-} // namespace ChronoUtilities
+} // namespace CppUtilities
 
 #endif // CHRONO_UTILITIES_PERIOD_H

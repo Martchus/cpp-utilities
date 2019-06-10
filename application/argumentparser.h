@@ -2,7 +2,6 @@
 #define APPLICATION_UTILITIES_ARGUMENTPARSER_H
 
 #include "../conversion/stringconversion.h"
-#include "../global.h"
 #include "../misc/traits.h"
 
 #include <functional>
@@ -13,9 +12,9 @@
 #include <cassert>
 #endif
 
-class ArgumentParserTests;
+class ArgumentParserTests; // not a public class (only used for internal tests)
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Stores information about an application.
@@ -42,7 +41,7 @@ CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
  *        used by ArgumentParser::printHelp().
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
-#define SET_DEPENDENCY_INFO ::ApplicationUtilities::applicationInfo.dependencyVersions = DEPENCENCY_VERSIONS
+#define SET_DEPENDENCY_INFO ::CppUtilities::applicationInfo.dependencyVersions = DEPENCENCY_VERSIONS
 
 /*!
  * \def SET_APPLICATION_INFO
@@ -50,13 +49,13 @@ CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
  * \remarks Reads those data from the config header so "config.h" must be included.
  */
 #define SET_APPLICATION_INFO                                                                                                                         \
-    ::ApplicationUtilities::applicationInfo.name = APP_NAME;                                                                                         \
-    ::ApplicationUtilities::applicationInfo.author = APP_AUTHOR;                                                                                     \
-    ::ApplicationUtilities::applicationInfo.version = APP_VERSION;                                                                                   \
-    ::ApplicationUtilities::applicationInfo.url = APP_URL;                                                                                           \
-    ::ApplicationUtilities::applicationInfo.description = APP_DESCRIPTION;                                                                           \
-    ::ApplicationUtilities::applicationInfo.license = PROJECT_LICENSE;                                                                               \
-    ::ApplicationUtilities::applicationInfo.credits = APP_CREDITS;                                                                                   \
+    ::CppUtilities::applicationInfo.name = APP_NAME;                                                                                                 \
+    ::CppUtilities::applicationInfo.author = APP_AUTHOR;                                                                                             \
+    ::CppUtilities::applicationInfo.version = APP_VERSION;                                                                                           \
+    ::CppUtilities::applicationInfo.url = APP_URL;                                                                                                   \
+    ::CppUtilities::applicationInfo.description = APP_DESCRIPTION;                                                                                   \
+    ::CppUtilities::applicationInfo.license = PROJECT_LICENSE;                                                                                       \
+    ::CppUtilities::applicationInfo.credits = APP_CREDITS;                                                                                           \
     SET_DEPENDENCY_INFO
 
 class Argument;
@@ -149,7 +148,7 @@ template <typename TargetType, Traits::EnableIf<std::is_same<TargetType, std::st
 
 template <typename TargetType, Traits::EnableIf<std::is_arithmetic<TargetType>> * = nullptr> TargetType convert(const char *value)
 {
-    return ConversionUtilities::stringToNumber<TargetType>(value);
+    return stringToNumber<TargetType>(value);
 }
 
 /// \cond
@@ -176,7 +175,7 @@ template <typename FirstTargetType, typename... RemainingTargetTypes> struct Arg
         // FIXME: maybe use std::expected here when available
         try {
             return std::make_tuple<FirstTargetType>(ValueConversion::convert<FirstTargetType>(*firstValue));
-        } catch (const ConversionUtilities::ConversionException &exception) {
+        } catch (const ConversionException &exception) {
             throw ArgumentValueConversionError{ exception.what(), *firstValue, typeid(FirstTargetType).name() };
         }
     }
@@ -1203,6 +1202,6 @@ inline NoColorArgument &ArgumentParser::noColorArg()
     return m_noColorArg;
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_H

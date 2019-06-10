@@ -28,15 +28,12 @@
 #endif
 
 using namespace std;
-using namespace ApplicationUtilities;
-using namespace ConversionUtilities;
-using namespace EscapeCodes;
-using namespace IoUtilities;
+using namespace CppUtilities::EscapeCodes;
 
 /*!
  * \brief Contains classes and functions utilizing creating of test applications.
  */
-namespace TestUtilities {
+namespace CppUtilities {
 
 bool fileSystemItemExists(const string &path)
 {
@@ -569,4 +566,4 @@ string TestApplication::readTestfilePathFromSrcRef()
     }
     return string();
 }
-} // namespace TestUtilities
+} // namespace CppUtilities

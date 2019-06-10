@@ -11,7 +11,7 @@
 #endif
 #include <fstream>
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 
@@ -58,6 +58,6 @@ using NativeFileStream = std::fstream;
 
 #endif
 
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_NATIVE_FILE_STREAM

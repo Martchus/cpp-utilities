@@ -8,7 +8,7 @@
 #include <ostream>
 #include <string>
 
-namespace TestUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief The WorkingCopyMode enum specifies additional options to influence behavior of TestApplication::workingCopyPath().
@@ -50,11 +50,11 @@ private:
     static std::string readTestfilePathFromEnv();
     static std::string readTestfilePathFromSrcRef();
 
-    ApplicationUtilities::ArgumentParser m_parser;
-    ApplicationUtilities::Argument m_testFilesPathArg;
-    ApplicationUtilities::Argument m_applicationPathArg;
-    ApplicationUtilities::Argument m_workingDirArg;
-    ApplicationUtilities::Argument m_unitsArg;
+    ArgumentParser m_parser;
+    Argument m_testFilesPathArg;
+    Argument m_applicationPathArg;
+    Argument m_workingDirArg;
+    Argument m_unitsArg;
     std::vector<std::string> m_testFilesPaths;
     std::string m_workingDir;
     bool m_valid;
@@ -243,8 +243,7 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
     {                                                                                                                                                \
         const auto returnCode = execApp(args, stdout, stderr);                                                                                       \
         if (returnCode != 0) {                                                                                                                       \
-            CPPUNIT_FAIL(                                                                                                                            \
-                ::ConversionUtilities::argsToString("app failed with return code ", returnCode, "\nstdout: ", stdout, "\nstderr: ", stderr));        \
+            CPPUNIT_FAIL(::CppUtilities::argsToString("app failed with return code ", returnCode, "\nstdout: ", stdout, "\nstderr: ", stderr));      \
         }                                                                                                                                            \
     }
 
@@ -254,14 +253,14 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  */
 #define TESTUTILS_ASSERT_LIKE(message, expectedRegex, actualString)                                                                                  \
     (CPPUNIT_NS::Asserter::failIf(!(std::regex_match(actualString, std::regex(expectedRegex))),                                                      \
-        CPPUNIT_NS::Message(ConversionUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"'),                      \
-            "Expression: " #actualString, message),                                                                                                  \
+        CPPUNIT_NS::Message(                                                                                                                         \
+            CppUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"'), "Expression: " #actualString, message),     \
         CPPUNIT_SOURCELINE()))
 
 /*!
  * \brief Allows printing pairs so key/values of maps/hashes can be asserted using CPPUNIT_ASSERT_EQUAL.
  */
-template <typename Pair, Traits::EnableIf<Traits::IsSpecializationOf<Pair, std::pair>> * = nullptr>
+template <typename Pair, CppUtilities::Traits::EnableIf<CppUtilities::Traits::IsSpecializationOf<Pair, std::pair>> * = nullptr>
 inline std::ostream &operator<<(std::ostream &out, const Pair &pair)
 {
     return out << "key: " << pair.first << "; value: " << pair.second << '\n';
@@ -313,6 +312,6 @@ constexpr std::int64_t operator"" _int64(unsigned long long size)
     return static_cast<std::int64_t>(size);
 }
 } // namespace Literals
-} // namespace TestUtilities
+} // namespace CppUtilities
 
 #endif // TESTUTILS_H

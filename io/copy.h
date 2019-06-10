@@ -6,7 +6,7 @@
 #include <functional>
 #include <iostream>
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 /*!
  * \class IoUtilities::CopyHelper
@@ -84,6 +84,6 @@ template <std::size_t bufferSize> char *CopyHelper<bufferSize>::buffer()
 {
     return m_buffer;
 }
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_COPY_H

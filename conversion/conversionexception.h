@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace ConversionUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT ConversionException : public std::runtime_error {
 public:
@@ -48,6 +48,6 @@ inline ConversionException::ConversionException(const char *what) noexcept
 {
 }
 
-} // namespace ConversionUtilities
+} // namespace CppUtilities
 
 #endif // CONVERSION_UTILITIES_CONVERSIONEXCEPTION_H

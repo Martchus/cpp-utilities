@@ -21,15 +21,13 @@
 using namespace std;
 using namespace std::placeholders;
 using namespace std::literals;
-using namespace ConversionUtilities;
-using namespace EscapeCodes;
-using namespace IoUtilities;
+using namespace CppUtilities::EscapeCodes;
 
 /*!
- *  \namespace ApplicationUtilities
- *  \brief Contains currently only ArgumentParser and related classes.
+ *  \namespace CppUtilities
+ *  \brief Contains all utilities provides by the c++utilities library.
  */
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief The ArgumentDenotationType enum specifies the type of a given argument denotation.
@@ -82,7 +80,7 @@ struct ArgumentSuggestion {
 ArgumentSuggestion::ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize, bool isOperation)
     : suggestion(suggestion)
     , suggestionSize(suggestionSize)
-    , editingDistance(MiscUtilities::computeDamerauLevenshteinDistance(unknownArg, unknownArgSize, suggestion, suggestionSize))
+    , editingDistance(computeDamerauLevenshteinDistance(unknownArg, unknownArgSize, suggestion, suggestionSize))
     , hasDashPrefix(isOperation)
 {
 }
@@ -1022,7 +1020,7 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
  *  - Verifies the sub arguments, too.
  *  - For debugging purposes only; hence only used in debug builds.
  */
-void ApplicationUtilities::ArgumentParser::verifyArgs(const ArgumentVector &args)
+void ArgumentParser::verifyArgs(const ArgumentVector &args)
 {
     vector<const Argument *> verifiedArgs;
     verifiedArgs.reserve(args.size());
@@ -1745,4 +1743,4 @@ void ArgumentOccurrence::throwNumberOfValuesNotSufficient(unsigned long valuesTo
                 " have been specified."));
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities

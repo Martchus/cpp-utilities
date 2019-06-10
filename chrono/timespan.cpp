@@ -8,11 +8,11 @@
 #include <vector>
 
 using namespace std;
-using namespace ChronoUtilities;
-using namespace ConversionUtilities;
+
+namespace CppUtilities {
 
 /*!
- * \class ChronoUtilities::TimeSpan
+ * \class TimeSpan
  * \brief Represents a time interval.
  *
  * Note that the TimeSpan class is meant to express a time interval independently of the
@@ -181,3 +181,5 @@ void TimeSpan::toString(string &result, TimeSpanOutputFormat format, bool fullSe
     }
     result = s.str();
 }
+
+} // namespace CppUtilities

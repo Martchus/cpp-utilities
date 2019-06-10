@@ -6,7 +6,7 @@
 #include <iosfwd>
 #include <stdexcept>
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT ParseError : public std::runtime_error {
 public:
@@ -33,6 +33,6 @@ inline ParseError::ParseError(const std::string &what)
 
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &o, const ParseError &failure);
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities
 
 #endif // APPLICATION_UTILITIES_PARSE_ERROR_H

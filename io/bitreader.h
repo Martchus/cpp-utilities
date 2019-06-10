@@ -8,7 +8,7 @@
 #include <iostream>
 #include <type_traits>
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT BitReader {
 public:
@@ -172,6 +172,6 @@ inline void BitReader::align()
     skipBits(m_bitsAvail);
 }
 
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_BITREADER_H

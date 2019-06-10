@@ -4,12 +4,12 @@
 #include "./argumentparser.h"
 #include "./commandlineutils.h"
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT ArgumentReader {
 public:
     ArgumentReader(ArgumentParser &parser, const char *const *argv, const char *const *end, bool completionMode = false);
-    ApplicationUtilities::ArgumentReader &reset(const char *const *argv, const char *const *end);
+    ArgumentReader &reset(const char *const *argv, const char *const *end);
     bool read();
     bool read(ArgumentVector &args);
 
@@ -56,6 +56,6 @@ inline Wrapper::Wrapper(const char *str, Indentation currentIndentation)
 {
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities
 
 #endif // APPLICATION_UTILITIES_ARGUMENTPARSER_PRIVATE_H

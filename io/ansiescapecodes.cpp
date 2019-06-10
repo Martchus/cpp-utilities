@@ -1,5 +1,7 @@
 #include "./ansiescapecodes.h"
 
+namespace CppUtilities {
+
 /*!
  * \brief Encapsulates functions for formatted terminal output using ANSI escape codes.
  */
@@ -107,3 +109,5 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
 }
 
 } // namespace EscapeCodes
+
+} // namespace CppUtilities

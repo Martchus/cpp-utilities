@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 /*!
  * \class IoUtilities::BitReader
@@ -27,4 +27,4 @@ void BitReader::skipBits(std::size_t bitCount)
     }
 }
 
-} // namespace IoUtilities
+} // namespace CppUtilities

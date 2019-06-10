@@ -33,7 +33,7 @@
 
 using namespace std;
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 
@@ -308,4 +308,4 @@ std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &pat
 // std::fstream is used
 
 #endif
-} // namespace IoUtilities
+} // namespace CppUtilities

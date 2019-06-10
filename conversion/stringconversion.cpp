@@ -22,14 +22,7 @@
 
 using namespace std;
 
-/*!
- * \namespace ConversionUtilities
- * \brief Contains several functions providing conversions between different data types.
- *
- * binaryconversion.h declares functions which convert base data types to an array of bytes and vice versa.
- * stringconversion.h declares different functions around string conversion such as converting a number to a string and vice versa.
- */
-namespace ConversionUtilities {
+namespace CppUtilities {
 
 /// \cond
 
@@ -414,4 +407,4 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
     }
     return make_pair(move(buffer), decodedSize);
 }
-} // namespace ConversionUtilities
+} // namespace CppUtilities

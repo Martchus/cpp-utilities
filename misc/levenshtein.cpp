@@ -9,12 +9,7 @@
 
 using namespace std;
 
-/*!
- * \namespace MiscUtilities
- * \brief Contains various utilities such as computing Damerau–Levenshtein distance
- *        and *N*-dimensional arrays.
- */
-namespace MiscUtilities {
+namespace CppUtilities {
 
 /// \cond
 
@@ -63,7 +58,7 @@ size_t performDamerauLevenshteinAlgorithm(
                 dist2 = index2;
             }
             // clang-format off
-            distanceArray.at(index1 + 1, index2 + 1) = MathUtilities::min(
+            distanceArray.at(index1 + 1, index2 + 1) = CppUtilities::min(
                 distanceArray.at(index1, index2) + substitution,                                                                     // substitution
                 distanceArray.at(index1 + 1, index2) + 1,                                                                            // insertion
                 distanceArray.at(index1, index2 + 1) + 1,                                                                            // deletion
@@ -130,4 +125,4 @@ std::size_t computeDamerauLevenshteinDistance(const char *const str1, const size
     }
 }
 
-} // namespace MiscUtilities
+} // namespace CppUtilities

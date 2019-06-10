@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <limits>
 
-namespace MathUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Returns the digitsum of the given \a number using the specified \a base.
@@ -108,6 +108,6 @@ template <typename T1, typename... T2> constexpr T1 max(T1 first, T1 second, T2.
     return first > second ? max(first, remaining...) : max(second, remaining...);
 }
 
-} // namespace MathUtilities
+} // namespace CppUtilities
 
 #endif // MATHUTILITIES_H

@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT BinaryWriter {
 public:
@@ -248,7 +248,7 @@ inline void BinaryWriter::writeBool(bool value)
  */
 inline void BinaryWriter::writeInt16BE(std::int16_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int16_t));
 }
 
@@ -257,7 +257,7 @@ inline void BinaryWriter::writeInt16BE(std::int16_t value)
  */
 inline void BinaryWriter::writeUInt16BE(std::uint16_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint16_t));
 }
 
@@ -267,7 +267,7 @@ inline void BinaryWriter::writeUInt16BE(std::uint16_t value)
  */
 inline void BinaryWriter::writeInt24BE(std::int32_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 1, 3);
 }
 
@@ -278,7 +278,7 @@ inline void BinaryWriter::writeInt24BE(std::int32_t value)
 inline void BinaryWriter::writeUInt24BE(std::uint32_t value)
 {
     // discard most significant byte
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 1, 3);
 }
 
@@ -287,7 +287,7 @@ inline void BinaryWriter::writeUInt24BE(std::uint32_t value)
  */
 inline void BinaryWriter::writeInt32BE(std::int32_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int32_t));
 }
 
@@ -296,7 +296,7 @@ inline void BinaryWriter::writeInt32BE(std::int32_t value)
  */
 inline void BinaryWriter::writeUInt32BE(std::uint32_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint32_t));
 }
 
@@ -306,7 +306,7 @@ inline void BinaryWriter::writeUInt32BE(std::uint32_t value)
  */
 inline void BinaryWriter::writeInt40BE(std::int64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 3, 5);
 }
 
@@ -316,7 +316,7 @@ inline void BinaryWriter::writeInt40BE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt40BE(std::uint64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 3, 5);
 }
 
@@ -326,7 +326,7 @@ inline void BinaryWriter::writeUInt40BE(std::uint64_t value)
  */
 inline void BinaryWriter::writeInt56BE(std::int64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 1, 7);
 }
 
@@ -336,7 +336,7 @@ inline void BinaryWriter::writeInt56BE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt56BE(std::uint64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer + 1, 7);
 }
 
@@ -345,7 +345,7 @@ inline void BinaryWriter::writeUInt56BE(std::uint64_t value)
  */
 inline void BinaryWriter::writeInt64BE(std::int64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int64_t));
 }
 
@@ -354,7 +354,7 @@ inline void BinaryWriter::writeInt64BE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt64BE(std::uint64_t value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint64_t));
 }
 
@@ -364,7 +364,7 @@ inline void BinaryWriter::writeUInt64BE(std::uint64_t value)
  */
 inline void BinaryWriter::writeVariableLengthUIntBE(std::uint64_t value)
 {
-    writeVariableLengthInteger(value, static_cast<void (*)(std::uint64_t, char *)>(&ConversionUtilities::BE::getBytes));
+    writeVariableLengthInteger(value, static_cast<void (*)(std::uint64_t, char *)>(&BE::getBytes));
 }
 
 /*!
@@ -372,7 +372,7 @@ inline void BinaryWriter::writeVariableLengthUIntBE(std::uint64_t value)
  */
 inline void BinaryWriter::writeFloat32BE(float value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(float));
 }
 
@@ -381,7 +381,7 @@ inline void BinaryWriter::writeFloat32BE(float value)
  */
 inline void BinaryWriter::writeFloat64BE(double value)
 {
-    ConversionUtilities::BE::getBytes(value, m_buffer);
+    BE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(double));
 }
 
@@ -390,7 +390,7 @@ inline void BinaryWriter::writeFloat64BE(double value)
  */
 inline void BinaryWriter::writeInt16LE(std::int16_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int16_t));
 }
 
@@ -399,7 +399,7 @@ inline void BinaryWriter::writeInt16LE(std::int16_t value)
  */
 inline void BinaryWriter::writeUInt16LE(std::uint16_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint16_t));
 }
 
@@ -410,7 +410,7 @@ inline void BinaryWriter::writeUInt16LE(std::uint16_t value)
 inline void BinaryWriter::writeInt24LE(std::int32_t value)
 {
     // discard most significant byte
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 3);
 }
 
@@ -421,7 +421,7 @@ inline void BinaryWriter::writeInt24LE(std::int32_t value)
 inline void BinaryWriter::writeUInt24LE(std::uint32_t value)
 {
     // discard most significant byte
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 3);
 }
 
@@ -430,7 +430,7 @@ inline void BinaryWriter::writeUInt24LE(std::uint32_t value)
  */
 inline void BinaryWriter::writeInt32LE(std::int32_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int32_t));
 }
 
@@ -439,7 +439,7 @@ inline void BinaryWriter::writeInt32LE(std::int32_t value)
  */
 inline void BinaryWriter::writeUInt32LE(std::uint32_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint32_t));
 }
 
@@ -449,7 +449,7 @@ inline void BinaryWriter::writeUInt32LE(std::uint32_t value)
  */
 inline void BinaryWriter::writeInt40LE(std::int64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 5);
 }
 
@@ -459,7 +459,7 @@ inline void BinaryWriter::writeInt40LE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt40LE(std::uint64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 5);
 }
 
@@ -469,7 +469,7 @@ inline void BinaryWriter::writeUInt40LE(std::uint64_t value)
  */
 inline void BinaryWriter::writeInt56LE(std::int64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 7);
 }
 
@@ -479,7 +479,7 @@ inline void BinaryWriter::writeInt56LE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt56LE(std::uint64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, 7);
 }
 
@@ -488,7 +488,7 @@ inline void BinaryWriter::writeUInt56LE(std::uint64_t value)
  */
 inline void BinaryWriter::writeInt64LE(std::int64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::int64_t));
 }
 
@@ -497,7 +497,7 @@ inline void BinaryWriter::writeInt64LE(std::int64_t value)
  */
 inline void BinaryWriter::writeUInt64LE(std::uint64_t value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(std::uint64_t));
 }
 
@@ -507,7 +507,7 @@ inline void BinaryWriter::writeUInt64LE(std::uint64_t value)
  */
 inline void BinaryWriter::writeVariableLengthUIntLE(std::uint64_t value)
 {
-    writeVariableLengthInteger(value, static_cast<void (*)(std::uint64_t, char *)>(&ConversionUtilities::LE::getBytes));
+    writeVariableLengthInteger(value, static_cast<void (*)(std::uint64_t, char *)>(&LE::getBytes));
 }
 
 /*!
@@ -515,7 +515,7 @@ inline void BinaryWriter::writeVariableLengthUIntLE(std::uint64_t value)
  */
 inline void BinaryWriter::writeFloat32LE(float value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(float));
 }
 
@@ -524,7 +524,7 @@ inline void BinaryWriter::writeFloat32LE(float value)
  */
 inline void BinaryWriter::writeFloat64LE(double value)
 {
-    ConversionUtilities::LE::getBytes(value, m_buffer);
+    LE::getBytes(value, m_buffer);
     m_stream->write(m_buffer, sizeof(double));
 }
 
@@ -577,7 +577,7 @@ inline void BinaryWriter::writeLengthPrefixedCString(const char *value, std::siz
  */
 inline void BinaryWriter::writeSynchsafeUInt32BE(std::uint32_t valueToConvertAndWrite)
 {
-    writeUInt32BE(ConversionUtilities::toSynchsafeInt(valueToConvertAndWrite));
+    writeUInt32BE(toSynchsafeInt(valueToConvertAndWrite));
 }
 
 /*!
@@ -585,7 +585,7 @@ inline void BinaryWriter::writeSynchsafeUInt32BE(std::uint32_t valueToConvertAnd
  */
 inline void BinaryWriter::writeFixed8BE(float valueToConvertAndWrite)
 {
-    writeUInt16BE(ConversionUtilities::toFixed8(valueToConvertAndWrite));
+    writeUInt16BE(toFixed8(valueToConvertAndWrite));
 }
 
 /*!
@@ -593,7 +593,7 @@ inline void BinaryWriter::writeFixed8BE(float valueToConvertAndWrite)
  */
 inline void BinaryWriter::writeFixed16BE(float valueToConvertAndWrite)
 {
-    writeUInt32BE(ConversionUtilities::toFixed16(valueToConvertAndWrite));
+    writeUInt32BE(toFixed16(valueToConvertAndWrite));
 }
 
 /*!
@@ -603,7 +603,7 @@ inline void BinaryWriter::writeFixed16BE(float valueToConvertAndWrite)
  */
 inline void BinaryWriter::writeSynchsafeUInt32LE(std::uint32_t valueToConvertAndWrite)
 {
-    writeUInt32LE(ConversionUtilities::toSynchsafeInt(valueToConvertAndWrite));
+    writeUInt32LE(toSynchsafeInt(valueToConvertAndWrite));
 }
 
 /*!
@@ -611,7 +611,7 @@ inline void BinaryWriter::writeSynchsafeUInt32LE(std::uint32_t valueToConvertAnd
  */
 inline void BinaryWriter::writeFixed8LE(float valueToConvertAndWrite)
 {
-    writeUInt16LE(ConversionUtilities::toFixed8(valueToConvertAndWrite));
+    writeUInt16LE(toFixed8(valueToConvertAndWrite));
 }
 
 /*!
@@ -619,7 +619,7 @@ inline void BinaryWriter::writeFixed8LE(float valueToConvertAndWrite)
  */
 inline void BinaryWriter::writeFixed16LE(float valueToConvertAndWrite)
 {
-    writeUInt32LE(ConversionUtilities::toFixed16(valueToConvertAndWrite));
+    writeUInt32LE(toFixed16(valueToConvertAndWrite));
 }
 
 /*!
@@ -729,6 +729,6 @@ inline void BinaryWriter::write(double one64BitFloat)
 {
     writeFloat64BE(one64BitFloat);
 }
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IO_UTILITIES_BINARYWRITER_H

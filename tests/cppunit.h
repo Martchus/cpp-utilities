@@ -10,7 +10,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace TestUtilities;
+using namespace CppUtilities;
 using namespace CPPUNIT_NS;
 
 /*!

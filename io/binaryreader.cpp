@@ -7,16 +7,11 @@
 #include <sstream>
 
 using namespace std;
-using namespace IoUtilities;
-using namespace ConversionUtilities;
+
+namespace CppUtilities {
 
 /*!
- * \namespace IoUtilities
- * \brief Contains utility classes helping to read and write streams.
- */
-
-/*!
- * \class IoUtilities::BinaryReader
+ * \class BinaryReader
  * \brief Reads primitive data types from a std::istream.
  * \remarks Supports both, little endian and big endian.
  * \sa For automatic serialization of structs, see https://github.com/Martchus/reflective-rapidjson.
@@ -192,3 +187,5 @@ const std::uint32_t BinaryReader::crc32Table[] = { 0x00000000, 0x04c11db7, 0x098
     0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0, 0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c, 0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18,
     0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4, 0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
     0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4 };
+
+} // namespace CppUtilities

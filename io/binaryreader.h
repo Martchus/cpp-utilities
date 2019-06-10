@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace IoUtilities {
+namespace CppUtilities {
 class CPP_UTILITIES_EXPORT BinaryReader {
 
 public:
@@ -242,7 +242,7 @@ inline void BinaryReader::read(std::vector<char> &buffer, std::streamsize length
 inline std::int16_t BinaryReader::readInt16BE()
 {
     m_stream->read(m_buffer, sizeof(std::int16_t));
-    return ConversionUtilities::BE::toInt16(m_buffer);
+    return BE::toInt16(m_buffer);
 }
 
 /*!
@@ -251,7 +251,7 @@ inline std::int16_t BinaryReader::readInt16BE()
 inline std::uint16_t BinaryReader::readUInt16BE()
 {
     m_stream->read(m_buffer, sizeof(std::uint16_t));
-    return ConversionUtilities::BE::toUInt16(m_buffer);
+    return BE::toUInt16(m_buffer);
 }
 
 /*!
@@ -261,7 +261,7 @@ inline std::int32_t BinaryReader::readInt24BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
-    auto val = ConversionUtilities::BE::toInt32(m_buffer);
+    auto val = BE::toInt32(m_buffer);
     if (val >= 0x800000) {
         val = -(0x1000000 - val);
     }
@@ -275,7 +275,7 @@ inline std::uint32_t BinaryReader::readUInt24BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 3);
-    return ConversionUtilities::BE::toUInt32(m_buffer);
+    return BE::toUInt32(m_buffer);
 }
 
 /*!
@@ -284,7 +284,7 @@ inline std::uint32_t BinaryReader::readUInt24BE()
 inline std::int32_t BinaryReader::readInt32BE()
 {
     m_stream->read(m_buffer, sizeof(std::int32_t));
-    return ConversionUtilities::BE::toInt32(m_buffer);
+    return BE::toInt32(m_buffer);
 }
 
 /*!
@@ -293,7 +293,7 @@ inline std::int32_t BinaryReader::readInt32BE()
 inline std::uint32_t BinaryReader::readUInt32BE()
 {
     m_stream->read(m_buffer, sizeof(std::uint32_t));
-    return ConversionUtilities::BE::toUInt32(m_buffer);
+    return BE::toUInt32(m_buffer);
 }
 
 /*!
@@ -303,7 +303,7 @@ inline std::int64_t BinaryReader::readInt40BE()
 {
     *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
-    auto val = ConversionUtilities::BE::toInt64(m_buffer);
+    auto val = BE::toInt64(m_buffer);
     if (val >= 0x8000000000) {
         val = -(0x10000000000 - val);
     }
@@ -317,7 +317,7 @@ inline std::uint64_t BinaryReader::readUInt40BE()
 {
     *m_buffer = *(m_buffer + 1) = *(m_buffer + 2) = 0;
     m_stream->read(m_buffer + 3, 5);
-    return ConversionUtilities::BE::toUInt64(m_buffer);
+    return BE::toUInt64(m_buffer);
 }
 
 /*!
@@ -327,7 +327,7 @@ inline std::int64_t BinaryReader::readInt56BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 7);
-    auto val = ConversionUtilities::BE::toInt64(m_buffer);
+    auto val = BE::toInt64(m_buffer);
     if (val >= 0x80000000000000) {
         val = -(0x100000000000000 - val);
     }
@@ -341,7 +341,7 @@ inline std::uint64_t BinaryReader::readUInt56BE()
 {
     *m_buffer = 0;
     m_stream->read(m_buffer + 1, 7);
-    return ConversionUtilities::BE::toUInt64(m_buffer);
+    return BE::toUInt64(m_buffer);
 }
 
 /*!
@@ -350,7 +350,7 @@ inline std::uint64_t BinaryReader::readUInt56BE()
 inline std::int64_t BinaryReader::readInt64BE()
 {
     m_stream->read(m_buffer, sizeof(std::int64_t));
-    return ConversionUtilities::BE::toInt64(m_buffer);
+    return BE::toInt64(m_buffer);
 }
 
 /*!
@@ -359,7 +359,7 @@ inline std::int64_t BinaryReader::readInt64BE()
 inline std::uint64_t BinaryReader::readUInt64BE()
 {
     m_stream->read(m_buffer, sizeof(std::uint64_t));
-    return ConversionUtilities::BE::toUInt64(m_buffer);
+    return BE::toUInt64(m_buffer);
 }
 
 /*!
@@ -369,7 +369,7 @@ inline std::uint64_t BinaryReader::readUInt64BE()
 inline std::uint64_t BinaryReader::readVariableLengthUIntBE()
 {
     bufferVariableLengthInteger();
-    return ConversionUtilities::BE::toUInt64(m_buffer);
+    return BE::toUInt64(m_buffer);
 }
 
 /*!
@@ -378,7 +378,7 @@ inline std::uint64_t BinaryReader::readVariableLengthUIntBE()
 inline float BinaryReader::readFloat32BE()
 {
     m_stream->read(m_buffer, sizeof(float));
-    return ConversionUtilities::BE::toFloat32(m_buffer);
+    return BE::toFloat32(m_buffer);
 }
 
 /*!
@@ -387,7 +387,7 @@ inline float BinaryReader::readFloat32BE()
 inline double BinaryReader::readFloat64BE()
 {
     m_stream->read(m_buffer, sizeof(double));
-    return ConversionUtilities::BE::toFloat64(m_buffer);
+    return BE::toFloat64(m_buffer);
 }
 
 /*!
@@ -396,7 +396,7 @@ inline double BinaryReader::readFloat64BE()
 inline std::int16_t BinaryReader::readInt16LE()
 {
     m_stream->read(m_buffer, sizeof(std::int16_t));
-    return ConversionUtilities::LE::toInt16(m_buffer);
+    return LE::toInt16(m_buffer);
 }
 
 /*!
@@ -405,7 +405,7 @@ inline std::int16_t BinaryReader::readInt16LE()
 inline std::uint16_t BinaryReader::readUInt16LE()
 {
     m_stream->read(m_buffer, sizeof(std::uint16_t));
-    return ConversionUtilities::LE::toUInt16(m_buffer);
+    return LE::toUInt16(m_buffer);
 }
 
 /*!
@@ -415,7 +415,7 @@ inline std::int32_t BinaryReader::readInt24LE()
 {
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
-    auto val = ConversionUtilities::LE::toInt32(m_buffer);
+    auto val = LE::toInt32(m_buffer);
     if (val >= 0x800000) {
         val = -(0x1000000 - val);
     }
@@ -429,7 +429,7 @@ inline std::uint32_t BinaryReader::readUInt24LE()
 {
     *(m_buffer + 3) = 0;
     m_stream->read(m_buffer, 3);
-    return ConversionUtilities::LE::toUInt32(m_buffer);
+    return LE::toUInt32(m_buffer);
 }
 
 /*!
@@ -438,7 +438,7 @@ inline std::uint32_t BinaryReader::readUInt24LE()
 inline std::int32_t BinaryReader::readInt32LE()
 {
     m_stream->read(m_buffer, sizeof(std::int32_t));
-    return ConversionUtilities::LE::toInt32(m_buffer);
+    return LE::toInt32(m_buffer);
 }
 
 /*!
@@ -447,7 +447,7 @@ inline std::int32_t BinaryReader::readInt32LE()
 inline std::uint32_t BinaryReader::readUInt32LE()
 {
     m_stream->read(m_buffer, sizeof(std::uint32_t));
-    return ConversionUtilities::LE::toUInt32(m_buffer);
+    return LE::toUInt32(m_buffer);
 }
 
 /*!
@@ -457,7 +457,7 @@ inline std::int64_t BinaryReader::readInt40LE()
 {
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
-    auto val = ConversionUtilities::LE::toInt64(m_buffer);
+    auto val = LE::toInt64(m_buffer);
     if (val >= 0x8000000000) {
         val = -(0x10000000000 - val);
     }
@@ -471,7 +471,7 @@ inline std::uint64_t BinaryReader::readUInt40LE()
 {
     *(m_buffer + 5) = *(m_buffer + 6) = *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 5);
-    return ConversionUtilities::LE::toUInt64(m_buffer);
+    return LE::toUInt64(m_buffer);
 }
 
 /*!
@@ -481,7 +481,7 @@ inline std::int64_t BinaryReader::readInt56LE()
 {
     *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 7);
-    auto val = ConversionUtilities::LE::toInt64(m_buffer);
+    auto val = LE::toInt64(m_buffer);
     if (val >= 0x80000000000000) {
         val = -(0x100000000000000 - val);
     }
@@ -495,7 +495,7 @@ inline std::uint64_t BinaryReader::readUInt56LE()
 {
     *(m_buffer + 7) = 0;
     m_stream->read(m_buffer, 7);
-    return ConversionUtilities::LE::toUInt64(m_buffer);
+    return LE::toUInt64(m_buffer);
 }
 
 /*!
@@ -504,7 +504,7 @@ inline std::uint64_t BinaryReader::readUInt56LE()
 inline std::int64_t BinaryReader::readInt64LE()
 {
     m_stream->read(m_buffer, sizeof(std::int64_t));
-    return ConversionUtilities::LE::toInt64(m_buffer);
+    return LE::toInt64(m_buffer);
 }
 
 /*!
@@ -513,7 +513,7 @@ inline std::int64_t BinaryReader::readInt64LE()
 inline std::uint64_t BinaryReader::readUInt64LE()
 {
     m_stream->read(m_buffer, sizeof(std::uint64_t));
-    return ConversionUtilities::LE::toUInt64(m_buffer);
+    return LE::toUInt64(m_buffer);
 }
 
 /*!
@@ -523,7 +523,7 @@ inline std::uint64_t BinaryReader::readUInt64LE()
 inline std::uint64_t BinaryReader::readVariableLengthUIntLE()
 {
     bufferVariableLengthInteger();
-    return ConversionUtilities::LE::toUInt64(m_buffer);
+    return LE::toUInt64(m_buffer);
 }
 
 /*!
@@ -532,7 +532,7 @@ inline std::uint64_t BinaryReader::readVariableLengthUIntLE()
 inline float BinaryReader::readFloat32LE()
 {
     m_stream->read(m_buffer, sizeof(float));
-    return ConversionUtilities::LE::toFloat32(m_buffer);
+    return LE::toFloat32(m_buffer);
 }
 
 /*!
@@ -541,7 +541,7 @@ inline float BinaryReader::readFloat32LE()
 inline double BinaryReader::readFloat64LE()
 {
     m_stream->read(m_buffer, sizeof(double));
-    return ConversionUtilities::LE::toFloat64(m_buffer);
+    return LE::toFloat64(m_buffer);
 }
 
 /*!
@@ -588,7 +588,7 @@ inline std::string BinaryReader::readLengthPrefixedString()
  */
 inline std::uint32_t BinaryReader::readSynchsafeUInt32BE()
 {
-    return ConversionUtilities::toNormalInt(readUInt32BE());
+    return toNormalInt(readUInt32BE());
 }
 
 /*!
@@ -596,7 +596,7 @@ inline std::uint32_t BinaryReader::readSynchsafeUInt32BE()
  */
 inline float BinaryReader::readFixed8BE()
 {
-    return ConversionUtilities::toFloat32(readUInt16BE());
+    return toFloat32(readUInt16BE());
 }
 
 /*!
@@ -604,7 +604,7 @@ inline float BinaryReader::readFixed8BE()
  */
 inline float BinaryReader::readFixed16BE()
 {
-    return ConversionUtilities::toFloat32(readUInt32BE());
+    return toFloat32(readUInt32BE());
 }
 
 /*!
@@ -614,7 +614,7 @@ inline float BinaryReader::readFixed16BE()
  */
 inline std::uint32_t BinaryReader::readSynchsafeUInt32LE()
 {
-    return ConversionUtilities::toNormalInt(readUInt32LE());
+    return toNormalInt(readUInt32LE());
 }
 
 /*!
@@ -622,7 +622,7 @@ inline std::uint32_t BinaryReader::readSynchsafeUInt32LE()
  */
 inline float BinaryReader::readFixed8LE()
 {
-    return ConversionUtilities::toFloat32(readUInt16LE());
+    return toFloat32(readUInt16LE());
 }
 
 /*!
@@ -630,7 +630,7 @@ inline float BinaryReader::readFixed8LE()
  */
 inline float BinaryReader::readFixed16LE()
 {
-    return ConversionUtilities::toFloat32(readUInt32LE());
+    return toFloat32(readUInt32LE());
 }
 
 /*!
@@ -732,6 +732,6 @@ inline void BinaryReader::read(double &one64BitFloat)
 {
     one64BitFloat = readFloat64BE();
 }
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_BINERYREADER_H

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 /*!
  * \brief Reads all contents of the specified file in a single call.
@@ -28,4 +28,4 @@ std::string readFile(const std::string &path, std::string::size_type maxSize)
     res.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     return res;
 }
-} // namespace IoUtilities
+} // namespace CppUtilities

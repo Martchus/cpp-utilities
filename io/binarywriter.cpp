@@ -6,11 +6,11 @@
 #include <memory>
 
 using namespace std;
-using namespace IoUtilities;
-using namespace ConversionUtilities;
+
+namespace CppUtilities {
 
 /*!
- * \class IoUtilities::BinaryWriter
+ * \class BinaryWriter
  * \brief Writes primitive data types to a std::ostream.
  * \remarks Supports both, little endian and big endian.
  * \sa For automatic deserialization of structs, see https://github.com/Martchus/reflective-rapidjson.
@@ -59,3 +59,5 @@ void BinaryWriter::writeVariableLengthInteger(std::uint64_t value, void (*getByt
     }
     m_stream->write(m_buffer + 8 - prefixLength, prefixLength);
 }
+
+} // namespace CppUtilities

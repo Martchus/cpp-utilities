@@ -1,9 +1,9 @@
 #include "./period.h"
 
-namespace ChronoUtilities {
+namespace CppUtilities {
 
 /*!
- * \class ChronoUtilities::Period
+ * \class Period
  * \brief Represents a period of time.
  *
  * In contrast to the TimeSpan class, a Period represents a duration between a concrete
@@ -78,4 +78,4 @@ DateTime operator+(DateTime begin, Period period)
     return DateTime::fromDate(year, month, day) + begin.timeOfDay();
 }
 
-} // namespace ChronoUtilities
+} // namespace CppUtilities

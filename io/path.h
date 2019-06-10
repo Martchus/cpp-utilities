@@ -18,11 +18,11 @@
 #define SEARCH_PATH_SEP_STR ":"
 #endif
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 CPP_UTILITIES_EXPORT std::string fileName(const std::string &path);
 CPP_UTILITIES_EXPORT std::string directory(const std::string &path);
 CPP_UTILITIES_EXPORT void removeInvalidChars(std::string &fileName);
-} // namespace IoUtilities
+} // namespace CppUtilities
 
 #endif // IOUTILITIES_PATHHELPER_H

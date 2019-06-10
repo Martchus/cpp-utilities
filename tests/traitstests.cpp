@@ -12,7 +12,7 @@
 #include <vector>
 
 using namespace std;
-using namespace Traits;
+using namespace CppUtilities::Traits;
 
 using namespace CPPUNIT_NS;
 

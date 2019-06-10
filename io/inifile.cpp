@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace IoUtilities {
+namespace CppUtilities {
 
 /*!
  * \class IniFile
@@ -160,4 +160,4 @@ void IniFile::make(ostream &outputStream)
     }
 }
 
-} // namespace IoUtilities
+} // namespace CppUtilities

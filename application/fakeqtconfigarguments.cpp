@@ -1,6 +1,6 @@
 #include "./fakeqtconfigarguments.h"
 
-namespace ApplicationUtilities {
+namespace CppUtilities {
 
 /*!
  * \class FakeQtConfigArguments
@@ -20,4 +20,4 @@ FakeQtConfigArguments::FakeQtConfigArguments()
 {
 }
 
-} // namespace ApplicationUtilities
+} // namespace CppUtilities

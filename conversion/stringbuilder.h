@@ -7,7 +7,7 @@
 #include <string>
 #include <tuple>
 
-namespace ConversionUtilities {
+namespace CppUtilities {
 
 /// \cond
 namespace Helper {
@@ -259,6 +259,6 @@ inline std::string operator+(const Tuple &lhs, IntegralType rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
 }
-} // namespace ConversionUtilities
+} // namespace CppUtilities
 
 #endif // CONVERSION_UTILITIES_STRINGBUILDER_H
