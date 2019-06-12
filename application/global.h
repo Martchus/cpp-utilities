@@ -1,5 +1,5 @@
-#ifndef APPLICATION_UTILITIES_GLOBAL_H
-#define APPLICATION_UTILITIES_GLOBAL_H
+#ifndef CPP_UTILITIES_APPLICATION_UTILITIES_GLOBAL_H
+#define CPP_UTILITIES_APPLICATION_UTILITIES_GLOBAL_H
 
 #if defined(_WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #ifndef PLATFORM_WINDOWS
@@ -58,49 +58,48 @@
 #endif
 
 /*!
- * \def LIB_EXPORT
+ * \def CPP_UTILITIES_GENERIC_LIB_EXPORT
  * \brief Marks a symbol for shared library export.
  */
 
 /*!
- * \def LIB_IMPORT
+ * \def CPP_UTILITIES_GENERIC_LIB_IMPORT
  * \brief Declares a symbol to be an import from a shared library.
  */
 
 /*!
- * \def LIB_HIDDEN
+ * \def CPP_UTILITIES_GENERIC_LIB_HIDDEN
  * \brief Hidden visibility indicates that the symbol will not be placed into
  *        the dynamic symbol table, so no other module (executable or shared library)
  *        can reference it directly.
  */
 
 #ifdef PLATFORM_WINDOWS
-#define LIB_EXPORT __declspec(dllexport)
-#define LIB_IMPORT __declspec(dllimport)
-#define LIB_HIDDEN
+#define CPP_UTILITIES_GENERIC_LIB_EXPORT __declspec(dllexport)
+#define CPP_UTILITIES_GENERIC_LIB_IMPORT __declspec(dllimport)
+#define CPP_UTILITIES_GENERIC_LIB_HIDDEN
 #else
-#define LIB_EXPORT __attribute__((visibility("default")))
-#define LIB_IMPORT __attribute__((visibility("default")))
-#define LIB_HIDDEN __attribute__((visibility("hidden")))
+#define CPP_UTILITIES_GENERIC_LIB_EXPORT __attribute__((visibility("default")))
+#define CPP_UTILITIES_GENERIC_LIB_IMPORT __attribute__((visibility("default")))
+#define CPP_UTILITIES_GENERIC_LIB_HIDDEN __attribute__((visibility("hidden")))
 #endif
 
 /*!
- * \def VAR_UNUSED
+ * \def CPP_UTILITIES_UNUSED
  * \brief Prevents warnings about unused variables.
  */
 
-#define VAR_UNUSED(x) (void)x;
+#define CPP_UTILITIES_UNUSED(x) (void)x;
 
 /*!
- * \def IF_DEBUG_BUILD
+ * \def CPP_UTILITIES_IF_DEBUG_BUILD
  * \brief Wraps debug-only lines conveniently.
  */
 
-#ifdef DEBUG_BUILD
-#define IF_DEBUG_BUILD(x) x
+#ifdef CPP_UTILITIES_DEBUG_BUILD
+#define CPP_UTILITIES_IF_DEBUG_BUILD(x) x
 #else
-#define IF_DEBUG_BUILD(x)
+#define CPP_UTILITIES_IF_DEBUG_BUILD(x)
 #endif
 
-
-#endif // APPLICATION_UTILITIES_GLOBAL_H
+#endif // CPP_UTILITIES_APPLICATION_UTILITIES_GLOBAL_H

@@ -907,7 +907,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentB
  */
 void ArgumentParser::readArgs(int argc, const char *const *argv)
 {
-    IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
+    CPP_UTILITIES_IF_DEBUG_BUILD(verifyArgs(m_mainArgs);)
     m_actualArgc = 0;
 
     // the first argument is the executable name
@@ -1005,7 +1005,7 @@ bool ArgumentParser::isUncombinableMainArgPresent() const
     return false;
 }
 
-#ifdef DEBUG_BUILD
+#ifdef CPP_UTILITIES_DEBUG_BUILD
 /*!
  * \brief Verifies the specified \a argument definitions.
  *

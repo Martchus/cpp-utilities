@@ -190,7 +190,7 @@ endif ()
 
 # enable debug-only code when doing a debug build
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS DEBUG_BUILD)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS CPP_UTILITIES_DEBUG_BUILD)
     message(STATUS "Debug build enabled.")
 endif ()
 

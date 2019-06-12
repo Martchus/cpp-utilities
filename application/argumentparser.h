@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <limits>
 #include <vector>
-#ifdef DEBUG_BUILD
+#ifdef CPP_UTILITIES_DEBUG_BUILD
 #include <cassert>
 #endif
 
@@ -484,7 +484,7 @@ public:
 
 private:
     // declare internal operations
-    IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
+    CPP_UTILITIES_IF_DEBUG_BUILD(void verifyArgs(const ArgumentVector &args);)
     ArgumentCompletionInfo determineCompletionInfo(
         int argc, const char *const *argv, unsigned int currentWordIndex, const ArgumentReader &reader) const;
     std::string findSuggestions(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
@@ -522,7 +522,7 @@ inline const char *Argument::name() const
  */
 inline void Argument::setName(const char *name)
 {
-#ifdef DEBUG_BUILD
+#ifdef CPP_UTILITIES_DEBUG_BUILD
     if (name && *name) {
         assert(*name != '-');
         for (const char *c = name; *c; ++c) {
@@ -552,8 +552,8 @@ inline char Argument::abbreviation() const
  */
 inline void Argument::setAbbreviation(char abbreviation)
 {
-    IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '=' && abbreviation != '-' && abbreviation != '\'' && abbreviation != '"'
-        && abbreviation != '\n' && abbreviation != '\r'));
+    CPP_UTILITIES_IF_DEBUG_BUILD(assert(abbreviation != ' ' && abbreviation != '=' && abbreviation != '-' && abbreviation != '\''
+        && abbreviation != '"' && abbreviation != '\n' && abbreviation != '\r'));
     m_abbreviation = abbreviation;
 }
 
