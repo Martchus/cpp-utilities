@@ -102,16 +102,5 @@
 #define IF_DEBUG_BUILD(x)
 #endif
 
-/*!
- * \def FALLTHROUGH
- * \brief Prevents clang from warning about missing break in switch-case.
- * \remarks Does nothing if another compiler is used.
- */
-
-#ifdef __clang__
-#define FALLTHROUGH [[clang::fallthrough]]
-#else
-#define FALLTHROUGH
-#endif
 
 #endif // APPLICATION_UTILITIES_GLOBAL_H

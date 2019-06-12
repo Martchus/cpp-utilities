@@ -374,7 +374,7 @@ bool ArgumentReader::read(ArgumentVector &args)
             switch (parser.m_unknownArgBehavior) {
             case UnknownArgumentBehavior::Warn:
                 cerr << Phrases::Warning << "The specified argument \"" << *argv << "\" is unknown and will be ignored." << Phrases::EndFlush;
-                FALLTHROUGH;
+                [[fallthrough]];
             case UnknownArgumentBehavior::Ignore:
                 // ignore unknown denotation
                 ++index;
