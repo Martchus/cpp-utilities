@@ -115,10 +115,12 @@ TestApplication::TestApplication()
  * \throws Throws std::runtime_error if an instance has already been created.
  */
 TestApplication::TestApplication(int argc, const char *const *argv)
-    : m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files")
-    , m_applicationPathArg("app-path", 'a', "specifies the path of the application to be tested")
-    , m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files")
-    , m_unitsArg("units", 'u', "specifies the units to test; omit to test all units")
+    : m_listArg("list", 'l', "lists available test units")
+    , m_runArg("run", 'r', "runs the tests")
+    , m_testFilesPathArg("test-files-path", 'p', "specifies the path of the directory with test files", { "path" })
+    , m_applicationPathArg("app-path", 'a', "specifies the path of the application to be tested", { "path" })
+    , m_workingDirArg("working-dir", 'w', "specifies the directory to store working copies of test files", { "path" })
+    , m_unitsArg("units", 'u', "specifies the units to test; omit to test all units", { "unit1", "unit2", "unit3" })
 {
     // check whether there is already an instance
     if (m_instance) {
@@ -129,17 +131,11 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     // handle specified arguments (if present)
     if (argc && argv) {
         // setup argument parser
-        for (Argument *arg : initializer_list<Argument *>{ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg }) {
-            arg->setRequiredValueCount(1);
-            arg->setValueNames({ "path" });
-            arg->setCombinable(true);
-        }
         m_testFilesPathArg.setRequiredValueCount(Argument::varValueCount);
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
-        m_unitsArg.setValueNames({ "unit1", "unit2", "unit3" });
-        m_unitsArg.setCombinable(true);
-        m_parser.setMainArguments(
-            { &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg, &m_parser.noColorArg(), &m_parser.helpArg() });
+        m_runArg.setImplicit(true);
+        m_runArg.setSubArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg });
+        m_parser.setMainArguments({&m_listArg, &m_runArg, &m_parser.noColorArg(), &m_parser.helpArg()});
 
         // parse arguments
         try {

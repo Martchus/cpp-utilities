@@ -41,6 +41,7 @@ public:
     const char *applicationPath();
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
+    bool onlyListUnits() const;
 
     // static read-only accessors
     static const TestApplication *instance();
@@ -51,10 +52,12 @@ private:
     static std::string readTestfilePathFromSrcRef();
 
     ArgumentParser m_parser;
-    Argument m_testFilesPathArg;
-    Argument m_applicationPathArg;
-    Argument m_workingDirArg;
-    Argument m_unitsArg;
+    OperationArgument m_listArg;
+    OperationArgument m_runArg;
+    ConfigValueArgument m_testFilesPathArg;
+    ConfigValueArgument m_applicationPathArg;
+    ConfigValueArgument m_workingDirArg;
+    ConfigValueArgument m_unitsArg;
     std::vector<std::string> m_testFilesPaths;
     std::string m_workingDir;
     bool m_valid;
@@ -127,6 +130,14 @@ inline bool TestApplication::unitsSpecified() const
 inline const std::vector<const char *> &TestApplication::units() const
 {
     return m_unitsArg.values();
+}
+
+/*!
+ * \brief Returns whether the test application should only list available units and not actually run any tests.
+ */
+inline bool TestApplication::onlyListUnits() const
+{
+    return m_listArg.isPresent();
 }
 
 /*!
