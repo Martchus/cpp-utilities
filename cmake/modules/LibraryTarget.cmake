@@ -299,6 +299,10 @@ macro (compute_dependencies_for_package_config
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                 continue()
             endif ()
+            # assume the target is a 3rd party library built within the current project as a bundled dependency
+            # -> the target is supposed to be installed in either a standard search directory or the same directory as this library
+            #    so a simple -l flag should be sufficient
+            set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
         else ()
             # add raw dependency
             set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
@@ -389,7 +393,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 
     # add install targets and export targets
-    install(TARGETS "${META_TARGET_NAME}"
+    set(TARGETS_TO_EXPORT "${META_TARGET_NAME}")
+    foreach (BUNDLED_TARGET ${BUNDLED_TARGETS})
+        if (NOT ${BUNDLED_TARGET} IN_LIST LIBRARIES OR (NOT BUILD_SHARED_LIBS AND ${BUNDLED_TARGET} IN_LIST PRIVATE_LIBRARIES))
+            list(APPEND TARGETS_TO_EXPORT ${BUNDLED_TARGET})
+        endif ()
+    endforeach ()
+    install(TARGETS ${TARGETS_TO_EXPORT}
             EXPORT "${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Targets"
             RUNTIME DESTINATION bin COMPONENT binary
             LIBRARY DESTINATION ${LIBRARY_DESTINATION} COMPONENT binary
