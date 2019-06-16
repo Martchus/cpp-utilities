@@ -86,6 +86,7 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/appdata.xml.in
     cmake/templates/doxygen.in
     cmake/templates/global.h.in
+    cmake/templates/version.h.in
     cmake/templates/template.pc.in)
 set(SCRIPT_FILES)
 if (MINGW)
