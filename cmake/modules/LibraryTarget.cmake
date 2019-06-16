@@ -382,12 +382,22 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                 query_qmake_variable(QT_INSTALL_PLUGINS)
             endif ()
             if (QT_INSTALL_PLUGINS)
-                set(LIBRARY_DESTINATION ${QT_INSTALL_PLUGINS})
-            else ()
+                string(FIND "${QT_INSTALL_PLUGINS}" "${CMAKE_INSTALL_PREFIX}"
+                            CMAKE_INSTALL_PREFIX_INDEX_IN_QT_INSTALL_PLUGINS)
+                if ("${CMAKE_INSTALL_PREFIX_INDEX_IN_QT_INSTALL_PLUGINS}" EQUAL 0)
+                    set(LIBRARY_DESTINATION ${QT_INSTALL_PLUGINS})
+                else ()
+                    message(
+                        WARNING
+                            "According to qmake the Qt plugin directory is \"${QT_INSTALL_PLUGINS}\". However, that path is not within the install prefix \"${CMAKE_INSTALL_PREFIX}\" and therefore ignored."
+                        )
+                endif ()
+            endif ()
+            if (NOT LIBRARY_DESTINATION)
                 set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX}/qt/plugins)
                 message(
                     WARNING
-                        "Unable to detect appropriate install directory for Qt plugins  (assuming \"${LIBRARY_DESTINATION}\")."
+                        "Unable to detect appropriate install directory for Qt plugins  (assuming \"${LIBRARY_DESTINATION}\"). Set QT_PLUGIN_DIR to specify the directory to install Qt plugins to manually."
                     )
             endif ()
         endif ()
