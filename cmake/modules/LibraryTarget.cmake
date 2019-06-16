@@ -305,9 +305,9 @@ macro (compute_dependencies_for_package_config
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                 continue()
             endif ()
-            # assume the target is a 3rd party library built within the current project as a bundled dependency
-            # -> the target is supposed to be installed in either a standard search directory or the same directory as this library
-            #    so a simple -l flag should be sufficient
+            # assume the target is a 3rd party library built within the current project as a bundled dependency -> the target
+            # is supposed to be installed in either a standard search directory or the same directory as this library so a
+            # simple -l flag should be sufficient
             set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
         else ()
             # add raw dependency
@@ -376,7 +376,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # determine install dir for Qt plugins
     if ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
         if (QT_PLUGIN_DIR)
-            set(LIBRARY_DESTINATION ${QT_PLUGIN_DIR})
+            set(LIBRARY_DESTINATION "${QT_PLUGIN_DIR}")
         else ()
             if (COMMAND query_qmake_variable)
                 query_qmake_variable(QT_INSTALL_PLUGINS)
@@ -411,7 +411,11 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install targets and export targets
     set(TARGETS_TO_EXPORT "${META_TARGET_NAME}")
     foreach (BUNDLED_TARGET ${BUNDLED_TARGETS})
-        if (NOT ${BUNDLED_TARGET} IN_LIST LIBRARIES OR (NOT BUILD_SHARED_LIBS AND ${BUNDLED_TARGET} IN_LIST PRIVATE_LIBRARIES))
+        if (NOT
+            ${BUNDLED_TARGET}
+            IN_LIST
+            LIBRARIES
+            OR (NOT BUILD_SHARED_LIBS AND ${BUNDLED_TARGET} IN_LIST PRIVATE_LIBRARIES))
             list(APPEND TARGETS_TO_EXPORT ${BUNDLED_TARGET})
         endif ()
     endforeach ()
@@ -435,9 +439,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                     DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}"
                     COMPONENT header)
         endforeach ()
-        install(FILES "${VERSION_HEADER_FILE}"
-                DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
-                COMPONENT header)
+        install(FILES "${VERSION_HEADER_FILE}" DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}" COMPONENT header)
         if (NOT TARGET install-header)
             add_custom_target(install-header
                               COMMAND "${CMAKE_COMMAND}"

@@ -135,7 +135,7 @@ TestApplication::TestApplication(int argc, const char *const *argv)
         m_unitsArg.setRequiredValueCount(Argument::varValueCount);
         m_runArg.setImplicit(true);
         m_runArg.setSubArguments({ &m_testFilesPathArg, &m_applicationPathArg, &m_workingDirArg, &m_unitsArg });
-        m_parser.setMainArguments({&m_listArg, &m_runArg, &m_parser.noColorArg(), &m_parser.helpArg()});
+        m_parser.setMainArguments({ &m_listArg, &m_runArg, &m_parser.noColorArg(), &m_parser.helpArg() });
 
         // parse arguments
         try {
