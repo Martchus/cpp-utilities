@@ -8,6 +8,8 @@
 
 #include "../tests/testutils.h"
 
+#include "resources/version.h"
+
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -17,6 +19,20 @@ using namespace std;
 using namespace CppUtilities;
 using namespace CppUtilities::Literals;
 using namespace CPPUNIT_NS;
+
+// test version check macro
+#if CPP_UTILITIES_VERSION_CHECK(5, 2, 1) > CPP_UTILITIES_VERSION_CHECK(6, 0, 0)
+#error "Check for major version doesn't work"
+#endif
+#if CPP_UTILITIES_VERSION_CHECK(5, 2, 2) > CPP_UTILITIES_VERSION_CHECK(5, 3, 0)
+#error "Check for minor version doesn't work"
+#endif
+#if CPP_UTILITIES_VERSION_CHECK(5, 2, 1) > CPP_UTILITIES_VERSION_CHECK(5, 2, 2)
+#error "Check for path version doesn't work"
+#endif
+#if CPP_UTILITIES_VERSION < CPP_UTILITIES_VERSION_CHECK(5, 0, 0)
+#error "Library version seems wrongly defined, should be already >= 5.0.0"
+#endif
 
 /*!
  * \brief The MiscTests class tests misc functions and classes (mainly of files contained by the misc directory).

@@ -1,0 +1,57 @@
+// Created via CMake from template version.h.in
+// WARNING! Any changes to this file will be overwritten by the next CMake run!
+
+#ifndef @META_PROJECT_VARNAME_UPPER@_VERSION
+
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_MAJOR @META_VERSION_MAJOR@
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_MINOR @META_VERSION_MINOR@
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_PATCH @META_VERSION_PATCH@
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_VCSRE @META_GIT_REV_COUNT@
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_VCSID "@META_GIT_LAST_COMMIT_ID@"
+
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_STR "@META_APP_VERSION@"
+#define @META_PROJECT_VARNAME_UPPER@_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
+#define @META_PROJECT_VARNAME_UPPER@_VERSION \
+    @META_PROJECT_VARNAME_UPPER@_VERSION_CHECK(@META_PROJECT_VARNAME_UPPER@_VERSION_MAJOR, @META_PROJECT_VARNAME_UPPER@_VERSION_MINOR, @META_PROJECT_VARNAME_UPPER@_VERSION_PATCH)
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_MAJOR
+ * \brief Mayor version of the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_MINOR
+ * \brief Minor version of the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_PATCH
+ * \brief Patch version of the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_VCSRE
+ * \brief Revision number in the version control system of the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_VCSID
+ * \brief Revision ID in the version control system of the @META_PROJECT_NAME@ library.
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_STR
+ * \brief Version of the @META_PROJECT_NAME@ library as string (for display purposes).
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION_CHECK
+ * \brief Can be used like "#if (@META_PROJECT_VARNAME_UPPER@_VERSION >= @META_PROJECT_VARNAME_UPPER@_VERSION_CHECK(5, 1, 0))".
+ */
+
+/*!
+ * \def @META_PROJECT_VARNAME_UPPER@_VERSION
+ * \brief Defined as (major << 16) + (minor << 8) + patch.
+ */
+
+#endif // @META_PROJECT_VARNAME_UPPER@_VERSION

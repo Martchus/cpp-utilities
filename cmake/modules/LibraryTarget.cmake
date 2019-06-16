@@ -62,6 +62,12 @@ configure_file("${GLOBAL_H_TEMPLATE_FILE}"
                )
 list(APPEND HEADER_FILES global.h)
 
+# add header to check library version
+set(VERSION_HEADER_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/version.h")
+find_template_file("version.h" CPP_UTILITIES VERSION_H_TEMPLATE_FILE)
+configure_file("${VERSION_H_TEMPLATE_FILE}" "${VERSION_HEADER_FILE}" NEWLINE_STYLE UNIX)
+list(APPEND SOURCE_FILES "${VERSION_HEADER_FILE}")
+
 # determine SOVERSION
 if (NOT META_SOVERSION AND NOT META_IS_PLUGIN)
     if (META_VERSION_EXACT_SONAME)
@@ -419,6 +425,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                     DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}"
                     COMPONENT header)
         endforeach ()
+        install(FILES "${VERSION_HEADER_FILE}"
+                DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
+                COMPONENT header)
         if (NOT TARGET install-header)
             add_custom_target(install-header
                               COMMAND "${CMAKE_COMMAND}"
