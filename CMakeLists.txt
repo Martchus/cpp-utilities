@@ -116,7 +116,11 @@ include(3rdParty)
 use_iconv(AUTO_LINKAGE REQUIRED)
 
 # configure use of native file buffer and its backend implementation if enabled
-option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" OFF)
+set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT OFF)
+if (WIN32 OR ANDROID)
+    set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT ON)
+endif ()
+option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" ${USE_NATIVE_FILE_BUFFER_BY_DEFAULT})
 option(FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER "forces use of Boost.Iostreams for native file buffer" OFF)
 if (USE_NATIVE_FILE_BUFFER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_NATIVE_FILE_BUFFER)
