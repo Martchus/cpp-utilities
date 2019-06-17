@@ -93,7 +93,7 @@ bool makeDir(const string &path)
 #endif
 }
 
-TestApplication *TestApplication::m_instance = nullptr;
+TestApplication *TestApplication::s_instance = nullptr;
 
 /*!
  * \class TestApplication
@@ -123,10 +123,10 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     , m_unitsArg("units", 'u', "specifies the units to test; omit to test all units", { "unit1", "unit2", "unit3" })
 {
     // check whether there is already an instance
-    if (m_instance) {
+    if (s_instance) {
         throw runtime_error("only one TestApplication instance allowed at a time");
     }
-    m_instance = this;
+    s_instance = this;
 
     // handle specified arguments (if present)
     if (argc && argv) {
@@ -212,7 +212,7 @@ TestApplication::TestApplication(int argc, const char *const *argv)
  */
 TestApplication::~TestApplication()
 {
-    m_instance = nullptr;
+    s_instance = nullptr;
 }
 
 /*!

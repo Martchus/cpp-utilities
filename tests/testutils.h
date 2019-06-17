@@ -61,7 +61,7 @@ private:
     std::vector<std::string> m_testFilesPaths;
     std::string m_workingDir;
     bool m_valid;
-    static TestApplication *m_instance;
+    static TestApplication *s_instance;
 };
 
 /*!
@@ -80,7 +80,7 @@ inline TestApplication::operator bool() const
  */
 inline const TestApplication *TestApplication::instance()
 {
-    return TestApplication::m_instance;
+    return TestApplication::s_instance;
 }
 
 /*!
@@ -88,7 +88,7 @@ inline const TestApplication *TestApplication::instance()
  */
 inline const char *TestApplication::appPath()
 {
-    return m_instance ? m_instance->applicationPath() : "";
+    return s_instance ? s_instance->applicationPath() : "";
 }
 
 /*!
