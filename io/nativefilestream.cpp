@@ -295,7 +295,7 @@ std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int
  */
 std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
 {
-    auto widePath = ::ConversionUtilities::convertMultiByteToWide(path);
+    auto widePath = ::CppUtilities::convertMultiByteToWide(path);
     if (!widePath.first) {
         throw std::ios_base::failure("Unable to convert path to UTF-16");
     }
