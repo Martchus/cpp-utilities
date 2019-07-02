@@ -12,11 +12,14 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <iostream>
 #include <set>
 #include <sstream>
 #include <string>
+
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+#include <filesystem>
+#endif
 
 using namespace std;
 using namespace std::placeholders;
@@ -1484,6 +1487,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     }
 
     // -> completion for files and dirs
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
     if (completionInfo.completeFiles || completionInfo.completeDirs) {
         using namespace std::filesystem;
         const auto replace = "'"s, with = "'\"'\"'"s;
@@ -1520,6 +1524,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             haveFileOrDirCompletions = true;
         }
     }
+#endif
     cout << ')';
 
     // ensure file or dir completions are formatted appropriately

@@ -160,8 +160,14 @@ else ()
     message(STATUS "Using std::fstream for NativeFileStream")
 endif ()
 
-# configure required libraries for std::filestream
-use_standard_filesystem()
+# configure required libraries for std::filesystem
+option(USE_STANDARD_FILESYSTEM "uses std::filesystem; if disabled Bash completion for files and directories is not working" ON)
+if (USE_STANDARD_FILESYSTEM)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_STANDARD_FILESYSTEM)
+    use_standard_filesystem()
+else ()
+    message(WARNING "The use of std::filesystem has been disabled. Bash completion for files and directories will not work.")
+endif ()
 
 # configure forcing UTF-8 code page under Windows
 option(FORCE_UTF8_CODEPAGE "forces use of UTF-8 code page under Windows via ApplicationUtilities::startConsole()" OFF)

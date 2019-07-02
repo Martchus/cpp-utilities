@@ -659,9 +659,13 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     const char *const argv5[] = { "get", "--files", iniFilePath.c_str() };
     {
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
         // order for file names is not specified
         const OutputCheck c("COMPREPLY=('" % mkvFilePath % " '\"'\"'with quote'\"'\"'.mkv' '" % iniFilePath + ".ini' ); compopt -o filenames\n",
             "COMPREPLY=('" % iniFilePath % ".ini' '" % mkvFilePath + " '\"'\"'with quote'\"'\"'.mkv' ); compopt -o filenames\n");
+#else
+        const OutputCheck c("COMPREPLY=()\n");
+#endif
         reader.reset(argv5, argv5 + 3).read();
         parser.printBashCompletion(3, argv5, 2, reader);
     }
@@ -672,8 +676,12 @@ void ArgumentParserTests::testBashCompletion()
     parser.resetArgs();
     const char *const argv14[] = { "get", "--files", directoryPath.c_str() };
     {
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
         // order for file names is not specified
         const OutputCheck c("COMPREPLY=('" % directoryPath + "subdir' ); compopt -o filenames\n");
+#else
+        const OutputCheck c("COMPREPLY=()\n");
+#endif
         reader.reset(argv14, argv14 + 3).read();
         parser.printBashCompletion(3, argv14, 2, reader);
     }
