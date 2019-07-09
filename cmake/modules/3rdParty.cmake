@@ -235,29 +235,27 @@ function (use_pkg_config_module)
         endif ()
     endif ()
 
-    # skip if target has already been added
-    if (TARGET "${ARGS_TARGET_NAME}")
-        return()
-    endif ()
+    # add target only if it has not already been added; otherwise just add the existing target to the library variable
+    if (NOT TARGET "${ARGS_TARGET_NAME}")
+        find_package(PkgConfig)
+        pkg_check_modules(PKG_CHECK_MODULES_RESULT ${ARGS_PKG_CHECK_MODULES} ${ARGS_PKG_CONFIG_MODULES})
 
-    find_package(PkgConfig)
-    pkg_check_modules(PKG_CHECK_MODULES_RESULT ${ARGS_PKG_CHECK_MODULES} ${ARGS_PKG_CONFIG_MODULES})
-
-    # create interface library
-    add_library(${ARGS_TARGET_NAME} INTERFACE IMPORTED)
-    if (PKG_CONFIG_USE_STATIC_LIBS)
-        set(PKG_CONFIG_CHECK_SUFFIX "_STATIC")
-    else ()
-        set(PKG_CONFIG_CHECK_SUFFIX "")
+        # create interface library
+        add_library(${ARGS_TARGET_NAME} INTERFACE IMPORTED)
+        if (PKG_CONFIG_USE_STATIC_LIBS)
+            set(PKG_CONFIG_CHECK_SUFFIX "_STATIC")
+        else ()
+            set(PKG_CONFIG_CHECK_SUFFIX "")
+        endif ()
+        set_property(TARGET ${ARGS_TARGET_NAME}
+                     PROPERTY INTERFACE_LINK_LIBRARIES "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LINK_LIBRARIES}")
+        set_property(TARGET ${ARGS_TARGET_NAME}
+                     PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_INCLUDE_DIRS}")
+        set_property(TARGET ${ARGS_TARGET_NAME}
+                     PROPERTY INTERFACE_COMPILE_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_CFLAGS_OTHER}")
+        set_property(TARGET ${ARGS_TARGET_NAME}
+                     PROPERTY INTERFACE_LINK_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LDFLAGS_OTHER}")
     endif ()
-    set_property(TARGET ${ARGS_TARGET_NAME}
-                 PROPERTY INTERFACE_LINK_LIBRARIES "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LINK_LIBRARIES}")
-    set_property(TARGET ${ARGS_TARGET_NAME}
-                 PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_INCLUDE_DIRS}")
-    set_property(TARGET ${ARGS_TARGET_NAME}
-                 PROPERTY INTERFACE_COMPILE_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_CFLAGS_OTHER}")
-    set_property(TARGET ${ARGS_TARGET_NAME}
-                 PROPERTY INTERFACE_LINK_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LDFLAGS_OTHER}")
 
     set("${ARGS_PKG_CONFIG_MODULES_VARIABLE}" "${${ARGS_PKG_CONFIG_MODULES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
