@@ -175,6 +175,7 @@ if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
                                     COMPILERS
                                     GNU
                                     Clang
+                                    AppleClang
                                     FEATURES
                                     ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
 endif ()
