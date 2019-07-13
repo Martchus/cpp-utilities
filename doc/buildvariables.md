@@ -86,6 +86,10 @@ None of these are enabled or set by default, unless stated otherwise.
     * This feature is implemented in `c++utilities`, so the option must be specified
       when building `c++utilities`. Specifying it only when building eg. `tagparser`
       has *no* effect.
+* `USE_STANDARD_FILESYSTEM=ON/OFF`: enables use of `std::filesystem` (default)
+    * Disabing this is required when building for MacOS and Android at the time of
+      writing this documentation.
+    * Bash completion will not be able to suggest files and directory when disabled.
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions
