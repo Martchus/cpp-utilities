@@ -274,7 +274,8 @@ set(FORMATABLE_FILES
     ${WIDGETS_HEADER_FILES}
     ${WIDGETS_SRC_FILES}
     ${QML_HEADER_FILES}
-    ${QML_SRC_FILES})
+    ${QML_SRC_FILES}
+    ${EXCLUDED_FILES})
 # only format C/C++ files (and not eg. QML files)
 if (FORMATABLE_FILES)
     list(FILTER

@@ -227,9 +227,13 @@ and qtutilities.
   only required for Qt Widgets GUI
 * `QML_HEADER_FILES`/`QML_SRC_FILES`/`QML_RES_FILES`: specifies C++
   header/source files and Qt resouce files only required for Qt Quick GUI
+* `EXCLUDED_FILES`: specifies C++ files which are part of the project (and therefore
+  should be formatted by the `tidy` target, added to the documentation and considered
+  for translations) but are excluded from the actual build; when adding files
+  conditionally to the other `_FILES` variables, be sure to add them at least
+  to `EXCLUDED_FILES`
 * `DOC_FILES`: additional markdown files to be inlcuded in the documentation
   created via Doxygen; the first file is used as the main page
-* `DOC_ONLY_FILES`: specifies documentation-only files
 * `REQUIRED_ICONS`: names of the icons required by the application and the
   used libraries (can be generated with
   [findicons](https://github.com/Martchus/findicons))
