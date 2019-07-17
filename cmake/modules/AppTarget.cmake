@@ -60,6 +60,16 @@ set_target_properties(${META_TARGET_NAME}
                                  AUTOGEN_TARGET_DEPENDS
                                  "${AUTOGEN_DEPS}")
 
+if ("${GUI_TYPE}" STREQUAL "MACOSX_BUNDLE")
+    set_target_properties(${META_TARGET_NAME} PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME ${META_TARGET_NAME}
+        MACOSX_BUNDLE_GUI_IDENTIFIER ${META_TARGET_NAME}
+        MACOSX_BUNDLE_BUNDLE_VERSION ${META_APP_VERSION}
+        MACOSX_BUNDLE_LONG_VERSION_STRING ${META_APP_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${META_APP_VERSION}
+    )
+endif()
+
 # add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
