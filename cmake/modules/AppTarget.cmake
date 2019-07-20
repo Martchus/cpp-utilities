@@ -68,6 +68,21 @@ if ("${GUI_TYPE}" STREQUAL "MACOSX_BUNDLE")
         MACOSX_BUNDLE_LONG_VERSION_STRING ${META_APP_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${META_APP_VERSION}
     )
+
+    find_program(PNG2ICNS_BIN png2icns)
+    if (PNG2ICNS_BIN AND EXISTS "${PNG_ICON_PATH}")
+        set(RESOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.app/Contents/Resources")
+        set(MACOSX_ICON_PATH "${RESOURCES_DIR}/${META_PROJECT_NAME}.icns" )
+        add_custom_command(OUTPUT "${MACOSX_ICON_PATH}"
+                           COMMAND "${CMAKE_COMMAND}" -E make_directory "${RESOURCES_DIR}"
+                           COMMAND ${PNG2ICNS_BIN} "${MACOSX_ICON_PATH}" "${PNG_ICON_PATH}"
+                           DEPENDS "${PNG_ICON_PATH}")
+        message(STATUS "Generating macOS icon from \"${PNG_ICON_PATH}\" via ${PNG2ICNS_BIN}.")
+        set_target_properties(${META_TARGET_NAME} PROPERTIES
+            MACOSX_BUNDLE_ICON_FILE ${META_PROJECT_NAME}.icns)
+        target_sources(${META_TARGET_NAME}
+            PRIVATE "${MACOSX_ICON_PATH}")
+    endif ()
 endif()
 
 # add install targets
