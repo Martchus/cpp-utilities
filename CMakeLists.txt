@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
+project(c++utilities)
+
 # add project files
 set(HEADER_FILES
     application/argumentparser.h
