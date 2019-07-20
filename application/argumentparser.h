@@ -24,6 +24,7 @@ struct ApplicationInfo {
     const char *author = nullptr;
     const char *version = nullptr;
     const char *url = nullptr;
+    const char *domain = nullptr;
     const char *description = nullptr;
     const char *license = nullptr;
     const char *credits = nullptr;
@@ -53,6 +54,7 @@ CPP_UTILITIES_EXPORT extern ApplicationInfo applicationInfo;
     ::CppUtilities::applicationInfo.author = APP_AUTHOR;                                                                                             \
     ::CppUtilities::applicationInfo.version = APP_VERSION;                                                                                           \
     ::CppUtilities::applicationInfo.url = APP_URL;                                                                                                   \
+    ::CppUtilities::applicationInfo.domain = APP_DOMAIN;                                                                                             \
     ::CppUtilities::applicationInfo.description = APP_DESCRIPTION;                                                                                   \
     ::CppUtilities::applicationInfo.license = PROJECT_LICENSE;                                                                                       \
     ::CppUtilities::applicationInfo.credits = APP_CREDITS;                                                                                           \
