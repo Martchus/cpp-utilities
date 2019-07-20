@@ -13,6 +13,8 @@ if (NOT META_APP_DESCRIPTION)
 endif ()
 
 # set project name (displayed in Qt Creator)
+# note: The project name is at least shown in Qt Creator this way but unfortunately setting project() from
+#       an included file is not sufficient (see https://cmake.org/cmake/help/latest/command/project.html#usage).
 message(STATUS "Configuring project ${META_PROJECT_NAME}")
 project(${META_PROJECT_NAME})
 
