@@ -795,8 +795,9 @@ void ArgumentParserTests::testHelp()
     const char *const argv[] = { "app", "-h" };
     {
         const OutputCheck c("\e[1m" APP_NAME ", version " APP_VERSION "\n"
-                            "\e[0mLinked against: somelib, some other lib\n"
-                            "\n\e[0m"
+                            "\n"
+                            "\e[0m" APP_DESCRIPTION "\n"
+                            "\n"
                             "Available operations:\n"
                             "\e[1mverbose, -v\e[0m\n"
                             "  be verbose\n"
@@ -820,6 +821,8 @@ void ArgumentParserTests::testHelp()
                             "  disables formatted/colorized output\n"
                             "  default environment variable: ENABLE_ESCAPE_CODES\n"
                             "\n"
+                            "Linked against: somelib, some other lib\n"
+                            "\n"
                             "Project website: " APP_URL "\n");
         EscapeCodes::enabled = true;
         parser.parseArgs(2, argv, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
@@ -829,7 +832,8 @@ void ArgumentParserTests::testHelp()
     parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.helpArg() });
     {
         const OutputCheck c(APP_NAME ", version " APP_VERSION "\n"
-                                     "Linked against: somelib, some other lib\n"
+                                     "\n"
+                                     APP_DESCRIPTION "\n"
                                      "\n"
                                      "Available arguments:\n"
                                      "--verbose, -v\n"
@@ -848,6 +852,8 @@ void ArgumentParserTests::testHelp()
                                      "--env [file] [value 2]\n"
                                      "  env\n"
                                      "  default environment variable: FILES\n"
+                                     "\n"
+                                     "Linked against: somelib, some other lib\n"
                                      "\n"
                                      "Project website: " APP_URL "\n");
         EscapeCodes::enabled = false;

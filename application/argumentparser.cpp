@@ -786,31 +786,31 @@ void ArgumentParser::addMainArgument(Argument *argument)
 void ArgumentParser::printHelp(ostream &os) const
 {
     EscapeCodes::setStyle(os, EscapeCodes::TextAttribute::Bold);
+    bool wroteLine = false;
     if (applicationInfo.name && *applicationInfo.name) {
         os << applicationInfo.name;
         if (applicationInfo.version && *applicationInfo.version) {
             os << ',' << ' ';
         }
+        wroteLine = true;
     }
     if (applicationInfo.version && *applicationInfo.version) {
         os << "version " << applicationInfo.version;
+        wroteLine = true;
     }
-    if (applicationInfo.dependencyVersions.size()) {
-        if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)) {
-            os << '\n';
-            EscapeCodes::setStyle(os);
-        }
-        auto i = applicationInfo.dependencyVersions.begin(), end = applicationInfo.dependencyVersions.end();
-        os << "Linked against: " << *i;
-        for (++i; i != end; ++i) {
-            os << ',' << ' ' << *i;
-        }
-    }
-    if ((applicationInfo.name && *applicationInfo.name) || (applicationInfo.version && *applicationInfo.version)
-        || applicationInfo.dependencyVersions.size()) {
+    if (wroteLine) {
         os << '\n' << '\n';
     }
     EscapeCodes::setStyle(os);
+
+    if (applicationInfo.description && *applicationInfo.description) {
+        os << applicationInfo.description;
+        wroteLine = true;
+    }
+    if (wroteLine) {
+        os << '\n' << '\n';
+    }
+
     if (!m_mainArgs.empty()) {
         bool hasOperations = false;
         for (const Argument *const arg : m_mainArgs) {
@@ -851,6 +851,17 @@ void ArgumentParser::printHelp(ostream &os) const
             }
         }
     }
+
+    if (!applicationInfo.dependencyVersions.empty()) {
+        os << '\n';
+        auto i = applicationInfo.dependencyVersions.begin(), end = applicationInfo.dependencyVersions.end();
+        os << "Linked against: " << *i;
+        for (++i; i != end; ++i) {
+            os << ',' << ' ' << *i;
+        }
+        os << '\n';
+    }
+
     if (applicationInfo.url && *applicationInfo.url) {
         os << "\nProject website: " << applicationInfo.url << endl;
     }
