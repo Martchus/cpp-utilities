@@ -155,6 +155,9 @@ else ()
                                      ${STATIC_LINKAGE}
                                      AUTOGEN_TARGET_DEPENDS
                                      "${AUTOGEN_DEPS}")
+    if (META_PLUGIN_CATEGORY)
+        set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
+    endif ()
 endif ()
 
 # populate META_PUBLIC_LIB_DEPENDS
