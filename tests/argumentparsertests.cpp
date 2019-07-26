@@ -832,8 +832,7 @@ void ArgumentParserTests::testHelp()
     parser.setMainArguments({ &verboseArg, &filesArg, &envArg, &parser.helpArg() });
     {
         const OutputCheck c(APP_NAME ", version " APP_VERSION "\n"
-                                     "\n"
-                                     APP_DESCRIPTION "\n"
+                                     "\n" APP_DESCRIPTION "\n"
                                      "\n"
                                      "Available arguments:\n"
                                      "--verbose, -v\n"
