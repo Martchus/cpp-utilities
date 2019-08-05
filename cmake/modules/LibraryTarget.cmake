@@ -28,8 +28,6 @@ if (META_CONFIG_SUFFIX)
     set(INCLUDE_SUBDIR "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 endif ()
 set(HEADER_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/${INCLUDE_SUBDIR}")
-set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 set(QT_PLUGIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}/qt/plugins")
 set(CMAKE_MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/${META_DATA_DIR}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/${META_DATA_DIR}/cmake")
@@ -264,13 +262,23 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME
 macro (compute_dependencies_for_package_config
        DEPENDS
        OUTPUT_VAR_PKGS
-       OUTPUT_VAR_LIBS)
-    unset(${OUTPUT_VAR_PKGS})
-    unset(${OUTPUT_VAR_LIBS})
+       OUTPUT_VAR_LIBS
+       UNSET)
+    if (UNSET)
+        unset(${OUTPUT_VAR_PKGS})
+        unset(${OUTPUT_VAR_LIBS})
+    endif ()
     foreach (DEPENDENCY ${${DEPENDS}})
         if ("${DEPENDENCY}" STREQUAL "general")
             continue()
         endif ()
+        # handle use of generator expressions (use BUILD_INTERFACE; ignore INSTALL_INTERFACE)
+        if ("${DEPENDENCY}" MATCHES "\\\$\\<BUILD_INTERFACE:(.*)\\>")
+            set(DEPENDENCY "${CMAKE_MATCH_1}")
+        elseif ("${DEPENDENCY}" MATCHES "\\\$\\<INSTALL_INTERFACE:(.*)\\>")
+            continue()
+        endif ()
+        # find the name of the pkg-config package for the depencency
         string(REPLACE "::"
                        "_"
                        DEPENDENCY_VARNAME
@@ -281,28 +289,38 @@ macro (compute_dependencies_for_package_config
                 set(${OUTPUT_VAR_PKGS} "${${OUTPUT_VAR_PKGS}} ${PKG_CONFIG_MODULE}")
             endforeach ()
         elseif (TARGET "${DEPENDENCY}")
+            # find the raw-library flags for the dependency
             # add interface link libraries of the target
             get_target_property("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES" "${DEPENDENCY}" "INTERFACE_LINK_LIBRARIES")
             set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING FALSE)
+            set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS)
             foreach (LIBRARY ${${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES})
-                if (EXISTS ${LIBRARY})
+                if (TARGET ${LIBRARY})
+                    list(APPEND ${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS ${LIBRARY})
+                    set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING TRUE)
+                elseif (EXISTS ${LIBRARY})
                     set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${LIBRARY}")
                     set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING TRUE)
                 endif ()
             endforeach ()
+            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS" "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
             if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING)
                 continue()
             endif ()
             # add library location of the target
             set(HAS_LIBRARY_LOCATION NO)
-            if (DEPENDENCY IN_LIST BUNDLED_TARGET)
+            if (DEPENDENCY IN_LIST BUNDLED_TARGETS)
+                # bundled targets are installed at the same location and using the same flags as the actual library so adding
+                # the library name itself is sufficient
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
                 set(HAS_LIBRARY_LOCATION YES)
             endif ()
             if (NOT HAS_LIBRARY_LOCATION AND META_CURRENT_CONFIGURATION)
                 get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}" "${DEPENDENCY}"
                                     "IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}")
-                if (EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
+                # check whether path points to the build directory; libraries must not be referenced using their build location
+                string(FIND "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}" "${CMAKE_CURRENT_BINARY_DIR}" BINARY_DIR_INDEX)
+                if (NOT BINARY_DIR_INDEX EQUAL 0 AND EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
                     set(${OUTPUT_VAR_LIBS}
                         "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
                     set(HAS_LIBRARY_LOCATION YES)
@@ -310,7 +328,9 @@ macro (compute_dependencies_for_package_config
             endif ()
             if (NOT HAS_LIBRARY_LOCATION)
                 get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION" "${DEPENDENCY}" IMPORTED_LOCATION)
-                if (EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
+                # check whether path points to the build directory; libraries must not be referenced using their build location
+                string(FIND "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}" "${CMAKE_CURRENT_BINARY_DIR}" BINARY_DIR_INDEX)
+                if (NOT BINARY_DIR_INDEX EQUAL 0 AND EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                     set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                     set(HAS_LIBRARY_LOCATION YES)
                 endif ()
@@ -321,20 +341,17 @@ macro (compute_dependencies_for_package_config
             if (NOT HAS_LIBRARY_LOCATION)
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
             endif ()
+            # add libraries required by the imported target
             get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${DEPENDENCY}" "IMPORTED_LINK_INTERFACE_LIBRARIES")
-            foreach (LIBRARY ${${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES})
-                if (NOT TARGET ${LIBRARY} AND EXISTS ${LIBRARY})
-                    set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${LIBRARY}")
-                endif ()
-            endforeach ()
+            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
         else ()
             # add raw dependency
             set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
         endif ()
     endforeach ()
 endmacro ()
-compute_dependencies_for_package_config(META_PUBLIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC)
-compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC)
+compute_dependencies_for_package_config(META_PUBLIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC YES)
+compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC YES)
 if (NOT META_HEADER_ONLY_LIB)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -l${META_TARGET_NAME}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
 endif ()
