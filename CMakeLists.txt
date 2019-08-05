@@ -163,7 +163,8 @@ else ()
 endif ()
 
 # configure required libraries for std::filesystem
-option(USE_STANDARD_FILESYSTEM "uses std::filesystem; if disabled Bash completion for files and directories is not working" ON)
+option(USE_STANDARD_FILESYSTEM "uses std::filesystem; if disabled Bash completion for files and directories is not working"
+       ON)
 if (USE_STANDARD_FILESYSTEM)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_STANDARD_FILESYSTEM)
     use_standard_filesystem()

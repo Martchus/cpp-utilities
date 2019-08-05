@@ -12,9 +12,9 @@ if (NOT META_APP_DESCRIPTION)
     message(FATAL_ERROR "No project name (META_APP_DESCRIPTION) specified.")
 endif ()
 
-# set project name (displayed in Qt Creator)
-# note: The project name is at least shown in Qt Creator this way but unfortunately setting project() from
-#       an included file is not sufficient (see https://cmake.org/cmake/help/latest/command/project.html#usage).
+# set project name (displayed in Qt Creator) note: The project name is at least shown in Qt Creator this way but
+# unfortunately setting project() from an included file is not sufficient (see
+# https://cmake.org/cmake/help/latest/command/project.html#usage).
 message(STATUS "Configuring project ${META_PROJECT_NAME}")
 project(${META_PROJECT_NAME})
 
@@ -145,10 +145,16 @@ option(
     ON)
 if (APPEND_GIT_REVISION)
     find_program(GIT_BIN git)
-    execute_process(COMMAND ${GIT_BIN} rev-list --count HEAD
+    execute_process(COMMAND ${GIT_BIN}
+                            rev-list
+                            --count
+                            HEAD
                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE META_GIT_REV_COUNT)
-    execute_process(COMMAND ${GIT_BIN} rev-parse --short HEAD
+    execute_process(COMMAND ${GIT_BIN}
+                            rev-parse
+                            --short
+                            HEAD
                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                     OUTPUT_VARIABLE META_GIT_LAST_COMMIT_ID)
     string(REPLACE "\n"
@@ -293,8 +299,11 @@ set(FORMATABLE_FILES_CMAKE ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt ${CMAKE_MO
 # add command for symlinking clang-{format,tidy} rules so the tools can find it
 if (EXISTS "${CLANG_FORMAT_RULES}")
     add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                       COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}"
-                                                     "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+                       COMMAND "${CMAKE_COMMAND}"
+                               -E
+                               create_symlink
+                               "${CLANG_FORMAT_RULES}"
+                               "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
                        COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}")
 else ()
     message(WARNING "Format rules for clang-format not found.")
@@ -313,7 +322,10 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
         message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
     endif ()
     add_custom_target("${META_TARGET_NAME}_tidy"
-                      COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+                      COMMAND "${CLANG_FORMAT_BIN}"
+                              -style=file
+                              -i
+                              ${FORMATABLE_FILES}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
                       DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
@@ -324,7 +336,10 @@ if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "$
 
     # also add a test to verify whether sources are tidy
     add_test(NAME "${META_TARGET_NAME}_tidy_test"
-             COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+             COMMAND "${CLANG_FORMAT_BIN}"
+                     -output-replacements-xml
+                     -style=file
+                     ${FORMATABLE_FILES}
              WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
     set_tests_properties("${META_TARGET_NAME}_tidy_test"
@@ -348,7 +363,10 @@ if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
             --autosort=False)
     endif ()
     add_custom_target("${META_TARGET_NAME}_cmake_tidy"
-                      COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
+                      COMMAND "${CMAKE_FORMAT_BIN}"
+                              --in-place
+                              ${META_CMAKE_FORMAT_OPTIONS}
+                              ${FORMATABLE_FILES_CMAKE}
                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                       COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
                       DEPENDS "${FORMATABLE_FILES_CMAKE}")
@@ -417,7 +435,10 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
             list(APPEND CLANG_TIDY_SYMBOLIC_OUTPUT_FILES "${SYMBOLIC_OUTPUT_FILE}")
 
             add_custom_command(OUTPUT "${SYMBOLIC_OUTPUT_FILE}"
-                               COMMAND "${CLANG_TIDY_BIN}" ${FILE} -- ${CLANG_TIDY_CXX_FLAGS}
+                               COMMAND "${CLANG_TIDY_BIN}"
+                                       ${FILE}
+                                       --
+                                       ${CLANG_TIDY_CXX_FLAGS}
                                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                                COMMENT "Linting ${FILE} using clang-tidy"
                                DEPENDS "${FILE}" COMMAND_EXPAND_LISTS
@@ -481,7 +502,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-extra-files)
         add_custom_target(install-extra-files
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=extra-files -P
+                                  -DCMAKE_INSTALL_COMPONENT=extra-files
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()

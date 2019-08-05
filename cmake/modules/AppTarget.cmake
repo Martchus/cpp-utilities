@@ -61,29 +61,34 @@ set_target_properties(${META_TARGET_NAME}
                                  "${AUTOGEN_DEPS}")
 
 if ("${GUI_TYPE}" STREQUAL "MACOSX_BUNDLE")
-    set_target_properties(${META_TARGET_NAME} PROPERTIES
-        MACOSX_BUNDLE_BUNDLE_NAME ${META_TARGET_NAME}
-        MACOSX_BUNDLE_GUI_IDENTIFIER ${META_TARGET_NAME}
-        MACOSX_BUNDLE_BUNDLE_VERSION ${META_APP_VERSION}
-        MACOSX_BUNDLE_LONG_VERSION_STRING ${META_APP_VERSION}
-        MACOSX_BUNDLE_SHORT_VERSION_STRING ${META_APP_VERSION}
-    )
+    set_target_properties(${META_TARGET_NAME}
+                          PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME
+                                     ${META_TARGET_NAME}
+                                     MACOSX_BUNDLE_GUI_IDENTIFIER
+                                     ${META_TARGET_NAME}
+                                     MACOSX_BUNDLE_BUNDLE_VERSION
+                                     ${META_APP_VERSION}
+                                     MACOSX_BUNDLE_LONG_VERSION_STRING
+                                     ${META_APP_VERSION}
+                                     MACOSX_BUNDLE_SHORT_VERSION_STRING
+                                     ${META_APP_VERSION})
 
     find_program(PNG2ICNS_BIN png2icns)
     if (PNG2ICNS_BIN AND EXISTS "${PNG_ICON_PATH}")
         set(RESOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.app/Contents/Resources")
-        set(MACOSX_ICON_PATH "${RESOURCES_DIR}/${META_PROJECT_NAME}.icns" )
+        set(MACOSX_ICON_PATH "${RESOURCES_DIR}/${META_PROJECT_NAME}.icns")
         add_custom_command(OUTPUT "${MACOSX_ICON_PATH}"
-                           COMMAND "${CMAKE_COMMAND}" -E make_directory "${RESOURCES_DIR}"
+                           COMMAND "${CMAKE_COMMAND}"
+                                   -E
+                                   make_directory
+                                   "${RESOURCES_DIR}"
                            COMMAND ${PNG2ICNS_BIN} "${MACOSX_ICON_PATH}" "${PNG_ICON_PATH}"
                            DEPENDS "${PNG_ICON_PATH}")
         message(STATUS "Generating macOS icon from \"${PNG_ICON_PATH}\" via ${PNG2ICNS_BIN}.")
-        set_target_properties(${META_TARGET_NAME} PROPERTIES
-            MACOSX_BUNDLE_ICON_FILE ${META_PROJECT_NAME}.icns)
-        target_sources(${META_TARGET_NAME}
-            PRIVATE "${MACOSX_ICON_PATH}")
+        set_target_properties(${META_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE ${META_PROJECT_NAME}.icns)
+        target_sources(${META_TARGET_NAME} PRIVATE "${MACOSX_ICON_PATH}")
     endif ()
-endif()
+endif ()
 
 # add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
@@ -105,7 +110,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-binary)
         add_custom_target(install-binary
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=binary -P
+                                  -DCMAKE_INSTALL_COMPONENT=binary
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-binary ${META_TARGET_NAME})
@@ -128,14 +134,16 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-desktop)
         add_custom_target(install-desktop
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=desktop -P
+                                  -DCMAKE_INSTALL_COMPONENT=desktop
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-desktop ${META_TARGET_NAME})
     if (NOT TARGET install-appimage)
         add_custom_target(install-appimage
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=appimage -P
+                                  -DCMAKE_INSTALL_COMPONENT=appimage
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-appimage ${META_TARGET_NAME})
@@ -144,7 +152,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-binary-strip)
         add_custom_target(install-binary-strip
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
+                                  -DCMAKE_INSTALL_DO_STRIP=1
+                                  -DCMAKE_INSTALL_COMPONENT=binary
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
     add_dependencies(install-binary-strip ${META_TARGET_NAME})

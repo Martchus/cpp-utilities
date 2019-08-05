@@ -289,8 +289,7 @@ macro (compute_dependencies_for_package_config
                 set(${OUTPUT_VAR_PKGS} "${${OUTPUT_VAR_PKGS}} ${PKG_CONFIG_MODULE}")
             endforeach ()
         elseif (TARGET "${DEPENDENCY}")
-            # find the raw-library flags for the dependency
-            # add interface link libraries of the target
+            # find the raw-library flags for the dependency add interface link libraries of the target
             get_target_property("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES" "${DEPENDENCY}" "INTERFACE_LINK_LIBRARIES")
             set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING FALSE)
             set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS)
@@ -303,7 +302,10 @@ macro (compute_dependencies_for_package_config
                     set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING TRUE)
                 endif ()
             endforeach ()
-            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS" "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
+            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS"
+                                                    "${OUTPUT_VAR_PKGS}"
+                                                    "${OUTPUT_VAR_LIBS}"
+                                                    NO)
             if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING)
                 continue()
             endif ()
@@ -318,9 +320,15 @@ macro (compute_dependencies_for_package_config
             if (NOT HAS_LIBRARY_LOCATION AND META_CURRENT_CONFIGURATION)
                 get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}" "${DEPENDENCY}"
                                     "IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}")
-                # check whether path points to the build directory; libraries must not be referenced using their build location
-                string(FIND "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}" "${CMAKE_CURRENT_BINARY_DIR}" BINARY_DIR_INDEX)
-                if (NOT BINARY_DIR_INDEX EQUAL 0 AND EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
+                # check whether path points to the build directory; libraries must not be referenced using their build
+                # location
+                string(FIND "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}"
+                            "${CMAKE_CURRENT_BINARY_DIR}" BINARY_DIR_INDEX)
+                if (NOT
+                    BINARY_DIR_INDEX
+                    EQUAL
+                    0
+                    AND EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
                     set(${OUTPUT_VAR_LIBS}
                         "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION_${META_CURRENT_CONFIGURATION}}")
                     set(HAS_LIBRARY_LOCATION YES)
@@ -328,7 +336,8 @@ macro (compute_dependencies_for_package_config
             endif ()
             if (NOT HAS_LIBRARY_LOCATION)
                 get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LOCATION" "${DEPENDENCY}" IMPORTED_LOCATION)
-                # check whether path points to the build directory; libraries must not be referenced using their build location
+                # check whether path points to the build directory; libraries must not be referenced using their build
+                # location
                 string(FIND "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}" "${CMAKE_CURRENT_BINARY_DIR}" BINARY_DIR_INDEX)
                 if (NOT BINARY_DIR_INDEX EQUAL 0 AND EXISTS "${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
                     set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${${DEPENDENCY_VARNAME}_IMPORTED_LOCATION}")
@@ -342,16 +351,26 @@ macro (compute_dependencies_for_package_config
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
             endif ()
             # add libraries required by the imported target
-            get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${DEPENDENCY}" "IMPORTED_LINK_INTERFACE_LIBRARIES")
-            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
+            get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${DEPENDENCY}"
+                                "IMPORTED_LINK_INTERFACE_LIBRARIES")
+            compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES"
+                                                    "${OUTPUT_VAR_PKGS}"
+                                                    "${OUTPUT_VAR_LIBS}"
+                                                    NO)
         else ()
             # add raw dependency
             set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
         endif ()
     endforeach ()
 endmacro ()
-compute_dependencies_for_package_config(META_PUBLIC_LIB_DEPENDS META_PUBLIC_PC_PKGS META_PUBLIC_LIB_DEPENDS_FOR_PC YES)
-compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC_PKGS META_PRIVATE_LIB_DEPENDS_FOR_PC YES)
+compute_dependencies_for_package_config(META_PUBLIC_LIB_DEPENDS
+                                        META_PUBLIC_PC_PKGS
+                                        META_PUBLIC_LIB_DEPENDS_FOR_PC
+                                        YES)
+compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS
+                                        META_PRIVATE_PC_PKGS
+                                        META_PRIVATE_LIB_DEPENDS_FOR_PC
+                                        YES)
 if (NOT META_HEADER_ONLY_LIB)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -l${META_TARGET_NAME}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
 endif ()
@@ -377,7 +396,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-cmake-config)
         add_custom_target(install-cmake-config
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=cmake-config -P
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-config
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -388,7 +408,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-pkg-config)
         add_custom_target(install-pkg-config
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=pkg-config -P
+                                  -DCMAKE_INSTALL_COMPONENT=pkg-config
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -396,7 +417,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-binary)
         add_custom_target(install-binary
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=binary -P
+                                  -DCMAKE_INSTALL_COMPONENT=binary
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -404,7 +426,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-binary-strip)
         add_custom_target(install-binary-strip
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_COMPONENT=binary -P
+                                  -DCMAKE_INSTALL_DO_STRIP=1
+                                  -DCMAKE_INSTALL_COMPONENT=binary
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -478,7 +502,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (NOT TARGET install-header)
             add_custom_target(install-header
                               COMMAND "${CMAKE_COMMAND}"
-                                      -DCMAKE_INSTALL_COMPONENT=header -P
+                                      -DCMAKE_INSTALL_COMPONENT=header
+                                      -P
                                       "${CMAKE_BINARY_DIR}/cmake_install.cmake")
         endif ()
     endif ()
@@ -491,7 +516,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-cmake-modules)
         add_custom_target(install-cmake-modules
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=cmake-modules -P
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-modules
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -503,7 +529,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-cmake-templates)
         add_custom_target(install-cmake-templates
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=cmake-templates -P
+                                  -DCMAKE_INSTALL_COMPONENT=cmake-templates
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
@@ -553,16 +580,14 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-importlib-strip
-                COMMAND "${STRIP_BINARY_PATH}"
-                        -g
+                COMMAND "${STRIP_BINARY_PATH}" -g
                         "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
         if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                              COMMAND "${STRIP_BINARY_PATH}"
-                                      -g
+                              COMMAND "${STRIP_BINARY_PATH}" -g
                                       "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)

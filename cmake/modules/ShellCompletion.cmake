@@ -26,7 +26,8 @@ if (BASH_COMPLETION_ENABLED)
         if (NOT TARGET install-bash-completion)
             add_custom_target(install-bash-completion
                               COMMAND "${CMAKE_COMMAND}"
-                                      -DCMAKE_INSTALL_COMPONENT=bash-completion -P
+                                      -DCMAKE_INSTALL_COMPONENT=bash-completion
+                                      -P
                                       "${CMAKE_BINARY_DIR}/cmake_install.cmake")
         endif ()
     endif ()

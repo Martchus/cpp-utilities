@@ -181,7 +181,8 @@ if (NOT META_TEST_TARGET_IS_MANUAL)
                      -p
                      "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
                      -w
-                     "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS})
+                     "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
+                     ${RUN_TESTS_APPLICATION_ARGS})
 endif ()
 
 # enable source code based coverage analysis using clang
@@ -219,7 +220,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
                 -p
                 "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
                 -w
-                "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS}
+                "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
+                ${RUN_TESTS_APPLICATION_ARGS}
         COMMENT "Executing ${META_TARGET_NAME}_tests to generate raw profiling data for source-based coverage report"
         DEPENDS "${META_TARGET_NAME}_tests")
 
@@ -271,8 +273,11 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             list(APPEND LLVM_COV_ADDITIONAL_OPTIONS -show-functions)
         endif ()
         add_custom_command(OUTPUT "${COVERAGE_REPORT_FILE}"
-                           COMMAND "${LLVM_COV_BIN}" report
-                                   -format=text -stats -instr-profile
+                           COMMAND "${LLVM_COV_BIN}"
+                                   report
+                                   -format=text
+                                   -stats
+                                   -instr-profile
                                    "${LLVM_PROFILE_DATA_FILE}"
                                    ${LLVM_COV_ADDITIONAL_OPTIONS}
                                    ${LLVM_COV_TARGET_FILE}
@@ -291,8 +296,11 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         # generate coverage report with statistics per file (only possible with LLVM 5 if source files are specified)
         if (LLVM_COV_VERSION GREATER_EQUAL 5.0.0)
             add_custom_command(OUTPUT "${COVERAGE_PER_FILE_REPORT_FILE}"
-                               COMMAND "${LLVM_COV_BIN}" report
-                                       -format=text -stats -instr-profile
+                               COMMAND "${LLVM_COV_BIN}"
+                                       report
+                                       -format=text
+                                       -stats
+                                       -instr-profile
                                        "${LLVM_PROFILE_DATA_FILE}"
                                        ${LLVM_COV_TARGET_FILE}
                                        ${HEADER_FILES}
@@ -336,8 +344,11 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
 
         # generate HTML document showing covered/uncovered code
         add_custom_command(OUTPUT "${COVERAGE_HTML_REPORT_FILE}"
-                           COMMAND "${LLVM_COV_BIN}" show
-                                   -project-title="${META_APP_NAME}" -format=html -instr-profile
+                           COMMAND "${LLVM_COV_BIN}"
+                                   show
+                                   -project-title="${META_APP_NAME}"
+                                   -format=html
+                                   -instr-profile
                                    "${LLVM_PROFILE_DATA_FILE}"
                                    ${LLVM_COV_TARGET_FILE}
                                    ${HEADER_FILES}

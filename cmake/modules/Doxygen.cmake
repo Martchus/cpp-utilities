@@ -74,7 +74,8 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT TARGET install-api-doc)
         add_custom_target(install-api-doc
                           COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=api-doc -P
+                                  -DCMAKE_INSTALL_COMPONENT=api-doc
+                                  -P
                                   "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()
