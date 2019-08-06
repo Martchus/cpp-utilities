@@ -402,20 +402,16 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         set(CLANG_TIDY_CXX_FLAGS "")
         if (NOT META_HEADER_ONLY_LIB)
             # deduce flags from target
-            set(TARGET_NAME ${META_TARGET_NAME})
-            if (NOT BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
-                set(TARGET_NAME "${TARGET_NAME}_static")
-            endif ()
             # set c++ standard
-            list(APPEND CLANG_TIDY_CXX_FLAGS "-std=c++$<TARGET_PROPERTY:${TARGET_NAME},CXX_STANDARD>")
+            list(APPEND CLANG_TIDY_CXX_FLAGS "-std=c++$<TARGET_PROPERTY:${META_TARGET_NAME},CXX_STANDARD>")
             # add compile flags
-            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},COMPILE_FLAGS>")
+            set(PROP "$<TARGET_PROPERTY:${META_TARGET_NAME},COMPILE_FLAGS>")
             list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:$<JOIN:${PROP},$<SEMICOLON>>>")
             # add compile definitions
-            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},COMPILE_DEFINITIONS>")
+            set(PROP "$<TARGET_PROPERTY:${META_TARGET_NAME},COMPILE_DEFINITIONS>")
             list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:-D$<JOIN:${PROP},$<SEMICOLON>-D>>")
             # add include directories
-            set(PROP "$<TARGET_PROPERTY:${TARGET_NAME},INCLUDE_DIRECTORIES>")
+            set(PROP "$<TARGET_PROPERTY:${META_TARGET_NAME},INCLUDE_DIRECTORIES>")
             list(APPEND CLANG_TIDY_CXX_FLAGS "$<$<BOOL:${PROP}>:-I$<JOIN:${PROP},$<SEMICOLON>-I>>")
         else ()
             # set at least c++ standard for header-only libs
