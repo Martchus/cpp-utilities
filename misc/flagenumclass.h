@@ -12,6 +12,7 @@ namespace CppUtilities {
 template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {
 };
 
+// clang-format off
 /*!
  * \def The CPP_UTILITIES_MARK_FLAG_ENUM_CLASS macro enables flag enum operators for \a EnumClassType within namespace \a Namespace.
  * \remarks
@@ -30,6 +31,7 @@ template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {
     using CppUtilities::FlagEnumClassOperations::operator+=;                                                                                         \
     using CppUtilities::FlagEnumClassOperations::operator-=;                                                                                         \
     }
+// clang-format on
 
 /*!
  * \brief The FlagEnumClassOperations namespace contains operations for flag enums.
