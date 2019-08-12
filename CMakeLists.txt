@@ -26,6 +26,7 @@ set(HEADER_FILES
     io/path.h
     io/nativefilestream.h
     io/misc.h
+    misc/flagenumclass.h
     misc/math.h
     misc/multiarray.h
     misc/parseerror.h
