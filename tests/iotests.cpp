@@ -411,6 +411,11 @@ void IoTests::testNativeFileStream()
     CPPUNIT_ASSERT(!fileStream.is_open());
     fileStream.open(txtFilePath, ios_base::in);
     CPPUNIT_ASSERT(fileStream.is_open());
+#if defined(PLATFORM_WINDOWS) && defined(CPP_UTILITIES_USE_BOOST_IOSTREAMS)
+    CPPUNIT_ASSERT(fileStream.fileHandle() != nullptr);
+#else
+    CPPUNIT_ASSERT(fileStream.fileDescriptor() != -1);
+#endif
     CPPUNIT_ASSERT_EQUAL(static_cast<char>(fileStream.get()), 'f');
     fileStream.seekg(0, ios_base::end);
     CPPUNIT_ASSERT_EQUAL(fileStream.tellg(), static_cast<NativeFileStream::pos_type>(47));
@@ -421,10 +426,10 @@ void IoTests::testNativeFileStream()
         CPPUNIT_FAIL("expected exception");
     } catch (const std::ios_base::failure &failure) {
 #ifdef PLATFORM_WINDOWS
-#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
-        CPPUNIT_ASSERT_EQUAL("_wopen failed: iostream error"s, string(failure.what()));
-#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
+#ifdef CPP_UTILITIES_USE_BOOST_IOSTREAMS
         CPPUNIT_ASSERT_EQUAL("CreateFileW failed: iostream error"s, string(failure.what()));
+#else
+        CPPUNIT_ASSERT_EQUAL("_wopen failed: iostream error"s, string(failure.what()));
 #endif
 #else
         CPPUNIT_ASSERT_EQUAL("open failed: iostream error"s, string(failure.what()));
@@ -452,7 +457,9 @@ void IoTests::testNativeFileStream()
     } catch (const std::ios_base::failure &failure) {
 #ifndef PLATFORM_WINDOWS
         TESTUTILS_ASSERT_LIKE(
-            "expected error message", "(fdopen failed|failed reading: Bad file descriptor): iostream error"s, string(failure.what()));
+            "expected error message", "(basic_ios::clear|failed reading: Bad file descriptor): iostream error"s, string(failure.what()));
+#else
+        CPP_UTILITIES_UNUSED(failure)
 #endif
     }
     fileStream.clear();

@@ -128,11 +128,92 @@ struct NativeFileParams {
 };
 
 /*!
+ * \class NativeFileStream::FileBuffer
+ * \brief The NativeFileStream::FileBuffer class holds an std::basic_streambuf<char> object obtained from a file path or a native file descriptor.
+ */
+
+/*!
+ * \brief Constructs a new FileBuffer object taking ownership of \a buffer.
+ */
+NativeFileStream::FileBuffer::FileBuffer(std::basic_streambuf<char> *buffer)
+    : buffer(buffer)
+{
+}
+
+/*!
+ * \brief Opens a file buffer from the specified \a path.
+ * \remarks See NativeFileStream::open() for remarks on how \a path must be encoded.
+ */
+NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode openMode)
+{
+#ifdef PLATFORM_WINDOWS
+    // convert path to UTF-16
+    const auto widePath(makeWidePath(path));
+#endif
+
+    // compute native params
+    const NativeFileParams nativeParams(openMode);
+
+    // open native file handle or descriptor
+#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
+#ifdef PLATFORM_WINDOWS
+    descriptor = _wopen(widePath.get(), nativeParams.openMode, nativeParams.permissions);
+    if (descriptor == -1) {
+        throw std::ios_base::failure("_wopen failed");
+    }
+#else
+    descriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (descriptor == -1) {
+        throw std::ios_base::failure("open failed");
+    }
+#endif
+    buffer = make_unique<StreamBuffer>(descriptor, openMode);
+#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
+#ifdef PLATFORM_WINDOWS
+    handle = CreateFileW(widePath.get(), nativeParams.access, nativeParams.shareMode, nullptr, nativeParams.creation, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) {
+        throw std::ios_base::failure("CreateFileW failed");
+    }
+    buffer = make_unique<StreamBuffer>(handle, boost::iostreams::close_handle);
+    // if we wanted to open assign the descriptor as well: descriptor = _open_osfhandle(reinterpret_cast<intptr_t>(handle), nativeParams.flags);
+#else
+    descriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    if (descriptor == -1) {
+        throw std::ios_base::failure("open failed");
+    }
+    buffer = make_unique<StreamBuffer>(descriptor, boost::iostreams::close_handle);
+#endif
+#endif
+}
+
+/*!
+ * \brief Opens a file buffer from the specified \a fileDescriptor.
+ * \remarks
+ * The specified \a openMode is only used when using __gnu_cxx::stdio_filebuf<char> and must be in accordance with how \a fileDescriptor
+ * has been opened.
+ */
+NativeFileStream::FileBuffer::FileBuffer(int fileDescriptor, ios_base::openmode openMode)
+    : descriptor(fileDescriptor)
+{
+#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
+    buffer = make_unique<StreamBuffer>(descriptor, openMode);
+#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
+    CPP_UTILITIES_UNUSED(openMode)
+#ifdef PLATFORM_WINDOWS
+    handle = reinterpret_cast<Handle>(_get_osfhandle(descriptor));
+    buffer = make_unique<StreamBuffer>(handle, boost::iostreams::close_handle);
+#else
+    buffer = make_unique<StreamBuffer>(descriptor, boost::iostreams::close_handle);
+#endif
+#endif
+}
+
+/*!
  * \brief Constructs a new NativeFileStream which is initially closed.
  */
 NativeFileStream::NativeFileStream()
     : iostream(new StreamBuffer)
-    , m_filebuf(rdbuf())
+    , m_data(rdbuf())
 {
 }
 
@@ -140,9 +221,13 @@ NativeFileStream::NativeFileStream()
  * \brief Moves the NativeFileStream.
  */
 NativeFileStream::NativeFileStream(NativeFileStream &&other)
-    : iostream(other.m_filebuf.release())
-    , m_filebuf(rdbuf())
+    : iostream(other.m_data.buffer.release())
+    , m_data(rdbuf())
 {
+#ifdef PLATFORM_WINDOWS
+    m_data.handle = other.m_data.handle;
+#endif
+    m_data.descriptor = other.m_data.descriptor;
 }
 
 /*!
@@ -155,9 +240,9 @@ NativeFileStream::~NativeFileStream()
 /*!
  * \brief Returns whether the file is open.
  */
-bool NativeFileStream::is_open() const
+bool NativeFileStream::isOpen() const
 {
-    return m_filebuf && static_cast<const StreamBuffer *>(m_filebuf.get())->is_open();
+    return m_data.buffer && static_cast<const StreamBuffer *>(m_data.buffer.get())->is_open();
 }
 
 /*!
@@ -175,7 +260,7 @@ bool NativeFileStream::is_open() const
  */
 void NativeFileStream::open(const string &path, ios_base::openmode openMode)
 {
-    setFileBuffer(makeFileBuffer(path, openMode));
+    setData(FileBuffer(path, openMode), openMode);
 }
 
 /*!
@@ -187,7 +272,7 @@ void NativeFileStream::open(const string &path, ios_base::openmode openMode)
  */
 void NativeFileStream::open(int fileDescriptor, ios_base::openmode openMode)
 {
-    setFileBuffer(makeFileBuffer(fileDescriptor, openMode));
+    setData(FileBuffer(fileDescriptor, openMode), openMode);
 }
 
 /*!
@@ -195,96 +280,28 @@ void NativeFileStream::open(int fileDescriptor, ios_base::openmode openMode)
  */
 void NativeFileStream::close()
 {
-    if (m_filebuf) {
-        static_cast<StreamBuffer *>(m_filebuf.get())->close();
+    if (m_data.buffer) {
+        static_cast<StreamBuffer *>(m_data.buffer.get())->close();
+#ifdef PLATFORM_WINDOWS
+        m_data.handle = nullptr;
+#endif
+        m_data.descriptor = -1;
     }
 }
 
 /*!
- * \brief Internally called to assign the \a buffer taking. Takes ownership over \a buffer.
+ * \brief Internally called to assign the buffer, file descriptor and handle.
  */
-void NativeFileStream::setFileBuffer(std::unique_ptr<std::basic_streambuf<char>> buffer)
+void NativeFileStream::setData(FileBuffer data, std::ios_base::openmode openMode)
 {
-    rdbuf(buffer.get());
-    m_filebuf = std::move(buffer);
-}
-
-/*!
- * \brief \brief Internally called by open().
- */
-std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(const string &path, ios_base::openmode openMode)
-{
-#ifdef PLATFORM_WINDOWS
-    // convert path to UTF-16
-    const auto widePath(makeWidePath(path));
-#endif
-
-    // compute native params
-    const NativeFileParams nativeParams(openMode);
-
-#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
-    // open file handle to initialize stdio_filebuf
-#ifdef PLATFORM_WINDOWS
-    const int fileHandle = _wopen(widePath.get(), nativeParams.openMode, nativeParams.permissions);
-    if (fileHandle == -1) {
-        throw std::ios_base::failure("_wopen failed");
+    rdbuf(data.buffer.get());
+    m_data = std::move(data);
+    m_openMode = openMode;
+#if defined(PLATFORM_WINDOWS) && defined(CPP_UTILITIES_USE_BOOST_IOSTREAMS)
+    // workaround append flag dysfunctioning
+    if (m_openMode & ios_base::app) {
+        seekp(0, ios_base::end);
     }
-#else
-    const auto fileHandle = fopen(path.data(), nativeParams.openMode.data());
-    if (!fileHandle) {
-        throw std::ios_base::failure("fopen failed");
-    }
-#endif
-    return make_unique<StreamBuffer>(fileHandle, openMode);
-
-#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
-    // create raw file descriptor to initialize boost::iostreams::file_descriptor
-#ifdef PLATFORM_WINDOWS
-    const auto fileDescriptor
-        = CreateFileW(widePath.get(), nativeParams.access, nativeParams.shareMode, nullptr, nativeParams.creation, FILE_ATTRIBUTE_NORMAL);
-    if (fileDescriptor == INVALID_HANDLE_VALUE) {
-        throw std::ios_base::failure("CreateFileW failed");
-    }
-#else
-    const auto fileDescriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    if (fileDescriptor == -1) {
-        throw std::ios_base::failure("open failed");
-    }
-#endif
-    return make_unique<StreamBuffer>(fileDescriptor, boost::iostreams::close_handle);
-#endif
-}
-
-/*!
- * \brief Internally called by open().
- */
-std::unique_ptr<std::basic_streambuf<char>> NativeFileStream::makeFileBuffer(int fileDescriptor, ios_base::openmode openMode)
-{
-    // compute native params
-    const NativeFileParams nativeParams(openMode);
-
-#ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
-    // open file handle to initialize stdio_filebuf
-#ifdef PLATFORM_WINDOWS
-    const auto fileHandle = _get_osfhandle(fileDescriptor);
-    if (fileHandle == -1) {
-        throw std::ios_base::failure("_get_osfhandle failed");
-    }
-    const auto osFileHandle = _open_osfhandle(fileHandle, nativeParams.flags);
-    if (osFileHandle == -1) {
-        throw std::ios_base::failure("_open_osfhandle failed");
-    }
-#else
-    const auto fileHandle = fdopen(fileDescriptor, nativeParams.openMode.data());
-    if (!fileHandle) {
-        throw std::ios_base::failure("fdopen failed");
-    }
-#endif
-    return make_unique<StreamBuffer>(fileDescriptor, openMode);
-
-#else // CPP_UTILITIES_USE_BOOST_IOSTREAMS
-    // initialize boost::iostreams::file_descriptor from the specified fileDescriptor
-    return make_unique<StreamBuffer>(fileDescriptor, boost::iostreams::close_handle);
 #endif
 }
 
@@ -301,6 +318,7 @@ std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &pat
     }
     return std::move(widePath.first);
 }
+
 #endif
 
 #else
