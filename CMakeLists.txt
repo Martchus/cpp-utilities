@@ -121,7 +121,7 @@ use_iconv(AUTO_LINKAGE REQUIRED)
 
 # configure use of native file buffer and its backend implementation if enabled
 set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT OFF)
-if (WIN32 OR ANDROID)
+if (WIN32 OR ANDROID OR (UNIX AND NOT APPLE))
     set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT ON)
 endif ()
 option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" ${USE_NATIVE_FILE_BUFFER_BY_DEFAULT})
