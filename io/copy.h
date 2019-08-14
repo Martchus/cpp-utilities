@@ -6,12 +6,23 @@
 #include <functional>
 #include <iostream>
 
+#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && defined(PLATFORM_LINUX)
+#define CPP_UTILITIES_USE_SEND_FILE
+#include <c++utilities/conversion/stringbuilder.h>
+
+#include <errno.h>
+#include <sys/sendfile.h>
+
+#include <algorithm>
+#include <cstring>
+#endif
+
 namespace CppUtilities {
 
 /*!
  * \class CopyHelper
  * \brief The CopyHelper class helps to copy bytes from one stream to another.
- * \tparam Specifies the buffer size.
+ * \tparam Specifies the chunk/buffer size.
  */
 template <std::size_t bufferSize> class CPP_UTILITIES_EXPORT CopyHelper {
 public:
@@ -55,8 +66,8 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(std::istream
  * \brief Copies \a count bytes from \a input to \a output. The procedure might be aborted and
  *        progress updates will be reported.
  *
- * Copying is aborted when \a isAborted returns true. The current progress is reported by calling
- * the specified \a callback function.
+ * Before processing the next chunk \a isAborted is checked and the copying aborted if it returns true. Before processing the next chunk
+ * \a callback is invoked to report the current progress.
  *
  * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *          when an IO error occurs.
@@ -85,10 +96,35 @@ void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &out
  * \remarks
  * - Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *   when an IO error occurs.
- * - Possibly uses native APIs such as POSIX sendfile() to improve the speed (not implemented yet).
+ * - Possibly uses native APIs such as POSIX sendfile() to improve the speed.
  */
 template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count)
 {
+#ifdef CPP_UTILITIES_USE_SEND_FILE
+    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1) {
+        const auto inputTellg = output.tellg();
+        const auto inputTellp = output.tellp();
+        const auto outputTellg = output.tellg();
+        const auto outputTellp = output.tellp();
+        input.flush();
+        output.flush();
+        const auto totalBytes = static_cast<std::streamoff>(count);
+        while (count) {
+            const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, count);
+            if (bytesCopied < 0) {
+                throw std::ios_base::failure(argsToString("sendfile64() failed: ", std::strerror(errno)));
+            }
+            count -= static_cast<std::size_t>(bytesCopied);
+        }
+        input.sync();
+        output.sync();
+        output.seekg(outputTellg + totalBytes);
+        output.seekp(outputTellp + totalBytes);
+        input.seekg(inputTellg + totalBytes);
+        input.seekp(inputTellp + totalBytes);
+        return;
+    }
+#endif
     copy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count);
 }
 
@@ -96,17 +132,47 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileSt
  * \brief Copies \a count bytes from \a input to \a output. The procedure might be aborted and
  *        progress updates will be reported.
  *
- * Copying is aborted when \a isAborted returns true. The current progress is reported by calling
- * the specified \a callback function.
+ * Before processing the next chunk \a isAborted is checked and the copying aborted if it returns true. Before processing the next chunk
+ * \a callback is invoked to report the current progress.
  *
  * - Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *   when an IO error occurs.
- * - Possibly uses native APIs such as POSIX sendfile() to improve the speed (not implemented yet).
+ * - Possibly uses native APIs such as POSIX sendfile() to improve the speed.
  */
 template <std::size_t bufferSize>
 void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count,
     const std::function<bool(void)> &isAborted, const std::function<void(double)> &callback)
 {
+#ifdef CPP_UTILITIES_USE_SEND_FILE
+    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1) {
+        const auto inputTellg = output.tellg();
+        const auto inputTellp = output.tellp();
+        const auto outputTellg = output.tellg();
+        const auto outputTellp = output.tellp();
+        input.flush();
+        output.flush();
+        const auto totalBytes = static_cast<std::streamoff>(count);
+        while (count) {
+            const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, std::min(count, bufferSize));
+            if (bytesCopied < 0) {
+                throw std::ios_base::failure(argsToString("sendfile64() failed: ", std::strerror(errno)));
+            }
+            count -= static_cast<std::uint64_t>(bytesCopied);
+            if (isAborted()) {
+                return;
+            }
+            callback(static_cast<double>(totalBytes - static_cast<std::streamoff>(count)) / static_cast<double>(totalBytes));
+        }
+        input.sync();
+        output.sync();
+        output.seekg(outputTellg + totalBytes);
+        output.seekp(outputTellp + totalBytes);
+        input.seekg(inputTellg + totalBytes);
+        input.seekp(inputTellp + totalBytes);
+        callback(1.0);
+        return;
+    }
+#endif
     callbackCopy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count, isAborted, callback);
 }
 

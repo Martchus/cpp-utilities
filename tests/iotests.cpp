@@ -67,6 +67,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testAdvancedIniFile);
     CPPUNIT_TEST(testCopy);
+    CPPUNIT_TEST(testCopyWithNativeFileStream);
     CPPUNIT_TEST(testReadFile);
     CPPUNIT_TEST(testWriteFile);
     CPPUNIT_TEST(testAnsiEscapeCodes);
@@ -87,6 +88,7 @@ public:
     void testIniFile();
     void testAdvancedIniFile();
     void testCopy();
+    void testCopyWithNativeFileStream();
     void testReadFile();
     void testWriteFile();
     void testAnsiEscapeCodes();
@@ -499,21 +501,94 @@ void IoTests::testAdvancedIniFile()
 void IoTests::testCopy()
 {
     // prepare streams
-    fstream testFile;
+    auto testFile = std::fstream();
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
-    stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
+    auto outputStream = std::stringstream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);
 
     // copy
-    CopyHelper<13> copyHelper;
+    auto copyHelper = CopyHelper<13>();
     copyHelper.copy(testFile, outputStream, 50);
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(0), outputStream.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), outputStream.tellp());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellp());
 
-    // test
+    // verify
     testFile.seekg(0);
     for (auto i = 0; i < 50; ++i) {
-        CPPUNIT_ASSERT(testFile.get() == outputStream.get());
+        CPPUNIT_ASSERT_EQUAL(testFile.get(), outputStream.get());
     }
+}
+
+/*!
+ * \brief Tests CopyHelper in combination with NativeFileStream.
+ */
+void IoTests::testCopyWithNativeFileStream()
+{
+    // prepare streams
+    auto testFile = NativeFileStream();
+    testFile.exceptions(ios_base::failbit | ios_base::badbit);
+    testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
+    auto outputPath = workingCopyPath("copied_data", WorkingCopyMode::Cleanup);
+    auto outputStream = NativeFileStream();
+    outputStream.exceptions(ios_base::failbit | ios_base::badbit);
+    outputStream.open(outputPath, ios_base::out | ios_base::binary);
+
+    // copy
+    auto copyHelper = CopyHelper<13>();
+    copyHelper.copy(testFile, outputStream, 50);
+    CPPUNIT_ASSERT(outputStream.is_open());
+    CPPUNIT_ASSERT(testFile.is_open());
+
+    // test seek positions (the expected values are from a run with normal std::fstream)
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), outputStream.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), outputStream.tellp());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellp());
+
+    // add a few more bytes to output stream (to be sure it is still usable) and re-open for reading
+    const auto aFewMoreBytes = "a few more bytes"sv;
+    outputStream << aFewMoreBytes;
+    outputStream.close();
+    outputStream.open(outputPath, ios_base::in | ios_base::binary);
+
+    // verify
+    testFile.seekg(0);
+    for (auto i = 0; i < 50; ++i) {
+        CPPUNIT_ASSERT_EQUAL(testFile.get(), outputStream.get());
+    }
+    auto tail = std::string(aFewMoreBytes.size(), '0');
+    outputStream.read(tail.data(), static_cast<std::streamsize>(tail.size()));
+    CPPUNIT_ASSERT_EQUAL(aFewMoreBytes, std::string_view(tail.data(), tail.size()));
+
+    // repeat with callback version
+    auto percentage = 0.0;
+    const auto isAborted = [] { return false; };
+    const auto callback = [&percentage] (double p) { percentage = p; };
+    testFile.seekg(0);
+    outputStream.open(outputPath, ios_base::out | ios_base::trunc | ios_base::binary);
+    copyHelper.callbackCopy(testFile, outputStream, 50, isAborted, callback);
+    CPPUNIT_ASSERT_EQUAL(1.0, percentage);
+
+    // verify again
+    CPPUNIT_ASSERT(outputStream.is_open());
+    CPPUNIT_ASSERT(testFile.is_open());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), outputStream.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), outputStream.tellp());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellg());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::fstream::pos_type>(50), testFile.tellp());
+    outputStream << aFewMoreBytes;
+    outputStream.close();
+    outputStream.open(outputPath, ios_base::in | ios_base::binary);
+    testFile.seekg(0);
+    for (auto i = 0; i < 50; ++i) {
+        CPPUNIT_ASSERT_EQUAL(testFile.get(), outputStream.get());
+    }
+    tail.assign(aFewMoreBytes.size(), '0');
+    outputStream.read(tail.data(), static_cast<std::streamsize>(tail.size()));
+    CPPUNIT_ASSERT_EQUAL(aFewMoreBytes, std::string_view(tail.data(), tail.size()));
 }
 
 /*!
