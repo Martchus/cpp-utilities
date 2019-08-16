@@ -16,7 +16,7 @@ namespace CppUtilities {
 /// \brief The DistanceArray is a 2D array which is allocated either on the stack or the heap.
 using DistanceArray = MultiArray<size_t, NoneOwningMultiArray, size_t, size_t>;
 
-/// \brief Initializes to distance array.
+/// \brief Initializes the distance array.
 ///
 /// For size1=5 and size2=4 it would look like this:
 /// ```
@@ -107,10 +107,10 @@ size_t performDamerauLevenshteinAlgorithmAllocatingOnStack(
  * - transposition: swap any pair of adjacent characters
  *
  * \remarks
- * - Computing Optimal string alignment distance is a *different* thing.
+ * - Computing "Optimal string alignment distance" is a *different* thing.
  * - The algorithm operates on byte-level. So characters requiring more than one byte in
- *   the used character encoding (eg. UTF-8 encoded German umlauts) are counted as multiple
- *   characters (eg. substitution of those umlauts with non-umlauts requires 2 editing steps).
+ *   the used character encoding (e.g. UTF-8 encoded German umlauts) are counted as multiple
+ *   characters (e.g. substitution of those umlauts with non-umlauts requires 2 editing steps).
  * - The memory consumption of this algorithm is considerably. The required memory increases
  *   with the product of \a size1 and \a size2. Pass only short words to this function!
  */
