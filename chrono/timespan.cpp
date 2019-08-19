@@ -75,19 +75,6 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
  *        according the given \a format.
  *
  * If \a fullSeconds is true the time interval will be rounded to full seconds.
- */
-string TimeSpan::toString(TimeSpanOutputFormat format, bool fullSeconds) const
-{
-    string result;
-    toString(result, format, fullSeconds);
-    return result;
-}
-
-/*!
- * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
- *        according the given \a format.
- *
- * If \a fullSeconds is true the time interval will be rounded to full seconds.
  *
  * The string representation will be stored in \a result.
  */

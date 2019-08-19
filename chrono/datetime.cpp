@@ -50,7 +50,6 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  * - Add method for printing to custom string formats.
  * - Allow to determine the date part for each compontent at once to prevent multiple
  *   invocations of getDatePart().
- * - Make more methods constexpr.
  */
 
 /*!
@@ -59,20 +58,12 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
 {
     if (timeStamp) {
-        struct tm *timeinfo = localtime(&timeStamp);
+        struct tm *const timeinfo = localtime(&timeStamp);
         return DateTime::fromDateAndTime(timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min,
             timeinfo->tm_sec < 60 ? timeinfo->tm_sec : 59, 0);
     } else {
         return DateTime();
     }
-}
-
-/*!
- * \brief Constructs a new DateTime object with the GMT time from the specified UNIX \a timeStamp.
- */
-DateTime DateTime::fromTimeStampGmt(time_t timeStamp)
-{
-    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(timeStamp) * TimeSpan::ticksPerSecond);
 }
 
 /*!
@@ -187,18 +178,6 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
         delta = TimeSpan(-delta.totalTicks());
     }
     return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), delta);
-}
-
-/*!
- * \brief Returns the string representation of the current instance using the specified \a format.
- * \remarks If \a noMilliseconds is true the date will be rounded to full seconds.
- * \sa toIsoString() for ISO format
- */
-string DateTime::toString(DateTimeOutputFormat format, bool noMilliseconds) const
-{
-    string result;
-    toString(result, format, noMilliseconds);
-    return result;
 }
 
 /*!

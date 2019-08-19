@@ -376,6 +376,19 @@ inline TimeSpan &TimeSpan::operator-=(const TimeSpan &other)
 }
 
 /*!
+ * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation
+ *        according the given \a format.
+ *
+ * If \a fullSeconds is true the time interval will be rounded to full seconds.
+ */
+inline std::string TimeSpan::toString(TimeSpanOutputFormat format, bool fullSeconds) const
+{
+    std::string result;
+    toString(result, format, fullSeconds);
+    return result;
+}
+
+/*!
  * \brief Returns ture if the time interval represented by the current TimeSpan class is null.
  */
 constexpr inline bool TimeSpan::isNull() const

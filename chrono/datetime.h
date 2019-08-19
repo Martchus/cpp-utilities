@@ -61,9 +61,9 @@ public:
     static DateTime fromIsoStringGmt(const char *str);
     static DateTime fromIsoStringLocal(const char *str);
     static DateTime fromTimeStamp(time_t timeStamp);
-    static DateTime fromTimeStampGmt(time_t timeStamp);
+    constexpr static DateTime fromTimeStampGmt(time_t timeStamp);
 
-    std::uint64_t &ticks();
+    constexpr std::uint64_t &ticks();
     constexpr std::uint64_t totalTicks() const;
     int year() const;
     int month() const;
@@ -213,9 +213,17 @@ inline DateTime DateTime::fromIsoStringLocal(const char *str)
 }
 
 /*!
+ * \brief Constructs a new DateTime object with the GMT time from the specified UNIX \a timeStamp.
+ */
+constexpr inline DateTime DateTime::fromTimeStampGmt(std::time_t timeStamp)
+{
+    return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(timeStamp) * TimeSpan::ticksPerSecond);
+}
+
+/*!
  * \brief Returns a mutable reference to the total ticks.
  */
-inline std::uint64_t &DateTime::ticks()
+constexpr inline std::uint64_t &DateTime::ticks()
 {
     return m_ticks;
 }
@@ -304,7 +312,7 @@ constexpr inline int DateTime::millisecond() const
 /*!
  * \brief Returns the microsecond component of the date represented by this instance.
  */
-constexpr int DateTime::microsecond() const
+constexpr inline int DateTime::microsecond() const
 {
     return m_ticks / TimeSpan::ticksPerMicrosecond % 1000ul;
 }
@@ -314,7 +322,7 @@ constexpr int DateTime::microsecond() const
  * \remarks The accuracy of the DateTime class is 100-nanoseconds. Hence the returned value
  *          will always have two zeros at the end (in decimal representation).
  */
-constexpr int DateTime::nanosecond() const
+constexpr inline int DateTime::nanosecond() const
 {
     return m_ticks % 10ul * TimeSpan::nanosecondsPerTick;
 }
@@ -374,6 +382,18 @@ inline int DateTime::daysInMonth(int year, int month)
 constexpr inline bool DateTime::isSameDay(const DateTime &other) const
 {
     return (m_ticks / TimeSpan::ticksPerDay) == (other.m_ticks / TimeSpan::ticksPerDay);
+}
+
+/*!
+ * \brief Returns the string representation of the current instance using the specified \a format.
+ * \remarks If \a noMilliseconds is true the date will be rounded to full seconds.
+ * \sa toIsoString() for ISO format
+ */
+inline std::string DateTime::toString(DateTimeOutputFormat format, bool noMilliseconds) const
+{
+    std::string result;
+    toString(result, format, noMilliseconds);
+    return result;
 }
 
 /*!
