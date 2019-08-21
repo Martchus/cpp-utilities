@@ -455,7 +455,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                 set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX}/qt/plugins)
                 message(
                     WARNING
-                        "Unable to detect appropriate install directory for Qt plugins  (assuming \"${LIBRARY_DESTINATION}\"). Set QT_PLUGIN_DIR to specify the directory to install Qt plugins to manually."
+                        "Unable to detect appropriate install directory for Qt plugins (assuming \"${LIBRARY_DESTINATION}\"). Set QT_PLUGIN_DIR to specify the directory to install Qt plugins to manually."
                     )
             endif ()
         endif ()
