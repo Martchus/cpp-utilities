@@ -186,6 +186,12 @@ cmake \
     * further image formats require building the plugins contained by the
       additional `qtimageformats` repository
     * only relevant when using static Qt
+* `QT_PLUGIN_DIR`: specified the directory to install Qt plugins to
+    * When installing plugins to a non-standard directory (e.g. during development)
+      set the `QT_PLUGIN_PATH` environment variable accordingly so the plugin can
+      be found.
+    * The install directory defaults to `qmake -query QT_INSTALL_PLUGINS` unless
+      that directory would be outside the specified `CMAKE_INSTALL_PREFIX`.
 * `WEBVIEW_PROVIDER=auto/webkit/webengine/none`: specifies the Qt module to use
   for the web view
 * `JS_PROVIDER=qml/script/none`: specifies the Qt module to use
