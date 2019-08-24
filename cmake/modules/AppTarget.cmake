@@ -31,6 +31,9 @@ if (NOT BUILTIN_TRANSLATIONS)
     list(APPEND ALL_FILES ${QM_FILES})
 endif ()
 
+# add custom libraries
+append_user_defined_additional_libraries()
+
 # add target for building the application
 if (ANDROID)
     # create a shared library which can be loaded from the Java-side

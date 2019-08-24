@@ -90,6 +90,19 @@ None of these are enabled or set by default, unless stated otherwise.
     * Disabing this is required when building for MacOS and Android at the time of
       writing this documentation.
     * Bash completion will not be able to suggest files and directory when disabled.
+* `USER_DEFINED_ADDITIONAL_LIBRARIES`: specifies additional libraries to link against
+  (added after any other libraries to the linker line)
+    * Use case: Some platforms/standard libraries/compilers require linking against
+      additional libraries for certain features. Adding additional libraries for
+      `std::filesystem` is covered by use_standard_filesystem(). However, it makes no
+      sense to add such a function for every specific platform/feature. For instance
+      it seems to be required to add "-latomic" to the linker line for
+      armv7-none-linux-androideabi/libc++/clang (not for aarch64-none-linux-androidabi)
+      but it is better to cover such details on packaging-level and only allow to pass
+      such flags here.
+    * Using `CMAKE_EXE_LINKER_FLAGS` or `CMAKE_SHARED_LINKER_FLAGS` is often not helpful
+      because the additional flags need to be added at the end of the linker line most
+      of the time.
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions

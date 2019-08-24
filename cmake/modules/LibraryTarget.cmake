@@ -109,6 +109,9 @@ else ()
     set(META_LIBRARY_TYPE STATIC)
 endif ()
 
+# add custom libraries
+append_user_defined_additional_libraries()
+
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)
     add_library(${META_TARGET_NAME} INTERFACE)

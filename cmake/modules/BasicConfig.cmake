@@ -518,4 +518,43 @@ endif ()
 set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 
+# allow user to specify additional libraries to link against (see buildvariables.md for details)
+set(USER_DEFINED_ADDITIONAL_LIBRARIES
+    ""
+    CACHE STRING
+    "specifies additional libraries to link against (added after any other libraries to the linker line)")
+function (append_user_defined_additional_libraries)
+    if (NOT USER_DEFINED_ADDITIONAL_LIBRARIES)
+        return()
+    endif ()
+
+    # find the last library
+    set(LIBS PRIVATE_LIBRARIES)
+    list(LENGTH ${LIBS} LIB_COUNT)
+    if (LIB_COUNT LESS_EQUAL 0)
+        set(LIBS PUBLIC_LIBRARIES)
+        list(LENGTH ${LIBS} LIB_COUNT)
+    endif ()
+    if (LIB_COUNT LESS_EQUAL 0)
+        # just add the addiitional libs to PRIVATE_LIBRARIES if there are no libs yet anyways
+        set(PRIVATE_LIBRARIES "${USER_DEFINED_ADDITIONAL_LIBRARIES}" PARENT_SCOPE)
+    endif ()
+    math(EXPR LAST_LIB_INDEX "${LIB_COUNT} - 1")
+    list(GET ${LIBS} ${LAST_LIB_INDEX} LAST_LIB)
+
+    # add the additional libs as INTERFACE_LINK_LIBRARIES of the last lib if it is a target
+    if (TARGET "${LAST_LIB}")
+        # note: Otherwise the INTERFACE_LINK_LIBRARIES of the last target might still come after
+        #       the USER_DEFINED_ADDITIONAL_LIBRARIES on the linker line.
+        set_property(TARGET "${LAST_LIB}"
+                     APPEND PROPERTY
+                     INTERFACE_LINK_LIBRARIES ${USER_DEFINED_ADDITIONAL_LIBRARIES})
+
+        return()
+    endif ()
+
+    # fall back to simply append the library to PRIVATE_LIBRARIES
+    set(PRIVATE_LIBRARIES "${USER_DEFINED_ADDITIONAL_LIBRARIES}" PARENT_SCOPE)
+endfunction ()
+
 set(BASIC_PROJECT_CONFIG_DONE YES)
