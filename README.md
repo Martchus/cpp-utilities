@@ -92,8 +92,8 @@ make DESTDIR="/temporary/install/location" install
 * For more detailed documentation, see the documentation about build variables (in
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in Doxygen version accessible via "Related Pages").
-* The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Windows and MacOS X in form
-  of Arch Linux packages. These scripts can be used as an example also when building under another platform.
+* The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Android, Windows and
+  MacOS X in form of Arch Linux packages. These scripts can be used as an example also when building under another platform.
 
 #### Building for Windows
 * Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
@@ -108,8 +108,9 @@ make DESTDIR="/temporary/install/location" install
   suitable for creating a cross-compiler package and additionally strip the binaries.
 
 #### Building for MacOS X
-* Building for MacOS X is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
-* Here is a Homebrew formula to build Tag Editor (without GUI): https://gist.github.com/rakkesh/0b13b8fca5dd1d57d98537ef1dd2e0dd
+* Building for MacOS X under GNU/Linux is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
+* There is a [Homebrew formula](https://gist.github.com/rakkesh/0b13b8fca5dd1d57d98537ef1dd2e0dd) to build Tag Editor (without GUI)
+* There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel) to build Syncthing Tray
 
 #### Development builds
 During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big project.
