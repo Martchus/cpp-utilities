@@ -114,50 +114,8 @@ The behaviour of those functions can be controlled by setting some variables, eg
 using a toolchain file. Checkout the CMake documentation for this.
 
 If the detection does not work as expected or a library from a non-standard
-location should be used, the following variables can be used to specify
-the location of libraries and include directories directly:
-
-* `dependency__LIBRARY_PATH`: specifies the locations of the library required
-  by *dependency*
-* `dependency_DYNAMIC_INCLUDE_DIR`: specifies the locations of the additional
-  include directories required the *dependency*
-
-*Note about Qt*: Qt modules are always configured using the CMake packages via
-`find_package`. So using the variables described above to specify a custom location
-does not work. Instead, the variables `CMAKE_FIND_ROOT_PATH` or `CMAKE_PREFIX_PATH`
-can be used to specify the install prefix of the Qt build to use. Set `QT_LINKAGE`
-to `STATIC` if it is a static build of Qt.
-
-##### Examples
-Example of passing location of dynamic `iconv` and `zlib` to CMake:
-```
-/opt/osxcross/bin/x86_64-apple-darwin15-cmake \
-    -Diconv_DYNAMIC_LIB:FILEPATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/lib/libiconv.2.tbd \
-    -Diconv_DYNAMIC_INCLUDE_DIR:PATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/include \
-    -Dz_DYNAMIC_LIB:FILEPATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/lib/libz.1.tbd \
-    -Dz_DYNAMIC_INCLUDE_DIR:PATH=/opt/osxcross/SDK/MacOSX10.11.sdk/usr/include \
-    ...
-```
-
-Here's an example of passing the location of the Android SDK/NDK to compile for Android.
-This time the `iconv` library is located by specifying its install prefix via
-`CMAKE_FIND_ROOT_PATH`. The include directories are not automatically added for that
-library, so this must still be done manually:
-```
-_android_arch=arm64-v8a
-cmake \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_SYSTEM_VERSION=21 \
-    -DCMAKE_ANDROID_ARCH_ABI=$_android_arch \
-    -DCMAKE_ANDROID_NDK=/opt/android-ndk \
-    -DCMAKE_ANDROID_SDK=/opt/android-sdk \
-    -DCMAKE_ANDROID_STL_TYPE=gnustl_shared \
-    -DCMAKE_INSTALL_PREFIX=/opt/android-libs/$_android_arch \
-    -DCMAKE_FIND_ROOT_PATH="/opt/android-ndk/sysroot;/opt/android-libs/$_android_arch" \
-    -Diconv_DYNAMIC_INCLUDE_DIR="/opt/android-libs/$_android_arch/include" \
-    -Diconv_STATIC_INCLUDE_DIR="/opt/android-libs/$_android_arch/include" \
-    ...
-```
+location should be used one can also just pass the library path directly by specifying
+the relevant CMake cache variable on the CMake invocation.
 
 #### Windows specific
 * `FORCE_UTF8_CODEPAGE=ON/OFF`: forces use of UTF-8 codepage in terminal
