@@ -16,6 +16,7 @@ using namespace CppUtilities::Traits;
 
 using namespace CPPUNIT_NS;
 
+/// \cond
 struct SomeStruct {
     string foo;
     int bar;
@@ -27,6 +28,7 @@ struct CountableStruct {
 };
 
 struct TestIncomplete;
+/// \endcond
 
 static_assert(!Bool<false>::value, "Bool<false>");
 static_assert(Bool<true>::value, "Bool<true>");

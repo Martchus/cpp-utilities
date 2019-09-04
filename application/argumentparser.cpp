@@ -67,6 +67,7 @@ ArgumentCompletionInfo::ArgumentCompletionInfo(const ArgumentReader &reader)
 {
 }
 
+/// \cond
 struct ArgumentSuggestion {
     ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, bool hasDashPrefix);
     ArgumentSuggestion(const char *unknownArg, size_t unknownArgSize, const char *suggestion, size_t suggestionSize, bool hasDashPrefix);
@@ -108,6 +109,7 @@ void ArgumentSuggestion::addTo(multiset<ArgumentSuggestion> &suggestions, size_t
         suggestions.erase(--suggestions.end());
     }
 }
+/// \endcond
 
 /*!
  * \class ArgumentReader
