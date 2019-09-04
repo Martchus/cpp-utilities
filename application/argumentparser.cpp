@@ -1521,16 +1521,21 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
                 continue;
             }
             auto dirEntryName = dirEntry.path().filename().string();
+            auto hasStartingQuote = false;
             if (useActualDir) {
                 if (!startsWith(dirEntryName, actualFile)) {
                     continue;
                 }
                 cout << '\'';
+                hasStartingQuote = true;
                 if (actualDir != ".") {
                     cout << actualDir;
                 }
             }
             findAndReplace(dirEntryName, replace, with);
+            if (!hasStartingQuote) {
+                cout << '\'';
+            }
             cout << dirEntryName << '\'' << ' ';
             haveFileOrDirCompletions = true;
         }
