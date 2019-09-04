@@ -59,7 +59,7 @@ static_assert(TimeSpan::fromDays(1.5).totalHours() == 36.0, "totalHours()");
 static_assert(TimeSpan::fromDays(20.5).totalDays() == 20.5, "totalDays()");
 
 /*!
- * \brief The ChronoTests class tests classes and methods of the ChronoUtilities namespace.
+ * \brief The ChronoTests class tests classes and functions provided by the files inside the chrono directory.
  * \remarks Before comitting any changes to this test, run with different timezones to prevent
  *          mistakes like timezone-dependent checks. (Eg. set environment variable TZ to different
  *          values like 'UTC' or 'America/Los_Angeles'.)

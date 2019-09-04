@@ -25,7 +25,7 @@ static_assert(swapOrder(static_cast<std::uint32_t>(0xABCDEF12)) == 0x12EFCDAB, "
 static_assert(swapOrder(static_cast<std::uint64_t>(0xABCDEF1234567890)) == 0x9078563412EFCDAB, "swapOrder(uint64)");
 
 /*!
- * \brief The ConversionTests class tests classes and methods of the ConversionUtilities namespace.
+ * \brief The ConversionTests class tests classes and functions provided by the files inside the conversion directory.
  */
 class ConversionTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ConversionTests);

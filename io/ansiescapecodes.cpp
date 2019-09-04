@@ -15,9 +15,9 @@ namespace EscapeCodes {
  * The default value can be configured at build time by setting the CMake variable ENABLE_ESCAPE_CODES_BY_DEFAULT.
  * The "default for the default" is true.
  * However, the default is overridden with the value of the environment variable ENABLE_ESCAPE_CODES when instantiating
- * an ApplicationUtilities::NoColorArgument (if ENABLE_ESCAPE_CODES is present).
+ * a NoColorArgument (if ENABLE_ESCAPE_CODES is present).
  *
- * \sa ApplicationUtilities::NoColorArgument
+ * \sa NoColorArgument
  */
 bool enabled =
 #ifdef CPP_UTILITIES_ESCAPE_CODES_ENABLED_BY_DEFAULT

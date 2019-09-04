@@ -36,7 +36,7 @@ using namespace CppUtilities::Literals;
 using namespace CPPUNIT_NS;
 
 /*!
- * \brief The IoTests class tests classes and methods of the IoUtilities namespace.
+ * \brief The IoTests class tests classes and functions provided by the files inside the io directory.
  */
 class IoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(IoTests);

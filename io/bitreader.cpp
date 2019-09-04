@@ -5,7 +5,7 @@ using namespace std;
 namespace CppUtilities {
 
 /*!
- * \class IoUtilities::BitReader
+ * \class BitReader
  * \brief The BitReader class provides bitwise reading of buffered data.
  */
 

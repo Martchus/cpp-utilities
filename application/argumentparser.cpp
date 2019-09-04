@@ -439,7 +439,7 @@ inline bool notEmpty(const char *str)
 /// \endcond
 
 /*!
- * \class ApplicationUtilities::Argument
+ * \class Argument
  * \brief The Argument class is a wrapper for command line argument information.
  *
  * Instaces of the Argument class are used as definition when parsing command line
@@ -710,7 +710,7 @@ void Argument::resetRecursively()
 }
 
 /*!
- * \class ApplicationUtilities::ArgumentParser
+ * \class ArgumentParser
  * \brief The ArgumentParser class provides a means for handling command line arguments.
  *
  * To setup the parser create instances of ApplicationUtilities::Argument to define a
@@ -719,7 +719,7 @@ void Argument::resetRecursively()
  * To invoke parsing call parseArgs(). The parser will verify the previously
  * assigned definitions (and might throw std::invalid_argument) and then parse the
  * given command line arguments according the definitions (and might throw
- * ApplicationUtilities::Failure).
+ * CppUtilities::Failure).
  */
 
 /*!
@@ -878,7 +878,7 @@ void ArgumentParser::printHelp(ostream &os) const
  *  - This method will not return in the error case if the ParseArgumentBehavior::ExitOnFailure is present
  *    (default).
  *  - This method will not return in case shell completion is requested. This behavior can be altered
- *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
+ *    by overriding CppUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid and the ParseArgumentBehavior::ExitOnFailure
  *         flag is *not* present.
  * \sa parseArgs(), readArgs(), parseArgsOrExit()
@@ -913,7 +913,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentB
  *  - In contrast to parseArgs() this method does not check whether constraints are violated and it
  *    does not call any callbacks.
  *  - This method will not return in case shell completion is requested. This behavior can be altered
- *    by overriding ApplicationUtilities::exitFunction which defaults to &std::exit.
+ *    by overriding CppUtilities::exitFunction which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid.
  * \sa parseArgs(), parseArgsOrExit()
  * \deprecated In next major release, this method will be private. parseArgs() can serve the same

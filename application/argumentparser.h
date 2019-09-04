@@ -75,7 +75,7 @@ using ArgumentPredicate = std::function<bool(Argument *)>;
 enum class UnknownArgumentBehavior {
     Ignore, /**< Unknown arguments are ignored without warnings. */
     Warn, /**< A warning is printed to std::cerr if an unknown argument is detected. */
-    Fail /**< Further parsing is aborted and an ApplicationUtilities::Failure instance with an error message is thrown. */
+    Fail /**< Further parsing is aborted and a Failure instance with an error message is thrown. */
 };
 
 /*!

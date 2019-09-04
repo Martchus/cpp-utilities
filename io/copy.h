@@ -9,7 +9,7 @@
 namespace CppUtilities {
 
 /*!
- * \class IoUtilities::CopyHelper
+ * \class CopyHelper
  * \brief The CopyHelper class helps to copy bytes from one stream to another.
  * \tparam Specifies the buffer size.
  */

@@ -17,7 +17,7 @@ public:
 };
 
 /*!
- * \class ConversionUtilities::ConversionException
+ * \class ConversionException
  * \brief The ConversionException class is thrown by the various conversion
  *        functions of this library when a conversion error occurs.
  */

@@ -24,7 +24,7 @@ static_assert(max(3, -2, 4, 2, 1) == 4, "max");
 } // namespace CppUtilities
 
 /*!
- * \brief The MathTests class tests functions of the MathUtilities namespace.
+ * \brief The MathTests class tests functions provided by misc/math.h.
  */
 class MathTests : public TestFixture {
     CPPUNIT_TEST_SUITE(MathTests);

@@ -564,7 +564,7 @@ inline uint8_t BinaryReader::readByte()
 
 /*!
  * \brief Reads a boolean value from the current stream and advances the current position of the stream by one byte.
- * \sa IoUtilities::BitReader
+ * \sa BitReader
  */
 inline bool BinaryReader::readBool()
 {
@@ -651,7 +651,7 @@ inline void BinaryReader::read(std::uint8_t &oneByte)
 
 /*!
  * \brief Reads a boolean value from the current stream and advances the current position of the stream by one byte.
- * \sa IoUtilities::BitReader
+ * \sa BitReader
  */
 inline void BinaryReader::read(bool &oneBool)
 {

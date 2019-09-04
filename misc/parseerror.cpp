@@ -7,10 +7,10 @@
 namespace CppUtilities {
 
 /*!
- * \class ApplicationUtilities::ParseError
+ * \class ParseError
  * \brief The ParseError class is thrown by an ArgumentParser when a parsing error occurs.
  * \remarks The class might be used in other parsers, too.
- * \sa ApplicationUtilities::ArgumentParser
+ * \sa ArgumentParser
  */
 
 /*!
