@@ -422,6 +422,7 @@ constexpr inline bool TimeSpan::isInfinity() const
 } // namespace CppUtilities
 
 namespace std {
+/// \brief Computes the hash for the CppUtilities::TimeSpan instance.
 template <> struct hash<CppUtilities::TimeSpan> {
     inline size_t operator()(const CppUtilities::TimeSpan &timeSpan) const
     {

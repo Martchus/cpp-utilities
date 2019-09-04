@@ -536,6 +536,7 @@ inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
 } // namespace CppUtilities
 
 namespace std {
+/// \brief Computes the hash for the CppUtilities::DateTime instance.
 template <> struct hash<CppUtilities::DateTime> {
     inline size_t operator()(const CppUtilities::DateTime &dateTime) const
     {
