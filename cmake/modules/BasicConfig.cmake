@@ -401,8 +401,7 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
         # compose CXX flags for clang-tidy
         set(CLANG_TIDY_CXX_FLAGS "")
         if (NOT META_HEADER_ONLY_LIB)
-            # deduce flags from target
-            # set c++ standard
+            # deduce flags from target, set c++ standard
             list(APPEND CLANG_TIDY_CXX_FLAGS "-std=c++$<TARGET_PROPERTY:${META_TARGET_NAME},CXX_STANDARD>")
             # add compile flags
             set(PROP "$<TARGET_PROPERTY:${META_TARGET_NAME},COMPILE_FLAGS>")
@@ -521,8 +520,7 @@ set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
 # allow user to specify additional libraries to link against (see buildvariables.md for details)
 set(USER_DEFINED_ADDITIONAL_LIBRARIES
     ""
-    CACHE STRING
-    "specifies additional libraries to link against (added after any other libraries to the linker line)")
+    CACHE STRING "specifies additional libraries to link against (added after any other libraries to the linker line)")
 function (append_user_defined_additional_libraries)
     if (NOT USER_DEFINED_ADDITIONAL_LIBRARIES)
         return()
@@ -544,11 +542,9 @@ function (append_user_defined_additional_libraries)
 
     # add the additional libs as INTERFACE_LINK_LIBRARIES of the last lib if it is a target
     if (TARGET "${LAST_LIB}")
-        # note: Otherwise the INTERFACE_LINK_LIBRARIES of the last target might still come after
-        #       the USER_DEFINED_ADDITIONAL_LIBRARIES on the linker line.
-        set_property(TARGET "${LAST_LIB}"
-                     APPEND PROPERTY
-                     INTERFACE_LINK_LIBRARIES ${USER_DEFINED_ADDITIONAL_LIBRARIES})
+        # note: Otherwise the INTERFACE_LINK_LIBRARIES of the last target might still come after the
+        # USER_DEFINED_ADDITIONAL_LIBRARIES on the linker line.
+        set_property(TARGET "${LAST_LIB}" APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${USER_DEFINED_ADDITIONAL_LIBRARIES})
 
         return()
     endif ()
