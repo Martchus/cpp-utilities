@@ -814,10 +814,14 @@ void ArgumentParser::printHelp(ostream &os) const
     }
 
     if (!m_mainArgs.empty()) {
-        bool hasOperations = false;
+        bool hasOperations = false, hasTopLevelOptions = false;
         for (const Argument *const arg : m_mainArgs) {
             if (arg->denotesOperation()) {
                 hasOperations = true;
+            } else if (strcmp(arg->name(), "help")) {
+                hasTopLevelOptions = true;
+            }
+            if (hasOperations && hasTopLevelOptions) {
                 break;
             }
         }
@@ -833,13 +837,15 @@ void ArgumentParser::printHelp(ostream &os) const
                 os << '\n';
                 arg->printInfo(os);
             }
-            os << "\nAvailable top-level options:";
-            for (const Argument *const arg : m_mainArgs) {
-                if (arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
-                    continue;
+            if (hasTopLevelOptions) {
+                os << "\nAvailable top-level options:";
+                for (const Argument *const arg : m_mainArgs) {
+                    if (arg->denotesOperation() || arg->isDeprecated() || !strcmp(arg->name(), "help")) {
+                        continue;
+                    }
+                    os << '\n';
+                    arg->printInfo(os);
                 }
-                os << '\n';
-                arg->printInfo(os);
             }
         } else {
             // just show all args if no operations are available
