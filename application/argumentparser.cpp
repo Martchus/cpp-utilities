@@ -886,10 +886,10 @@ void ArgumentParser::printHelp(ostream &os) const
  *  - This method will not return in the error case if the ParseArgumentBehavior::ExitOnFailure is present
  *    (default).
  *  - This method will not return in case shell completion is requested. This behavior can be altered
- *    by overriding CppUtilities::exitFunction which defaults to &std::exit.
+ *    by overriding the exit function via ArgumentParser::setExitFunction() which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid and the ParseArgumentBehavior::ExitOnFailure
  *         flag is *not* present.
- * \sa parseArgs(), readArgs(), parseArgsOrExit()
+ * \sa readArgs()
  */
 void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentBehavior behavior)
 {
@@ -921,9 +921,9 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentB
  *  - In contrast to parseArgs() this method does not check whether constraints are violated and it
  *    does not call any callbacks.
  *  - This method will not return in case shell completion is requested. This behavior can be altered
- *    by overriding CppUtilities::exitFunction which defaults to &std::exit.
+ *    by overriding the exit function via ArgumentParser::setExitFunction() which defaults to &std::exit.
  * \throws Throws Failure if the specified arguments are invalid.
- * \sa parseArgs(), parseArgsOrExit()
+ * \sa parseArgs()
  * \deprecated In next major release, this method will be private. parseArgs() can serve the same
  *             purpose then.
  */
