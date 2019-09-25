@@ -122,22 +122,20 @@ see the repository [subdirs](https://github.com/Martchus/subdirs). For an exampl
 For a debug build, just use ```-DCMAKE_BUILD_TYPE=Debug```.
 
 #### Arch Linux package
-The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files
-for building Arch Linux packages.
+The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of
+the latest release and the Git master.
 
-PKGBUILD files to cross compile for Windows using mingw-w64 and for MacOS X using osxcross are also included.
+PKGBUILDs to cross compile for Android, Windows (using mingw-w64) and for MacOS X (using osxcross) are included as well.
 
-#### RPM packages for openSUSE
+#### RPM packages for openSUSE and Fedora
 RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
-Packages are available for x86_64, aarch64 and armv7l. Since GCC provided by Leap is too old, only Tumbleweed packages
-are up-to-date.
+Packages are available for x86_64, aarch64 and armv7l.
+
+There is also a [sub project](https://build.opensuse.org/project/show/home:mkittler:vcs) containing the builds from
+the Git master branch.
 
 #### Gentoo
 Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
-
-#### Cygwin
-Scripts to build with Cygwin are provided by svnpenn. Checkout his
-[repository](https://github.com/svnpenn/glade).
 
 ### General notes
 * There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
