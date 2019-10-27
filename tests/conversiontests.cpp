@@ -315,6 +315,10 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"));
     CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"s));
     CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"s));
+    CPPUNIT_ASSERT(startsWith<string>("test"s, "test"s));
+    CPPUNIT_ASSERT(startsWith<string>("test"s, "test"));
+    CPPUNIT_ASSERT(!startsWith<string>("test"s, "tests"s));
+    CPPUNIT_ASSERT(!startsWith<string>("test"s, "tests"));
 
     // containsSubstrings()
     CPPUNIT_ASSERT(containsSubstrings<string>("this string contains foo and bar", { "foo", "bar" }));

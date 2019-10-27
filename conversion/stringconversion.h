@@ -212,9 +212,11 @@ template <typename StringType> bool startsWith(const StringType &str, const Stri
     if (str.size() < phrase.size()) {
         return false;
     }
-    for (auto stri = str.cbegin(), strend = str.cend(), phrasei = phrase.cbegin(), phraseend = phrase.cend(); stri != strend; ++stri, ++phrasei) {
+    for (auto stri = str.cbegin(), strend = str.cend(), phrasei = phrase.cbegin(), phraseend = phrase.cend();; ++stri, ++phrasei) {
         if (phrasei == phraseend) {
             return true;
+        } else if (stri == strend) {
+            return false;
         } else if (*stri != *phrasei) {
             return false;
         }
@@ -227,9 +229,11 @@ template <typename StringType> bool startsWith(const StringType &str, const Stri
  */
 template <typename StringType> bool startsWith(const StringType &str, const typename StringType::value_type *phrase)
 {
-    for (auto stri = str.cbegin(), strend = str.cend(); stri != strend; ++stri, ++phrase) {
+    for (auto stri = str.cbegin(), strend = str.cend();; ++stri, ++phrase) {
         if (!*phrase) {
             return true;
+        } else if (stri == strend) {
+            return false;
         } else if (*stri != *phrase) {
             return false;
         }
