@@ -249,7 +249,7 @@ template <typename StringType> bool endsWith(const StringType &str, const String
     if (str.size() < phrase.size()) {
         return false;
     }
-    for (auto stri = str.cend() - phrase.size(), strend = str.cend(), phrasei = phrase.cbegin();  stri != strend; ++stri, ++phrasei) {
+    for (auto stri = str.cend() - phrase.size(), strend = str.cend(), phrasei = phrase.cbegin(); stri != strend; ++stri, ++phrasei) {
         if (*stri != *phrasei) {
             return false;
         }
@@ -266,7 +266,7 @@ template <typename StringType> bool endsWith(const StringType &str, const typena
     if (str.size() < phraseSize) {
         return false;
     }
-    for (auto stri = str.cend() - phraseSize, strend = str.cend();  stri != strend; ++stri, ++phrase) {
+    for (auto stri = str.cend() - phraseSize, strend = str.cend(); stri != strend; ++stri, ++phrase) {
         if (*stri != *phrase) {
             return false;
         }
