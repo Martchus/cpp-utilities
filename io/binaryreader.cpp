@@ -44,10 +44,9 @@ void BinaryReader::setStream(istream *stream, bool giveOwnership)
 
 /*!
  * \brief Returns the size of the assigned stream.
- *
- * The size is determined by seeking to the end of the stream and returning this offset.
- *
- * \remarks The method will seek back to the previous offset before returning.
+ * \remarks
+ * - The size is determined by seeking to the end of the stream and returning this offset.
+ * - The method will seek back to the previous offset before returning.
  */
 istream::pos_type BinaryReader::readStreamsize()
 {
@@ -56,6 +55,21 @@ istream::pos_type BinaryReader::readStreamsize()
     const auto streamsize = m_stream->tellg();
     m_stream->seekg(cp);
     return streamsize;
+}
+
+/*!
+ * \brief Returns the number of remaining bytes in the stream from the current offset.
+ * \remarks
+ * - This is achieved by seeking to the end of the stream.
+ * - The method will seek back to the previous offset before returning.
+ */
+istream::pos_type BinaryReader::readRemainingBytes()
+{
+    istream::pos_type cp = m_stream->tellg();
+    m_stream->seekg(0, ios_base::end);
+    const auto streamsize = m_stream->tellg();
+    m_stream->seekg(cp);
+    return streamsize - cp;
 }
 
 void BinaryReader::bufferVariableLengthInteger()

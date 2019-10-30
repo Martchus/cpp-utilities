@@ -92,6 +92,7 @@ void IoTests::testBinaryReader()
     BinaryReader reader(&testFile);
     CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(398));
     CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
+    CPPUNIT_ASSERT_EQUAL(reader.readRemainingBytes(), static_cast<istream::pos_type>(396));
     CPPUNIT_ASSERT(reader.readUInt16BE() == 0x0102u);
     CPPUNIT_ASSERT(reader.readUInt24LE() == 0x010203u);
     CPPUNIT_ASSERT(reader.readUInt24BE() == 0x010203u);

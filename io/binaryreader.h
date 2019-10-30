@@ -26,6 +26,7 @@ public:
     bool eof() const;
     bool canRead() const;
     std::istream::pos_type readStreamsize();
+    std::istream::pos_type readRemainingBytes();
     void read(char *buffer, std::streamsize length);
     void read(std::uint8_t *buffer, std::streamsize length);
     void read(std::vector<char> &buffer, std::streamsize length);
