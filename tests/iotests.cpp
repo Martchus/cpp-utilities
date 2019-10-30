@@ -90,46 +90,47 @@ void IoTests::testBinaryReader()
     testFile.exceptions(ios_base::failbit | ios_base::badbit);
     testFile.open(testFilePath("some_data"), ios_base::in | ios_base::binary);
     BinaryReader reader(&testFile);
-    CPPUNIT_ASSERT_EQUAL(reader.readStreamsize(), static_cast<istream::pos_type>(398));
-    CPPUNIT_ASSERT(reader.readUInt16LE() == 0x0102u);
-    CPPUNIT_ASSERT_EQUAL(reader.readRemainingBytes(), static_cast<istream::pos_type>(396));
-    CPPUNIT_ASSERT(reader.readUInt16BE() == 0x0102u);
-    CPPUNIT_ASSERT(reader.readUInt24LE() == 0x010203u);
-    CPPUNIT_ASSERT(reader.readUInt24BE() == 0x010203u);
-    CPPUNIT_ASSERT(reader.readUInt32LE() == 0x01020304u);
-    CPPUNIT_ASSERT(reader.readUInt32BE() == 0x01020304u);
-    CPPUNIT_ASSERT(reader.readUInt40LE() == 0x0102030405u);
-    CPPUNIT_ASSERT(reader.readUInt40BE() == 0x0102030405u);
-    CPPUNIT_ASSERT(reader.readUInt56LE() == 0x01020304050607u);
-    CPPUNIT_ASSERT(reader.readUInt56BE() == 0x01020304050607u);
-    CPPUNIT_ASSERT(reader.readUInt64LE() == 0x0102030405060708u);
-    CPPUNIT_ASSERT(reader.readUInt64BE() == 0x0102030405060708u);
+    CPPUNIT_ASSERT_EQUAL(static_cast<istream::pos_type>(398), reader.readStreamsize());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint16_t>(0x0102u), reader.readUInt16LE());
+    CPPUNIT_ASSERT_EQUAL(static_cast<istream::pos_type>(396), reader.readRemainingBytes());
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::uint16_t>(0x0102u), reader.readUInt16BE());
+    CPPUNIT_ASSERT_EQUAL(0x010203u, reader.readUInt24LE());
+    CPPUNIT_ASSERT_EQUAL(0x010203u, reader.readUInt24BE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304u, reader.readUInt32LE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304u, reader.readUInt32BE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405u, reader.readUInt40LE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405u, reader.readUInt40BE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304050607u, reader.readUInt56LE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304050607u, reader.readUInt56BE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405060708u, reader.readUInt64LE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405060708u, reader.readUInt64BE());
     testFile.seekg(0);
-    CPPUNIT_ASSERT(reader.readInt16LE() == 0x0102);
-    CPPUNIT_ASSERT(reader.readInt16BE() == 0x0102);
-    CPPUNIT_ASSERT(reader.readInt24LE() == 0x010203);
-    CPPUNIT_ASSERT(reader.readInt24BE() == 0x010203);
-    CPPUNIT_ASSERT(reader.readInt32LE() == 0x01020304);
-    CPPUNIT_ASSERT(reader.readInt32BE() == 0x01020304);
-    CPPUNIT_ASSERT(reader.readInt40LE() == 0x0102030405);
-    CPPUNIT_ASSERT(reader.readInt40BE() == 0x0102030405);
-    CPPUNIT_ASSERT(reader.readInt56LE() == 0x01020304050607);
-    CPPUNIT_ASSERT(reader.readInt56BE() == 0x01020304050607);
-    CPPUNIT_ASSERT(reader.readInt64LE() == 0x0102030405060708);
-    CPPUNIT_ASSERT(reader.readInt64BE() == 0x0102030405060708);
-    CPPUNIT_ASSERT(reader.readFloat32LE() == 1.125);
-    CPPUNIT_ASSERT(reader.readFloat64LE() == 1.625);
-    CPPUNIT_ASSERT(reader.readFloat32BE() == 1.125);
-    CPPUNIT_ASSERT(reader.readFloat64BE() == 1.625);
-    CPPUNIT_ASSERT(reader.readBool() == false);
-    CPPUNIT_ASSERT(reader.readBool() == true);
-    CPPUNIT_ASSERT(reader.readString(3) == "abc");
-    CPPUNIT_ASSERT(reader.readLengthPrefixedString() == "ABC");
-    CPPUNIT_ASSERT(reader.readLengthPrefixedString()
-        == "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
-           "23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"
-           "45678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
-           "678901234567890123456789");
+    CPPUNIT_ASSERT_EQUAL(reader.readInt16LE(), static_cast<std::int16_t>(0x0102));
+    CPPUNIT_ASSERT_EQUAL(reader.readInt16BE(), static_cast<std::int16_t>(0x0102));
+    CPPUNIT_ASSERT_EQUAL(0x010203, reader.readInt24LE());
+    CPPUNIT_ASSERT_EQUAL(0x010203, reader.readInt24BE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304, reader.readInt32LE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304, reader.readInt32BE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405, reader.readInt40LE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405, reader.readInt40BE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304050607, reader.readInt56LE());
+    CPPUNIT_ASSERT_EQUAL(0x01020304050607, reader.readInt56BE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405060708, reader.readInt64LE());
+    CPPUNIT_ASSERT_EQUAL(0x0102030405060708, reader.readInt64BE());
+    CPPUNIT_ASSERT_EQUAL(1.125f, reader.readFloat32LE());
+    CPPUNIT_ASSERT_EQUAL(1.625, reader.readFloat64LE());
+    CPPUNIT_ASSERT_EQUAL(1.125f, reader.readFloat32BE());
+    CPPUNIT_ASSERT_EQUAL(reader.readFloat64BE(), 1.625);
+    CPPUNIT_ASSERT_EQUAL(false, reader.readBool());
+    CPPUNIT_ASSERT_EQUAL(true, reader.readBool());
+    CPPUNIT_ASSERT_EQUAL("abc"s, reader.readString(3));
+    CPPUNIT_ASSERT_EQUAL(reader.readLengthPrefixedString(), "ABC"s);
+    CPPUNIT_ASSERT_EQUAL(
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
+        "23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123"
+        "45678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
+        "678901234567890123456789"s,
+        reader.readLengthPrefixedString());
     CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString());
     testFile.seekg(-4, ios_base::cur);
     CPPUNIT_ASSERT_EQUAL("def"s, reader.readTerminatedString(5, 0));
