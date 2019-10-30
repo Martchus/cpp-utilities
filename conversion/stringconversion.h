@@ -242,6 +242,39 @@ template <typename StringType> bool startsWith(const StringType &str, const type
 }
 
 /*!
+ * \brief Returns whether \a str ends with \a phrase.
+ */
+template <typename StringType> bool endsWith(const StringType &str, const StringType &phrase)
+{
+    if (str.size() < phrase.size()) {
+        return false;
+    }
+    for (auto stri = str.cend() - phrase.size(), strend = str.cend(), phrasei = phrase.cbegin();  stri != strend; ++stri, ++phrasei) {
+        if (*stri != *phrasei) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/*!
+ * \brief Returns whether \a str ends with \a phrase.
+ */
+template <typename StringType> bool endsWith(const StringType &str, const typename StringType::value_type *phrase)
+{
+    const auto phraseSize = std::strlen(phrase);
+    if (str.size() < phraseSize) {
+        return false;
+    }
+    for (auto stri = str.cend() - phraseSize, strend = str.cend();  stri != strend; ++stri, ++phrase) {
+        if (*stri != *phrase) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/*!
  * \brief Returns whether \a str contains the specified \a substrings.
  * \remarks The \a substrings must occur in the specified order.
  */

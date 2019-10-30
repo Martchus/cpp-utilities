@@ -311,14 +311,24 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("findOrReplace()"s, findReplaceTest);
 
     // startsWith()
-    CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"));
-    CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"));
-    CPPUNIT_ASSERT(!startsWith<string>(findReplaceTest, "findAnd"s));
-    CPPUNIT_ASSERT(startsWith<string>(findReplaceTest, "findOr"s));
-    CPPUNIT_ASSERT(startsWith<string>("test"s, "test"s));
-    CPPUNIT_ASSERT(startsWith<string>("test"s, "test"));
-    CPPUNIT_ASSERT(!startsWith<string>("test"s, "tests"s));
-    CPPUNIT_ASSERT(!startsWith<string>("test"s, "tests"));
+    CPPUNIT_ASSERT(!startsWith(findReplaceTest, "findAnd"));
+    CPPUNIT_ASSERT(startsWith(findReplaceTest, "findOr"));
+    CPPUNIT_ASSERT(!startsWith(findReplaceTest, "findAnd"s));
+    CPPUNIT_ASSERT(startsWith(findReplaceTest, "findOr"s));
+    CPPUNIT_ASSERT(startsWith("test"s, "test"s));
+    CPPUNIT_ASSERT(startsWith("test"s, "test"));
+    CPPUNIT_ASSERT(!startsWith("test"s, "tests"s));
+    CPPUNIT_ASSERT(!startsWith("test"s, "tests"));
+
+    // endsWith()
+    CPPUNIT_ASSERT(!endsWith(findReplaceTest, "AndReplace()"));
+    CPPUNIT_ASSERT(endsWith(findReplaceTest, "OrReplace()"));
+    CPPUNIT_ASSERT(!endsWith(findReplaceTest, "AndReplace()"s));
+    CPPUNIT_ASSERT(endsWith(findReplaceTest, "OrReplace()"s));
+    CPPUNIT_ASSERT(endsWith("test"s, "test"s));
+    CPPUNIT_ASSERT(endsWith("test"s, "test"));
+    CPPUNIT_ASSERT(!endsWith("test"s, " test"s));
+    CPPUNIT_ASSERT(!endsWith("test"s, " test"));
 
     // containsSubstrings()
     CPPUNIT_ASSERT(containsSubstrings<string>("this string contains foo and bar", { "foo", "bar" }));
