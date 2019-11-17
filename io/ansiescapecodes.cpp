@@ -104,6 +104,12 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
         setStyle(stream, TextAttribute::Reset);
         setStyle(stream, TextAttribute::Bold);
         break;
+    case Phrases::InfoMessage:
+        setStyle(stream, Color::White, ColorContext::Foreground, TextAttribute::Bold);
+        stream << "==> ";
+        setStyle(stream, TextAttribute::Reset);
+        setStyle(stream, TextAttribute::Bold);
+        break;
     }
     return stream;
 }

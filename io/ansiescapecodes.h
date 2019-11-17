@@ -147,6 +147,7 @@ enum class Phrases {
     Override, /**< erases the current line */
     SubError, /**< bold, red "  -> ERROR: " */
     SubWarning, /**< bold, yellow "  -> WARNING: " */
+    InfoMessage, /**< bold, white "==> " */
 };
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 
