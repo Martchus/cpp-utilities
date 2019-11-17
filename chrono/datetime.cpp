@@ -39,12 +39,13 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  * \remarks
  *  - Time values are measured in 100-nanosecond units called ticks,
  *    and a particular date is the number of ticks since 12:00 midnight, January 1,
- *    0001 A.D. (C.E.) in the GregorianCalendar calendar (excluding ticks that would
- *    be added by leap seconds).
- *  - There is no time zone information associated. Hence different time zones are
- *    not taken into account when comparing two instances. For instance, the
- *    expression (DateTime::now() - DateTime::gmtNow()) returns one hour in Germany during winter
- *    time (instead of zero).
+ *    0001 A.D. (C.E.) in the Gregorian Calendar (excluding ticks that would be added by leap seconds).
+ *  - There is no time zone information associated. You need to keep track of the used time zone separately. That can
+ *    be done by keeping an additional TimeSpan around which represents the delta to GMT or by simply using GMT everywhere
+ *    in the program.
+ *  - When constructing an instance via DateTime::fromTimeStamp(), DateTime::fromChronoTimePoint() or DateTime::fromIsoStringLocal()
+ *    the time zone deltas are "baked into" the DateTime instance. For instance, the expression (DateTime::now() - DateTime::gmtNow())
+ *    returns one hour in Germany during winter time (and *not* zero although both instances represent the current time).
  * \todo
  * - Add method for parsing custom string formats.
  * - Add method for printing to custom string formats.

@@ -8,6 +8,7 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <chrono>
 #include <cmath>
 #include <iostream>
 
@@ -114,11 +115,17 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT(!test1.isSameDay(test1 + TimeSpan::fromHours(9)));
     CPPUNIT_ASSERT_EQUAL("Wed 2012-02-29 15:34:20.033"s, test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
 
-    // test fromTimeStamp()
-    const auto fromTimeStampGmt = DateTime::fromTimeStampGmt(1453840331), fromTimeStamp = DateTime::fromTimeStamp(1453840331);
+    // test fromTimeStamp()/toTimeStamp()
+    const auto timeStamp = static_cast<time_t>(1453840331);
+    const auto fromTimeStampGmt = DateTime::fromTimeStampGmt(timeStamp), fromTimeStamp = DateTime::fromTimeStamp(timeStamp);
     CPPUNIT_ASSERT_EQUAL("Tue 2016-01-26 20:32:11"s, fromTimeStampGmt.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
     CPPUNIT_ASSERT(fabs((fromTimeStamp - fromTimeStampGmt).totalDays()) <= 1.0);
     CPPUNIT_ASSERT_EQUAL(DateTime(), DateTime::fromTimeStamp(0));
+    CPPUNIT_ASSERT_EQUAL(timeStamp, fromTimeStampGmt.toTimeStamp());
+
+    // test fromChronoTimePointGmt()
+    const auto fromChronoTimePointGmt = DateTime::fromChronoTimePointGmt(chrono::system_clock::from_time_t(timeStamp));
+    CPPUNIT_ASSERT_EQUAL("Tue 2016-01-26 20:32:11"s, fromChronoTimePointGmt.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
 
     // test whether ConversionException() is thrown when invalid values are specified
     CPPUNIT_ASSERT_THROW(DateTime::fromDate(0, 1, 1), ConversionException);

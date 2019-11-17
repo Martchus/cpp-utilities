@@ -60,8 +60,10 @@ public:
     static std::pair<DateTime, TimeSpan> fromIsoString(const char *str);
     static DateTime fromIsoStringGmt(const char *str);
     static DateTime fromIsoStringLocal(const char *str);
-    static DateTime fromTimeStamp(time_t timeStamp);
-    constexpr static DateTime fromTimeStampGmt(time_t timeStamp);
+    static DateTime fromTimeStamp(std::time_t timeStamp);
+    constexpr static DateTime fromTimeStampGmt(std::time_t timeStamp);
+    template <typename TimePoint> static DateTime fromChronoTimePoint(TimePoint timePoint);
+    template <typename TimePoint> constexpr static DateTime fromChronoTimePointGmt(TimePoint timePoint);
 
     constexpr std::uint64_t &ticks();
     constexpr std::uint64_t totalTicks() const;
@@ -84,6 +86,7 @@ public:
     std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     std::string toIsoString(TimeSpan timeZoneDelta = TimeSpan()) const;
+    constexpr std::time_t toTimeStamp() const;
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
 
     static constexpr DateTime eternity();
@@ -218,6 +221,26 @@ inline DateTime DateTime::fromIsoStringLocal(const char *str)
 constexpr inline DateTime DateTime::fromTimeStampGmt(std::time_t timeStamp)
 {
     return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(timeStamp) * TimeSpan::ticksPerSecond);
+}
+
+/*!
+ * \brief Constructs a new DateTime object with the local time from the specified std::chrono::time_point.
+ * \remarks Works only with time points of std::chrono::system_clock so far. C++20 will fix this. Until then this function
+ *          should be considered experimental.
+ */
+template <typename TimePoint> inline DateTime DateTime::fromChronoTimePoint(TimePoint timePoint)
+{
+    return DateTime::fromTimeStamp(decltype(timePoint)::clock::to_time_t(timePoint));
+}
+
+/*!
+ * \brief Constructs a new DateTime object with the GMT time from the specified std::chrono::time_point.
+ * \remarks Works only with time points of std::chrono::system_clock so far. C++20 will fix this. Until then this function
+ *          should be considered experimental.
+ */
+template <typename TimePoint> constexpr DateTime DateTime::fromChronoTimePointGmt(TimePoint timePoint)
+{
+    return DateTime::fromTimeStampGmt(decltype(timePoint)::clock::to_time_t(timePoint));
 }
 
 /*!
@@ -394,6 +417,14 @@ inline std::string DateTime::toString(DateTimeOutputFormat format, bool noMillis
     std::string result;
     toString(result, format, noMilliseconds);
     return result;
+}
+
+/*!
+ * \brief Returns the UNIX timestamp for the current instance.
+ */
+constexpr std::time_t DateTime::toTimeStamp() const
+{
+    return (totalTicks() - DateTime::unixEpochStart().totalTicks()) / TimeSpan::ticksPerSecond;
 }
 
 /*!
