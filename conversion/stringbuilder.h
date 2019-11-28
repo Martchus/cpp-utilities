@@ -24,6 +24,13 @@ template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = null
 
 template <class StringType, class ViewType,
     Traits::EnableIf<std::is_same<ViewType, std::basic_string_view<typename StringType::value_type>>> * = nullptr>
+inline std::size_t computeTupleElementSize(const ViewType *str)
+{
+    return str->size();
+}
+
+template <class StringType, class ViewType,
+    Traits::EnableIf<std::is_same<ViewType, std::basic_string_view<typename StringType::value_type>>> * = nullptr>
 inline std::size_t computeTupleElementSize(ViewType str)
 {
     return str.size();
@@ -71,6 +78,13 @@ template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = null
 template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = nullptr> inline void append(StringType &target, const StringType &str)
 {
     target.append(str);
+}
+
+template <class StringType, class ViewType,
+    Traits::EnableIf<std::is_same<ViewType, std::basic_string_view<typename StringType::value_type>>> * = nullptr>
+inline void append(StringType &target, const ViewType *str)
+{
+    target.append(*str);
 }
 
 template <class StringType, class ViewType,
@@ -166,7 +180,10 @@ template <class StringType = std::string, class... Args> inline StringType argsT
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-template <class Tuple> constexpr auto operator%(const Tuple &lhs, const std::string &rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(&rhs)))
+template <class Tuple, class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(const Tuple &lhs, const StringType &rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(&rhs)))
 {
     return std::tuple_cat(lhs, std::make_tuple(&rhs));
 }
@@ -191,7 +208,10 @@ constexpr auto operator%(const Tuple &lhs, IntegralType rhs) -> decltype(std::tu
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-constexpr auto operator%(const std::string &lhs, const std::string &rhs) -> decltype(std::make_tuple(&lhs, &rhs))
+template <class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(const StringType &lhs, const StringType &rhs) -> decltype(std::make_tuple(&lhs, &rhs))
 {
     return std::make_tuple(&lhs, &rhs);
 }
@@ -199,7 +219,10 @@ constexpr auto operator%(const std::string &lhs, const std::string &rhs) -> decl
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-constexpr auto operator%(const char *lhs, const std::string &rhs) -> decltype(std::make_tuple(lhs, &rhs))
+template <class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(const char *lhs, const StringType &rhs) -> decltype(std::make_tuple(lhs, &rhs))
 {
     return std::make_tuple(lhs, &rhs);
 }
@@ -207,7 +230,10 @@ constexpr auto operator%(const char *lhs, const std::string &rhs) -> decltype(st
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-constexpr auto operator%(const std::string &lhs, const char *rhs) -> decltype(std::make_tuple(&lhs, rhs))
+template <class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(const StringType &lhs, const char *rhs) -> decltype(std::make_tuple(&lhs, rhs))
 {
     return std::make_tuple(&lhs, rhs);
 }
@@ -215,7 +241,10 @@ constexpr auto operator%(const std::string &lhs, const char *rhs) -> decltype(st
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-constexpr auto operator%(const std::string &lhs, char rhs) -> decltype(std::make_tuple(&lhs, rhs))
+template <class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(const StringType &lhs, char rhs) -> decltype(std::make_tuple(&lhs, rhs))
 {
     return std::make_tuple(&lhs, rhs);
 }
@@ -223,7 +252,10 @@ constexpr auto operator%(const std::string &lhs, char rhs) -> decltype(std::make
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-constexpr auto operator%(char lhs, const std::string &rhs) -> decltype(std::make_tuple(lhs, &rhs))
+template <class StringType,
+    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+        * = nullptr>
+constexpr auto operator%(char lhs, const StringType &rhs) -> decltype(std::make_tuple(lhs, &rhs))
 {
     return std::make_tuple(lhs, &rhs);
 }

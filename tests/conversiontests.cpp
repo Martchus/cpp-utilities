@@ -394,5 +394,5 @@ void ConversionTests::testStringBuilder()
         "velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)");
     CPPUNIT_ASSERT_EQUAL_MESSAGE(
         "regular + operator still works (no problems with ambiguity)"s, "regular + still works"s, "regular"s + " + still works");
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("using string_view", "foobar123"s, argsToString("foo"sv, "bar"sv, 123));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("using string_view", "foobar123"s, "foo"sv % "bar"sv + 123);
 }
