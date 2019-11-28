@@ -97,8 +97,11 @@ template <typename T>
 struct IsCString
     : Bool<std::is_same<char const *, typename std::decay<T>::type>::value || std::is_same<char *, typename std::decay<T>::type>::value> {
 };
-/// \brief Evaluates to Bool<true> if the specified type is a C-string (char * or const char *); otherwise evaluates to Bool<false>.
-template <typename T> struct IsString : Bool<IsCString<T>::value || IsSpecializationOf<T, std::basic_string>::value> {
+/// \brief Evaluates to Bool<true> if the specified type is a standard string, standard string view or C-string (char * or const char *); otherwise
+/// evaluates to Bool<false>.
+template <typename T>
+struct IsString
+    : Bool<IsCString<T>::value || IsSpecializationOf<T, std::basic_string>::value || IsSpecializationOf<T, std::basic_string_view>::value> {
 };
 
 /// \brief Evaluates to Bool<true> if the specified type is complete; if the type is only forward-declared it evaluates to Bool<false>.
