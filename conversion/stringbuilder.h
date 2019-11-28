@@ -269,8 +269,11 @@ constexpr auto operator%(char lhs, const StringType &rhs) -> decltype(std::make_
  * printVelocity("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
  * ```
  */
-template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>> * = nullptr>
-inline std::string operator+(const Tuple &lhs, const std::string &rhs)
+template <class Tuple, class StringType,
+    Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>,
+        Traits::Any<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>>
+        * = nullptr>
+inline std::string operator+(const Tuple &lhs, const StringType &rhs)
 {
     return tupleToString(std::tuple_cat(lhs, std::make_tuple(&rhs)));
 }
