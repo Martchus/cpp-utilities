@@ -22,6 +22,13 @@ template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = null
     return str.size();
 }
 
+template <class StringType, class ViewType,
+    Traits::EnableIf<std::is_same<ViewType, std::basic_string_view<typename StringType::value_type>>> * = nullptr>
+inline std::size_t computeTupleElementSize(ViewType str)
+{
+    return str.size();
+}
+
 template <class StringType, class CharType, Traits::EnableIf<std::is_same<typename StringType::value_type, CharType>> * = nullptr>
 constexpr std::size_t computeTupleElementSize(const CharType *str)
 {
@@ -62,6 +69,13 @@ template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = null
 }
 
 template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = nullptr> inline void append(StringType &target, const StringType &str)
+{
+    target.append(str);
+}
+
+template <class StringType, class ViewType,
+    Traits::EnableIf<std::is_same<ViewType, std::basic_string_view<typename StringType::value_type>>> * = nullptr>
+inline void append(StringType &target, ViewType str)
 {
     target.append(str);
 }

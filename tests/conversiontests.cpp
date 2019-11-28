@@ -379,25 +379,20 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("16 GiB/s"s, bitrateToString(128.0 * 1e6, true));
 }
 
-string functionTakingString(const string &str)
-{
-    return str;
-}
-
 void ConversionTests::testStringBuilder()
 {
     // conversion of string-tuple to string (the actual string builder)
     const tuple<const char *, string, int, const char *> tuple("string1", "string2", 1234, "string3");
-    CPPUNIT_ASSERT_EQUAL(string("string1string21234string3"), tupleToString(tuple));
-    CPPUNIT_ASSERT_EQUAL(string("foobarfoo2bar2"), tupleToString(string("foo") % "bar" % string("foo2") % "bar2"));
-    CPPUNIT_ASSERT_EQUAL(string("v2.3.0"), argsToString("v2.", 3, '.', 0));
+    CPPUNIT_ASSERT_EQUAL("string1string21234string3"s, tupleToString(tuple));
+    CPPUNIT_ASSERT_EQUAL("foobarfoo2bar2"s, tupleToString("foo"s % "bar" % "foo2"s % "bar2"));
+    CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString("v2.", 3, '.', 0));
 
     // construction of string-tuple and final conversion to string works
-    CPPUNIT_ASSERT_EQUAL_MESSAGE(
-        "result can be passed to any function taking a std::string"s, "123456789"s, functionTakingString("12" % string("34") % '5' % 67 + "89"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string"s, "123456789"s, "12" % string("34") % '5' % 67 + "89");
     constexpr double velocityExample = 27.0;
     CPPUNIT_ASSERT_EQUAL_MESSAGE("real-word example"s, "velocity: 27 km/h (7.5 m/s)"s,
-        functionTakingString("velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)"));
+        "velocity: " % numberToString(velocityExample) % " km/h (" % numberToString(velocityExample / 3.6) + " m/s)");
     CPPUNIT_ASSERT_EQUAL_MESSAGE(
         "regular + operator still works (no problems with ambiguity)"s, "regular + still works"s, "regular"s + " + still works");
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("using string_view", "foobar123"s, argsToString("foo"sv, "bar"sv, 123));
 }
