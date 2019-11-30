@@ -32,8 +32,12 @@ if (NOT DOXYGEN_BIN)
 endif ()
 
 # load cached configuration and other variables
-set(DOXY_LANGUAGE "English" CACHE STRING "specifies the language of the API documentation generated with Doxygen")
-set(DOXY_CUSTOM_CONFIG "" CACHE STRING "specifies extra options for Doxygen")
+set(DOXY_LANGUAGE
+    "English"
+    CACHE STRING "specifies the language of the API documentation generated with Doxygen")
+set(DOXY_CUSTOM_CONFIG
+    ""
+    CACHE STRING "specifies extra options for Doxygen")
 set(DOXY_NUMBER "${META_APP_VERSION}")
 set(DOXY_INPUT_FILES
     ${HEADER_FILES}
@@ -52,11 +56,7 @@ set(DOXY_MAIN_PAGE_FILE "${DOXY_PATH_PREFIX}${DOXY_MAIN_PAGE_FILE}")
 
 # convert DOXY_INPUT_FILES to whitespace-separated list
 include(ListToString)
-list_to_string(" "
-               "\"${DOXY_PATH_PREFIX}"
-               "\""
-               "${DOXY_INPUT_FILES}"
-               DOXY_INPUT_FILES_WHITESPACE_SEPARATED)
+list_to_string(" " "\"${DOXY_PATH_PREFIX}" "\"" "${DOXY_INPUT_FILES}" DOXY_INPUT_FILES_WHITESPACE_SEPARATED)
 
 # generate Doxygen configuration
 configure_file("${DOXYGEN_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/doxygen.config")
@@ -70,13 +70,14 @@ add_dependencies(apidoc "${META_TARGET_NAME}_apidoc")
 
 # add install target for API documentation
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc" DESTINATION "${META_DATA_DIR}" COMPONENT api-doc OPTIONAL)
+    install(
+        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/api-doc"
+        DESTINATION "${META_DATA_DIR}"
+        COMPONENT api-doc
+        OPTIONAL)
     if (NOT TARGET install-api-doc)
-        add_custom_target(install-api-doc
-                          COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=api-doc
-                                  -P
-                                  "${CMAKE_BINARY_DIR}/cmake_install.cmake")
+        add_custom_target(install-api-doc COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=api-doc -P
+                                                  "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()
 

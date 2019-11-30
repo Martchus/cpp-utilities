@@ -20,15 +20,13 @@ if (BASH_COMPLETION_ENABLED)
 
     # add install target bash completion
     if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
-        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions"
-                DESTINATION "share/bash-completion"
-                COMPONENT bash-completion)
+        install(
+            DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions"
+            DESTINATION "share/bash-completion"
+            COMPONENT bash-completion)
         if (NOT TARGET install-bash-completion)
-            add_custom_target(install-bash-completion
-                              COMMAND "${CMAKE_COMMAND}"
-                                      -DCMAKE_INSTALL_COMPONENT=bash-completion
-                                      -P
-                                      "${CMAKE_BINARY_DIR}/cmake_install.cmake")
+            add_custom_target(install-bash-completion COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=bash-completion
+                                                              -P "${CMAKE_BINARY_DIR}/cmake_install.cmake")
         endif ()
     endif ()
 

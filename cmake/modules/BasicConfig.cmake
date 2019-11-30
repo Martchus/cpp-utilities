@@ -26,18 +26,18 @@ if (NOT META_PROJECT_VARNAME_UPPER)
     string(TOUPPER ${META_PROJECT_VARNAME} META_PROJECT_VARNAME_UPPER)
 endif ()
 if (NOT META_PROJECT_VARNAME_LOWER)
-    string(REGEX
-           REPLACE "_+"
-                   ""
-                   META_PROJECT_VARNAME_LOWER
-                   "${META_PROJECT_VARNAME}")
+    string(REGEX REPLACE "_+" "" META_PROJECT_VARNAME_LOWER "${META_PROJECT_VARNAME}")
     string(TOLOWER "${META_PROJECT_VARNAME_LOWER}" META_PROJECT_VARNAME_LOWER)
 endif ()
 
 # allow setting a configuration name to allow installing multiple differently configured versions within the same prefix
 # (intended to be used for installing Qt 5 and Qt 6 version or shared and static version within the same prefix)
-set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for ${META_PROJECT_NAME}")
-set(CONFIGURATION_NAME "" CACHE STRING "sets the configuration name for all projects within the current build")
+set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME
+    ""
+    CACHE STRING "sets the configuration name for ${META_PROJECT_NAME}")
+set(CONFIGURATION_NAME
+    ""
+    CACHE STRING "sets the configuration name for all projects within the current build")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
     set(META_CONFIG_NAME "")
 elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
@@ -56,7 +56,9 @@ endif ()
 set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX
     ""
     CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
-set(CONFIGURATION_TARGET_SUFFIX "" CACHE STRING "sets the target suffix for all projects within the current build")
+set(CONFIGURATION_TARGET_SUFFIX
+    ""
+    CACHE STRING "sets the target suffix for all projects within the current build")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX STREQUAL "none")
     set(TARGET_SUFFIX "")
 elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX)
@@ -124,17 +126,25 @@ if (NOT META_PROJECT_LICENSE)
         message(
             WARNING
                 "Unable to detect license of ${META_PROJECT_NAME}. Set META_PROJECT_LICENSE manually to silence this warning."
-            )
+        )
     endif ()
 endif ()
 
 # provide variables for other projects built as part of the same subdirs project to access files from this project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if (HAS_PARENT)
-    set(${META_PROJECT_VARNAME_UPPER}_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-    set(${META_PROJECT_VARNAME_UPPER}_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-    set(${META_PROJECT_NAME}_DIR "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-    set(RUNTIME_LIBRARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" ${RUNTIME_LIBRARY_PATH} PARENT_SCOPE)
+    set(${META_PROJECT_VARNAME_UPPER}_SOURCE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+        PARENT_SCOPE)
+    set(${META_PROJECT_VARNAME_UPPER}_BINARY_DIR
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        PARENT_SCOPE)
+    set(${META_PROJECT_NAME}_DIR
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        PARENT_SCOPE)
+    set(RUNTIME_LIBRARY_PATH
+        "${CMAKE_CURRENT_BINARY_DIR}" ${RUNTIME_LIBRARY_PATH}
+        PARENT_SCOPE)
 endif ()
 
 # determine version
@@ -145,26 +155,16 @@ option(
     ON)
 if (APPEND_GIT_REVISION)
     find_program(GIT_BIN git)
-    execute_process(COMMAND ${GIT_BIN}
-                            rev-list
-                            --count
-                            HEAD
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                    OUTPUT_VARIABLE META_GIT_REV_COUNT)
-    execute_process(COMMAND ${GIT_BIN}
-                            rev-parse
-                            --short
-                            HEAD
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                    OUTPUT_VARIABLE META_GIT_LAST_COMMIT_ID)
-    string(REPLACE "\n"
-                   ""
-                   META_GIT_REV_COUNT
-                   "${META_GIT_REV_COUNT}")
-    string(REPLACE "\n"
-                   ""
-                   META_GIT_LAST_COMMIT_ID
-                   "${META_GIT_LAST_COMMIT_ID}")
+    execute_process(
+        COMMAND ${GIT_BIN} rev-list --count HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE META_GIT_REV_COUNT)
+    execute_process(
+        COMMAND ${GIT_BIN} rev-parse --short HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE META_GIT_LAST_COMMIT_ID)
+    string(REPLACE "\n" "" META_GIT_REV_COUNT "${META_GIT_REV_COUNT}")
+    string(REPLACE "\n" "" META_GIT_LAST_COMMIT_ID "${META_GIT_LAST_COMMIT_ID}")
     if (META_GIT_REV_COUNT AND META_GIT_LAST_COMMIT_ID)
         set(META_APP_VERSION ${META_APP_VERSION}-${META_GIT_REV_COUNT}.${META_GIT_LAST_COMMIT_ID})
     endif ()
@@ -176,16 +176,17 @@ set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${META_TARGET_NAME}")
 # create header for feature detection
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
     include(WriteCompilerDetectionHeader)
-    write_compiler_detection_header(FILE
-                                    "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h"
-                                    PREFIX
-                                    "${META_PROJECT_VARNAME_UPPER}"
-                                    COMPILERS
-                                    GNU
-                                    Clang
-                                    AppleClang
-                                    FEATURES
-                                    ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
+    write_compiler_detection_header(
+        FILE
+        "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h"
+        PREFIX
+        "${META_PROJECT_VARNAME_UPPER}"
+        COMPILERS
+        GNU
+        Clang
+        AppleClang
+        FEATURES
+        ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
 endif ()
 
 # disable new ABI (can't catch ios_base::failure with new ABI)
@@ -211,7 +212,12 @@ if (LOGGING_ENABLED)
 endif ()
 
 # determine whether the project is a header-only library
-if (SRC_FILES OR GUI_SRC_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR QML_SRC_FILES OR RES_FILES)
+if (SRC_FILES
+    OR GUI_SRC_FILES
+    OR WIDGETS_SRC_FILES
+    OR WIDGETS_UI_FILES
+    OR QML_SRC_FILES
+    OR RES_FILES)
     set(META_HEADER_ONLY_LIB NO)
 else ()
     set(META_HEADER_ONLY_LIB YES)
@@ -225,7 +231,10 @@ endif ()
 include(3rdParty)
 
 # options for enabling/disabling Qt GUI (if available)
-if (WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR META_HAS_WIDGETS_GUI)
+if (WIDGETS_HEADER_FILES
+    OR WIDGETS_SRC_FILES
+    OR WIDGETS_UI_FILES
+    OR META_HAS_WIDGETS_GUI)
     if (META_GUI_OPTIONAL)
         option(WIDGETS_GUI "enables/disables building the Qt Widgets GUI: yes (default) or no" ON)
     else ()
@@ -234,7 +243,9 @@ if (WIDGETS_HEADER_FILES OR WIDGETS_SRC_FILES OR WIDGETS_UI_FILES OR META_HAS_WI
 else ()
     set(WIDGETS_GUI OFF)
 endif ()
-if (QML_HEADER_FILES OR QML_SRC_FILES OR META_HAS_QUICK_GUI)
+if (QML_HEADER_FILES
+    OR QML_SRC_FILES
+    OR META_HAS_QUICK_GUI)
     if (META_GUI_OPTIONAL)
         option(QUICK_GUI "enables/disables building the Qt Quick GUI: yes (default) or no" ON)
     else ()
@@ -286,11 +297,7 @@ set(FORMATABLE_FILES
     ${EXCLUDED_FILES})
 # only format C/C++ files (and not eg. QML files)
 if (FORMATABLE_FILES)
-    list(FILTER
-         FORMATABLE_FILES
-         INCLUDE
-         REGEX
-         ".*\\.(c|cpp|h|hpp)")
+    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cpp|h|hpp)")
 endif ()
 
 # determine source files which might be passed to cmake-format
@@ -298,13 +305,10 @@ set(FORMATABLE_FILES_CMAKE ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt ${CMAKE_MO
 
 # add command for symlinking clang-{format,tidy} rules so the tools can find it
 if (EXISTS "${CLANG_FORMAT_RULES}")
-    add_custom_command(OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                       COMMAND "${CMAKE_COMMAND}"
-                               -E
-                               create_symlink
-                               "${CLANG_FORMAT_RULES}"
-                               "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-                       COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}")
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CLANG_FORMAT_RULES}" "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+        COMMENT "Linking coding style from ${CLANG_FORMAT_RULES}")
 else ()
     message(WARNING "Format rules for clang-format not found.")
 endif ()
@@ -316,60 +320,53 @@ if (NOT META_NO_TIDY)
 endif ()
 
 # add target for tidying with clang-format
-if (NOT META_NO_TIDY AND CLANG_FORMAT_ENABLED AND FORMATABLE_FILES AND EXISTS "${CLANG_FORMAT_RULES}")
+if (NOT META_NO_TIDY
+    AND CLANG_FORMAT_ENABLED
+    AND FORMATABLE_FILES
+    AND EXISTS "${CLANG_FORMAT_RULES}")
     find_program(CLANG_FORMAT_BIN clang-format)
     if (NOT CLANG_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
     endif ()
-    add_custom_target("${META_TARGET_NAME}_tidy"
-                      COMMAND "${CLANG_FORMAT_BIN}"
-                              -style=file
-                              -i
-                              ${FORMATABLE_FILES}
-                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                      COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
-                      DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+    add_custom_target(
+        "${META_TARGET_NAME}_tidy"
+        COMMAND "${CLANG_FORMAT_BIN}" -style=file -i ${FORMATABLE_FILES}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Tidying ${META_PROJECT_NAME} sources using clang-format"
+        DEPENDS "${FORMATABLE_FILES};${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
     add_dependencies(tidy "${META_TARGET_NAME}_tidy")
 
     # also add a test to verify whether sources are tidy
-    add_test(NAME "${META_TARGET_NAME}_tidy_test"
-             COMMAND "${CLANG_FORMAT_BIN}"
-                     -output-replacements-xml
-                     -style=file
-                     ${FORMATABLE_FILES}
-             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    add_test(
+        NAME "${META_TARGET_NAME}_tidy_test"
+        COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-    set_tests_properties("${META_TARGET_NAME}_tidy_test"
-                         PROPERTIES FAIL_REGULAR_EXPRESSION
-                                    "<replacement.*>.*</replacement>"
-                                    REQUIRED_FILES
-                                    "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+    set_tests_properties(
+        "${META_TARGET_NAME}_tidy_test" PROPERTIES FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>" REQUIRED_FILES
+                                                   "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
 endif ()
 
 # add target for tidying with cmake-format
-if (NOT META_NO_TIDY AND CMAKE_FORMAT_ENABLED AND FORMATABLE_FILES_CMAKE)
+if (NOT META_NO_TIDY
+    AND CMAKE_FORMAT_ENABLED
+    AND FORMATABLE_FILES_CMAKE)
     find_program(CMAKE_FORMAT_BIN cmake-format)
     if (NOT CMAKE_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; cmake-format not found")
     endif ()
     if (NOT META_CMAKE_FORMAT_OPTIONS)
-        set(META_CMAKE_FORMAT_OPTIONS
-            --tab-size=4
-            --separate-ctrl-name-with-space=True
-            --line-width=125
-            --autosort=False)
+        set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125 --autosort=False)
     endif ()
-    add_custom_target("${META_TARGET_NAME}_cmake_tidy"
-                      COMMAND "${CMAKE_FORMAT_BIN}"
-                              --in-place
-                              ${META_CMAKE_FORMAT_OPTIONS}
-                              ${FORMATABLE_FILES_CMAKE}
-                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                      COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
-                      DEPENDS "${FORMATABLE_FILES_CMAKE}")
+    add_custom_target(
+        "${META_TARGET_NAME}_cmake_tidy"
+        COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
+        DEPENDS "${FORMATABLE_FILES_CMAKE}")
     if (NOT TARGET tidy)
         add_custom_target(tidy)
     endif ()
@@ -429,27 +426,23 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
             set(SYMBOLIC_OUTPUT_FILE "${FILE}.clang-tidy-output")
             list(APPEND CLANG_TIDY_SYMBOLIC_OUTPUT_FILES "${SYMBOLIC_OUTPUT_FILE}")
 
-            add_custom_command(OUTPUT "${SYMBOLIC_OUTPUT_FILE}"
-                               COMMAND "${CLANG_TIDY_BIN}"
-                                       ${FILE}
-                                       --
-                                       ${CLANG_TIDY_CXX_FLAGS}
-                               WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                               COMMENT "Linting ${FILE} using clang-tidy"
-                               DEPENDS "${FILE}" COMMAND_EXPAND_LISTS
-                               VERBATIM)
+            add_custom_command(
+                OUTPUT "${SYMBOLIC_OUTPUT_FILE}"
+                COMMAND "${CLANG_TIDY_BIN}" ${FILE} -- ${CLANG_TIDY_CXX_FLAGS}
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                COMMENT "Linting ${FILE} using clang-tidy"
+                DEPENDS "${FILE}" COMMAND_EXPAND_LISTS
+                VERBATIM)
         endforeach ()
 
         # mark all symbolic output files actually as symbolic
-        set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
-                                    PROPERTIES
-                                    SYMBOLIC
-                                    YES)
+        set_source_files_properties(${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES} PROPERTIES SYMBOLIC YES)
 
         # add targets
-        add_custom_target("${META_TARGET_NAME}_static_check"
-                          DEPENDS ${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
-                          COMMENT "Linting ${META_TARGET_NAME} sources using clang-tidy")
+        add_custom_target(
+            "${META_TARGET_NAME}_static_check"
+            DEPENDS ${CLANG_TIDY_SYMBOLIC_OUTPUT_FILES}
+            COMMENT "Linting ${META_TARGET_NAME} sources using clang-tidy")
         if (NOT TARGET static-check)
             add_custom_target(static-check)
         endif ()
@@ -460,10 +453,11 @@ endif ()
 # add autotools-style check target
 if (NOT TARGET check)
     set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
-    add_custom_target(check
-                      COMMAND ${CMAKE_CTEST_COMMAND}
-                      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-                      DEPENDS "${CHECK_TARGET_DEPENDS}")
+    add_custom_target(
+        check
+        COMMAND ${CMAKE_CTEST_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS "${CHECK_TARGET_DEPENDS}")
 endif ()
 
 # enable source code based coverage analysis using clang
@@ -492,23 +486,29 @@ endif ()
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     foreach (EXTRA_FILE ${EXTRA_FILES})
         get_filename_component(EXTRA_DIR ${EXTRA_FILE} DIRECTORY)
-        install(FILES ${EXTRA_FILE} DESTINATION "${META_DATA_DIR}/${EXTRA_DIR}" COMPONENT extra-files)
+        install(
+            FILES ${EXTRA_FILE}
+            DESTINATION "${META_DATA_DIR}/${EXTRA_DIR}"
+            COMPONENT extra-files)
     endforeach ()
     if (NOT TARGET install-extra-files)
-        add_custom_target(install-extra-files
-                          COMMAND "${CMAKE_COMMAND}"
-                                  -DCMAKE_INSTALL_COMPONENT=extra-files
-                                  -P
-                                  "${CMAKE_BINARY_DIR}/cmake_install.cmake")
+        add_custom_target(install-extra-files COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=extra-files -P
+                                                      "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 endif ()
 
 # determine library directory suffix - Applications might be built as libraries under some platforms (eg. Android). Hence
 # this is part of BasicConfig and not LibraryConfig.
-set(LIB_SUFFIX "" CACHE STRING "specifies the general suffix for the library directory")
+set(LIB_SUFFIX
+    ""
+    CACHE STRING "specifies the general suffix for the library directory")
 set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX}")
-set(LIB_SUFFIX_32 "" CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
-set(LIB_SUFFIX_64 "" CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
+set(LIB_SUFFIX_32
+    ""
+    CACHE STRING "specifies the suffix for the library directory to be used when building 32-bit library")
+set(LIB_SUFFIX_64
+    ""
+    CACHE STRING "specifies the suffix for the library directory to be used when building 64-bit library")
 if (LIB_SUFFIX_64 AND CMAKE_SIZEOF_VOID_P MATCHES "8")
     set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_64}")
 elseif (LIB_SUFFIX_32 AND CMAKE_SIZEOF_VOID_P MATCHES "4")
@@ -535,7 +535,9 @@ function (append_user_defined_additional_libraries)
     endif ()
     if (LIB_COUNT LESS_EQUAL 0)
         # just add the addiitional libs to PRIVATE_LIBRARIES if there are no libs yet anyways
-        set(PRIVATE_LIBRARIES "${USER_DEFINED_ADDITIONAL_LIBRARIES}" PARENT_SCOPE)
+        set(PRIVATE_LIBRARIES
+            "${USER_DEFINED_ADDITIONAL_LIBRARIES}"
+            PARENT_SCOPE)
     endif ()
     math(EXPR LAST_LIB_INDEX "${LIB_COUNT} - 1")
     list(GET ${LIBS} ${LAST_LIB_INDEX} LAST_LIB)
@@ -544,13 +546,18 @@ function (append_user_defined_additional_libraries)
     if (TARGET "${LAST_LIB}")
         # note: Otherwise the INTERFACE_LINK_LIBRARIES of the last target might still come after the
         # USER_DEFINED_ADDITIONAL_LIBRARIES on the linker line.
-        set_property(TARGET "${LAST_LIB}" APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${USER_DEFINED_ADDITIONAL_LIBRARIES})
+        set_property(
+            TARGET "${LAST_LIB}"
+            APPEND
+            PROPERTY INTERFACE_LINK_LIBRARIES ${USER_DEFINED_ADDITIONAL_LIBRARIES})
 
         return()
     endif ()
 
     # fall back to simply append the library to PRIVATE_LIBRARIES
-    set(PRIVATE_LIBRARIES "${USER_DEFINED_ADDITIONAL_LIBRARIES}" PARENT_SCOPE)
+    set(PRIVATE_LIBRARIES
+        "${USER_DEFINED_ADDITIONAL_LIBRARIES}"
+        PARENT_SCOPE)
 endfunction ()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)

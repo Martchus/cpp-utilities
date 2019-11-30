@@ -121,7 +121,9 @@ use_iconv(AUTO_LINKAGE REQUIRED)
 
 # configure use of native file buffer and its backend implementation if enabled
 set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT OFF)
-if (WIN32 OR ANDROID OR (UNIX AND NOT APPLE))
+if (WIN32
+    OR ANDROID
+    OR (UNIX AND NOT APPLE))
     set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT ON)
 endif ()
 option(USE_NATIVE_FILE_BUFFER "enables use of native file buffer, affects ABI" ${USE_NATIVE_FILE_BUFFER_BY_DEFAULT})
@@ -131,32 +133,27 @@ if (USE_NATIVE_FILE_BUFFER)
     set(NATIVE_FILE_STREAM_IMPL_FILES io/nativefilestream.cpp tests/iotests.cpp)
 
     # check whether __gnu_cxx::stdio_filebuf is available
-    try_compile(GNU_CXX_STDIO_FILEBUF_AVAILABLE
-                ${CMAKE_CURRENT_BINARY_DIR}
-                SOURCES
-                ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp
-                OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG)
+    try_compile(
+        GNU_CXX_STDIO_FILEBUF_AVAILABLE ${CMAKE_CURRENT_BINARY_DIR} SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/feature_detection/stdio_filebuf.cpp OUTPUT_VARIABLE GNU_CXX_STDIO_FILEBUF_CHECK_LOG)
 
     # use __gnu_cxx::stdio_filebuf if available or fallback to boost::iostreams::stream_buffer
     if (GNU_CXX_STDIO_FILEBUF_AVAILABLE AND NOT FORCE_BOOST_IOSTREAMS_FOR_NATIVE_FILE_BUFFER)
         message(STATUS "Using __gnu_cxx::stdio_filebuf for NativeFileStream")
         foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
-            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
-                         APPEND
-                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
+            set_property(
+                SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                APPEND
+                PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_GNU_CXX_STDIO_FILEBUF)
         endforeach ()
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
-        use_package(TARGET_NAME
-                    Boost::iostreams
-                    PACKAGE_NAME
-                    Boost
-                    PACKAGE_ARGS
-                    "REQUIRED;COMPONENTS;iostreams")
+        use_package(TARGET_NAME Boost::iostreams PACKAGE_NAME Boost PACKAGE_ARGS "REQUIRED;COMPONENTS;iostreams")
         foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
-            set_property(SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
-                         APPEND
-                         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
+            set_property(
+                SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
+                APPEND
+                PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_BOOST_IOSTREAMS)
         endforeach ()
     endif ()
 else ()
@@ -182,9 +179,10 @@ endif ()
 # configure whether escape codes should be enabled by default
 option(ENABLE_ESCAPE_CODES_BY_DEAULT "enables usage of escape codes by default" ON)
 if (ENABLE_ESCAPE_CODES_BY_DEAULT)
-    set_property(SOURCE application/argumentparser.cpp io/ansiescapecodes.cpp tests/argumentparsertests.cpp
-                 APPEND
-                 PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT)
+    set_property(
+        SOURCE application/argumentparser.cpp io/ansiescapecodes.cpp tests/argumentparsertests.cpp
+        APPEND
+        PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ESCAPE_CODES_ENABLED_BY_DEFAULT)
 else ()
     message(STATUS "Disabling use of escape codes by default.")
 endif ()
@@ -192,9 +190,10 @@ endif ()
 # configure use of thread_local
 option(ENABLE_THREAD_LOCAL "enables use of Thread-Local Storage" ON)
 if (NOT ENABLE_THREAD_LOCAL)
-    set_property(SOURCE conversion/stringconversion.cpp
-                 APPEND
-                 PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL)
+    set_property(
+        SOURCE conversion/stringconversion.cpp
+        APPEND
+        PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL)
 endif ()
 
 # include modules to apply configuration

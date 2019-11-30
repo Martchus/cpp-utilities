@@ -4,12 +4,7 @@ if (DEFINED LIST_TO_STRING_LOADED)
 endif ()
 set(LIST_TO_STRING_LOADED ON)
 
-function (list_to_string
-          separator
-          prefix
-          suffix
-          input_list
-          output_string_var)
+function (list_to_string separator prefix suffix input_list output_string_var)
     set(res "")
     # get list length
     list(LENGTH input_list list_length)
@@ -31,5 +26,7 @@ function (list_to_string
             endif ()
         endforeach ()
     endif ()
-    set(${output_string_var} "${res}" PARENT_SCOPE)
+    set(${output_string_var}
+        "${res}"
+        PARENT_SCOPE)
 endfunction ()
