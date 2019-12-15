@@ -330,6 +330,7 @@ string TestApplication::workingCopyPathAs(
         return string();
     }
     workingCopy << origFile.rdbuf();
+    workingCopy.close();
     if (!origFile.fail() && !workingCopy.fail()) {
         return workingCopyPath;
     }
