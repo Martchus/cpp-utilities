@@ -47,6 +47,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testCopy);
     CPPUNIT_TEST(testReadFile);
+    CPPUNIT_TEST(testWriteFile);
     CPPUNIT_TEST(testAnsiEscapeCodes);
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
     CPPUNIT_TEST(testNativeFileStream);
@@ -64,6 +65,7 @@ public:
     void testIniFile();
     void testCopy();
     void testReadFile();
+    void testWriteFile();
     void testAnsiEscapeCodes();
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
     void testNativeFileStream();
@@ -366,6 +368,19 @@ void IoTests::testReadFile()
 #endif
 }
 
+/*!
+ * \brief Tests writeFile().
+ */
+void IoTests::testWriteFile()
+{
+    const string path(workingCopyPath("test.ini", WorkingCopyMode::NoCopy));
+    writeFile(path, "some contents");
+    CPPUNIT_ASSERT_EQUAL("some contents"s, readFile(path));
+}
+
+/*!
+ * \brief Tests formatting functions of CppUtilities::EscapeCodes namespace.
+ */
 void IoTests::testAnsiEscapeCodes()
 {
     stringstream ss1;
