@@ -127,14 +127,10 @@ if (META_PROJECT_IS_APPLICATION)
             PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
         set_target_properties(
             ${META_TARGET_NAME}_testlib
-            PROPERTIES CXX_STANDARD
-                       "${META_CXX_STANDARD}"
-                       LINK_SEARCH_START_STATIC
-                       ${STATIC_LINKAGE}
-                       LINK_SEARCH_END_STATIC
-                       ${STATIC_LINKAGE}
-                       AUTOGEN_TARGET_DEPENDS
-                       "${AUTOGEN_DEPS}")
+            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+                       LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                       LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                       AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
         if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
             target_include_directories(${META_TARGET_NAME}_testlib
                                        PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")
@@ -164,8 +160,10 @@ target_compile_options(
     ${META_TARGET_NAME}_tests
     PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
     PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-set_target_properties(${META_TARGET_NAME}_tests PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" LINK_SEARCH_START_STATIC
-                                                           ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
+set_target_properties(
+    ${META_TARGET_NAME}_tests
+    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC
+                                                                                              ${STATIC_LINKAGE})
 
 # make the test recognized by ctest
 unset(RUN_TESTS_APPLICATION_ARG)

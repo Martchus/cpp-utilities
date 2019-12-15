@@ -144,18 +144,12 @@ else ()
         PRIVATE "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}
-        PROPERTIES VERSION
-                   "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
-                   SOVERSION
-                   "${META_SOVERSION}"
-                   CXX_STANDARD
-                   "${META_CXX_STANDARD}"
-                   LINK_SEARCH_START_STATIC
-                   ${STATIC_LINKAGE}
-                   LINK_SEARCH_END_STATIC
-                   ${STATIC_LINKAGE}
-                   AUTOGEN_TARGET_DEPENDS
-                   "${AUTOGEN_DEPS}")
+        PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+                   SOVERSION "${META_SOVERSION}"
+                   CXX_STANDARD "${META_CXX_STANDARD}"
+                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                   LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
     endif ()
@@ -192,14 +186,9 @@ if (META_HEADER_ONLY_LIB)
                            INTERFACE "${META_PUBLIC_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
-        PROPERTIES VERSION
-                   "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
-                   SOVERSION
-                   "${META_SOVERSION}"
-                   CXX_STANDARD
-                   "${META_CXX_STANDARD}"
-                   AUTOGEN_TARGET_DEPENDS
-                   "${AUTOGEN_DEPS}")
+        PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}" SOVERSION "${META_SOVERSION}"
+
+                   CXX_STANDARD "${META_CXX_STANDARD}" AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
 endif ()
 
 # generate CMake code to configure additional arguments for required CMake-packages

@@ -431,8 +431,8 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
                 COMMAND "${CLANG_TIDY_BIN}" ${FILE} -- ${CLANG_TIDY_CXX_FLAGS}
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 COMMENT "Linting ${FILE} using clang-tidy"
-                DEPENDS "${FILE}" COMMAND_EXPAND_LISTS
-                VERBATIM)
+                DEPENDS "${FILE}"
+                COMMAND_EXPAND_LISTS VERBATIM)
         endforeach ()
 
         # mark all symbolic output files actually as symbolic

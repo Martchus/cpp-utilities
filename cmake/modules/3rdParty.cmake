@@ -46,19 +46,9 @@ endfunction ()
 function (parse_arguments_for_use_functions)
     # parse arguments
     set(OPTIONAL_ARGS OPTIONAL)
-    set(ONE_VALUE_ARGS
-        VISIBILITY
-        LIBRARIES_VARIABLE
-        PACKAGES_VARIABLE
-        PKG_CONFIG_MODULES_VARIABLE
-        TARGET_NAME
-        PACKAGE_NAME)
+    set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE PACKAGES_VARIABLE PKG_CONFIG_MODULES_VARIABLE TARGET_NAME PACKAGE_NAME)
     set(MULTI_VALUE_ARGS PKG_CONFIG_MODULES PACKAGE_ARGS)
-    cmake_parse_arguments(ARGS
-                          "${OPTIONAL_ARGS}"
-                          "${ONE_VALUE_ARGS}"
-                          "${MULTI_VALUE_ARGS}"
-                          ${ARGN})
+    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
     # validate values
     if (ARGS_VISIBILITY)
@@ -86,18 +76,40 @@ function (parse_arguments_for_use_functions)
     endif ()
 
     # export parsed values to parent scope
-    set(ARGS_VISIBILITY "${ARGS_VISIBILITY}" PARENT_SCOPE)
-    set(ARGS_LIBRARIES_VARIABLE "${ARGS_LIBRARIES_VARIABLE}" PARENT_SCOPE)
-    set(ARGS_PACKAGES_VARIABLE "${ARGS_PACKAGES_VARIABLE}" PARENT_SCOPE)
-    set(ARGS_PKG_CONFIG_MODULES_VARIABLE "${ARGS_PKG_CONFIG_MODULES_VARIABLE}" PARENT_SCOPE)
-    set(ARGS_TARGET_NAME "${ARGS_TARGET_NAME}" PARENT_SCOPE)
-    set(ARGS_PACKAGE_NAME "${ARGS_PACKAGE_NAME}" PARENT_SCOPE)
-    set(ARGS_PACKAGE_ARGS "${ARGS_PACKAGE_ARGS}" PARENT_SCOPE)
-    set(ARGS_PKG_CONFIG_MODULES "${ARGS_PKG_CONFIG_MODULES}" PARENT_SCOPE)
-    set(ARGS_OPTIONAL "${ARGS_OPTIONAL}" PARENT_SCOPE)
+    set(ARGS_VISIBILITY
+        "${ARGS_VISIBILITY}"
+        PARENT_SCOPE)
+    set(ARGS_LIBRARIES_VARIABLE
+        "${ARGS_LIBRARIES_VARIABLE}"
+        PARENT_SCOPE)
+    set(ARGS_PACKAGES_VARIABLE
+        "${ARGS_PACKAGES_VARIABLE}"
+        PARENT_SCOPE)
+    set(ARGS_PKG_CONFIG_MODULES_VARIABLE
+        "${ARGS_PKG_CONFIG_MODULES_VARIABLE}"
+        PARENT_SCOPE)
+    set(ARGS_TARGET_NAME
+        "${ARGS_TARGET_NAME}"
+        PARENT_SCOPE)
+    set(ARGS_PACKAGE_NAME
+        "${ARGS_PACKAGE_NAME}"
+        PARENT_SCOPE)
+    set(ARGS_PACKAGE_ARGS
+        "${ARGS_PACKAGE_ARGS}"
+        PARENT_SCOPE)
+    set(ARGS_PKG_CONFIG_MODULES
+        "${ARGS_PKG_CONFIG_MODULES}"
+        PARENT_SCOPE)
+    set(ARGS_OPTIONAL
+        "${ARGS_OPTIONAL}"
+        PARENT_SCOPE)
     if (NOT ARGS_OPTIONAL)
-        set(ARGS_FIND_PACKAGE "REQUIRED" PARENT_SCOPE)
-        set(ARGS_PKG_CHECK_MODULES "REQUIRED" PARENT_SCOPE)
+        set(ARGS_FIND_PACKAGE
+            "REQUIRED"
+            PARENT_SCOPE)
+        set(ARGS_PKG_CHECK_MODULES
+            "REQUIRED"
+            PARENT_SCOPE)
     endif ()
 endfunction ()
 
@@ -127,8 +139,12 @@ function (use_iconv)
         endif ()
     endif ()
 
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};Iconv::Iconv" PARENT_SCOPE)
-    set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};Iconv" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};Iconv::Iconv"
+        PARENT_SCOPE)
+    set("${ARGS_PACKAGES_VARIABLE}"
+        "${${ARGS_PACKAGES_VARIABLE}};Iconv"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_openssl)
@@ -138,14 +154,24 @@ function (use_openssl)
     if (NOT OpenSSL_FOUND)
         return()
     endif ()
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto" PARENT_SCOPE)
-    set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};OpenSSL" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto"
+        PARENT_SCOPE)
+    set("${ARGS_PACKAGES_VARIABLE}"
+        "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
+        PARENT_SCOPE)
     if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
         # FIXME: preferably use pkg-config to cover this case without hardcoding OpenSSL's dependencies under Windows
-        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32" PARENT_SCOPE)
+        set("${ARGS_LIBRARIES_VARIABLE}"
+            "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32"
+            PARENT_SCOPE)
     endif ()
-    set("PKG_CONFIG_OpenSSL_SSL" "libssl" PARENT_SCOPE)
-    set("PKG_CONFIG_OpenSSL_Crypto" "libcrypto" PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_SSL"
+        "libssl"
+        PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_Crypto"
+        "libcrypto"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_crypto)
@@ -155,14 +181,20 @@ function (use_crypto)
     if (NOT OpenSSL_FOUND)
         return()
     endif ()
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto" PARENT_SCOPE)
-    set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};OpenSSL" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto"
+        PARENT_SCOPE)
+    set("${ARGS_PACKAGES_VARIABLE}"
+        "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
+        PARENT_SCOPE)
     if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
         set("${ARGS_LIBRARIES_VARIABLE}"
             "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto;-lws2_32;-lgdi32;-lcrypt32"
             PARENT_SCOPE)
     endif ()
-    set("PKG_CONFIG_OpenSSL_Crypto" "libcrypto" PARENT_SCOPE)
+    set("PKG_CONFIG_OpenSSL_Crypto"
+        "libcrypto"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_zlib)
@@ -172,9 +204,15 @@ function (use_zlib)
     if (NOT ZLIB_FOUND)
         return()
     endif ()
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};ZLIB::ZLIB" PARENT_SCOPE)
-    set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};ZLIB" PARENT_SCOPE)
-    set("PKG_CONFIG_ZLIB_ZLIB" "zlib" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};ZLIB::ZLIB"
+        PARENT_SCOPE)
+    set("${ARGS_PACKAGES_VARIABLE}"
+        "${${ARGS_PACKAGES_VARIABLE}};ZLIB"
+        PARENT_SCOPE)
+    set("PKG_CONFIG_ZLIB_ZLIB"
+        "zlib"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_target)
@@ -186,11 +224,17 @@ function (use_target)
         endif ()
         message(FATAL_ERROR "Target \"${ARGS_TARGET_NAME}\" does not exist.")
     endif ()
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}"
+        PARENT_SCOPE)
     if (ARGS_PACKAGE_NAME)
-        set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}" PARENT_SCOPE)
+        set("${ARGS_PACKAGES_VARIABLE}"
+            "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}"
+            PARENT_SCOPE)
         if (ARGS_PACKAGE_ARGS)
-            set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}" "${ARGS_PACKAGE_ARGS}" PARENT_SCOPE)
+            set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}"
+                "${ARGS_PACKAGE_ARGS}"
+                PARENT_SCOPE)
         endif ()
     endif ()
 endfunction ()
@@ -215,9 +259,15 @@ function (use_package)
         endif ()
         message(FATAL_ERROR "Found package \"${ARGS_PACKAGE_NAME}\" but target \"${ARGS_TARGET_NAME}\" does not exist.")
     endif ()
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
-    set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}" PARENT_SCOPE)
-    set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}" "${ARGS_PACKAGE_ARGS}" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}"
+        PARENT_SCOPE)
+    set("${ARGS_PACKAGES_VARIABLE}"
+        "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}"
+        PARENT_SCOPE)
+    set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}"
+        "${ARGS_PACKAGE_ARGS}"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_pkg_config_module)
@@ -248,24 +298,27 @@ function (use_pkg_config_module)
             set(PKG_CONFIG_CHECK_SUFFIX "")
         endif ()
         set_property(
-            TARGET ${ARGS_TARGET_NAME}
-            PROPERTY INTERFACE_LINK_LIBRARIES "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LINK_LIBRARIES}")
-        set_property(TARGET ${ARGS_TARGET_NAME}
-                     PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                              "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_INCLUDE_DIRS}")
+            TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_LINK_LIBRARIES
+                                                "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LINK_LIBRARIES}")
+        set_property(
+            TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                                                "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_INCLUDE_DIRS}")
         set_property(TARGET ${ARGS_TARGET_NAME}
                      PROPERTY INTERFACE_COMPILE_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_CFLAGS_OTHER}")
         set_property(TARGET ${ARGS_TARGET_NAME}
                      PROPERTY INTERFACE_LINK_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LDFLAGS_OTHER}")
     endif ()
 
-    set("${ARGS_PKG_CONFIG_MODULES_VARIABLE}" "${${ARGS_PKG_CONFIG_MODULES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}" PARENT_SCOPE)
-    string(REPLACE "::"
-                   "_"
-                   TARGET_VARNAME
-                   "${ARGS_TARGET_NAME}")
-    set("PKG_CONFIG_${TARGET_VARNAME}" "${ARGS_PKG_CONFIG_MODULES}" PARENT_SCOPE)
+    set("${ARGS_PKG_CONFIG_MODULES_VARIABLE}"
+        "${${ARGS_PKG_CONFIG_MODULES_VARIABLE}};${ARGS_TARGET_NAME}"
+        PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}"
+        PARENT_SCOPE)
+    string(REPLACE "::" "_" TARGET_VARNAME "${ARGS_TARGET_NAME}")
+    set("PKG_CONFIG_${TARGET_VARNAME}"
+        "${ARGS_PKG_CONFIG_MODULES}"
+        PARENT_SCOPE)
 endfunction ()
 
 function (use_standard_filesystem)
@@ -273,7 +326,8 @@ function (use_standard_filesystem)
     parse_arguments_for_use_functions(${ARGN})
 
     # check whether an additional library for std::filesystem support is required
-    set(TEST_PROGRAM [[
+    set(TEST_PROGRAM
+        [[
         #include <filesystem>
         int main() {
             auto cwd = std::filesystem::current_path();
@@ -284,10 +338,7 @@ function (use_standard_filesystem)
     set(CMAKE_REQUIRED_FLAGS -std=c++17)
     set(REQUIRED_LIBRARY FAILED)
     set(INDEX 0)
-    foreach (LIBRARY
-             ""
-             "stdc++fs"
-             "c++fs")
+    foreach (LIBRARY "" "stdc++fs" "c++fs")
         if (NOT LIBRARY STREQUAL "")
             set(CMAKE_REQUIRED_LIBRARIES ${DEFAULT_REQUIRED_LIBRARIES} -l${LIBRARY})
         endif ()
@@ -304,7 +355,7 @@ function (use_standard_filesystem)
         message(
             FATAL_ERROR
                 "Unable to compile a simple std::filesystem example. A compiler supporting C++17 is required to build this project."
-            )
+        )
         return()
     endif ()
 
@@ -328,7 +379,9 @@ function (use_standard_filesystem)
     message(
         STATUS
             "Linking ${META_PROJECT_NAME} against library \"${STANDARD_FILE_SYSTEM_LIBRARY}\" for std::filesystem support.")
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${STANDARD_FILE_SYSTEM_LIBRARY}" PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}};${STANDARD_FILE_SYSTEM_LIBRARY}"
+        PARENT_SCOPE)
 endfunction ()
 
 # skip subsequent configuration if only the function includes are wanted
