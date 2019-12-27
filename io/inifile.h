@@ -3,6 +3,7 @@
 
 #include "../global.h"
 
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
@@ -11,15 +12,19 @@ namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT IniFile {
 public:
-    IniFile();
+    using ScopeName = std::string;
+    using ScopeData = std::multimap<std::string, std::string>;
+    using Scope = std::pair<ScopeName, ScopeData>;
+    using ScopeList = std::vector<Scope>;
 
-    std::vector<std::pair<std::string, std::multimap<std::string, std::string>>> &data();
-    const std::vector<std::pair<std::string, std::multimap<std::string, std::string>>> &data() const;
+    IniFile();
+    ScopeList &data();
+    const ScopeList &data() const;
     void parse(std::istream &inputStream);
     void make(std::ostream &outputStream);
 
 private:
-    std::vector<std::pair<std::string, std::multimap<std::string, std::string>>> m_data;
+    ScopeList m_data;
 };
 
 /*!
@@ -35,7 +40,7 @@ inline IniFile::IniFile()
  *  - The returned pairs represent the [scope names] and the contained "key = value"-pairs.
  *  - The data might be modified and then saved using the make() method.
  */
-inline std::vector<std::pair<std::string, std::multimap<std::string, std::string>>> &IniFile::data()
+inline IniFile::ScopeList &IniFile::data()
 {
     return m_data;
 }
@@ -44,7 +49,7 @@ inline std::vector<std::pair<std::string, std::multimap<std::string, std::string
  * \brief Returns the data of the file.
  * \remarks The returned pairs represent the [scope names] and the contained "key = value"-pairs.
  */
-inline const std::vector<std::pair<std::string, std::multimap<std::string, std::string>>> &IniFile::data() const
+inline const IniFile::ScopeList &IniFile::data() const
 {
     return m_data;
 }
