@@ -123,7 +123,7 @@ if (META_HEADER_ONLY_LIB)
         ${META_TARGET_NAME} INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                                       $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
     target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
-                               "${META_PRIVATE_COMPILE_DEFINITIONS}")
+                                                             "${META_PRIVATE_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
 else ()
     add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
@@ -136,8 +136,10 @@ else ()
         PUBLIC $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
         PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-    target_compile_definitions(${META_TARGET_NAME} PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}" PRIVATE
-                               "${META_PRIVATE_COMPILE_DEFINITIONS}")
+    target_compile_definitions(
+        ${META_TARGET_NAME}
+        PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
+        PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
     target_compile_options(
         ${META_TARGET_NAME}
         PUBLIC "${META_PUBLIC_LIB_COMPILE_OPTIONS}"
@@ -180,8 +182,8 @@ if (META_HEADER_ONLY_LIB)
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
         INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
-    target_compile_definitions(${META_TARGET_NAME}_interface_sources_for_qtcreator INTERFACE
-                               "${META_PUBLIC_LIB_COMPILE_DEFINITIONS}" "${META_PRIVATE_LIB_COMPILE_DEFINITIONS}")
+    target_compile_definitions(${META_TARGET_NAME}_interface_sources_for_qtcreator
+                               INTERFACE "${META_PUBLIC_LIB_COMPILE_DEFINITIONS}" "${META_PRIVATE_LIB_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator
                            INTERFACE "${META_PUBLIC_LIB_COMPILE_OPTIONS}" "${META_PRIVATE_LIB_COMPILE_OPTIONS}")
     set_target_properties(

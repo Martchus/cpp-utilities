@@ -119,8 +119,10 @@ if (META_PROJECT_IS_APPLICATION)
             PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
                    ${PUBLIC_INCLUDE_DIRS}
             PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-        target_compile_definitions(${META_TARGET_NAME}_testlib PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}" PRIVATE
-                                   "${META_PRIVATE_COMPILE_DEFINITIONS}")
+        target_compile_definitions(
+            ${META_TARGET_NAME}_testlib
+            PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
+            PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
         target_compile_options(
             ${META_TARGET_NAME}_testlib
             PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
@@ -154,8 +156,10 @@ target_include_directories(
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
            ${PUBLIC_INCLUDE_DIRS}
     PRIVATE ${TEST_INCLUDE_DIRS} "${PRIVATE_INCLUDE_DIRS}")
-target_compile_definitions(${META_TARGET_NAME}_tests PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}" PRIVATE
-                           "${META_PRIVATE_COMPILE_DEFINITIONS}")
+target_compile_definitions(
+    ${META_TARGET_NAME}_tests
+    PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
+    PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
 target_compile_options(
     ${META_TARGET_NAME}_tests
     PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
