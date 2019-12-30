@@ -197,7 +197,7 @@ bool ArgumentReader::read(ArgumentVector &args)
         // determine how denotation must be processed
         bool abbreviationFound = false;
         if (argDenotation) {
-            // continue reading childs for abbreviation denotation already detected
+            // continue reading children for abbreviation denotation already detected
             abbreviationFound = false;
             argDenotationType = Abbreviation;
         } else {
