@@ -2,6 +2,7 @@
 #define CPP_UTILITIES_TRAITS_H
 
 #include <iterator>
+#include <string>
 #include <type_traits>
 
 namespace CppUtilities {
