@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+
 # check whether the required project meta-data has been set before including this module
 if (NOT META_PROJECT_NAME)
     message(FATAL_ERROR "No project name (META_PROJECT_NAME) specified.")

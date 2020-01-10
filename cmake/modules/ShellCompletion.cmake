@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+
 if (NOT BASIC_PROJECT_CONFIG_DONE)
     message(FATAL_ERROR "Before including the ShellCompletion module, the BasicConfig module must be included.")
 endif ()

@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+
 # generates and adds a Windows rc file for the application/library also attaches the application icon if ffmpeg is available
 # does nothing if not building with mingw-w64
 

@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+
 # prevent multiple inclusion
 if (DEFINED LIST_TO_STRING_LOADED)
     return()
