@@ -65,6 +65,8 @@ None of these are enabled or set by default, unless stated otherwise.
   analysis with `clang-tidy`
     * can be made unavailable by setting `META_NO_STATIC_ANALYSIS` in the
       project file
+    * the variable [CMAKE_<LANG>_CLANG_TIDY](https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_CLANG_TIDY.html#variable:CMAKE_%3CLANG%3E_CLANG_TIDY)
+      provided by CMake itself provides a similar functionality
 * `CLANG_SOURCE_BASED_COVERAGE_ENABLED=ON/OFF`: enables `coverage` target to
   determine source-based test coverage using Clang/llvm
     * only available when building with Clang under UNIX
