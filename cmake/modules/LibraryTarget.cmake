@@ -149,6 +149,8 @@ else ()
         PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                    SOVERSION "${META_SOVERSION}"
                    CXX_STANDARD "${META_CXX_STANDARD}"
+                   C_VISIBILITY_PRESET hidden
+                   CXX_VISIBILITY_PRESET hidden
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")

@@ -132,6 +132,8 @@ if (META_PROJECT_IS_APPLICATION)
         set_target_properties(
             ${META_TARGET_NAME}_testlib
             PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+                       C_VISIBILITY_PRESET hidden
+                       CXX_VISIBILITY_PRESET hidden
                        LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                        LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                        AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
@@ -168,8 +170,11 @@ target_compile_options(
     PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(
     ${META_TARGET_NAME}_tests
-    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC
-                                                                                              ${STATIC_LINKAGE})
+    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+               C_VISIBILITY_PRESET hidden
+               CXX_VISIBILITY_PRESET hidden
+               LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+               LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
 
 # make the test recognized by ctest
 unset(RUN_TESTS_APPLICATION_ARG)

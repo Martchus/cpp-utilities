@@ -62,6 +62,8 @@ target_compile_options(
 set_target_properties(
     ${META_TARGET_NAME}
     PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+               C_VISIBILITY_PRESET hidden
+               CXX_VISIBILITY_PRESET hidden
                LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
