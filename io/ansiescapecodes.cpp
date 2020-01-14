@@ -114,6 +114,37 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
     return stream;
 }
 
+std::string_view phraseString(Phrases phrase)
+{
+    using namespace std::string_view_literals;
+    switch (phrase) {
+    case Phrases::Error:
+        return "Error: "sv;
+    case Phrases::Warning:
+        return "Warning: "sv;
+    case Phrases::PlainMessage:
+        return "    "sv;
+    case Phrases::SuccessMessage:
+        return "==> "sv;
+    case Phrases::SubMessage:
+        return "  -> "sv;
+    case Phrases::ErrorMessage:
+        return "==> ERROR: "sv;
+    case Phrases::WarningMessage:
+        return "==> WARNING: ";
+    case Phrases::Info:
+        return "Info: "sv;
+    case Phrases::SubError:
+        return "  -> ERROR: "sv;
+    case Phrases::SubWarning:
+        return "  -> WARNING: "sv;
+    case Phrases::InfoMessage:
+        return "==> "sv;
+    default:
+        return std::string_view{};
+    }
+}
+
 } // namespace EscapeCodes
 
 } // namespace CppUtilities

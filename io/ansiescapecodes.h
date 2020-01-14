@@ -5,6 +5,7 @@
 #include "../misc/traits.h"
 
 #include <ostream>
+#include <string_view>
 #include <tuple>
 
 namespace CppUtilities {
@@ -150,6 +151,7 @@ enum class Phrases {
     InfoMessage, /**< bold, white "==> " */
 };
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
+CPP_UTILITIES_EXPORT std::string_view phraseString(Phrases phrase);
 
 } // namespace EscapeCodes
 } // namespace CppUtilities
