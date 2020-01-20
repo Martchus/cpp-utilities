@@ -104,50 +104,48 @@ if (META_PROJECT_IS_LIBRARY)
     message(STATUS "Linking test target against ${META_TARGET_NAME}")
 endif ()
 
-# handle testing an application
-if (META_PROJECT_IS_APPLICATION)
-    # using functions directly from the tests might be required -> also create a 'testlib' and link tests against it
-    if (LINK_TESTS_AGAINST_APP_TARGET)
-        # create target for the 'testlib'
-        set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
-        list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
-        add_library(${META_TARGET_NAME}_testlib SHARED ${TESTLIB_FILES})
-        target_link_libraries(
-            ${META_TARGET_NAME}_testlib
-            PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
-            PRIVATE "${PRIVATE_LIBRARIES}")
-        target_include_directories(
-            ${META_TARGET_NAME}_testlib
-            PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
-                   ${PUBLIC_INCLUDE_DIRS}
-            PRIVATE "${PRIVATE_INCLUDE_DIRS}")
-        target_compile_definitions(
-            ${META_TARGET_NAME}_testlib
-            PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
-            PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
-        target_compile_options(
-            ${META_TARGET_NAME}_testlib
-            PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
-            PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-        set_target_properties(
-            ${META_TARGET_NAME}_testlib
-            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
-                       C_VISIBILITY_PRESET default
-                       CXX_VISIBILITY_PRESET default
-                       LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
-                       LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
-                       AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
-        if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-            target_include_directories(${META_TARGET_NAME}_testlib
-                                       PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")
-            target_compile_options(${META_TARGET_NAME}_testlib
-                                   PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}")
-        endif ()
-        # link tests against it
-        list(APPEND TEST_LIBRARIES ${META_TARGET_NAME}_testlib)
-        # ensure all symbols are visible (man gcc: "Despite the nomenclature, default always means public")
-        set_target_properties(${META_TARGET_NAME}_testlib PROPERTIES CXX_VISIBILITY_PRESET default)
+# create a 'testlib' and link tests against it when testing an application an the tests need to call internal
+# functions of the application
+if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
+    # create target for the 'testlib'
+    set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
+    list(REMOVE_ITEM TESTLIB_FILES main.h main.cpp)
+    add_library(${META_TARGET_NAME}_testlib SHARED ${TESTLIB_FILES})
+    target_link_libraries(
+        ${META_TARGET_NAME}_testlib
+        PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
+        PRIVATE "${PRIVATE_LIBRARIES}")
+    target_include_directories(
+        ${META_TARGET_NAME}_testlib
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
+               ${PUBLIC_INCLUDE_DIRS}
+        PRIVATE "${PRIVATE_INCLUDE_DIRS}")
+    target_compile_definitions(
+        ${META_TARGET_NAME}_testlib
+        PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
+        PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
+    target_compile_options(
+        ${META_TARGET_NAME}_testlib
+        PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
+        PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
+    set_target_properties(
+        ${META_TARGET_NAME}_testlib
+        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+                   C_VISIBILITY_PRESET default
+                   CXX_VISIBILITY_PRESET default
+                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                   LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
+    if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
+        target_include_directories(${META_TARGET_NAME}_testlib
+                                   PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")
+        target_compile_options(${META_TARGET_NAME}_testlib
+                               PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}")
     endif ()
+    # link tests against it
+    list(APPEND TEST_LIBRARIES ${META_TARGET_NAME}_testlib)
+    # ensure all symbols are visible (man gcc: "Despite the nomenclature, default always means public")
+    set_target_properties(${META_TARGET_NAME}_testlib PROPERTIES CXX_VISIBILITY_PRESET default)
 endif ()
 
 # configure test target
