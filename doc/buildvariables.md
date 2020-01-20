@@ -105,6 +105,20 @@ None of these are enabled or set by default, unless stated otherwise.
     * Using `CMAKE_EXE_LINKER_FLAGS` or `CMAKE_SHARED_LINKER_FLAGS` is often not helpful
       because the additional flags need to be added at the end of the linker line most
       of the time.
+* `CONFIGURATION_NAME`: specifies a name to be incorporated into install paths
+    * Builds with different configuration names can be installed alongside within the
+      same install prefix.
+    * Use cases
+        * Installing static and shared libraries within the same prefix.
+        * Installing different versions of the library within the same prefix.
+        * Installing the version linked against Qt 5 and the version linked against
+          Qt 6 within the same prefix (when Qt 6 is released).
+    * Does not affect library names, because their file names might differ anyways
+      between different configurations (e.g. static vs. shared libraries).
+    * Set `CONFIGURATION_TARGET_SUFFIX` in accordance so library names are affected
+      as well.
+    * Set `CONFIGURATION_PACKAGE_SUFFIX` to *use* libraries built with
+      `CONFIGURATION_NAME`.
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions
