@@ -363,9 +363,20 @@ if (NOT META_NO_TIDY
     if (NOT META_CMAKE_FORMAT_OPTIONS)
         set(META_CMAKE_FORMAT_OPTIONS --tab-size=4 --separate-ctrl-name-with-space=True --line-width=125 --autosort=False)
     endif ()
+    set(CMAKE_FORMAT_COMMANDS)
+    foreach (FILE_TO_FORMAT ${FORMATABLE_FILES_CMAKE})
+        list(
+            APPEND
+            CMAKE_FORMAT_COMMANDS
+            COMMAND
+            "${CMAKE_FORMAT_BIN}"
+            --in-place
+            ${META_CMAKE_FORMAT_OPTIONS}
+            "${FILE_TO_FORMAT}")
+    endforeach ()
     add_custom_target(
         "${META_TARGET_NAME}_cmake_tidy"
-        COMMAND "${CMAKE_FORMAT_BIN}" --in-place ${META_CMAKE_FORMAT_OPTIONS} ${FORMATABLE_FILES_CMAKE}
+        ${CMAKE_FORMAT_COMMANDS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT "Tidying ${META_PROJECT_NAME} sources using cmake-format"
         DEPENDS "${FORMATABLE_FILES_CMAKE}")
