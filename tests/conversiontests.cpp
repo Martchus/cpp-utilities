@@ -386,6 +386,7 @@ void ConversionTests::testStringBuilder()
     CPPUNIT_ASSERT_EQUAL("string1string21234string3"s, tupleToString(tuple));
     CPPUNIT_ASSERT_EQUAL("foobarfoo2bar2"s, tupleToString("foo"s % "bar" % "foo2"s % "bar2"));
     CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString("v2.", 3, '.', 0));
+    CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString('v', make_tuple(2, '.', 3, '.', 0)));
 
     // construction of string-tuple and final conversion to string works
     CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string"s, "123456789"s, "12" % string("34") % '5' % 67 + "89");

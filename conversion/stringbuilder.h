@@ -70,6 +70,9 @@ constexpr std::size_t computeTupleElementSize(IntegralType number, typename Stri
     return size;
 }
 
+template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> * = nullptr>
+constexpr std::size_t computeTupleElementSize(TupleType &&tuple, typename StringType::value_type base = 10);
+
 template <class StringType, Traits::EnableIf<std::is_class<StringType>> * = nullptr> inline void append(StringType &target, const StringType *str)
 {
     target.append(*str);
@@ -134,6 +137,9 @@ inline void append(StringType &target, IntegralType number, typename StringType:
     } while (number);
 }
 
+template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> * = nullptr>
+constexpr void append(StringType &target, TupleType &&tuple, typename StringType::value_type base = 10);
+
 template <class StringType, class Tuple, std::size_t N> struct TupleToString {
     static inline std::size_t precomputeSize(const Tuple &tuple)
     {
@@ -158,6 +164,19 @@ template <class StringType, class Tuple> struct TupleToString<StringType, Tuple,
         Helper::append(str, std::get<0>(tuple));
     }
 };
+
+template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> *>
+constexpr std::size_t computeTupleElementSize(TupleType &&tuple, typename StringType::value_type base)
+{
+    return TupleToString<StringType, TupleType, std::tuple_size_v<std::decay_t<TupleType>>>::precomputeSize(std::forward<TupleType>(tuple));
+}
+
+template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> *>
+constexpr void append(StringType &target, TupleType &&tuple, typename StringType::value_type base)
+{
+    return TupleToString<StringType, TupleType, std::tuple_size_v<std::decay_t<TupleType>>>::append(std::forward<TupleType>(tuple), target);
+}
+
 } // namespace Helper
 /// \endcond
 
