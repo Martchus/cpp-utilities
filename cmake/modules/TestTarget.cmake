@@ -104,8 +104,8 @@ if (META_PROJECT_IS_LIBRARY)
     message(STATUS "Linking test target against ${META_TARGET_NAME}")
 endif ()
 
-# create a 'testlib' and link tests against it when testing an application an the tests need to call internal
-# functions of the application
+# create a 'testlib' and link tests against it when testing an application an the tests need to call internal functions of
+# the application
 if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
     # create target for the 'testlib'
     set(TESTLIB_FILES ${HEADER_FILES} ${SRC_FILES} ${WIDGETS_FILES} ${QML_FILES} ${RES_FILES} ${QM_FILES})
@@ -139,8 +139,7 @@ if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
     if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
         target_include_directories(${META_TARGET_NAME}_testlib
                                    PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")
-        target_compile_options(${META_TARGET_NAME}_testlib
-                               PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}")
+        target_compile_options(${META_TARGET_NAME}_testlib PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_CFLAGS_OTHER}")
     endif ()
     # link tests against it
     list(APPEND TEST_LIBRARIES ${META_TARGET_NAME}_testlib)
@@ -168,11 +167,9 @@ target_compile_options(
     PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(
     ${META_TARGET_NAME}_tests
-    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
-               C_VISIBILITY_PRESET hidden
-               CXX_VISIBILITY_PRESET hidden
-               LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
-               LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
+    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" C_VISIBILITY_PRESET hidden CXX_VISIBILITY_PRESET hidden
+
+               LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
 
 # make the test recognized by ctest
 unset(RUN_TESTS_APPLICATION_ARG)
@@ -226,9 +223,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         # merge profiling data
         add_custom_command(
             OUTPUT "${LLVM_PROFILE_DATA_FILE}"
-            COMMAND
-                cat "${LLVM_PROFILE_RAW_LIST_FILE}" | xargs "${LLVM_PROFDATA_BIN}" merge -o "${LLVM_PROFILE_DATA_FILE}"
-                -sparse "${LLVM_PROFILE_RAW_FILE}"
+            COMMAND cat "${LLVM_PROFILE_RAW_LIST_FILE}" | xargs "${LLVM_PROFDATA_BIN}" merge -o "${LLVM_PROFILE_DATA_FILE}"
+                    -sparse "${LLVM_PROFILE_RAW_FILE}"
             COMMENT "Generating profiling data for source-based coverage report"
             DEPENDS "${LLVM_PROFILE_RAW_FILE}" "${LLVM_PROFILE_RAW_LIST_FILE}")
 

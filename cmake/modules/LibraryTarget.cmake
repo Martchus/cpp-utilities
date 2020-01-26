@@ -243,7 +243,7 @@ foreach (CONFIG_TARGET ${CONFIG_TARGETS})
         LIB_INSTALL_DESTINATION)
 endforeach ()
 list(APPEND CMAKE_CONFIG_FILES "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Config.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}ConfigVersion.cmake")
+     "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}ConfigVersion.cmake")
 
 # write the CMake version config file
 write_basic_package_version_file(
