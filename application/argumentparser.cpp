@@ -1508,44 +1508,47 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     // -> completion for files and dirs
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
     if (completionInfo.completeFiles || completionInfo.completeDirs) {
-        using namespace std::filesystem;
-        const auto replace = "'"s, with = "'\"'\"'"s;
-        const auto useActualDir = argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening;
-        const auto dirEntries = [&] {
-            directory_iterator i;
-            if (useActualDir) {
-                i = directory_iterator(actualDir);
-                findAndReplace(actualDir, replace, with);
-            } else {
-                i = directory_iterator(".");
-            }
-            return i;
-        }();
-        for (const auto &dirEntry : dirEntries) {
-            if (!completionInfo.completeDirs && dirEntry.is_directory()) {
-                continue;
-            }
-            if (!completionInfo.completeFiles && !dirEntry.is_directory()) {
-                continue;
-            }
-            auto dirEntryName = dirEntry.path().filename().string();
-            auto hasStartingQuote = false;
-            if (useActualDir) {
-                if (!startsWith(dirEntryName, actualFile)) {
+        try {
+            const auto replace = "'"s, with = "'\"'\"'"s;
+            const auto useActualDir = argc && currentWordIndex <= completionInfo.lastSpecifiedArgIndex && opening;
+            const auto dirEntries = [&] {
+                filesystem::directory_iterator i;
+                if (useActualDir) {
+                    i = filesystem::directory_iterator(actualDir);
+                    findAndReplace(actualDir, replace, with);
+                } else {
+                    i = filesystem::directory_iterator(".");
+                }
+                return i;
+            }();
+            for (const auto &dirEntry : dirEntries) {
+                if (!completionInfo.completeDirs && dirEntry.is_directory()) {
                     continue;
                 }
-                cout << '\'';
-                hasStartingQuote = true;
-                if (actualDir != ".") {
-                    cout << actualDir;
+                if (!completionInfo.completeFiles && !dirEntry.is_directory()) {
+                    continue;
                 }
+                auto dirEntryName = dirEntry.path().filename().string();
+                auto hasStartingQuote = false;
+                if (useActualDir) {
+                    if (!startsWith(dirEntryName, actualFile)) {
+                        continue;
+                    }
+                    cout << '\'';
+                    hasStartingQuote = true;
+                    if (actualDir != ".") {
+                        cout << actualDir;
+                    }
+                }
+                findAndReplace(dirEntryName, replace, with);
+                if (!hasStartingQuote) {
+                    cout << '\'';
+                }
+                cout << dirEntryName << '\'' << ' ';
+                haveFileOrDirCompletions = true;
             }
-            findAndReplace(dirEntryName, replace, with);
-            if (!hasStartingQuote) {
-                cout << '\'';
-            }
-            cout << dirEntryName << '\'' << ' ';
-            haveFileOrDirCompletions = true;
+        } catch (const filesystem::filesystem_error &) {
+            // ignore filesystem errors; there's no good way to report errors when printing bash completion
         }
     }
 #endif
