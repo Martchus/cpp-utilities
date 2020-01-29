@@ -50,7 +50,7 @@ constexpr int Period::days() const
     return m_days;
 }
 
-DateTime CPP_UTILITIES_EXPORT operator+(DateTime begin, Period period);
+CPP_UTILITIES_EXPORT DateTime operator+(DateTime begin, Period period);
 
 } // namespace CppUtilities
 

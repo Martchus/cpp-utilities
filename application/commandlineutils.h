@@ -17,11 +17,11 @@ namespace CppUtilities {
  */
 enum class Response { None, Yes, No };
 
-bool CPP_UTILITIES_EXPORT confirmPrompt(const char *message, Response defaultResponse = Response::None);
+CPP_UTILITIES_EXPORT bool confirmPrompt(const char *message, Response defaultResponse = Response::None);
 
 #ifdef PLATFORM_WINDOWS
-void CPP_UTILITIES_EXPORT startConsole();
-std::pair<std::vector<std::unique_ptr<char[]>>, std::vector<char *>> CPP_UTILITIES_EXPORT convertArgsToUtf8();
+CPP_UTILITIES_EXPORT void startConsole();
+CPP_UTILITIES_EXPORT std::pair<std::vector<std::unique_ptr<char[]>>, std::vector<char *>> convertArgsToUtf8();
 #define CMD_UTILS_START_CONSOLE ::CppUtilities::startConsole();
 #define CMD_UTILS_CONVERT_ARGS_TO_UTF8                                                                                                               \
     auto utf8Args = ::CppUtilities::convertArgsToUtf8();                                                                                             \
@@ -58,7 +58,7 @@ inline TerminalSize::TerminalSize(unsigned short rows, unsigned short columns, u
 {
 }
 
-TerminalSize CPP_UTILITIES_EXPORT determineTerminalSize();
+CPP_UTILITIES_EXPORT TerminalSize determineTerminalSize();
 
 /*!
  * \brief The Indentation class allows printing indentation conveniently, eg. cout << Indentation(4) << ...
