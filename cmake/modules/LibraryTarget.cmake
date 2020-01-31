@@ -25,7 +25,7 @@ include(CMakePackageConfigHelpers)
 include(TemplateFinder)
 
 # set install destination for the CMake modules, config files and header files
-set(INCLUDE_SUBDIR "include")
+set(INCLUDE_SUBDIR "${CMAKE_INSTALL_INCLUDEDIR}")
 if (META_CONFIG_SUFFIX)
     set(INCLUDE_SUBDIR "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 endif ()
@@ -98,6 +98,9 @@ elseif (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 else ()
     # use the project folder itself
     set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/..")
+endif ()
+if (META_PROJECT_NAME STREQUAL reflective_rapidjson)
+    message(STATUS "TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE: ${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}")
 endif ()
 
 # add target for building the library
@@ -378,7 +381,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (PC_FILES)
         install(
             FILES ${PC_FILES}
-            DESTINATION "lib${SELECTED_LIB_SUFFIX}/pkgconfig"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}/pkgconfig"
             COMPONENT pkg-config)
     endif ()
     if (NOT TARGET install-pkg-config)
@@ -420,7 +423,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                 endif ()
             endif ()
             if (NOT LIBRARY_DESTINATION)
-                set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX}/qt/plugins)
+                set(LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}/qt/plugins)
                 message(
                     WARNING
                         "Unable to detect appropriate install directory for Qt plugins (assuming \"${LIBRARY_DESTINATION}\"). Set QT_PLUGIN_DIR to specify the directory to install Qt plugins to manually."
@@ -431,7 +434,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             set(LIBRARY_DESTINATION ${LIBRARY_DESTINATION}/${META_PLUGIN_CATEGORY})
         endif ()
     else ()
-        set(LIBRARY_DESTINATION lib${SELECTED_LIB_SUFFIX})
+        set(LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX})
     endif ()
 
     # add install targets and export targets
@@ -445,7 +448,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     install(
         TARGETS ${TARGETS_TO_EXPORT}
         EXPORT "${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Targets"
-        RUNTIME DESTINATION bin COMPONENT binary
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT binary
         LIBRARY DESTINATION ${LIBRARY_DESTINATION} COMPONENT binary
         ARCHIVE DESTINATION ${LIBRARY_DESTINATION} COMPONENT binary)
     add_dependencies(install-binary "${META_TARGET_NAME}")

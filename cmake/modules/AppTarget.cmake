@@ -97,18 +97,18 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
     if (APPLE)
         set(BUNDLE_INSTALL_DESTINATION
-            bin
+            "${CMAKE_INSTALL_BINDIR}"
             CACHE STRING "specifies the install destination for bundles")
         install(
             TARGETS ${META_TARGET_NAME}
-            RUNTIME DESTINATION bin
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             BUNDLE DESTINATION "${BUNDLE_INSTALL_DESTINATION}" COMPONENT binary)
     elseif (ANDROID)
         install(
             TARGETS ${META_TARGET_NAME}
-            RUNTIME DESTINATION bin COMPONENT binary
-            LIBRARY DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary
-            ARCHIVE DESTINATION lib${SELECTED_LIB_SUFFIX} COMPONENT binary)
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT binary
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}" COMPONENT binary
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}" COMPONENT binary)
     else ()
         install(TARGETS ${META_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
     endif ()
@@ -228,7 +228,7 @@ function (add_custom_desktop_file)
     # add install for the desktop file
     install(
         FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${ARGS_FILE_NAME}.desktop"
-        DESTINATION "share/applications"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
         COMPONENT desktop)
 endfunction ()
 
@@ -278,7 +278,7 @@ function (add_desktop_file)
     # add install for the appstream file
     install(
         FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml"
-        DESTINATION "share/metainfo"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
         COMPONENT appimage)
 endfunction ()
 

@@ -69,9 +69,15 @@ elseif (CONFIGURATION_TARGET_SUFFIX)
     set(TARGET_SUFFIX "-${CONFIGURATION_TARGET_SUFFIX}")
 endif ()
 
+# find standard installation directories
+# note: Allow overriding CMAKE_INSTALL_LIBDIR but don't use the default from GNUInstallDirs (as an Arch Linux user this
+# feels odd and I also want to avoid breaking existing build scripts).
+set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "sets the directory to install libraries to (within the prefix)")
+include(GNUInstallDirs)
+
 # define a few variables
 set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-set(META_DATA_DIR "share/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+set(META_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
@@ -527,8 +533,8 @@ if (LIB_SUFFIX_64 AND CMAKE_SIZEOF_VOID_P MATCHES "8")
 elseif (LIB_SUFFIX_32 AND CMAKE_SIZEOF_VOID_P MATCHES "4")
     set(SELECTED_LIB_SUFFIX "${LIB_SUFFIX_32}")
 endif ()
-set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${SELECTED_LIB_SUFFIX}")
+set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}")
 
 # allow user to specify additional libraries to link against (see buildvariables.md for details)
 set(USER_DEFINED_ADDITIONAL_LIBRARIES
