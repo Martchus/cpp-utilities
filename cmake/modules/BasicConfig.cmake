@@ -69,10 +69,14 @@ elseif (CONFIGURATION_TARGET_SUFFIX)
     set(TARGET_SUFFIX "-${CONFIGURATION_TARGET_SUFFIX}")
 endif ()
 
-# find standard installation directories - note: Allow overriding CMAKE_INSTALL_LIBDIR but don't use the default from
-# GNUInstallDirs (as an Arch Linux user this feels odd and I also want to avoid breaking existing build scripts).
-set(CMAKE_INSTALL_LIBDIR
+# find standard installation directories - note: Allow overriding CMAKE_INSTALL_LIBDIR and LIB_INSTALL_DIR but don't use the
+# default from GNUInstallDirs (as an Arch Linux user this feels odd and I also want to avoid breaking existing build
+# scripts).
+set(LIB_INSTALL_DIR
     "lib"
+    CACHE STRING "sets the directory to install libraries to (within the prefix)")
+set(CMAKE_INSTALL_LIBDIR
+    "${LIB_INSTALL_DIR}"
     CACHE STRING "sets the directory to install libraries to (within the prefix)")
 include(GNUInstallDirs)
 
