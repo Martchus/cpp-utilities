@@ -12,6 +12,11 @@ endif ()
 
 # add bash completion (currently the only supported shell completion)
 if (BASH_COMPLETION_ENABLED)
+    # make install destination configurable
+    set(BASH_COMPLETION_INSTALL_DIR
+        "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion"
+        CACHE STRING "sets the directory to install Bash completion files to")
+
     # find bash-completion.sh template
     include(TemplateFinder)
     find_template_file("bash-completion.sh" CPP_UTILITIES BASH_COMPLETION_TEMPLATE_FILE)
@@ -24,7 +29,7 @@ if (BASH_COMPLETION_ENABLED)
     if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         install(
             DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions"
-            DESTINATION "share/bash-completion"
+            DESTINATION "${BASH_COMPLETION_INSTALL_DIR}"
             COMPONENT bash-completion)
         if (NOT TARGET install-bash-completion)
             add_custom_target(install-bash-completion COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=bash-completion
