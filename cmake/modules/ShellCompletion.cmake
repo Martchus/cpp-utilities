@@ -18,7 +18,7 @@ if (BASH_COMPLETION_ENABLED)
 
     # generate wrapper script for bash completion
     configure_file("${BASH_COMPLETION_TEMPLATE_FILE}"
-                   "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}" @ONLY)
+                   "${CMAKE_CURRENT_BINARY_DIR}/bash-completion/completions/${META_TARGET_NAME}" @ONLY)
 
     # add install target bash completion
     if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
