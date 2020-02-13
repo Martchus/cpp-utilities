@@ -540,7 +540,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-importlib-strip
                 COMMAND "${STRIP_BINARY_PATH}" -g
-                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.dll.a")
+                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.dll.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
@@ -548,7 +548,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
                 COMMAND "${STRIP_BINARY_PATH}" -g
-                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_PREFIX}/lib/lib${META_TARGET_NAME}.a")
+                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.a")
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
         endif ()

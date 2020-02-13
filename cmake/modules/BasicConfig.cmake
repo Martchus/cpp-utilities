@@ -184,7 +184,7 @@ if (APPEND_GIT_REVISION)
 endif ()
 
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
-set(TARGET_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/bin/${META_TARGET_NAME}")
+set(TARGET_EXECUTABLE "${CMAKE_INSTALL_FULL_BINDIR}/${META_TARGET_NAME}")
 
 # create header for feature detection
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
