@@ -13,6 +13,10 @@ using namespace CppUtilities;
 #include <random>
 #include <sstream>
 
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+#include <filesystem>
+#endif
+
 using namespace std;
 
 using namespace CPPUNIT_NS;
@@ -379,14 +383,40 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("16 GiB/s"s, bitrateToString(128.0 * 1e6, true));
 }
 
+struct ConvertibleToString {
+    operator std::string() const;
+};
+
 void ConversionTests::testStringBuilder()
 {
+    // check whether type traits work as expected
+    static_assert(Helper::IsStringType<std::string, std::string>::value);
+    static_assert(!Helper::IsStringType<std::string, std::wstring>::value);
+    static_assert(Helper::IsStringType<std::wstring, std::wstring>::value);
+    static_assert(Helper::IsStringViewType<std::string, std::string_view>::value);
+    static_assert(!Helper::IsStringViewType<std::wstring, std::string_view>::value);
+    static_assert(Helper::IsStringViewType<std::wstring, std::wstring_view>::value);
+    static_assert(Helper::IsConvertibleToConstStringRef<std::string, ConvertibleToString>::value);
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+    static_assert(!Helper::IsConvertibleToConstStringRef<std::string, std::filesystem::path>::value, "conversion via native() preferred");
+#endif
+    static_assert(
+        !Helper::IsConvertibleToConstStringRef<std::string, std::string>::value, "yes, in this context this should not be considered convertible");
+    static_assert(!Helper::IsConvertibleToConstStringRef<std::wstring, ConvertibleToString>::value);
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+    static_assert(Helper::IsConvertibleToConstStringRefViaNative<std::string, std::filesystem::path>::value);
+#endif
+    static_assert(!Helper::IsConvertibleToConstStringRefViaNative<std::string, std::string>::value);
+
     // conversion of string-tuple to string (the actual string builder)
     const tuple<const char *, string, int, const char *> tuple("string1", "string2", 1234, "string3");
     CPPUNIT_ASSERT_EQUAL("string1string21234string3"s, tupleToString(tuple));
     CPPUNIT_ASSERT_EQUAL("foobarfoo2bar2"s, tupleToString("foo"s % "bar" % "foo2"s % "bar2"));
     CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString("v2.", 3, '.', 0));
     CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString('v', make_tuple(2, '.', 3, '.', 0)));
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+    CPPUNIT_ASSERT_EQUAL("path: foo"s, argsToString("path: ", std::filesystem::path("foo")));
+#endif
 
     // construction of string-tuple and final conversion to string works
     CPPUNIT_ASSERT_EQUAL_MESSAGE("result can be passed to any function taking a std::string"s, "123456789"s, "12" % string("34") % '5' % 67 + "89");
