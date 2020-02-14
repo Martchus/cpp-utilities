@@ -2,6 +2,24 @@
 
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
 
+/*!
+ * \class
+ * So one gets e.g. "open failed: Permission denied" instead of
+just "open failed: iostream error".
+ */
+
+/*!
+ * \class NativeFileStream
+ * \brief Provides a standard IO stream instantiated using native APIs.
+ *
+ * Using this class instead of `std::fstream` has the following benefits:
+ * - Under Windows, the specified file path is interpreted as UTF-8 and passed to Windows' unicode API
+ *   to support any kind of non-ASCII characters in file paths.
+ * - It is possible to open a file from a native file descriptor. This is for instance useful when dealing with
+ *   Android's `content://` URLs.
+ * - Better error messages at least when opening a file, e.g. "Permission denied" instead of just "basic_ios::clear".
+ */
+
 #ifdef PLATFORM_WINDOWS
 #include "../conversion/stringconversion.h"
 #endif
@@ -159,12 +177,12 @@ NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode 
 #ifdef PLATFORM_WINDOWS
     descriptor = _wopen(widePath.get(), nativeParams.openMode, nativeParams.permissions);
     if (descriptor == -1) {
-        throw std::ios_base::failure("_wopen failed");
+        throw std::ios_base::failure("_wopen failed", std::error_code(errno, std::system_category()));
     }
 #else
     descriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (descriptor == -1) {
-        throw std::ios_base::failure("open failed");
+        throw std::ios_base::failure("open failed", std::error_code(errno, std::system_category()));
     }
 #endif
     buffer = make_unique<StreamBuffer>(descriptor, openMode);
@@ -172,14 +190,14 @@ NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode 
 #ifdef PLATFORM_WINDOWS
     handle = CreateFileW(widePath.get(), nativeParams.access, nativeParams.shareMode, nullptr, nativeParams.creation, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (handle == INVALID_HANDLE_VALUE) {
-        throw std::ios_base::failure("CreateFileW failed");
+        throw std::ios_base::failure("CreateFileW failed", std::error_code(GetLastError(), std::system_category()));
     }
     buffer = make_unique<StreamBuffer>(handle, boost::iostreams::close_handle);
     // if we wanted to open assign the descriptor as well: descriptor = _open_osfhandle(reinterpret_cast<intptr_t>(handle), nativeParams.flags);
 #else
     descriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (descriptor == -1) {
-        throw std::ios_base::failure("open failed");
+        throw std::ios_base::failure("open failed", std::error_code(errno, std::system_category()));
     }
     buffer = make_unique<StreamBuffer>(descriptor, boost::iostreams::close_handle);
 #endif
@@ -312,9 +330,10 @@ void NativeFileStream::setData(FileBuffer data, std::ios_base::openmode openMode
  */
 std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
 {
-    auto widePath = ::CppUtilities::convertMultiByteToWide(path);
+    auto ec = std::error_code();
+    auto widePath = ::CppUtilities::convertMultiByteToWide(ec, path);
     if (!widePath.first) {
-        throw std::ios_base::failure("Unable to convert path to UTF-16");
+        throw std::ios_base::failure("converting path to UTF-16", ec);
     }
     return std::move(widePath.first);
 }

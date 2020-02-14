@@ -443,12 +443,12 @@ void IoTests::testNativeFileStream()
     } catch (const std::ios_base::failure &failure) {
 #ifdef PLATFORM_WINDOWS
 #ifdef CPP_UTILITIES_USE_BOOST_IOSTREAMS
-        CPPUNIT_ASSERT_EQUAL("CreateFileW failed: iostream error"s, string(failure.what()));
+        TESTUTILS_ASSERT_LIKE("expected error with some message", "CreateFileW failed: .+", failure.what());
 #else
-        CPPUNIT_ASSERT_EQUAL("_wopen failed: iostream error"s, string(failure.what()));
+        TESTUTILS_ASSERT_LIKE("expected error with some message", "_wopen failed: .+", failure.what());
 #endif
 #else
-        CPPUNIT_ASSERT_EQUAL("open failed: iostream error"s, string(failure.what()));
+        TESTUTILS_ASSERT_LIKE("expected error with some message", "open failed: .+", failure.what());
 #endif
     }
     fileStream.clear();

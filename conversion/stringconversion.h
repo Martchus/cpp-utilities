@@ -14,6 +14,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace CppUtilities {
@@ -49,6 +50,8 @@ CPP_UTILITIES_EXPORT StringData convertUtf8ToLatin1(const char *inputBuffer, std
 
 #ifdef PLATFORM_WINDOWS
 using WideStringData = std::pair<std::unique_ptr<wchar_t[]>, int>;
+CPP_UTILITIES_EXPORT WideStringData convertMultiByteToWide(std::error_code &ec, const char *inputBuffer, int inputBufferSize = -1);
+CPP_UTILITIES_EXPORT WideStringData convertMultiByteToWide(std::error_code &ec, const std::string &inputBuffer);
 CPP_UTILITIES_EXPORT WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSize = -1);
 CPP_UTILITIES_EXPORT WideStringData convertMultiByteToWide(const std::string &inputBuffer);
 #endif

@@ -198,18 +198,20 @@ StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferS
  * - Only available under Windows.
  * - If \a inputBufferSize is -1, \a inputBuffer is considered null-terminated.
  */
-WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSize)
+WideStringData convertMultiByteToWide(std::error_code &ec, const char *inputBuffer, int inputBufferSize)
 {
     // calculate required size
     WideStringData widePath;
     widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, nullptr, 0);
     if (widePath.second <= 0) {
+        ec = std::error_code(GetLastError(), std::system_category());
         return widePath;
     }
     // do the actual conversion
     widePath.first = make_unique<wchar_t[]>(static_cast<size_t>(widePath.second));
     widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, widePath.first.get(), widePath.second);
     if (widePath.second <= 0) {
+        ec = std::error_code(GetLastError(), std::system_category());
         widePath.first.reset();
     }
     return widePath;
@@ -219,10 +221,32 @@ WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSi
  * \brief Converts the specified multi-byte string to a wide string using the WinAPI.
  * \remarks Only available under Windows.
  */
-WideStringData convertMultiByteToWide(const std::string &inputBuffer)
+WideStringData convertMultiByteToWide(std::error_code &ec, const std::string &inputBuffer)
 {
     return convertMultiByteToWide(
-        inputBuffer.data(), inputBuffer.size() < (numeric_limits<int>::max() - 1) ? static_cast<int>(inputBuffer.size() + 1) : -1);
+        ec, inputBuffer.data(), inputBuffer.size() < (numeric_limits<int>::max() - 1) ? static_cast<int>(inputBuffer.size() + 1) : -1);
+}
+
+/*!
+ * \brief Converts the specified multi-byte string to a wide string using the WinAPI.
+ * \remarks
+ * - Only available under Windows.
+ * - If \a inputBufferSize is -1, \a inputBuffer is considered null-terminated.
+ */
+WideStringData convertMultiByteToWide(const char *inputBuffer, int inputBufferSize)
+{
+    std::error_code ec;
+    return convertMultiByteToWide(ec, inputBuffer, inputBufferSize);
+}
+
+/*!
+ * \brief Converts the specified multi-byte string to a wide string using the WinAPI.
+ * \remarks Only available under Windows.
+ */
+WideStringData convertMultiByteToWide(const std::string &inputBuffer)
+{
+    std::error_code ec;
+    return convertMultiByteToWide(ec, inputBuffer);
 }
 #endif
 
