@@ -240,9 +240,16 @@ and qtutilities.
   other projects
 
 ### Additional build variables
-* `META_PRIVATE/PUBLIC_COMPILE_DEFINITIONS`: specifies private/public compile
-  definitions
-* `LIBRARIES`: specifies libraries to link against
+* `META_PRIVATE_COMPILE_DEFINITIONS`/`META_PUBLIC_COMPILE_DEFINITIONS`: specifies
+  private/public compile definitions
+* `META_PRIVATE_COMPILE_OPTIONS`/`META_PUBLIC_COMPILE_OPTIONS`: specifies
+  private/public compile options
+* `META_SOVERSION`: specifies the soversion for libraries (defaults to
+  `META_VERSION_MAJOR`)
+* `PUBLIC_LIBRARIES`/`PRIVATE_LIBRARIES`: specifies the public/private libraries
+   to link against
+* `PUBLIC_INCLUDE_DIRS`/`PRIVATE_INCLUDE_DIRS`: specifies the public/private include
+  directories
 * `ADDITIONAL_QT_MODULES`: specifies additional Qt modules to link against
 * `ADDITIONAL_KF_MODULES`: specifies additional KDE frameworks modules to link
   against
