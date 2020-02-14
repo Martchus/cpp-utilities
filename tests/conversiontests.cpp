@@ -398,13 +398,13 @@ void ConversionTests::testStringBuilder()
     static_assert(Helper::IsStringViewType<std::wstring, std::wstring_view>::value);
     static_assert(Helper::IsConvertibleToConstStringRef<std::string, ConvertibleToString>::value);
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
-    static_assert(!Helper::IsConvertibleToConstStringRef<std::string, std::filesystem::path>::value, "conversion via native() preferred");
+    static_assert(!Helper::IsConvertibleToConstStringRef<std::filesystem::path::string_type, std::filesystem::path>::value, "conversion via native() preferred");
 #endif
     static_assert(
         !Helper::IsConvertibleToConstStringRef<std::string, std::string>::value, "yes, in this context this should not be considered convertible");
     static_assert(!Helper::IsConvertibleToConstStringRef<std::wstring, ConvertibleToString>::value);
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
-    static_assert(Helper::IsConvertibleToConstStringRefViaNative<std::string, std::filesystem::path>::value);
+    static_assert(Helper::IsConvertibleToConstStringRefViaNative<std::filesystem::path::string_type, std::filesystem::path>::value);
 #endif
     static_assert(!Helper::IsConvertibleToConstStringRefViaNative<std::string, std::string>::value);
 
@@ -415,7 +415,9 @@ void ConversionTests::testStringBuilder()
     CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString("v2.", 3, '.', 0));
     CPPUNIT_ASSERT_EQUAL("v2.3.0"s, argsToString('v', make_tuple(2, '.', 3, '.', 0)));
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
-    CPPUNIT_ASSERT_EQUAL("path: foo"s, argsToString("path: ", std::filesystem::path("foo")));
+    if constexpr (std::is_same_v<std::filesystem::path::value_type, std::string::value_type>) {
+        CPPUNIT_ASSERT_EQUAL("path: foo"s, argsToString("path: ", std::filesystem::path("foo")));
+    }
 #endif
 
     // construction of string-tuple and final conversion to string works
