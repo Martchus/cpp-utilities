@@ -387,6 +387,23 @@ struct ConvertibleToString {
     operator std::string() const;
 };
 
+struct StringThatDoesNotLikeToBeCopiedOrMoved : public std::string {
+    explicit StringThatDoesNotLikeToBeCopiedOrMoved(const char *value)
+        : std::string(value)
+    {
+    }
+    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(const StringThatDoesNotLikeToBeCopiedOrMoved &other)
+        : std::string(other)
+    {
+        CPPUNIT_FAIL("attempt to copy string: " + other);
+    }
+    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(StringThatDoesNotLikeToBeCopiedOrMoved &&other)
+        : std::string(std::move(other))
+    {
+        CPPUNIT_FAIL("attempt to move string: " + other);
+    }
+};
+
 void ConversionTests::testStringBuilder()
 {
     // check whether type traits work as expected
@@ -398,7 +415,8 @@ void ConversionTests::testStringBuilder()
     static_assert(Helper::IsStringViewType<std::wstring, std::wstring_view>::value);
     static_assert(Helper::IsConvertibleToConstStringRef<std::string, ConvertibleToString>::value);
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
-    static_assert(!Helper::IsConvertibleToConstStringRef<std::filesystem::path::string_type, std::filesystem::path>::value, "conversion via native() preferred");
+    static_assert(!Helper::IsConvertibleToConstStringRef<std::filesystem::path::string_type, std::filesystem::path>::value,
+        "conversion via native() preferred");
 #endif
     static_assert(
         !Helper::IsConvertibleToConstStringRef<std::string, std::string>::value, "yes, in this context this should not be considered convertible");
@@ -428,4 +446,10 @@ void ConversionTests::testStringBuilder()
     CPPUNIT_ASSERT_EQUAL_MESSAGE(
         "regular + operator still works (no problems with ambiguity)"s, "regular + still works"s, "regular"s + " + still works");
     CPPUNIT_ASSERT_EQUAL_MESSAGE("using string_view", "foobar123"s, "foo"sv % "bar"sv + 123);
+
+    // check that for the internal tuple construction no copies are made
+    StringThatDoesNotLikeToBeCopiedOrMoved str(" happen ");
+    const StringThatDoesNotLikeToBeCopiedOrMoved str2("for this");
+    CPPUNIT_ASSERT_EQUAL("no copy/move should happen for this!"s,
+        argsToString(StringThatDoesNotLikeToBeCopiedOrMoved("no copy/move should"), str, str2, StringThatDoesNotLikeToBeCopiedOrMoved("!")));
 }
