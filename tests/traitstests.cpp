@@ -133,8 +133,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TraitsTest);
  */
 void TraitsTest::testDereferenceMaybe()
 {
-    const auto someString = "foo"s;
-    const auto someSmartPointer = make_unique<string>("foo");
+    auto someString = "foo"s;
+    auto someSmartPointer = make_unique<string>("foo");
     CPPUNIT_ASSERT_EQUAL("foo"s, dereferenceMaybe(someString));
     CPPUNIT_ASSERT_EQUAL("foo"s, dereferenceMaybe(someSmartPointer));
+    CPPUNIT_ASSERT_EQUAL("foo"s, dereferenceMaybe(make_unique<string>("foo")));
 }

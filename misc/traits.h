@@ -159,25 +159,13 @@ CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
         void(*begin(std::declval<T &>())));
 
 /// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
-template <typename T, EnableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &value)
+template <typename T, EnableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &&value)
 {
     return *value;
 }
 
 /// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
-template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &value)
-{
-    return value;
-}
-
-/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
-template <typename T, EnableIf<IsDereferencable<T>> * = nullptr> constexpr const auto &dereferenceMaybe(const T &value)
-{
-    return *value;
-}
-
-/// \brief Dereferences the specified \a value if possible; otherwise just returns \a value itself.
-template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr const auto &dereferenceMaybe(const T &value)
+template <typename T, DisableIf<IsDereferencable<T>> * = nullptr> constexpr auto &dereferenceMaybe(T &&value)
 {
     return value;
 }
