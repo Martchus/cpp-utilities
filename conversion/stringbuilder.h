@@ -241,11 +241,6 @@ constexpr void append(StringType &target, TupleType &&tuple, typename StringType
     return TupleToString<StringType, TupleType, std::tuple_size_v<std::decay_t<TupleType>>>::append(std::forward<TupleType>(tuple), target);
 }
 
-template <typename... Elements> constexpr std::tuple<Elements &&...> makeTupleHoldingRefsToTemporaryObjects(Elements &&... args) noexcept
-{
-    return std::tuple<Elements &&...>(std::forward<Elements>(args)...);
-}
-
 } // namespace Helper
 /// \endcond
 
@@ -262,7 +257,7 @@ template <class StringType = std::string, class... Args> inline StringType tuple
 
 template <class StringType = std::string, class... Args> inline StringType argsToString(Args &&... args)
 {
-    return tupleToString(Helper::makeTupleHoldingRefsToTemporaryObjects(std::forward<Args>(args)...));
+    return tupleToString(std::tuple<Args &&...>(std::forward<Args>(args)...));
 }
 
 /*!
