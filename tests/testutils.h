@@ -262,11 +262,18 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  * \brief Asserts whether the specified \a string matches the specified \a regex.
  * \remarks Requires cppunit.
  */
-#define TESTUTILS_ASSERT_LIKE(message, expectedRegex, actualString)                                                                                  \
-    (CPPUNIT_NS::Asserter::failIf(!(std::regex_match(actualString, std::regex(expectedRegex))),                                                      \
+#define TESTUTILS_ASSERT_LIKE_FLAGS(message, expectedRegex, regexFlags, actualString)                                                                \
+    (CPPUNIT_NS::Asserter::failIf(!(std::regex_match(actualString, std::regex(expectedRegex, regexFlags))),                                          \
         CPPUNIT_NS::Message(                                                                                                                         \
             CppUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"'), "Expression: " #actualString, message),     \
         CPPUNIT_SOURCELINE()))
+
+/*!
+ * \brief Asserts whether the specified \a string matches the specified \a regex.
+ * \remarks Requires cppunit.
+ */
+#define TESTUTILS_ASSERT_LIKE(message, expectedRegex, actualString)                                                                                  \
+    TESTUTILS_ASSERT_LIKE_FLAGS(message, expectedRegex, std::regex::ECMAScript, actualString)
 
 /*!
  * \brief Allows printing pairs so key/values of maps/hashes can be asserted using CPPUNIT_ASSERT_EQUAL.
