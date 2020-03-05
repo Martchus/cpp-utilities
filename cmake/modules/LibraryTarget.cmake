@@ -190,8 +190,8 @@ if (META_HEADER_ONLY_LIB)
                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
     target_compile_definitions(${META_TARGET_NAME}_interface_sources_for_qtcreator
                                INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}" "${META_PRIVATE_COMPILE_DEFINITIONS}")
-    target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator
-                           INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
+    target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
+                                                                                         "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
         PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}" SOVERSION "${META_SOVERSION}"
@@ -539,16 +539,20 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-importlib-strip
-                COMMAND "${STRIP_BINARY_PATH}" -g
-                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.dll.a")
+                COMMAND
+                    "${STRIP_BINARY_PATH}" -g
+                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.dll.a"
+            )
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
         endif ()
         if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
             add_custom_target(
                 install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                COMMAND "${STRIP_BINARY_PATH}" -g
-                        "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.a")
+                COMMAND
+                    "${STRIP_BINARY_PATH}" -g
+                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.a"
+            )
             add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
             add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
         endif ()
