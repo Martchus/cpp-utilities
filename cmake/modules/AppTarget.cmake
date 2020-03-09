@@ -125,14 +125,14 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     foreach (DESKTOP_FILE ${DESKTOP_FILES})
         install(
             FILES "${DESKTOP_FILE}"
-            DESTINATION "share/applications"
+            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications"
             COMPONENT desktop)
     endforeach ()
 
     foreach (ICON_FILE ${ICON_FILES})
         install(
             FILES "${ICON_FILE}"
-            DESTINATION "share/icons/hicolor/scalable/apps"
+            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
             COMPONENT desktop)
     endforeach ()
     if (NOT TARGET install-desktop)
