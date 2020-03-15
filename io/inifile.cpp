@@ -9,6 +9,10 @@ namespace CppUtilities {
 /*!
  * \class IniFile
  * \brief The IniFile class parses and makes INI files.
+ * \todo
+ * - Preserve difference between absence of equal sign and empty value after equal sign.
+ * - Preserve order within section.
+ * - Preserve comments.
  */
 
 /*!
