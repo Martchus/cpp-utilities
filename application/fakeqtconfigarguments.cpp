@@ -18,6 +18,8 @@ FakeQtConfigArguments::FakeQtConfigArguments()
     , m_qtQuickGuiArg(
           "qt-quick-gui", 'q', "shows a Qt quick based graphical user interface (the application has not been built with Qt quick support)")
 {
+    m_qtWidgetsGuiArg.setFlags(Argument::Flags::Operation);
+    m_qtQuickGuiArg.setFlags(Argument::Flags::Operation);
 }
 
 } // namespace CppUtilities
