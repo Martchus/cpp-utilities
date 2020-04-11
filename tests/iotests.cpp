@@ -265,6 +265,7 @@ void IoTests::testPathUtilities()
     CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("C:\\libs\\libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("C:\\libs/libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("/usr/lib/libc++utilities.so"));
+    CPPUNIT_ASSERT_EQUAL("libc++utilities.so"s, fileName("libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("/usr/lib/"s, directory("/usr/lib/libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL(string(), directory("libc++utilities.so"));
     CPPUNIT_ASSERT_EQUAL("C:\\libs\\"s, directory("C:\\libs\\libc++utilities.so"));
