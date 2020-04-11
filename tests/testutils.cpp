@@ -204,7 +204,6 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     }
 
     m_valid = true;
-    cerr << TextAttribute::Bold << "Executing test cases ..." << Phrases::EndFlush;
 }
 
 /*!

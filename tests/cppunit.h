@@ -4,6 +4,7 @@
 #include "./testutils.h"
 
 #include "../application/commandlineutils.h"
+#include "../io/ansiescapecodes.h"
 
 #include <cppunit/TestPath.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
             return -1;
         }
     }
+    cerr << EscapeCodes::TextAttribute::Bold << "Executing test cases ..." << EscapeCodes::Phrases::EndFlush;
     const auto ok = runner.run(string(), false);
     cerr << (ok ? "Tests successful\n" : "Tests failed\n");
     return !ok;
