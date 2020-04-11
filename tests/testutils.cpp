@@ -17,6 +17,9 @@
 #include <limits>
 
 #ifdef PLATFORM_UNIX
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+#include <filesystem>
+#endif
 #include <poll.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -544,10 +547,19 @@ string TestApplication::readTestfilePathFromEnv()
 
 string TestApplication::readTestfilePathFromSrcRef()
 {
+    std::string binaryPath;
+#if defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_UNIX)
+    try {
+        binaryPath = std::filesystem::read_symlink("/proc/self/exe").parent_path();
+        binaryPath += '/';
+    } catch (const std::filesystem::filesystem_error &e) {
+        cerr << Phrases::Warning << "Unable to detect binary path for finding \"srcdirref\": " << e.what() << Phrases::EndFlush;
+    }
+#endif
     try {
         // read "srcdirref" file which should contain the path of the source directory; this file should have been
         // create by the CMake module "TestTarget.cmake"
-        auto srcDirContent(readFile("srcdirref", 2 * 1024));
+        auto srcDirContent(readFile(binaryPath + "srcdirref", 2 * 1024));
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
             return string();
