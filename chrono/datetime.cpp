@@ -210,14 +210,14 @@ void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMill
 }
 
 /*!
- * \brief Returns the string representation of the current instance in the ISO format,
- *        eg. 2016-08-29T21:32:31.588539814+02:00.
+ * \brief Returns the string representation of the current instance in the ISO format with custom delimiters,
+ *        eg. 2016/08/29T21-32-31.588539814+02:00 with '/' as \a dateDelimiter and '-' as \a timeDelimiter.
  */
-string DateTime::toIsoString(TimeSpan timeZoneDelta) const
+string DateTime::toIsoStringWithCustomDelimiters(TimeSpan timeZoneDelta, char dateDelimiter, char timeDelimiter, char timeZoneDelimiter) const
 {
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
-    s << setw(4) << year() << '-' << setw(2) << month() << '-' << setw(2) << day() << 'T' << setw(2) << hour() << ':' << setw(2) << minute() << ':'
+    s << setw(4) << year() << dateDelimiter << setw(2) << month() << dateDelimiter << setw(2) << day() << 'T' << setw(2) << hour() << timeDelimiter << setw(2) << minute() << timeDelimiter
       << setw(2) << second();
     const int milli(millisecond());
     const int micro(microsecond());
@@ -238,9 +238,18 @@ string DateTime::toIsoString(TimeSpan timeZoneDelta) const
         } else {
             s << '+';
         }
-        s << setw(2) << timeZoneDelta.hours() << ':' << setw(2) << timeZoneDelta.minutes();
+        s << setw(2) << timeZoneDelta.hours() << timeZoneDelimiter << setw(2) << timeZoneDelta.minutes();
     }
     return s.str();
+}
+
+/*!
+ * \brief Returns the string representation of the current instance in the ISO format,
+ *        eg. 2016-08-29T21:32:31.588539814+02:00.
+ */
+string DateTime::toIsoString(TimeSpan timeZoneDelta) const
+{
+    return toIsoStringWithCustomDelimiters(timeZoneDelta);
 }
 
 /*!
