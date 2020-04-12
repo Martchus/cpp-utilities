@@ -217,8 +217,8 @@ string DateTime::toIsoStringWithCustomDelimiters(TimeSpan timeZoneDelta, char da
 {
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
-    s << setw(4) << year() << dateDelimiter << setw(2) << month() << dateDelimiter << setw(2) << day() << 'T' << setw(2) << hour() << timeDelimiter << setw(2) << minute() << timeDelimiter
-      << setw(2) << second();
+    s << setw(4) << year() << dateDelimiter << setw(2) << month() << dateDelimiter << setw(2) << day() << 'T' << setw(2) << hour() << timeDelimiter
+      << setw(2) << minute() << timeDelimiter << setw(2) << second();
     const int milli(millisecond());
     const int micro(microsecond());
     const int nano(nanosecond());

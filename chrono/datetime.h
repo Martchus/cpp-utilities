@@ -85,7 +85,8 @@ public:
     constexpr bool isSameDay(const DateTime &other) const;
     std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
-    std::string toIsoStringWithCustomDelimiters(TimeSpan timeZoneDelta = TimeSpan(), char dateDelimiter = '-', char timeDelimiter = ':', char timeZoneDelimiter = ':') const;
+    std::string toIsoStringWithCustomDelimiters(
+        TimeSpan timeZoneDelta = TimeSpan(), char dateDelimiter = '-', char timeDelimiter = ':', char timeZoneDelimiter = ':') const;
     std::string toIsoString(TimeSpan timeZoneDelta = TimeSpan()) const;
     constexpr std::time_t toTimeStamp() const;
     static const char *printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation = false);
