@@ -2,7 +2,7 @@
 Useful C++ classes and routines such as argument parser, IO and conversion utilities.
 
 ## Features
-The library utilizes:
+The library contains helpers for:
 
 * parsing command-line arguments and providing Bash completion
     - supports nested arguments
