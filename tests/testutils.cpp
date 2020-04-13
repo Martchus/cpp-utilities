@@ -38,6 +38,7 @@ using namespace CppUtilities::EscapeCodes;
  */
 namespace CppUtilities {
 
+/// \cond
 bool fileSystemItemExists(const string &path)
 {
 #ifdef PLATFORM_UNIX
@@ -95,6 +96,7 @@ bool makeDir(const string &path)
     return CreateDirectoryW(widePath.first.get(), nullptr) || GetLastError() == ERROR_ALREADY_EXISTS;
 #endif
 }
+/// \endcond
 
 TestApplication *TestApplication::s_instance = nullptr;
 
@@ -106,6 +108,8 @@ TestApplication *TestApplication::s_instance = nullptr;
 
 /*!
  * \brief Constructs a TestApplication instance without further arguments.
+ * \remarks This constructor skips parsing CLI arguments. Other initialization like reading environment variables
+ *          for test file paths and working directories is still done.
  * \throws Throws std::runtime_error if an instance has already been created.
  */
 TestApplication::TestApplication()
@@ -536,6 +540,9 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
 }
 #endif // PLATFORM_UNIX
 
+/*!
+ * \brief Reads the path of the test file directory from the environment variable TEST_FILE_PATH.
+ */
 string TestApplication::readTestfilePathFromEnv()
 {
     const char *const testFilesPathEnv = getenv("TEST_FILE_PATH");
@@ -545,8 +552,15 @@ string TestApplication::readTestfilePathFromEnv()
     return argsToString(testFilesPathEnv, '/');
 }
 
+/*!
+ * \brief Reads the path of the test file directory from the "srcdirref" file.
+ * \remarks That file is supposed to contain the path the the source directory. It is supposed to be stored by the build system in the
+ *          same directory as the test executable. The CMake modules contained of these utilities ensure that's the case.
+ */
 string TestApplication::readTestfilePathFromSrcRef()
 {
+    // find the path of the current executable on platforms supporting "/proc/self/exe"; otherwise assume the current working directory
+    // is the executable path
     std::string binaryPath;
 #if defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_UNIX)
     try {
@@ -557,8 +571,7 @@ string TestApplication::readTestfilePathFromSrcRef()
     }
 #endif
     try {
-        // read "srcdirref" file which should contain the path of the source directory; this file should have been
-        // create by the CMake module "TestTarget.cmake"
+        // read "srcdirref" file which should contain the path of the source directory
         auto srcDirContent(readFile(binaryPath + "srcdirref", 2 * 1024));
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
