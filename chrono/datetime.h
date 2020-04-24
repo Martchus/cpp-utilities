@@ -174,10 +174,7 @@ inline DateTime DateTime::fromTime(int hour, int minute, int second, double mill
  */
 inline DateTime DateTime::fromDateAndTime(int year, int month, int day, int hour, int minute, int second, double millisecond)
 {
-    if (std::uint64_t ticks = dateToTicks(year, month, day)) {
-        return DateTime(ticks + timeToTicks(hour, minute, second, millisecond));
-    }
-    return DateTime();
+    return DateTime(dateToTicks(year, month, day) + timeToTicks(hour, minute, second, millisecond));
 }
 
 /*!

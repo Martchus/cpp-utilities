@@ -114,6 +114,14 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT(test1.isSameDay(test1 + TimeSpan::fromHours(8)));
     CPPUNIT_ASSERT(!test1.isSameDay(test1 + TimeSpan::fromHours(9)));
     CPPUNIT_ASSERT_EQUAL("Wed 2012-02-29 15:34:20.033"s, test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
+    const auto test2 = DateTime::fromDateAndTime(1, 1, 1, 15, 34, 20, 33.0);
+    CPPUNIT_ASSERT_EQUAL(1, test2.year());
+    CPPUNIT_ASSERT_EQUAL(1, test2.month());
+    CPPUNIT_ASSERT_EQUAL(1, test2.day());
+    CPPUNIT_ASSERT_EQUAL(15, test2.hour());
+    CPPUNIT_ASSERT_EQUAL(34, test2.minute());
+    CPPUNIT_ASSERT_EQUAL(20, test2.second());
+    CPPUNIT_ASSERT_EQUAL(33, test2.millisecond());
 
     // test fromTimeStamp()/toTimeStamp()
     const auto timeStamp = static_cast<time_t>(1453840331);
