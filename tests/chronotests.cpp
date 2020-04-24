@@ -171,6 +171,9 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_EQUAL(600, test5.first.nanosecond());
     CPPUNIT_ASSERT_EQUAL("2017-08-23T19:40:15.9850776-02:30"s, test5.first.toIsoString(test5.second));
     // test further variants
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("only year", DateTime::fromDate(2008), DateTime::fromIsoStringGmt("2008"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("only year and month", DateTime::fromDate(2008, 12), DateTime::fromIsoStringGmt("2008-12"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("only date", DateTime::fromDate(2008, 12, 5), DateTime::fromIsoStringGmt("2008-12-05"));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Zulu time", TimeSpan(), DateTime::fromIsoString("2017-08-23T19:40:15.985077682Z").second);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no minutes", TimeSpan::fromHours(3), DateTime::fromIsoString("2017-08-23T19:40:15.985077682+03").second);
     const auto test6 = DateTime::fromIsoString("1970-01-01T01:02:03+01:00");

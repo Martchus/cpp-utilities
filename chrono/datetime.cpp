@@ -119,6 +119,8 @@ DateTime DateTime::fromString(const char *str)
 std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
 {
     int values[9] = { 0 };
+    int *const yearIndex = values + 0;
+    int *const monthIndex = values + 1;
     int *const dayIndex = values + 2;
     int *const hourIndex = values + 3;
     int *const secondsIndex = values + 5;
@@ -178,7 +180,13 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
     if (deltaNegative) {
         delta = TimeSpan(-delta.totalTicks());
     }
-    return make_pair(DateTime::fromDateAndTime(values[0], values[1], *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), delta);
+    if (valueIndex < monthIndex && !*monthIndex) {
+        *monthIndex = 1;
+    }
+    if (valueIndex < dayIndex && !*dayIndex) {
+        *dayIndex = 1;
+    }
+    return make_pair(DateTime::fromDateAndTime(*yearIndex, *monthIndex, *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), delta);
 }
 
 /*!
