@@ -19,7 +19,9 @@ enum class DateTimeOutputFormat {
     DateOnly, /**< date only */
     TimeOnly, /**< time only */
     DateTimeAndWeekday, /**< date with weekday and time */
-    DateTimeAndShortWeekday /**< date with abbreviated weekday and time */
+    DateTimeAndShortWeekday, /**< date with abbreviated weekday and time */
+    Iso, /**< ISO format like DateTime::toIsoString() */
+    IsoOmittingDefaultComponents, /**< ISO format like DateTime::toIsoString() omitting default components, e.g. just "2017" instead of "2017-01-01T00:00:00" */
 };
 
 /*!

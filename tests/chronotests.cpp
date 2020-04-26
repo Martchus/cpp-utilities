@@ -187,6 +187,23 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_THROW_MESSAGE("invalid .", DateTime::fromIsoString("2017-08.5-23T19:40:15.985077682+02:00"), ConversionException);
     CPPUNIT_ASSERT_THROW_MESSAGE("invalid :", DateTime::fromIsoString("2017:08-23T19:40:15.985077682+02:00"), ConversionException);
     CPPUNIT_ASSERT_THROW_MESSAGE("invalid :", DateTime::fromIsoString("2017-08-23T19:40:15:985077682+02:00"), ConversionException);
+    // ISO string via toString() format option
+    CPPUNIT_ASSERT_EQUAL("1234-05-06T07:08:09.0105005"s, DateTime::fromDateAndTime(1234, 5, 6, 7, 8, 9, 10.5005).toString(DateTimeOutputFormat::Iso));
+    CPPUNIT_ASSERT_EQUAL("1234-05-06T07:08:09.0105005"s,
+        DateTime::fromDateAndTime(1234, 5, 6, 7, 8, 9, 10.5005).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("1234-05-06T07:08:09.010500"s,
+        DateTime::fromDateAndTime(1234, 5, 6, 7, 8, 9, 10.500).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL(
+        "1234-05-06T07:08:09.010"s, DateTime::fromDateAndTime(1234, 5, 6, 7, 8, 9, 10).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL(
+        "1234-05-06T07:08:09"s, DateTime::fromDateAndTime(1234, 5, 6, 7, 8, 9).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL(
+        "1234-05-06T07:08"s, DateTime::fromDateAndTime(1234, 5, 6, 7, 8).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("1234-05-06T07"s, DateTime::fromDateAndTime(1234, 5, 6, 7).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("1234-05-06"s, DateTime::fromDateAndTime(1234, 5, 6).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("1234-05"s, DateTime::fromDateAndTime(1234, 5).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("1234"s, DateTime::fromDateAndTime(1234).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
+    CPPUNIT_ASSERT_EQUAL("0001"s, DateTime().toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
 
 // test now() and exactNow() (or at least whether both behave the same)
 #if defined(PLATFORM_UNIX)

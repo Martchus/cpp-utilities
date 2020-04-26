@@ -196,8 +196,53 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
  */
 void DateTime::toString(string &result, DateTimeOutputFormat format, bool noMilliseconds) const
 {
+    if (format == DateTimeOutputFormat::Iso) {
+        result = toIsoString();
+        return;
+    }
+
     stringstream s(stringstream::in | stringstream::out);
     s << setfill('0');
+
+    if (format == DateTimeOutputFormat::IsoOmittingDefaultComponents) {
+        constexpr auto dateDelimiter = '-', timeDelimiter = ':';
+        const int components[] = { year(), month(), day(), hour(), minute(), second(), millisecond(), microsecond(), nanosecond() };
+        const int *const firstTimeComponent = components + 3;
+        const int *const firstFractionalComponent = components + 6;
+        const int *const lastComponent = components + 8;
+        const int *componentsEnd = noMilliseconds ? firstFractionalComponent : lastComponent + 1;
+        for (const int *i = componentsEnd - 1; i > components; --i) {
+            if (i >= firstTimeComponent && *i == 0) {
+                componentsEnd = i;
+            } else if (i < firstTimeComponent && *i == 1) {
+                componentsEnd = i;
+            }
+        }
+        for (const int *i = components; i != componentsEnd; ++i) {
+            if (i == firstTimeComponent) {
+                s << 'T';
+            } else if (i == firstFractionalComponent) {
+                s << '.';
+            }
+            if (i == components) {
+                s << setw(4) << *i;
+            } else if (i < firstFractionalComponent) {
+                if (i < firstTimeComponent) {
+                    s << dateDelimiter;
+                } else if (i > firstTimeComponent) {
+                    s << timeDelimiter;
+                }
+                s << setw(2) << *i;
+            } else if (i < lastComponent) {
+                s << setw(3) << *i;
+            } else {
+                s << *i / TimeSpan::nanosecondsPerTick;
+            }
+        }
+        result = s.str();
+        return;
+    }
+
     if (format == DateTimeOutputFormat::DateTimeAndWeekday || format == DateTimeOutputFormat::DateTimeAndShortWeekday)
         s << printDayOfWeek(dayOfWeek(), format == DateTimeOutputFormat::DateTimeAndShortWeekday) << ' ';
     if (format == DateTimeOutputFormat::DateOnly || format == DateTimeOutputFormat::DateAndTime || format == DateTimeOutputFormat::DateTimeAndWeekday
