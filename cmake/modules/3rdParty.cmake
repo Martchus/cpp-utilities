@@ -400,21 +400,41 @@ elseif ("${META_PROJECT_TYPE}" STREQUAL "application")
 endif ()
 if (META_PROJECT_IS_LIBRARY)
     option(BUILD_SHARED_LIBS ON "whether to build shared or static libraries")
-    option(STATIC_LIBRARY_LINKAGE "adds flags for static linkage when building dynamic libraries" OFF)
+    option(
+        STATIC_LIBRARY_LINKAGE
+        "prefer linking against dependencies statically; adds additional flags for static linkage; only applies when building shared libraries"
+        OFF)
 elseif (META_PROJECT_IS_APPLICATION)
-    option(STATIC_LINKAGE "adds flags for static linkage when building applications" OFF)
+    option(
+        STATIC_LINKAGE
+        "prefer linking against dependencies statically; adds additional flags for static linkage; only applies when building applications"
+        OFF)
 endif ()
 
 # configure "static linkage"
 if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE AND META_PROJECT_IS_LIBRARY))
     set(STATIC_LINKAGE_CONFIGURED ON)
 
+    # add options to opt out from linking statically against the C and C++ standard library as it might not work under all
+    # platforms (see https://github.com/Martchus/syncthingtray/issues/64)
+    option(NO_STATIC_LIBGCC
+           "prevent linking statically against libgcc despite aiming otherwise for a statically linked build" OFF)
+    option(NO_STATIC_LIBSTDCXX
+           "prevent linking statically against libstdc++ despite aiming otherwise for a statically linked build" OFF)
+
     # add additional linker flags to achieve a fully statically linked build
     set(STATIC_LINKAGE_LINKER_FLAGS)
     if (NOT APPLE)
         list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static)
+        # note: The -static flag is considered completely unsupported under Apple platforms (see
+        # https://stackoverflow.com/questions/844819/how-to-static-link-on-os-x).
     endif ()
-    list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static-libstdc++ -static-libgcc)
+    if (NOT NO_STATIC_LIBGCC)
+        list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static-libgcc)
+    endif ()
+    if (NOT NO_STATIC_LIBSTDCXX)
+        list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static-libstdc++)
+    endif ()
 
     if (META_PROJECT_IS_APPLICATION)
         list(APPEND META_ADDITIONAL_LINK_FLAGS ${STATIC_LINKAGE_LINKER_FLAGS})
