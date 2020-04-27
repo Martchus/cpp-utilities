@@ -193,16 +193,9 @@ set(TARGET_EXECUTABLE "${CMAKE_INSTALL_FULL_BINDIR}/${META_TARGET_NAME}")
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
     include(WriteCompilerDetectionHeader)
     write_compiler_detection_header(
-        FILE
-        "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h"
-        PREFIX
-        "${META_PROJECT_VARNAME_UPPER}"
-        COMPILERS
-        GNU
-        Clang
-        AppleClang
-        FEATURES
-        ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/features.h" PREFIX "${META_PROJECT_VARNAME_UPPER}"
+        COMPILERS GNU Clang AppleClang
+        FEATURES ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
 endif ()
 
 # disable new ABI (can't catch ios_base::failure with new ABI)
