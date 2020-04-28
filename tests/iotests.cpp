@@ -45,6 +45,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testBitReader);
     CPPUNIT_TEST(testPathUtilities);
     CPPUNIT_TEST(testIniFile);
+    CPPUNIT_TEST(testAdvancedIniFile);
     CPPUNIT_TEST(testCopy);
     CPPUNIT_TEST(testReadFile);
     CPPUNIT_TEST(testWriteFile);
@@ -63,6 +64,7 @@ public:
     void testBitReader();
     void testPathUtilities();
     void testIniFile();
+    void testAdvancedIniFile();
     void testCopy();
     void testReadFile();
     void testWriteFile();
@@ -314,6 +316,74 @@ void IoTests::testIniFile()
     IniFile ini2;
     ini2.parse(outputFile);
     CPPUNIT_ASSERT(ini.data() == ini2.data());
+}
+
+/*!
+ * \brief Tests AdvancedIniFile.
+ */
+void IoTests::testAdvancedIniFile()
+{
+    // prepare reading test file
+    fstream inputFile;
+    inputFile.exceptions(ios_base::failbit | ios_base::badbit);
+    inputFile.open(testFilePath("pacman.conf"), ios_base::in);
+
+    // parse the test file
+    AdvancedIniFile ini;
+    ini.parse(inputFile);
+
+    // check whether scope data is as expected
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("5 scopes (taking implicit empty section at the end into account)", 5_st, ini.sections.size());
+    auto options = ini.findSection("options");
+    CPPUNIT_ASSERT(options != ini.sectionEnd());
+    TESTUTILS_ASSERT_LIKE_FLAGS(
+        "comment block before section", "# Based on.*\n.*# GENERAL OPTIONS\n#\n"s, std::regex::extended, options->precedingCommentBlock);
+    CPPUNIT_ASSERT_EQUAL(7_st, options->fields.size());
+    CPPUNIT_ASSERT_EQUAL("HoldPkg"s, options->fields[0].key);
+    CPPUNIT_ASSERT_EQUAL("pacman glibc"s, options->fields[0].value);
+    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[0].flags & IniFileFieldFlags::HasValue);
+    TESTUTILS_ASSERT_LIKE_FLAGS("comment block between section header and first field",
+        "# The following paths are.*\n.*#HookDir     = /etc/pacman\\.d/hooks/\n"s, std::regex::extended, options->fields[0].precedingCommentBlock);
+    CPPUNIT_ASSERT_EQUAL(""s, options->fields[0].followingInlineComment);
+    CPPUNIT_ASSERT_EQUAL("Foo"s, options->fields[1].key);
+    CPPUNIT_ASSERT_EQUAL("bar"s, options->fields[1].value);
+    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[1].flags & IniFileFieldFlags::HasValue);
+    TESTUTILS_ASSERT_LIKE_FLAGS("comment block between fields", "#XferCommand.*\n.*#CleanMethod = KeepInstalled\n"s, std::regex::extended,
+        options->fields[1].precedingCommentBlock);
+    CPPUNIT_ASSERT_EQUAL("# inline comment"s, options->fields[1].followingInlineComment);
+    CPPUNIT_ASSERT_EQUAL("CheckSpace"s, options->fields[3].key);
+    CPPUNIT_ASSERT_EQUAL(""s, options->fields[3].value);
+    CPPUNIT_ASSERT_MESSAGE("no value present", !(options->fields[3].flags & IniFileFieldFlags::HasValue));
+    TESTUTILS_ASSERT_LIKE_FLAGS("empty lines in comments preserved", "\n# Pacman.*\n.*\n\n#NoUpgrade   =\n.*#TotalDownload\n"s, std::regex::extended,
+        options->fields[3].precedingCommentBlock);
+    CPPUNIT_ASSERT_EQUAL(""s, options->fields[3].followingInlineComment);
+    auto extraScope = ini.findSection(options, "extra");
+    CPPUNIT_ASSERT(extraScope != ini.sectionEnd());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("comment block which is only an empty line", "\n"s, extraScope->precedingCommentBlock);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("inline comment after scope", "# an inline comment after a scope name"s, extraScope->followingInlineComment);
+    CPPUNIT_ASSERT_EQUAL(1_st, extraScope->fields.size());
+    CPPUNIT_ASSERT(ini.sections.back().flags & IniFileSectionFlags::Implicit);
+    TESTUTILS_ASSERT_LIKE_FLAGS("comment block after last field present in implicitly added last scope", "\n# If you.*\n.*custompkgs\n"s,
+        std::regex::extended, ini.sections.back().precedingCommentBlock);
+
+    // test finding a field from file level and const access
+    const auto *const constIniFile = &ini;
+    auto includeField = constIniFile->findField("extra", "Include");
+    CPPUNIT_ASSERT(includeField.has_value());
+    CPPUNIT_ASSERT_EQUAL("Include"s, includeField.value()->key);
+    CPPUNIT_ASSERT_EQUAL("/etc/pacman.d/mirrorlist"s, includeField.value()->value);
+    CPPUNIT_ASSERT_MESSAGE("field not present", !constIniFile->findField("extra", "Includ").has_value());
+    CPPUNIT_ASSERT_MESSAGE("scope not present", !constIniFile->findField("extr", "Includ").has_value());
+
+    // write values again; there shouldn't be a difference as the parser and the writer are supposed to
+    // preserve the order of all elements and comments
+    std::stringstream newFile;
+    ini.make(newFile);
+    std::string originalContents;
+    inputFile.clear();
+    inputFile.seekg(std::ios_base::beg);
+    originalContents.assign((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
+    CPPUNIT_ASSERT_EQUAL(originalContents, newFile.str());
 }
 
 /*!
