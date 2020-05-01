@@ -83,7 +83,7 @@ struct CPP_UTILITIES_EXPORT AdvancedIniFile {
         std::string precedingCommentBlock;
         std::string followingInlineComment;
         std::size_t paddedKeyLength = 0;
-        IniFileFieldFlags flags = IniFileFieldFlags::None;
+        IniFileFieldFlags flags = IniFileFieldFlags::HasValue;
     };
     using FieldList = std::vector<Field>;
     struct Section {
