@@ -383,6 +383,8 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("16 GiB/s"s, bitrateToString(128.0 * 1e6, true));
 }
 
+/// \cond
+
 struct ConvertibleToString {
     operator std::string() const;
 };
@@ -403,6 +405,8 @@ struct StringThatDoesNotLikeToBeCopiedOrMoved : public std::string {
         CPPUNIT_FAIL("attempt to move string: " + other);
     }
 };
+
+/// \endcond
 
 void ConversionTests::testStringBuilder()
 {
