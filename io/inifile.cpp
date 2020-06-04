@@ -193,6 +193,9 @@ void IniFile::make(ostream &outputStream)
  * \remarks
  * The AdvancedIniFile class is still experimental. It might be modified in an incompatible way or even removed
  * in the next minor or patch release.
+ * \todo
+ * Support "line continuation", where a backslash followed immediately by EOL (end-of-line) causes the line break to be ignored,
+ * and the "logical line" to be continued on the next actual line from the INI file.
  */
 
 /*!
