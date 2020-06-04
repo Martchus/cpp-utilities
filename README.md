@@ -19,11 +19,11 @@ The library contains helpers for:
     - conversion from number to string and vice verca
     - encoding/decoding base-64
     - building string without multiple heap allocations ("string builder")
-* IO
+* using standard IO streams
     - reading/writing primitive data types of various sizes (little-endian and big-endian)
     - reading/writing terminated strings and size-prefixed strings
     - reading/writing INI files
-    - reading bitwise
+    - reading bitwise (from a buffer; not using standard IO streams)
     - writing formatted output using ANSI escape sequences
     - instantiating a standard IO stream from a native file descriptor to support UTF-8 encoded
       file paths under Windows and Android's `content://` URLs
@@ -64,18 +64,18 @@ Besides, the library provides a few useful algorithms and data structures:
 * For dependencies of my other projects check the README.md of these projects.
 
 ### How to build
-Just run:
+Example using `make`:
 ```
 cd "path/to/build/directory"
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX="/final/install/location" \
       "path/to/projectdirectory"
 make tidy # format source files (optional, must be enabled via CLANG_FORMAT_ENABLED)
-make
+make # build the binaries
 make check # build and run tests (optional)
 make coverage # build and run tests measuring test coverage (optional, must be enabled via CLANG_SOURCE_BASED_COVERAGE_ENABLED)
 make apidoc # build API documentation (optional)
-make DESTDIR="/temporary/install/location" install
+make DESTDIR="/temporary/install/location" install # install binaries, headers and additional files
 ```
 
 #### General notes
@@ -88,12 +88,12 @@ make DESTDIR="/temporary/install/location" install
 * If thread local storage is not supported by your compiler/platform (might be the case on MacOS), you can disable making use of it
   via `ENABLE_THREAD_LOCAL=OFF`.
 * To disable use of `std::filesystem`, set `USE_STANDARD_FILESYSTEM=OFF`. This is required when building for MacOS and Android at the time of
-  writing this documentation. Note that the Bash completion will not be able to suggest files and directory with `USE_STANDARD_FILESYSTEM=OFF`.
+  writing this documentation. Note that the Bash completion will not be able to suggest files and directories with `USE_STANDARD_FILESYSTEM=OFF`.
 * For more detailed documentation, see the documentation about build variables (in
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in Doxygen version accessible via "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Android, Windows and
-  MacOS X in form of Arch Linux packages. These scripts can be used as an example also when building under another platform.
+  MacOS X in form of Arch Linux packages. These scripts can be used as an example also when building under/for other platforms.
 
 #### Building for Windows
 * Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
@@ -104,8 +104,8 @@ make DESTDIR="/temporary/install/location" install
   ```
 
 * To create the \*.ico file for the application icon ffmpeg/avconv is required.
-* The target ```install-mingw-w64-strip``` can be used as in the example above to only install files
-  suitable for creating a cross-compiler package and additionally strip the binaries.
+* The target `install-mingw-w64-strip` can be used as in the example above to only install files suitable for creating a cross-compiler package
+  and additionally strip the binaries.
 
 #### Building for MacOS X
 * Building for MacOS X under GNU/Linux is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
@@ -113,30 +113,26 @@ make DESTDIR="/temporary/install/location" install
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel) to build Syncthing Tray
 
 #### Development builds
-During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big project.
+During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big
+project.
 
-This can be easily achieved by using CMake's ```add_subdirectory()``` function. For project files
-see the repository [subdirs](https://github.com/Martchus/subdirs). For an example, see
+This can be easily achieved by using CMake's `add_subdirectory()` function. For project files see the repository
+[subdirs](https://github.com/Martchus/subdirs). For an example, see
 [build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight).
 
-For a debug build, just use ```-DCMAKE_BUILD_TYPE=Debug```.
+For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`.
 
 #### Arch Linux package
-The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of
-the latest release and the Git master.
+The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of the latest release and
+the Git master.
 
 PKGBUILDs to cross compile for Android, Windows (using mingw-w64) and for MacOS X (using osxcross) are included as well.
 
 #### RPM packages for openSUSE and Fedora
-RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler).
-Packages are available for x86_64, aarch64 and armv7l.
+RPM \*.spec files can be found at [openSUSE Build Servide](https://build.opensuse.org/project/show/home:mkittler). Packages are available for
+several architectures.
 
-There is also a [sub project](https://build.opensuse.org/project/show/home:mkittler:vcs) containing the builds from
-the Git master branch.
+There is also a [sub project](https://build.opensuse.org/project/show/home:mkittler:vcs) containing the builds from the Git master branch.
 
 #### Gentoo
 Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
-
-### General notes
-* There is a workaround for [GCC Bug 66145](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145) provided
-  in io/catchiofailure.h.
