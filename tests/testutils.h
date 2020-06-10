@@ -181,6 +181,8 @@ inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &ou
 
 CPP_UTILITIES_EXPORT int execHelperApp(
     const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
+CPP_UTILITIES_EXPORT int execHelperAppInSearchPath(
+    const char *appName, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
 #endif // PLATFORM_UNIX
 
 /*!

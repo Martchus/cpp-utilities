@@ -361,8 +361,8 @@ string TestApplication::workingCopyPathAs(
  * \brief Executes an application with the specified \a args.
  * \remarks Provides internal implementation of execApp() and execHelperApp().
  */
-int execAppInternal(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout,
-    const std::string &newProfilingPath)
+static int execAppInternal(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout,
+    const std::string &newProfilingPath, bool enableSearchPath = false)
 {
     // print log message
     if (!suppressLogging) {
@@ -460,7 +460,12 @@ int execAppInternal(const char *appPath, const char *const *args, std::string &o
         }
 
         // -> execute application
-        execv(appPath, const_cast<char *const *>(args));
+        if (enableSearchPath) {
+            execvp(appPath, const_cast<char *const *>(args));
+
+        } else {
+            execv(appPath, const_cast<char *const *>(args));
+        }
         cerr << Phrases::Error << "Unable to execute \"" << appPath << "\": execv() failed" << Phrases::EndFlush;
         exit(-101);
     }
@@ -537,6 +542,22 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
 int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
 {
     return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, string());
+}
+
+/*!
+ * \brief Executes an application with the specified \a args.
+ *
+ * Searches for the location of \a appName among the directories specified by the PATH environment variable.
+ *
+ * \remarks
+ * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
+ *   invoke the application to be tested itself.
+ * - Currently only supported under UNIX.
+ */
+int execHelperAppInSearchPath(
+    const char *appName, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
+{
+    return execAppInternal(appName, args, output, errors, suppressLogging, timeout, string(), true);
 }
 #endif // PLATFORM_UNIX
 
