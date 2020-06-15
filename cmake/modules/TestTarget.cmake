@@ -7,7 +7,7 @@ if (TEST_CONFIG_DONE)
     message(FATAL_ERROR "Can not include TestTarget module when tests are already configured.")
 endif ()
 
-option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the \"all\" target (enabled by default)" ON)
+include(TestUtilities)
 
 # find and link against cppunit if required (used by all my projects, so it is required by default)
 if (NOT META_NO_CPP_UNIT)
@@ -82,21 +82,6 @@ endif ()
 # always link test applications against c++utilities
 list(APPEND TEST_LIBRARIES ${CPP_UTILITIES_LIB})
 
-# add target for test executable, but exclude it from the "all" target when EXCLUDE_TESTS_FROM_ALL is set
-if (EXCLUDE_TESTS_FROM_ALL)
-    set(TESTS_EXCLUSION EXCLUDE_FROM_ALL)
-else ()
-    unset(TESTS_EXCLUSION)
-endif ()
-add_executable(${META_TARGET_NAME}_tests ${TESTS_EXCLUSION} ${TEST_HEADER_FILES} ${TEST_SRC_FILES})
-
-# add top-level target to build all test targets conveniently, also when excluded from "all" target
-if (NOT TARGET tests)
-    add_custom_target(tests DEPENDS ${META_TARGET_NAME}_tests)
-else ()
-    add_dependencies(tests ${META_TARGET_NAME}_tests)
-endif ()
-
 # handle testing a library (which is default project type)
 if (META_PROJECT_IS_LIBRARY)
     # when testing a library, the test application always needs to link against it
@@ -145,38 +130,30 @@ if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
 endif ()
 
 # configure test target
-target_link_libraries(
-    ${META_TARGET_NAME}_tests
-    PUBLIC ${META_ADDITIONAL_LINK_FLAGS} ${META_ADDITIONAL_LINK_FLAGS_TEST_TARGET} "${PUBLIC_LIBRARIES}"
-    PRIVATE "${TEST_LIBRARIES}" "${PRIVATE_LIBRARIES}")
-target_include_directories(
-    ${META_TARGET_NAME}_tests
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}>
-           ${PUBLIC_INCLUDE_DIRS}
-    PRIVATE ${TEST_INCLUDE_DIRS} "${PRIVATE_INCLUDE_DIRS}")
-target_compile_definitions(
-    ${META_TARGET_NAME}_tests
-    PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
-    PRIVATE "${META_PRIVATE_COMPILE_DEFINITIONS}")
-target_compile_options(
-    ${META_TARGET_NAME}_tests
-    PUBLIC "${META_PUBLIC_COMPILE_OPTIONS}"
-    PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
-set_target_properties(
-    ${META_TARGET_NAME}_tests
-    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" C_VISIBILITY_PRESET hidden CXX_VISIBILITY_PRESET hidden
-               LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
-
-# make the test recognized by ctest
-unset(RUN_TESTS_APPLICATION_ARG)
+unset(TEST_TARGET_OPTIONS)
+unset(RUN_TESTS_APPLICATION_ARGS)
 if (META_PROJECT_TYPE STREQUAL "application")
-    set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${META_TARGET_NAME}>")
+    set(RUN_TESTS_APPLICATION_ARGS -a "$<TARGET_FILE:${META_TARGET_NAME}_tests>")
 endif ()
-if (NOT META_TEST_TARGET_IS_MANUAL)
-    add_test(NAME ${META_PROJECT_NAME}_run_tests
-             COMMAND ${META_TARGET_NAME}_tests -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w
-                     "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS})
+set(RUN_TESTS_ARGS -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles" -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir"
+                   ${RUN_TESTS_APPLICATION_ARGS})
+if (META_TEST_TARGET_IS_MANUAL)
+    list(APPEND TEST_TARGET_OPTIONS MANUAL)
 endif ()
+configure_test_target(
+    TARGET_NAME
+    "${META_TARGET_NAME}"
+    TEST_NAME
+    "tests"
+    HEADER_FILES
+    "${TEST_HEADER_FILES}"
+    SRC_FILES
+    "${TEST_SRC_FILES}"
+    LIBRARIES
+    "${TEST_LIBRARIES}"
+    RUN_ARGS
+    "${RUN_TESTS_ARGS}"
+    ${TEST_TARGET_OPTIONS})
 
 # enable source code based coverage analysis using clang
 if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
