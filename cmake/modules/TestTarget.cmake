@@ -302,10 +302,5 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     endif ()
 endif ()
 
-# add the test executable to the dependencies of the check target
-if (NOT META_TEST_TARGET_IS_MANUAL)
-    add_dependencies(check ${META_TARGET_NAME}_tests)
-endif ()
-
 set(META_HAVE_TESTS YES)
 set(TEST_CONFIG_DONE YES)

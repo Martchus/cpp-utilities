@@ -64,4 +64,9 @@ function (configure_test_target)
     if (NOT ARGS_MANUAL)
         add_test(NAME "${ARGS_TARGET_NAME}_run_${ARGS_TEST_NAME}" COMMAND "${TEST_TARGET_NAME}" ${RUN_ARGS})
     endif ()
+
+    # add the test executable to the dependencies of the check target
+    if (NOT ARGS_MANUAL AND TARGET check)
+        add_dependencies(check ${TEST_TARGET_NAME})
+    endif ()
 endfunction ()
