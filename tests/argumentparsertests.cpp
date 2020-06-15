@@ -671,14 +671,14 @@ void ArgumentParserTests::testBashCompletion()
     }
 
     // directory names
-    string directoryPath = iniFilePath.substr(0, iniFilePath.size() - 4);
+    string directoryPath = CppUtilities::testFilePath("subdir/foo/bar");
+    directoryPath.resize(directoryPath.size() - 4);
     filesArg.setValueCompletionBehavior(ValueCompletionBehavior::Directories);
     parser.resetArgs();
     const char *const argv14[] = { "get", "--files", directoryPath.c_str() };
     {
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
-        // order for file names is not specified
-        const OutputCheck c("COMPREPLY=('" % directoryPath + "subdir' ); compopt -o filenames\n");
+        const OutputCheck c("COMPREPLY=('" % directoryPath + "' ); compopt -o filenames\n");
 #else
         const OutputCheck c("COMPREPLY=()\n");
 #endif
