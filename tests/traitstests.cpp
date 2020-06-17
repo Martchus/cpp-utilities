@@ -43,6 +43,9 @@ static_assert(None<Bool<false>, Bool<false>>::value, "None: positive case");
 
 static_assert(!IsSpecializationOf<string, basic_stringbuf>::value, "IsSpecializationOf: negative case");
 static_assert(IsSpecializationOf<string, basic_string>::value, "IsSpecializationOf: positive case");
+static_assert(IsSpecializationOf<string &, basic_string>::value, "IsSpecializationOf: positive case");
+static_assert(IsSpecializationOf<const string &, basic_string>::value, "IsSpecializationOf: positive case");
+static_assert(IsSpecializationOf<volatile string, basic_string>::value, "IsSpecializationOf: positive case");
 static_assert(!IsSpecializingAnyOf<string, basic_stringbuf, vector>::value, "IsSpecializingAnyOf: negative case");
 static_assert(!IsSpecializingAnyOf<string, basic_stringbuf, list, vector>::value, "IsSpecializingAnyOf: negative case");
 static_assert(IsSpecializingAnyOf<string, basic_stringbuf, basic_string, vector>::value, "IsSpecializingAnyOf: positive case");

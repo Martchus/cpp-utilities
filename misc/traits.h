@@ -65,9 +65,10 @@ template <template <typename...> class Template, typename... Args> struct IsSpec
 };
 } // namespace Detail
 /// \endcond
-/// \brief Evaluates to Bool<true> if the specified type is based on the specified \tparam Template; otherwise evaluates to Bool<false>.
+/// \brief Evaluates to Bool<true> if the specified type is based on the specified template; otherwise evaluates to Bool<false>.
 template <typename Type, template <typename...> class... TemplateTypes>
-struct IsSpecializationOf : Detail::IsSpecializationOfHelper<typename std::remove_cv<Type>::type, TemplateTypes...> {
+struct IsSpecializationOf
+    : Detail::IsSpecializationOfHelper<typename std::remove_cv<typename std::remove_reference<Type>::type>::type, TemplateTypes...> {
 };
 /// \brief Evaluates to Bool<true> if the specified type is based on one of the specified templates; otherwise evaluates to Bool<false>.
 template <typename Type, template <typename...> class... TemplateTypes> struct IsSpecializingAnyOf : Bool<false> {
