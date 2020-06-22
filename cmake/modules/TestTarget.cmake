@@ -173,7 +173,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
     # specify where to store raw clang profiling data via environment variable
     if (NOT META_TEST_TARGET_IS_MANUAL)
         set_tests_properties(
-            ${META_PROJECT_NAME}_run_tests
+            ${META_TARGET_NAME}_run_tests
             PROPERTIES ENVIRONMENT
                        "LLVM_PROFILE_FILE=${LLVM_PROFILE_RAW_FILE};LLVM_PROFILE_LIST_FILE=${LLVM_PROFILE_RAW_LIST_FILE}")
     endif ()
