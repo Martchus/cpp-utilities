@@ -77,6 +77,7 @@ public:
     void write(std::uint8_t oneByte);
     void write(bool oneBool);
     void write(const std::string &lengthPrefixedString);
+    void write(std::string_view lengthPrefixedString);
     void write(const char *lengthPrefixedString);
     void write(std::int16_t one16BitInt);
     void write(std::uint16_t one16BitUint);
@@ -652,6 +653,16 @@ inline void BinaryWriter::write(bool oneBool)
  * Advances the current position of the stream by the length of the string plus the size of the length prefix.
  */
 inline void BinaryWriter::write(const std::string &lengthPrefixedString)
+{
+    writeLengthPrefixedString(lengthPrefixedString);
+}
+
+/*!
+ * \brief Writes the length of a string and the string itself to the current stream.
+ *
+ * Advances the current position of the stream by the length of the string plus the size of the length prefix.
+ */
+inline void BinaryWriter::write(std::string_view lengthPrefixedString)
 {
     writeLengthPrefixedCString(lengthPrefixedString.data(), lengthPrefixedString.size());
 }
