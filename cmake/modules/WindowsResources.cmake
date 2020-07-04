@@ -19,7 +19,8 @@ endif ()
 # find rc template, define path of output rc file
 include(TemplateFinder)
 find_template_file("windows.rc" CPP_UTILITIES RC_TEMPLATE_FILE)
-set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc")
+set(WINDOWS_RC_FILE_CFG "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc.configured")
+set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows")
 
 # create Windows icon from png with ffmpeg if available
 unset(WINDOWS_ICON_PATH)
@@ -54,10 +55,12 @@ if (WINDOWS_ICON_ENABLED)
 endif ()
 
 # create Windows rc file from template
-configure_file("${RC_TEMPLATE_FILE}" "${WINDOWS_RC_FILE}")
+configure_file("${RC_TEMPLATE_FILE}" "${WINDOWS_RC_FILE}-configured.rc")
+file(GENERATE OUTPUT "${WINDOWS_RC_FILE}-$<CONFIG>.rc" INPUT "${WINDOWS_RC_FILE}-configured.rc")
 
 # set windres as resource compiler
-list(APPEND RES_FILES "${WINDOWS_RC_FILE}")
+list(APPEND RES_FILES "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc")
+set_property(SOURCE "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc" APPEND PROPERTY GENERATED ON)
 set(CMAKE_RC_COMPILER_INIT windres)
 set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 enable_language(RC)

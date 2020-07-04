@@ -27,7 +27,7 @@ VS_VERSION_INFO VERSIONINFO
                 VALUE "FileDescription", "@META_APP_DESCRIPTION@\0"
                 VALUE "FileVersion", "@META_APP_VERSION@\0"
                 VALUE "LegalCopyright", "by @META_APP_AUTHOR@\0"
-                VALUE "OriginalFilename", "@META_PROJECT_NAME@@WINDOWS_EXT@\0"
+                VALUE "OriginalFilename", "$<TARGET_FILE_NAME:@TARGET_PREFIX@@META_PROJECT_NAME@@TARGET_SUFFIX@>\0"
                 VALUE "ProductName", "@META_APP_NAME@\0"
                 VALUE "ProductVersion", "@META_APP_VERSION@\0"
             END
