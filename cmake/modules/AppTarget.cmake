@@ -15,10 +15,10 @@ if (NOT "${META_PROJECT_TYPE}" STREQUAL "application")
     )
 endif ()
 
-# set the windows extension to "exe", this is required by the Windows-specific WindowsResources module
-if (WIN32)
-    set(WINDOWS_EXT "exe")
-endif (WIN32)
+# set the windows extension to "exe", this is required by the mingw-w64-specific WindowsResources module
+if (MINGW)
+    set(WINDOWS_EXT ".exe")
+endif ()
 
 # define relevant files
 set(ALL_FILES
@@ -183,7 +183,7 @@ if (MINGW
         add_custom_target(
             ${META_PROJECT_NAME}_run
             COMMAND "${CPP_UTILITIES_SOURCE_DIR}/scripts/wine.sh"
-                    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}.${WINDOWS_EXT}" ${RUNTIME_LIBRARY_PATH})
+                    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${WINDOWS_EXT}" ${RUNTIME_LIBRARY_PATH})
         add_dependencies(${META_PROJECT_NAME}_run ${META_PROJECT_NAME})
     endif ()
 endif ()

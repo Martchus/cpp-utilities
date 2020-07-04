@@ -20,6 +20,11 @@ if ((NOT "${META_PROJECT_TYPE}" STREQUAL "library")
     )
 endif ()
 
+# add option for enabling versioned mingw-w64 libraries (disabled by default to preserve compatibility, will be the only
+# naming scheme in v6)
+option(VERSIONED_MINGW_LIBRARIES
+       "enables versioned libraries like 'libc++utilities-5.dll' instead of 'c++utilities.dll' for mingw-w64 targets" OFF)
+
 # include packages for configure_package_config_file, write_basic_package_version_file and find_template_file
 include(CMakePackageConfigHelpers)
 include(TemplateFinder)
@@ -35,14 +40,14 @@ set(CMAKE_MODULE_INSTALL_DESTINATION "${META_DATA_DIR_ABSOLUTE}/cmake/modules")
 set(CMAKE_CONFIG_INSTALL_DESTINATION "${META_DATA_DIR_ABSOLUTE}/cmake")
 
 # remove library prefix when building with mingw-w64 (just for consistency with qmake)
-if (MINGW)
+if (MINGW AND NOT VERSIONED_MINGW_LIBRARIES)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
-endif (MINGW)
+endif ()
 
-# set the windows extension to "dll", this is required by the mingw-w64 specific WindowsResources module
+# set the Windows library suffix, this is also required by the mingw-w64 specific WindowsResources module as well
 if (MINGW)
-    set(WINDOWS_EXT "dll")
-endif (MINGW)
+    set(WINDOWS_EXT ".dll")
+endif ()
 
 # set compile definitions for static build
 if (NOT BUILD_SHARED_LIBS)
@@ -75,6 +80,13 @@ if (NOT META_SOVERSION AND NOT META_IS_PLUGIN)
     else ()
         set(META_SOVERSION "${META_VERSION_MAJOR}")
     endif ()
+endif ()
+
+# incorporate the SOVERSION into the library name for mingw-w64 targets
+if (BUILD_SHARED_LIBS AND NOT META_IS_PLUGIN
+    AND MINGW
+    AND VERSIONED_MINGW_LIBRARIES)
+    set(WINDOWS_EXT "-${META_SOVERSION}${WINDOWS_EXT}")
 endif ()
 
 # define relevant files
@@ -160,6 +172,11 @@ else ()
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
+    endif ()
+    if (BUILD_SHARED_LIBS AND NOT META_IS_PLUGIN
+        AND MINGW
+        AND VERSIONED_MINGW_LIBRARIES)
+        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "${WINDOWS_EXT}")
     endif ()
 endif ()
 
