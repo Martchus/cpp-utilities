@@ -15,11 +15,6 @@ if (NOT "${META_PROJECT_TYPE}" STREQUAL "application")
     )
 endif ()
 
-# set the windows extension to "exe", this is required by the mingw-w64-specific WindowsResources module
-if (MINGW)
-    set(WINDOWS_EXT ".exe")
-endif ()
-
 # define relevant files
 set(ALL_FILES
     ${HEADER_FILES}

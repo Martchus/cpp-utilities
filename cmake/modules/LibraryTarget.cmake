@@ -44,11 +44,6 @@ if (MINGW AND NOT VERSIONED_MINGW_LIBRARIES)
     set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif ()
 
-# set the Windows library suffix, this is also required by the mingw-w64 specific WindowsResources module as well
-if (MINGW)
-    set(WINDOWS_EXT ".dll")
-endif ()
-
 # set compile definitions for static build
 if (NOT BUILD_SHARED_LIBS)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME_UPPER}_STATIC)
@@ -80,13 +75,6 @@ if (NOT META_SOVERSION AND NOT META_IS_PLUGIN)
     else ()
         set(META_SOVERSION "${META_VERSION_MAJOR}")
     endif ()
-endif ()
-
-# incorporate the SOVERSION into the library name for mingw-w64 targets
-if (BUILD_SHARED_LIBS AND NOT META_IS_PLUGIN
-    AND MINGW
-    AND VERSIONED_MINGW_LIBRARIES)
-    set(WINDOWS_EXT "-${META_SOVERSION}${WINDOWS_EXT}")
 endif ()
 
 # define relevant files
@@ -173,10 +161,12 @@ else ()
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
     endif ()
+
+    # incorporate the SOVERSION into the library name for mingw-w64 targets
     if (BUILD_SHARED_LIBS AND NOT META_IS_PLUGIN
         AND MINGW
         AND VERSIONED_MINGW_LIBRARIES)
-        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "${WINDOWS_EXT}")
+        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_SOVERSION}.dll")
     endif ()
 endif ()
 
