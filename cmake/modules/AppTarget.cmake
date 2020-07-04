@@ -171,23 +171,6 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 endif ()
 
-# add target for launching application with wine ensuring the WINEPATH is set correctly so wine is able to find all required
-# *.dll files requires script from c++utilities, hence the sources of c++utilities must be present
-if (MINGW
-    AND CMAKE_CROSSCOMPILING
-    AND CPP_UTILITIES_SOURCE_DIR)
-    if (NOT TARGET ${META_PROJECT_NAME}_run)
-        if (CMAKE_FIND_ROOT_PATH)
-            list(APPEND RUNTIME_LIBRARY_PATH "${CMAKE_FIND_ROOT_PATH}/bin")
-        endif ()
-        add_custom_target(
-            ${META_PROJECT_NAME}_run
-            COMMAND "${CPP_UTILITIES_SOURCE_DIR}/scripts/wine.sh"
-                    "${CMAKE_CURRENT_BINARY_DIR}/${META_PROJECT_NAME}${WINDOWS_EXT}" ${RUNTIME_LIBRARY_PATH})
-        add_dependencies(${META_PROJECT_NAME}_run ${META_PROJECT_NAME})
-    endif ()
-endif ()
-
 # find template for *.desktop and AppStream files
 include(TemplateFinder)
 find_template_file("desktop" CPP_UTILITIES APP_DESKTOP_TEMPLATE_FILE)
