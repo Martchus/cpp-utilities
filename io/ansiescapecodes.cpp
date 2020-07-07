@@ -140,6 +140,9 @@ std::string_view phraseString(Phrases phrase)
         return "  -> WARNING: "sv;
     case Phrases::InfoMessage:
         return "==> "sv;
+    case Phrases::End:
+    case Phrases::EndFlush:
+        return "\n";
     default:
         return std::string_view{};
     }
