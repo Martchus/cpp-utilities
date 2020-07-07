@@ -163,7 +163,8 @@ else ()
     endif ()
 
     # incorporate the SOVERSION into the library name for mingw-w64 targets
-    if (BUILD_SHARED_LIBS AND NOT META_IS_PLUGIN
+    if (BUILD_SHARED_LIBS
+        AND NOT META_IS_PLUGIN
         AND MINGW
         AND VERSIONED_MINGW_LIBRARIES)
         set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_SOVERSION}.dll")
