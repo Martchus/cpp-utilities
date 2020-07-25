@@ -71,13 +71,12 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
  * \tparam Container The STL-container used to provide the \a strings.
  * \returns Returns the joined string.
  */
-template <class Container = std::initializer_list<std::string>>
-typename Container::value_type joinStrings(const Container &strings,
-    const typename Container::value_type &delimiter = typename Container::value_type(), bool omitEmpty = false,
-    const typename Container::value_type &leftClosure = typename Container::value_type(),
+template <class Container = std::initializer_list<std::string>, class ReturnType = typename Container::value_type>
+ReturnType joinStrings(const Container &strings, const typename Container::value_type &delimiter = typename Container::value_type(),
+    bool omitEmpty = false, const typename Container::value_type &leftClosure = typename Container::value_type(),
     const typename Container::value_type &rightClosure = typename Container::value_type())
 {
-    typename Container::value_type res;
+    ReturnType res;
     if (!strings.size()) {
         return res;
     }
