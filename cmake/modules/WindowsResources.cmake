@@ -38,12 +38,15 @@ if (WINDOWS_ICON_ENABLED)
             # default cropping
             set(PNG_ICON_CROP "iw-20:ih-20:10:10")
         endif ()
+        if (NOT WINDOWS_ICON_SIZE)
+            set (WINDOWS_ICON_SIZE "256:256")
+        endif ()
         if (EXISTS "${PNG_ICON_PATH}")
             set(WINDOWS_ICON_PATH "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_NAME}.ico")
             set(WINDOWS_ICON_RC_ENTRY "IDI_ICON1   ICON    DISCARDABLE \"${WINDOWS_ICON_PATH}\"")
             add_custom_command(
                 OUTPUT "${WINDOWS_ICON_PATH}"
-                COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" -vf crop=${PNG_ICON_CROP},scale=64:64 "${WINDOWS_ICON_PATH}"
+                COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" -vf "crop=${PNG_ICON_CROP},scale=${WINDOWS_ICON_SIZE}" "${WINDOWS_ICON_PATH}"
                 DEPENDS "${PNG_ICON_PATH}")
             set_source_files_properties("${WINDOWS_RC_FILE}" PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}")
             message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
