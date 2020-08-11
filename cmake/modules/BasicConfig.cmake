@@ -587,4 +587,28 @@ function (append_user_defined_additional_libraries)
         PARENT_SCOPE)
 endfunction ()
 
+# locate PNG icon which used for generating icons for the Windows executable and the macOS bundle
+if (PNG_ICON_PATH)
+    if (NOT EXISTS "${PNG_ICON_PATH}")
+        message(FATAL_ERROR "The specified PNG_ICON_PATH \"${PNG_ICON_PATH}\" is invalid.")
+    endif ()
+else ()
+    if (PNG_ICON_SIZE)
+        set(PNG_ICON_SIZES_TO_TEST "${PNG_ICON_SIZE}")
+    else ()
+        set(PNG_ICON_SIZES_TO_TEST 256 128 64 32 16)
+    endif ()
+    foreach (POSSIBLE_PNG_ICON_SIZE ${PNG_ICON_SIZES_TO_TEST})
+        set(PNG_ICON_PATH
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/hicolor/${POSSIBLE_PNG_ICON_SIZE}x${POSSIBLE_PNG_ICON_SIZE}/apps/${META_PROJECT_NAME}.png"
+        )
+        if (EXISTS "${PNG_ICON_PATH}")
+            set(PNG_ICON_SIZE "${POSSIBLE_PNG_ICON_SIZE}")
+            message(STATUS "Using PNG icon from \"${PNG_ICON_PATH}\".")
+            break()
+        endif ()
+        unset(PNG_ICON_PATH)
+    endforeach ()
+endif ()
+
 set(BASIC_PROJECT_CONFIG_DONE YES)

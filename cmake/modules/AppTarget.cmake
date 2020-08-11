@@ -60,25 +60,32 @@ set_target_properties(
                LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE} AUTOGEN_TARGET_DEPENDS
                                                                                                    "${AUTOGEN_DEPS}")
 
-if ("${GUI_TYPE}" STREQUAL "MACOSX_BUNDLE")
+# set properties for macOS bundle and generate icon for macOS bundle
+if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
     set_target_properties(
-        ${META_TARGET_NAME}
-        PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME ${META_TARGET_NAME} MACOSX_BUNDLE_GUI_IDENTIFIER ${META_TARGET_NAME}
-                   MACOSX_BUNDLE_BUNDLE_VERSION ${META_APP_VERSION} MACOSX_BUNDLE_LONG_VERSION_STRING ${META_APP_VERSION}
-                   MACOSX_BUNDLE_SHORT_VERSION_STRING ${META_APP_VERSION})
-
-    find_program(PNG2ICNS_BIN png2icns)
-    if (PNG2ICNS_BIN AND EXISTS "${PNG_ICON_PATH}")
-        set(RESOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.app/Contents/Resources")
-        set(MACOSX_ICON_PATH "${RESOURCES_DIR}/${META_PROJECT_NAME}.icns")
-        add_custom_command(
-            OUTPUT "${MACOSX_ICON_PATH}"
-            COMMAND "${CMAKE_COMMAND}" -E make_directory "${RESOURCES_DIR}"
-            COMMAND ${PNG2ICNS_BIN} "${MACOSX_ICON_PATH}" "${PNG_ICON_PATH}"
-            DEPENDS "${PNG_ICON_PATH}")
-        message(STATUS "Generating macOS icon from \"${PNG_ICON_PATH}\" via ${PNG2ICNS_BIN}.")
-        set_target_properties(${META_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE ${META_PROJECT_NAME}.icns)
-        target_sources(${META_TARGET_NAME} PRIVATE "${MACOSX_ICON_PATH}")
+        "${META_TARGET_NAME}"
+        PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${META_TARGET_NAME}"
+                   MACOSX_BUNDLE_GUI_IDENTIFIER "${META_TARGET_NAME}"
+                   MACOSX_BUNDLE_BUNDLE_VERSION "${META_APP_VERSION}"
+                   MACOSX_BUNDLE_LONG_VERSION_STRING "${META_APP_VERSION}"
+                   MACOSX_BUNDLE_SHORT_VERSION_STRING "${META_APP_VERSION}")
+    if (PNG_ICON_PATH)
+        find_program(PNG2ICNS_BIN png2icns)
+        if (PNG2ICNS_BIN)
+            set(RESOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.app/Contents/Resources")
+            set(MACOSX_ICON_PATH "${RESOURCES_DIR}/${META_PROJECT_NAME}.icns")
+            add_custom_command(
+                COMMENT "Generating icon for macOS bundle"
+                OUTPUT "${MACOSX_ICON_PATH}"
+                COMMAND "${CMAKE_COMMAND}" -E make_directory "${RESOURCES_DIR}"
+                COMMAND ${PNG2ICNS_BIN} "${MACOSX_ICON_PATH}" "${PNG_ICON_PATH}"
+                DEPENDS "${PNG_ICON_PATH}")
+            message(STATUS "Generating macOS icon from \"${PNG_ICON_PATH}\" via ${PNG2ICNS_BIN}.")
+            set_target_properties(${META_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_ICON_FILE ${META_PROJECT_NAME}.icns)
+            target_sources(${META_TARGET_NAME} PRIVATE "${MACOSX_ICON_PATH}")
+        else ()
+            message(STATUS "Unable to find png2icns, not creating a macOS bundle icon")
+        endif ()
     endif ()
 endif ()
 

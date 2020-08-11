@@ -25,35 +25,20 @@ set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows")
 # create Windows icon from png with ffmpeg if available
 unset(WINDOWS_ICON_PATH)
 unset(WINDOWS_ICON_RC_ENTRY)
-if (WINDOWS_ICON_ENABLED)
+if (WINDOWS_ICON_ENABLED AND PNG_ICON_PATH)
     find_program(FFMPEG_BIN ffmpeg avconv)
     if (FFMPEG_BIN)
-        if (NOT PNG_ICON_PATH)
-            set(PNG_ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/hicolor/128x128/apps/${META_PROJECT_NAME}.png")
-            set(USING_DEFAULT_PNG_ICON_PATH true)
-        endif ()
-        if (PNG_ICON_NO_CROP)
-            unset(PNG_ICON_CROP)
-        elseif (NOT PNG_ICON_CROP)
-            # default cropping
-            set(PNG_ICON_CROP "iw-20:ih-20:10:10")
-        endif ()
-        if (NOT WINDOWS_ICON_SIZE)
-            set (WINDOWS_ICON_SIZE "256:256")
-        endif ()
-        if (EXISTS "${PNG_ICON_PATH}")
-            set(WINDOWS_ICON_PATH "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_NAME}.ico")
-            set(WINDOWS_ICON_RC_ENTRY "IDI_ICON1   ICON    DISCARDABLE \"${WINDOWS_ICON_PATH}\"")
-            add_custom_command(
-                OUTPUT "${WINDOWS_ICON_PATH}"
-                COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" -vf "crop=${PNG_ICON_CROP},scale=${WINDOWS_ICON_SIZE}" "${WINDOWS_ICON_PATH}"
-                DEPENDS "${PNG_ICON_PATH}")
-            set_source_files_properties("${WINDOWS_RC_FILE}" PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}")
-            message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
-        elseif (NOT USING_DEFAULT_PNG_ICON_PATH)
-            message(FATAL_ERROR "The specified PNG_ICON_PATH \"${PNG_ICON_PATH}\" is invalid.")
-        endif ()
-        unset(USING_DEFAULT_PNG_ICON_PATH)
+        set(WINDOWS_ICON_PATH "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_NAME}.ico")
+        set(WINDOWS_ICON_RC_ENTRY "IDI_ICON1   ICON    DISCARDABLE \"${WINDOWS_ICON_PATH}\"")
+        add_custom_command(
+            COMMENT "Generating icon for Windows executable"
+            OUTPUT "${WINDOWS_ICON_PATH}"
+            COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" "${WINDOWS_ICON_PATH}"
+            DEPENDS "${PNG_ICON_PATH}")
+        set_source_files_properties("${WINDOWS_RC_FILE}" PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}")
+        message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
+    else ()
+        message(STATUS "Unable to find ffmpeg, not creating a Windows icon")
     endif ()
 endif ()
 
