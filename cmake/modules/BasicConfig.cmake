@@ -167,9 +167,9 @@ endif ()
 set(META_APP_VERSION ${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH})
 option(
     APPEND_GIT_REVISION
-    "whether the build script should attempt to append the git revision and latest commit to the version displayed via --help"
+    "whether the build script should attempt to append the Git revision and latest commit to the version displayed via --help"
     ON)
-if (APPEND_GIT_REVISION)
+if (APPEND_GIT_REVISION AND (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git" OR EXISTS "${CMAKE_SOURCE_DIR}/.git"))
     find_program(GIT_BIN git)
     execute_process(
         COMMAND ${GIT_BIN} rev-list --count HEAD
