@@ -14,6 +14,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <vector>
 
@@ -312,11 +313,40 @@ bool containsSubstrings(const StringType &str, std::initializer_list<const typen
 /*!
  * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
  */
-template <typename StringType> void findAndReplace(StringType &str, const StringType &find, const StringType &replace)
+template <typename StringType1, typename StringType2, typename StringType3>
+void findAndReplace(StringType1 &str, const StringType2 &find, const StringType3 &replace)
 {
-    for (typename StringType::size_type i = 0; (i = str.find(find, i)) != StringType::npos; i += replace.size()) {
+    for (typename StringType1::size_type i = 0; (i = str.find(find, i)) != StringType1::npos; i += replace.size()) {
         str.replace(i, find.size(), replace);
     }
+}
+
+/*!
+ * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ */
+template <typename StringType>
+inline void findAndReplace(StringType &str, const typename StringType::value_type *find, const typename StringType::value_type *replace)
+{
+    findAndReplace(
+        str, std::basic_string_view<typename StringType::value_type>(find), std::basic_string_view<typename StringType::value_type>(replace));
+}
+
+/*!
+ * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ */
+template <typename StringType1, typename StringType2>
+inline void findAndReplace(StringType1 &str, const StringType2 &find, const typename StringType1::value_type *replace)
+{
+    findAndReplace(str, find, std::basic_string_view<typename StringType1::value_type>(replace));
+}
+
+/*!
+ * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ */
+template <typename StringType1, typename StringType2>
+inline void findAndReplace(StringType1 &str, const typename StringType1::value_type *find, const StringType2 &replace)
+{
+    findAndReplace(str, std::basic_string_view<typename StringType1::value_type>(find), replace);
 }
 
 /*!
