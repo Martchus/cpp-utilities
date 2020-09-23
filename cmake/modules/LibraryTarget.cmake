@@ -169,6 +169,11 @@ else ()
         AND VERSIONED_MINGW_LIBRARIES)
         set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_SOVERSION}.dll")
     endif ()
+
+    # avoid duplicating the "lib" prefix if the target name already starts with "lib"
+    if (META_TARGET_NAME MATCHES "lib.*")
+        set_target_properties(${META_TARGET_NAME} PROPERTIES PREFIX "")
+    endif ()
 endif ()
 
 # populate META_PUBLIC_LIB_DEPENDS
