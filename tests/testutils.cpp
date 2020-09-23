@@ -233,16 +233,34 @@ TestApplication::~TestApplication()
  * 3. The subdirectory "testfiles" within the source directory, if it could be determined via "srcref"-file.
  * 4. The subdirectory "testfiles" within present working directory.
  */
-string TestApplication::testFilePath(const string &relativeTestFilePath) const
+std::string TestApplication::testFilePath(const std::string &relativeTestFilePath) const
 {
-    string path;
+    std::string path;
     for (const auto &testFilesPath : m_testFilesPaths) {
         if (fileExists(path = testFilesPath + relativeTestFilePath)) {
             return path;
         }
     }
-    throw runtime_error("The testfile \"" % relativeTestFilePath % "\" can not be located. Was looking under:"
-        + joinStrings(m_testFilesPaths, "\n", false, string(), relativeTestFilePath));
+    throw std::runtime_error("The test file \"" % relativeTestFilePath % "\" can not be located. Was looking under:"
+        + joinStrings(m_testFilesPaths, "\n", false, std::string(), relativeTestFilePath));
+}
+
+/*!
+ * \brief Returns the full path of the test directory with the specified \a relativeTestDirPath.
+ *
+ * This is the same as TestApplication::testFilePath() but for directories. Checkout the documentation of
+ * TestApplication::testFilePath() for details about the lookup.
+ */
+std::string TestApplication::testDirPath(const std::string &relativeTestDirPath) const
+{
+    std::string path;
+    for (const auto &testFilesPath : m_testFilesPaths) {
+        if (dirExists(path = testFilesPath + relativeTestDirPath)) {
+            return path;
+        }
+    }
+    throw std::runtime_error("The test directory \"" % relativeTestDirPath % "\" can not be located. Was looking under:"
+        + joinStrings(m_testFilesPaths, "\n", false, std::string(), relativeTestDirPath));
 }
 
 /*!

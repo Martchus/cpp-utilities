@@ -28,6 +28,7 @@ public:
 
     // helper for tests
     std::string testFilePath(const std::string &relativeTestFilePath) const;
+    std::string testDirPath(const std::string &relativeTestDirPath) const;
     std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
     std::string workingCopyPathAs(const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath,
         WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
@@ -147,6 +148,15 @@ inline bool TestApplication::onlyListUnits() const
 inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relativeTestFilePath)
 {
     return TestApplication::instance()->testFilePath(relativeTestFilePath);
+}
+
+/*!
+ * \brief Convenience function to invoke TestApplication::testDirPath().
+ * \remarks A TestApplication must be present.
+ */
+inline CPP_UTILITIES_EXPORT std::string testDirPath(const std::string &relativeTestDirPath)
+{
+    return TestApplication::instance()->testDirPath(relativeTestDirPath);
 }
 
 /*!
