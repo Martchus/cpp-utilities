@@ -207,8 +207,10 @@ if (META_HEADER_ONLY_LIB)
                                                                                          "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
-        PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}" SOVERSION "${META_SOVERSION}"
-                   CXX_STANDARD "${META_CXX_STANDARD}" AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
+        PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+                   SOVERSION "${META_SOVERSION}"
+                   CXX_STANDARD "${META_CXX_STANDARD}"
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
 endif ()
 
 # generate CMake code to configure additional arguments for required CMake-packages

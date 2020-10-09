@@ -115,9 +115,12 @@ if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
         PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}_testlib
-        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" C_VISIBILITY_PRESET default CXX_VISIBILITY_PRESET default
-                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE} AUTOGEN_TARGET_DEPENDS
-                                                                                                       "${AUTOGEN_DEPS}")
+        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+                   C_VISIBILITY_PRESET default
+                   CXX_VISIBILITY_PRESET default
+                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                   LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
     if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
         target_include_directories(${META_TARGET_NAME}_testlib
                                    PRIVATE "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}")

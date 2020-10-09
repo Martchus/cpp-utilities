@@ -57,8 +57,11 @@ function (configure_test_target)
         PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(
         "${TEST_TARGET_NAME}"
-        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}" C_VISIBILITY_PRESET hidden CXX_VISIBILITY_PRESET hidden
-                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE} LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
+        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
+                   C_VISIBILITY_PRESET hidden
+                   CXX_VISIBILITY_PRESET hidden
+                   LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+                   LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
 
     # make the test recognized by ctest
     if (NOT ARGS_MANUAL)
