@@ -545,25 +545,20 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         else ()
             message(STATUS "Using strip binary under \"${STRIP_BINARY_PATH}\".")
         endif ()
-        if (BUILD_SHARED_LIBS AND NOT META_HEADER_ONLY_LIB)
+        if (NOT META_HEADER_ONLY_LIB)
+            if (CMAKE_GENERATOR STREQUAL "Ninja")
+                set(DESTDIR "\$\$\{DESTDIR\}\$\$\{DESTDIR:+/\}")
+            else ()
+                set(DESTDIR "\$\{DESTDIR\}\$\{DESTDIR:+/\}")
+            endif ()
             add_custom_target(
-                install-${META_TARGET_NAME}-mingw-w64-importlib-strip
+                install-${META_TARGET_NAME}-mingw-w64-linker-file-strip
                 COMMAND
                     "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.dll.a"
+                    "${DESTDIR}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/$<TARGET_LINKER_FILE_NAME:${META_TARGET_NAME}>"
             )
-            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-importlib-strip install-binary-strip)
-            add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-importlib-strip)
-        endif ()
-        if (BUILD_STATIC_LIBS AND NOT META_HEADER_ONLY_LIB)
-            add_custom_target(
-                install-${META_TARGET_NAME}-mingw-w64-staticlib-strip
-                COMMAND
-                    "${STRIP_BINARY_PATH}" -g
-                    "\$\{DESTDIR\}\$\{DESTDIR:+/\}${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}/lib${META_TARGET_NAME}.a"
-            )
-            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-staticlib-strip install-binary-strip)
-            add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-staticlib-strip)
+            add_dependencies(install-${META_TARGET_NAME}-mingw-w64-linker-file-strip install-binary-strip)
+            add_dependencies(install-mingw-w64-strip install-${META_TARGET_NAME}-mingw-w64-linker-file-strip)
         endif ()
     endif ()
 endif ()
