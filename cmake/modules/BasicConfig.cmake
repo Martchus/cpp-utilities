@@ -50,6 +50,7 @@ endif ()
 if (META_CONFIG_NAME)
     set(META_CONFIG_PREFIX "${META_CONFIG_NAME}-")
     set(META_CONFIG_SUFFIX "-${META_CONFIG_NAME}")
+    set(META_APP_NAME "${META_APP_NAME} (${META_CONFIG_NAME})")
 endif ()
 
 # allow setting a library/application target suffix - A different configuration name might not require a different target
