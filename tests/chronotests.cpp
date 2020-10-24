@@ -266,6 +266,9 @@ void ChronoTests::testOperators()
     dateTime += TimeSpan::fromDays(365);
     CPPUNIT_ASSERT_EQUAL(2000, dateTime.year());
     CPPUNIT_ASSERT_EQUAL(5, dateTime.day());
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(1), TimeSpan::fromHours(12) * 2);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(12), TimeSpan::fromDays(1) / 2);
+    CPPUNIT_ASSERT_EQUAL(2.0, TimeSpan::fromDays(1) / TimeSpan::fromHours(12));
 }
 
 /*!

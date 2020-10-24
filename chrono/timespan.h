@@ -64,8 +64,13 @@ public:
     constexpr bool operator>=(const TimeSpan &other) const;
     constexpr TimeSpan operator+(const TimeSpan &other) const;
     constexpr TimeSpan operator-(const TimeSpan &other) const;
+    constexpr TimeSpan operator*(double factor) const;
+    constexpr TimeSpan operator/(double factor) const;
+    constexpr double operator /(TimeSpan other) const;
     TimeSpan &operator+=(const TimeSpan &other);
     TimeSpan &operator-=(const TimeSpan &other);
+    TimeSpan &operator*=(double factor);
+    TimeSpan &operator/=(double factor);
 
     std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
     void toString(std::string &result, TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
@@ -350,11 +355,35 @@ constexpr inline TimeSpan TimeSpan::operator+(const TimeSpan &other) const
 }
 
 /*!
- * \brief Substracts two TimeSpan instances.
+ * \brief Substracts one TimeSpan instance from another.
  */
 constexpr inline TimeSpan TimeSpan::operator-(const TimeSpan &other) const
 {
     return TimeSpan(m_ticks - other.m_ticks);
+}
+
+/*!
+ * \brief Multiplies a TimeSpan by the specified \a factor.
+ */
+constexpr inline TimeSpan TimeSpan::operator*(double factor) const
+{
+    return TimeSpan(m_ticks * factor);
+}
+
+/*!
+ * \brief Divides a TimeSpan by the specified \a factor.
+ */
+constexpr inline TimeSpan TimeSpan::operator/(double factor) const
+{
+    return TimeSpan(m_ticks / factor);
+}
+
+/*!
+ * \brief Computes the ratio between two TimeSpan instances.
+ */
+constexpr inline double TimeSpan::operator/(TimeSpan other) const
+{
+    return static_cast<double>(m_ticks) / static_cast<double>(other.m_ticks);
 }
 
 /*!
@@ -372,6 +401,24 @@ inline TimeSpan &TimeSpan::operator+=(const TimeSpan &other)
 inline TimeSpan &TimeSpan::operator-=(const TimeSpan &other)
 {
     m_ticks -= other.m_ticks;
+    return *this;
+}
+
+/*!
+ * \brief Multiplies the current instance by the specified \a factor.
+ */
+inline TimeSpan &TimeSpan::operator*=(double factor)
+{
+    m_ticks = m_ticks * factor;
+    return *this;
+}
+
+/*!
+ * \brief Divides the current instance by the specified \a factor.
+ */
+inline TimeSpan &TimeSpan::operator/=(double factor)
+{
+    m_ticks = m_ticks / factor;
     return *this;
 }
 
