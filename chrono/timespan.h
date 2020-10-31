@@ -66,7 +66,7 @@ public:
     constexpr TimeSpan operator-(const TimeSpan &other) const;
     constexpr TimeSpan operator*(double factor) const;
     constexpr TimeSpan operator/(double factor) const;
-    constexpr double operator /(TimeSpan other) const;
+    constexpr double operator/(TimeSpan other) const;
     TimeSpan &operator+=(const TimeSpan &other);
     TimeSpan &operator-=(const TimeSpan &other);
     TimeSpan &operator*=(double factor);
