@@ -34,9 +34,6 @@ None of these are enabled or set by default, unless stated otherwise.
 * `LIB_SUFFIX_64=suffix`: suffix for library install directory
     * used when building for 64-bit platforms
     * overrides general `LIB_SUFFIX` when building for 64-bit platforms
-* `QT_PACKAGE_PREFIX=Qt5`: sets the prefix for Qt packages, by default `Qt5`
-* `KF_PACKAGE_PREFIX=KF5`: sets the prefix for KDE Frameworks packages, by
-  default `KF5``
 * `SHELL_COMPLETION_ENABLED=ON/OFF`: enables shell completion in general
   (enabled by default)
 * `BASH_COMPLETION_ENABLED=ON/OFF`: enables Bash completion (enabled by
@@ -74,7 +71,7 @@ None of these are enabled or set by default, unless stated otherwise.
     * coverage report is stored in build directory
 * `ENABLE_INSTALL_TARGETS=ON/OFF`: enables creation of install targets (enabled
   by default)
-* `ENABLE_ESCAPE_CODES_BY_DEAULT`: enables use of escape codes for formatted
+* `ENABLE_ESCAPE_CODES_BY_DEAULT=ON/OFF`: enables use of escape codes for formatted
   output by default
     * enabled by default
     * see ApplicationUtilities::NoColorArgument and EscapeCodes::enabled
@@ -148,7 +145,14 @@ the relevant CMake cache variable on the CMake invocation.
   available and optional
 * `QUICK_GUI=ON/OFF`: enables Qt Quick GUI for projects where it is available
   and optional
-* `BUILTIN_TRANSLATIONS=ON/OFF`: enables built-in translations in applications
+* `QT_PACKAGE_PREFIX=Qt5`: sets the prefix for Qt packages, by default `Qt5`
+    * use `QT_PACKAGE_PREFIX=Qt6` to build against Qt 6
+* `KF_PACKAGE_PREFIX=KF5`: sets the prefix for KDE Frameworks packages, by
+  default `KF5`
+* `ENABLE_QT_TRANSLATIONS=ON/OFF`: enables translations for Qt applications,
+  enabled by default
+* `BUILTIN_TRANSLATIONS=ON/OFF`: enables built-in translations instead of
+  installing translations as separate files
 * `BUILTIN_ICON_THEMES=breeze;breeze-dark;...`: specifies icon themes to
   built-in
 * `BUILTIN_ICON_THEMES_IN_LIBRARIES=breeze;breeze-dark;...`: same as above but
@@ -278,13 +282,16 @@ controlled by the variables documented above. Most important modules are:
       `ApplicationUtilities::ArgumentParser` class of course
 * `TestTarget`: adds the test target `check`
     * `check` target is *not* required by target `all`
-    * test target uses files specified in `TEST_HEADER_FILES`/`TEST_SRC_FILES`
+    * test target is comprised of files specified in `TEST_HEADER_FILES`/`TEST_SRC_FILES`
       variables
     * test target will automatically link against `cppunit` which is the test
-      framework used by all my projects; set `META_NO_CPP_UNIT=OFF` in the project
+      framework used by most my projects; set `META_NO_CPP_UNIT=OFF` in the project
       file to prevent this
+* `TestUtilities`: provides the `configure_test_target` macro for creating test
+  targets manually
+    * see `CMakeLists.txt` of `qtutilities` for an example
 * `AndroidApk`: adds a target to create an APK package for Android using
-  androiddeployqt
+  androiddeployqt, ignored on other platforms
 * `Doxygen`: adds a target to generate documentation using Doxygen
 * `WindowsResources`: handles creation of Windows resources to set application
   meta data and icon, ignored on other platforms
