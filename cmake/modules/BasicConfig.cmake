@@ -40,6 +40,9 @@ set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME
 set(CONFIGURATION_NAME
     ""
     CACHE STRING "sets the configuration name for all projects within the current build")
+set(CONFIGURATION_DISPLAY_NAME
+    "${CONFIGURATION_NAME}"
+    CACHE STRING "sets the display name for the configuration; incorporated in META_APP_NAME; defaults to CONFIGURATION_NAME")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
     set(META_CONFIG_NAME "")
 elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
@@ -50,7 +53,9 @@ endif ()
 if (META_CONFIG_NAME)
     set(META_CONFIG_PREFIX "${META_CONFIG_NAME}-")
     set(META_CONFIG_SUFFIX "-${META_CONFIG_NAME}")
-    set(META_APP_NAME "${META_APP_NAME} (${META_CONFIG_NAME})")
+endif ()
+if (CONFIGURATION_DISPLAY_NAME)
+    set(META_APP_NAME "${META_APP_NAME} (${CONFIGURATION_DISPLAY_NAME})")
 endif ()
 
 # allow setting a library/application target suffix - A different configuration name might not require a different target
