@@ -257,6 +257,7 @@ and qtutilities.
 * `ADDITIONAL_QT_MODULES`: specifies additional Qt modules to link against
 * `ADDITIONAL_KF_MODULES`: specifies additional KDE frameworks modules to link
   against
+* `META_QT_VERSION`: specifies the minimum Qt version to require
 
 ## Provided modules
 c++utilities and qtutilities provide CMake modules to reduce boilerplate code
