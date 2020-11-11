@@ -153,6 +153,14 @@ the relevant CMake cache variable on the CMake invocation.
   enabled by default
 * `BUILTIN_TRANSLATIONS=ON/OFF`: enables built-in translations instead of
   installing translations as separate files
+* `BUILTIN_TRANSLATIONS_OF_QT=ON/OFF`: enables built-in translations also for Qt's
+  own translation files when building an application
+    * enabled by default when `BUILTIN_TRANSLATIONS` is enabled
+    * useful when deploying Qt itself anyways, e.g. Windows builds
+    * better turned off when using system Qt and the system provides a translations
+      package for Qt, e.g. GNU/Linux builds
+    * when building a library Qt's translations are never built-in
+    * has no effect when `BUILTIN_TRANSLATIONS` is disabled
 * `BUILTIN_ICON_THEMES=breeze;breeze-dark;...`: specifies icon themes to
   built-in
 * `BUILTIN_ICON_THEMES_IN_LIBRARIES=breeze;breeze-dark;...`: same as above but
