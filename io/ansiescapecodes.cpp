@@ -28,7 +28,7 @@ bool enabled =
     ;
 
 /*!
- * \brief Prints the specified \a phrase.
+ * \brief Prints the specified \a phrase in a formatted manner using ANSI escape codes.
  */
 std::ostream &operator<<(std::ostream &stream, Phrases phrase)
 {
@@ -114,6 +114,9 @@ std::ostream &operator<<(std::ostream &stream, Phrases phrase)
     return stream;
 }
 
+/*!
+ * \brief Returns a string for the specified \a phrase *without* formatting.
+ */
 std::string_view phraseString(Phrases phrase)
 {
     using namespace std::string_view_literals;
@@ -143,6 +146,46 @@ std::string_view phraseString(Phrases phrase)
     case Phrases::End:
     case Phrases::EndFlush:
         return "\n";
+    default:
+        return std::string_view{};
+    }
+}
+
+/*!
+ * \brief Returns a string for the specified \a phrase which is formatted using ANSI escape codes.
+ */
+std::string_view formattedPhraseString(Phrases phrase)
+{
+    if (!enabled) {
+        return phraseString(phrase);
+    }
+    using namespace std::string_view_literals;
+    switch (phrase) {
+    case Phrases::Error:
+        return "\e[1;31mError: \e[0m\e[1m"sv;
+    case Phrases::Warning:
+        return "\e[1;33mWarning: \e[0m\e[1m"sv;
+    case Phrases::PlainMessage:
+        return "    \e[0m\e[1m"sv;
+    case Phrases::SuccessMessage:
+        return "\e[1;32m==> \e[0m\e[1m"sv;
+    case Phrases::SubMessage:
+        return "\e[1;32m  -> \e[0m\e[1m"sv;
+    case Phrases::ErrorMessage:
+        return "\e[1;31m==> ERROR: \e[0m\e[1m"sv;
+    case Phrases::WarningMessage:
+        return "\e[1;33m==> WARNING: \e[0m\e[1m";
+    case Phrases::Info:
+        return "\e[1;34mInfo: \e[0m\e[1m"sv;
+    case Phrases::SubError:
+        return "\e[1;31m  -> ERROR: \e[0m\e[1m"sv;
+    case Phrases::SubWarning:
+        return "\e[1;33m  -> WARNING: \e[0m\e[1m"sv;
+    case Phrases::InfoMessage:
+        return "\e[1;37m==> \e[0m\e[1m"sv;
+    case Phrases::End:
+    case Phrases::EndFlush:
+        return "\e[0m\n";
     default:
         return std::string_view{};
     }

@@ -130,7 +130,8 @@ inline std::ostream &operator<<(std::ostream &stream, TupleType displayAttribute
 }
 
 /*!
- * \brief The Phrases enum contains standard phrases which can be printed to any std::ostream.
+ * \brief The Phrases enum contains standard phrases which can be printed to any std::ostream and obtained as strings
+ *        via EscapeCodes::phraseString() and EscapeCodes::formattedPhraseString().
  *
  * Example: `std::cerr << Phrases::Error << "Something bad happened." << Phrases::End`
  */
@@ -152,6 +153,7 @@ enum class Phrases {
 };
 CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &stream, Phrases phrase);
 CPP_UTILITIES_EXPORT std::string_view phraseString(Phrases phrase);
+CPP_UTILITIES_EXPORT std::string_view formattedPhraseString(Phrases phrase);
 
 } // namespace EscapeCodes
 } // namespace CppUtilities
