@@ -41,6 +41,18 @@ Besides, the library provides a few useful algorithms and data structures:
 * Damerau–Levenshtein distance
 * *N*-dimensional array
 
+## API/ABI stability
+The following counts for `c++utilities` and my other libraries unless stated otherwise:
+
+* Different major versions are incompatible (API- and ABI-wise). Different major versions can be
+  installed within the same prefix using the CMake variable `CONFIGURATION_NAME` (see documentation
+  about build variables mentioned below).
+* Minor versions are backwards compatible (API- and ABI-wise) to previous ones within the same major
+  version.
+* Patch versions are interchangeable (API- and ABI-wise) within the same major/minor version.
+* Some functions or classes are experimental. They might be modified in an incompatible way or even
+  removed in the next minor or patch release.
+
 ## Build instructions
 ### Requirements
 #### Build-only dependencies
