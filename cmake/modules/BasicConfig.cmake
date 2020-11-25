@@ -42,7 +42,8 @@ set(CONFIGURATION_NAME
     CACHE STRING "sets the configuration name for all projects within the current build")
 set(CONFIGURATION_DISPLAY_NAME
     "${CONFIGURATION_NAME}"
-    CACHE STRING "sets the display name for the configuration; incorporated in META_APP_NAME; defaults to CONFIGURATION_NAME")
+    CACHE STRING
+          "sets the display name for the configuration; incorporated in META_APP_NAME; defaults to CONFIGURATION_NAME")
 if (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME STREQUAL "none")
     set(META_CONFIG_NAME "")
 elseif (${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_NAME)
