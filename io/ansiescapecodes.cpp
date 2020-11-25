@@ -153,6 +153,8 @@ std::string_view phraseString(Phrases phrase)
 
 /*!
  * \brief Returns a string for the specified \a phrase which is formatted using ANSI escape codes.
+ * \remarks This function is still experimental. It might be modified in an incompatible way or even removed
+ *          in the next minor or patch release.
  */
 std::string_view formattedPhraseString(Phrases phrase)
 {
