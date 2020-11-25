@@ -362,7 +362,7 @@ public:
 
 private:
     // declare internal getter/setter/properties/operations for argument definition
-    bool matchesDenotation(const char *denotation, size_t denotationLength) const;
+    bool matchesDenotation(const char *denotation, std::size_t denotationLength) const;
 
     const char *m_name;
     char m_abbreviation;

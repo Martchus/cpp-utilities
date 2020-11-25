@@ -18,7 +18,7 @@ public:
     /// \brief The Argument instances to store the results. Sub arguments of args are considered as well.
     ArgumentVector &args;
     /// \brief An index which is incremented when an argument is encountered (the current index is stored in the occurrence) or a value is encountered.
-    size_t index;
+    std::size_t index;
     /// \brief Points to the first argument denotation and will be incremented when a denotation has been processed.
     const char *const *argv;
     /// \brief Points to the end of the \a argv array.
