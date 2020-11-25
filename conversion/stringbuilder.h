@@ -255,7 +255,7 @@ template <class StringType = std::string, class... Args> inline StringType tuple
     return res;
 }
 
-template <class StringType = std::string, class... Args> inline StringType argsToString(Args &&... args)
+template <class StringType = std::string, class... Args> inline StringType argsToString(Args &&...args)
 {
     return tupleToString(std::tuple<Args &&...>(std::forward<Args>(args)...));
 }
