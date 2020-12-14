@@ -76,6 +76,15 @@ constexpr FlagEnumClass &operator-=(FlagEnumClass &lhs, FlagEnumClass rhs)
 
 } // namespace FlagEnumClassOperations
 
+/*!
+ * \brief Sets the specified \a relevantFlags in the specified \a flagVariable to the specified \a value.
+ */
+template <typename FlagEnumClass, Traits::EnableIf<IsFlagEnumClass<FlagEnumClass>> * = nullptr>
+constexpr FlagEnumClass &modFlagEnum(FlagEnumClass &flagVariable, FlagEnumClass relevantFlags, bool value)
+{
+    return value ? (flagVariable += relevantFlags) : (flagVariable -= relevantFlags);
+}
+
 } // namespace CppUtilities
 
 #endif // CPP_UTILITIES_FLAG_ENUM_CLASS_H
