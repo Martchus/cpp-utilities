@@ -36,7 +36,7 @@ public:
     NativeFileStream(const std::string &path, std::ios_base::openmode openMode);
     NativeFileStream(int fileDescriptor, std::ios_base::openmode openMode);
     NativeFileStream(NativeFileStream &&);
-    ~NativeFileStream();
+    ~NativeFileStream() override;
 
     bool is_open() const;
     bool isOpen() const;
