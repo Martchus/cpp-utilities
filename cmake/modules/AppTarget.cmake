@@ -61,7 +61,8 @@ set_target_properties(
                CXX_VISIBILITY_PRESET hidden
                LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
-               AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
+               AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+               QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
 
 # set properties for macOS bundle and generate icon for macOS bundle
 if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")

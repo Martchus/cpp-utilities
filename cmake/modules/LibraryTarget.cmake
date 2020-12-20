@@ -157,7 +157,8 @@ else ()
                    CXX_VISIBILITY_PRESET hidden
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
-                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+                   QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
     endif ()

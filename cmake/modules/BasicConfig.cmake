@@ -76,6 +76,14 @@ elseif (CONFIGURATION_TARGET_SUFFIX)
     set(TARGET_SUFFIX "-${CONFIGURATION_TARGET_SUFFIX}")
 endif ()
 
+# disable linking against default Qt plugins by default
+if (NOT DEFINED META_QT_DEFAULT_PLUGINS)
+    # note: The CMake modules in qtutilities take care of linking against static plugins on their own because old Qt versions
+    # did not provide any support and one had to do it manually. Considering that with Qt's default my projects end up
+    # pulling in needlessly many plugins I prefer to keep my current approach and disable Qt's defaults.
+    set(META_QT_DEFAULT_PLUGINS 0) # needs to be exactly 0, Qt's code uses STREQUAL 0
+endif ()
+
 # find standard installation directories - note: Allow overriding CMAKE_INSTALL_LIBDIR and LIB_INSTALL_DIR but don't use the
 # default from GNUInstallDirs (as an Arch Linux user this feels odd and I also want to avoid breaking existing build
 # scripts).
