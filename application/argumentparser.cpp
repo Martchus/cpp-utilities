@@ -500,6 +500,18 @@ const char *Argument::firstValue() const
 }
 
 /*!
+ * \brief Returns the first value like Argument::firstValue() but returns \a fallback instead of nullptr if there's no value.
+ */
+const char *Argument::firstValueOr(const char *fallback) const
+{
+    if (const auto *const v = firstValue()) {
+        return v;
+    } else {
+        return fallback;
+    }
+}
+
+/*!
  * \brief Writes the name, the abbreviation and other information about the Argument to the give ostream.
  */
 void Argument::printInfo(ostream &os, unsigned char indentation) const

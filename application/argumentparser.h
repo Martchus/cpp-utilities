@@ -335,6 +335,7 @@ public:
     template <typename... TargetType> std::vector<std::tuple<TargetType...>> allValuesAs() const;
 
     const char *firstValue() const;
+    const char *firstValueOr(const char *fallback) const;
     bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
     bool isPresent() const;
     std::size_t occurrences() const;
