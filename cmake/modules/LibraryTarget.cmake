@@ -100,9 +100,6 @@ else ()
     # use the project folder itself
     set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif ()
-if (META_PROJECT_NAME STREQUAL reflective_rapidjson)
-    message(STATUS "TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE: ${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}")
-endif ()
 
 # add target for building the library
 if (BUILD_SHARED_LIBS)
