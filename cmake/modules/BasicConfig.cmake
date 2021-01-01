@@ -62,9 +62,12 @@ endif ()
 # allow setting a library/application target suffix - A different configuration name might not require a different target
 # name since it might differ anyways (e.g. library extensions for static and shared configuration). Hence there's not simply
 # the configuration name used to distinguish targets as well.
-set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX
-    ""
-    CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
+if (NOT DEFINED ${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX)
+    # wrap this within "if (NOT DEFINED" so absence of a target suffix can be enforced within certain project files
+    set(${META_PROJECT_VARNAME_UPPER}_CONFIGURATION_TARGET_SUFFIX
+        ""
+        CACHE STRING "sets a target suffix for ${META_PROJECT_NAME}")
+endif ()
 set(CONFIGURATION_TARGET_SUFFIX
     ""
     CACHE STRING "sets the target suffix for all projects within the current build")
