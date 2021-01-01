@@ -45,7 +45,7 @@ endfunction ()
 
 function (parse_arguments_for_use_functions)
     # parse arguments
-    set(OPTIONAL_ARGS OPTIONAL)
+    set(OPTIONAL_ARGS OPTIONAL ONLY_HEADERS)
     set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE PACKAGES_VARIABLE PKG_CONFIG_MODULES_VARIABLE TARGET_NAME PACKAGE_NAME)
     set(MULTI_VALUE_ARGS PKG_CONFIG_MODULES PACKAGE_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
@@ -102,6 +102,9 @@ function (parse_arguments_for_use_functions)
         PARENT_SCOPE)
     set(ARGS_OPTIONAL
         "${ARGS_OPTIONAL}"
+        PARENT_SCOPE)
+    set(ARGS_ONLY_HEADERS
+        "${ARGS_ONLY_HEADERS}"
         PARENT_SCOPE)
     if (NOT ARGS_OPTIONAL)
         set(ARGS_FIND_PACKAGE

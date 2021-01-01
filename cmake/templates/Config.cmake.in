@@ -118,8 +118,17 @@ function(use_@META_PROJECT_VARNAME@)
 
     # link against library (also "link" against header-only libs to get compile defs and interface link libs)
     link_directories(${@META_PROJECT_VARNAME_UPPER@_LIB_DIR})
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${@META_PROJECT_VARNAME_UPPER@_LIB}" PARENT_SCOPE)
+    if (ARGS_ONLY_HEADERS)
+        set(TARGET_NAME "${@META_PROJECT_VARNAME_UPPER@_LIB}-headers")
+    else ()
+        set(TARGET_NAME "${@META_PROJECT_VARNAME_UPPER@_LIB}")
+    endif ()
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${TARGET_NAME}" PARENT_SCOPE)
     set("${ARGS_PACKAGES_VARIABLE}" "${${ARGS_PACKAGES_VARIABLE}};${@META_PROJECT_VARNAME_UPPER@_PACKAGE}" PARENT_SCOPE)
+
+    if (ARGS_ONLY_HEADERS)
+        return ()
+    endif ()
 
     # add required Qt and KF modules
     set(IMPORTED_QT_MODULES

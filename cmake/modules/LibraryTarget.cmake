@@ -172,6 +172,18 @@ else ()
     if (META_TARGET_NAME MATCHES "lib.*")
         set_target_properties(${META_TARGET_NAME} PROPERTIES PREFIX "")
     endif ()
+
+    # add target for pulling only headers because some libraries contain header-only parts which are useful on their own
+    if (NOT META_PLUGIN_CATEGORY)
+        add_library(${META_TARGET_NAME}-headers INTERFACE)
+        target_include_directories(
+            ${META_TARGET_NAME}-headers INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
+        target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
+                                                                         "${META_PRIVATE_COMPILE_DEFINITIONS}")
+        target_compile_options(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
+                                                                     "${META_PRIVATE_COMPILE_OPTIONS}")
+    endif ()
 endif ()
 
 # populate META_PUBLIC_LIB_DEPENDS
@@ -454,6 +466,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             list(APPEND TARGETS_TO_EXPORT ${BUNDLED_TARGET})
         endif ()
     endforeach ()
+    if (NOT META_HEADER_ONLY_LIB AND NOT META_PLUGIN_CATEGORY)
+        list(APPEND TARGETS_TO_EXPORT "${META_TARGET_NAME}-headers")
+    endif ()
     install(
         TARGETS ${TARGETS_TO_EXPORT}
         EXPORT "${META_PROJECT_NAME}${META_CONFIG_SUFFIX}Targets"
