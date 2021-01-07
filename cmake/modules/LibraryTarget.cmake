@@ -161,11 +161,13 @@ else ()
     endif ()
 
     # incorporate the SOVERSION into the library name for mingw-w64 targets
+    set(TARGET_SUFFIX_FOR_PC "")
     if (BUILD_SHARED_LIBS
         AND NOT META_IS_PLUGIN
         AND MINGW
         AND VERSIONED_MINGW_LIBRARIES)
         set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_SOVERSION}.dll")
+        set(TARGET_SUFFIX_FOR_PC "-${META_SOVERSION}")
     endif ()
 
     # avoid duplicating the "lib" prefix if the target name already starts with "lib"
@@ -378,7 +380,8 @@ compute_dependencies_for_package_config(META_PRIVATE_LIB_DEPENDS META_PRIVATE_PC
 
 if (NOT META_HEADER_ONLY_LIB)
     string(REGEX REPLACE "^lib" "" META_TARGET_NAME_FOR_PC "${META_TARGET_NAME}")
-    set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -l${META_TARGET_NAME_FOR_PC}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
+    set(META_PUBLIC_LIB_DEPENDS_FOR_PC
+        " -l${META_TARGET_NAME_FOR_PC}${TARGET_SUFFIX_FOR_PC}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
 endif ()
 if (META_PUBLIC_LIB_DEPENDS_FOR_PC)
     set(META_PUBLIC_LIB_DEPENDS_FOR_PC " -L\${libdir}${META_PUBLIC_LIB_DEPENDS_FOR_PC}")
