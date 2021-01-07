@@ -365,7 +365,11 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
                                                     "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
         else ()
             # add raw dependency
-            set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
+            if (DEPENDENCY MATCHES ".*/.*")
+                set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} ${DEPENDENCY}")
+            else ()
+                set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
+            endif ()
         endif ()
     endforeach ()
 endmacro ()
