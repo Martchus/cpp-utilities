@@ -298,6 +298,7 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
             endforeach ()
         elseif (TARGET "${DEPENDENCY}")
             # find the raw-library flags for the dependency add interface link libraries of the target
+            get_target_property("${DEPENDENCY_VARNAME}_TARGET_TYPE" "${DEPENDENCY}" TYPE)
             get_target_property("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES" "${DEPENDENCY}" "INTERFACE_LINK_LIBRARIES")
             set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING FALSE)
             set(${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS)
@@ -312,9 +313,11 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
             endforeach ()
             compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS"
                                                     "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
-            if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING)
+            # skip further processing if it is an interface library target
+            if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING OR "${${DEPENDENCY_VARNAME}_TARGET_TYPE}" STREQUAL "INTERFACE_LIBRARY")
                 continue()
             endif ()
+
             # add library location of the target
             set(HAS_LIBRARY_LOCATION NO)
             if (DEPENDENCY IN_LIST BUNDLED_TARGETS)
@@ -347,12 +350,14 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
                     set(HAS_LIBRARY_LOCATION YES)
                 endif ()
             endif ()
+
             # assume the target is a 3rd party library built within the current project as a bundled dependency -> the target
             # is supposed to be installed in either a standard search directory or the same directory as this library so a
             # simple -l flag should be sufficient
             if (NOT HAS_LIBRARY_LOCATION)
                 set(${OUTPUT_VAR_LIBS} "${${OUTPUT_VAR_LIBS}} -l${DEPENDENCY}")
             endif ()
+
             # add libraries required by the imported target
             get_target_property("${DEPENDENCY_VARNAME}_IMPORTED_LINK_INTERFACE_LIBRARIES" "${DEPENDENCY}"
                                 "IMPORTED_LINK_INTERFACE_LIBRARIES")
