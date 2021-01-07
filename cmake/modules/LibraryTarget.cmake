@@ -316,7 +316,8 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
             compute_dependencies_for_package_config("${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_TARGETS"
                                                     "${OUTPUT_VAR_PKGS}" "${OUTPUT_VAR_LIBS}" NO)
             # skip further processing if it is an interface library target
-            if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING OR "${${DEPENDENCY_VARNAME}_TARGET_TYPE}" STREQUAL "INTERFACE_LIBRARY")
+            if (${DEPENDENCY_VARNAME}_INTERFACE_LINK_LIBRARIES_EXISTING OR "${${DEPENDENCY_VARNAME}_TARGET_TYPE}" STREQUAL
+                                                                           "INTERFACE_LIBRARY")
                 continue()
             endif ()
 
