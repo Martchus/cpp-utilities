@@ -194,7 +194,15 @@ Container splitStringSimple(const typename Container::value_type &string, const 
         if (delimPos == Container::value_type::npos) {
             delimPos = string.size();
         }
-        res.emplace_back(string.substr(i, delimPos - i));
+#if __cplusplus >= 202002
+        if constexpr (requires { res.emplace_back(string); }) {
+#endif
+            res.emplace_back(string.substr(i, delimPos - i));
+#if __cplusplus >= 202002
+        } else {
+            res.emplace(string.substr(i, delimPos - i));
+        }
+#endif
     }
     return res;
 }
