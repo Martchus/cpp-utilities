@@ -140,12 +140,13 @@ Container splitString(const typename Container::value_type &string, const typena
 {
     --maxParts;
     Container res;
+    typename Container::value_type *last = nullptr;
     bool merge = false;
     for (typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
         delimPos = string.find(delimiter, i);
         if (!merge && maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
             if (delimPos == i && emptyPartsRole == EmptyPartsTreat::Merge) {
-                if (!res.empty()) {
+                if (last) {
                     merge = true;
                     continue;
                 }
@@ -157,14 +158,14 @@ Container splitString(const typename Container::value_type &string, const typena
         }
         if (emptyPartsRole == EmptyPartsTreat::Keep || i != delimPos) {
             if (merge) {
-                res.back().append(delimiter);
-                res.back().append(string.substr(i, delimPos - i));
+                last->append(delimiter);
+                last->append(string, i, delimPos - i);
                 merge = false;
             } else {
-                res.emplace_back(string.substr(i, delimPos - i));
+                last = &res.emplace_back(string, i, delimPos - i);
             }
         } else if (emptyPartsRole == EmptyPartsTreat::Merge) {
-            if (!res.empty()) {
+            if (last) {
                 merge = true;
             }
         }
@@ -197,10 +198,10 @@ Container splitStringSimple(const typename Container::value_type &string, const 
 #if __cplusplus >= 201709
         if constexpr (requires { res.emplace_back(string); }) {
 #endif
-            res.emplace_back(string.substr(i, delimPos - i));
+            res.emplace_back(string.data() + i, delimPos - i);
 #if __cplusplus >= 201709
         } else {
-            res.emplace(string.substr(i, delimPos - i));
+            res.emplace(string.data() + i, delimPos - i);
         }
 #endif
     }
