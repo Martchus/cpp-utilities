@@ -18,6 +18,10 @@
 #include <system_error>
 #include <vector>
 
+#if __cplusplus >= 201709
+#include <ranges>
+#endif
+
 namespace CppUtilities {
 
 /*!
@@ -59,6 +63,20 @@ CPP_UTILITIES_EXPORT WideStringData convertMultiByteToWide(const std::string &in
 
 CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar = '\0');
 
+/// \cond
+namespace Detail {
+#if __cplusplus >= 201709
+template <class Container>
+using ContainerValueType = typename std::conditional_t<std::ranges::range<Container>,
+    std::iterator_traits<std::remove_cvref_t<std::ranges::iterator_t<Container>>>, Container>::value_type;
+#else
+template <class Container> using ContainerValueType = typename Container::value_type;
+#endif
+template <class Container> using DefaultReturnTypeForContainer = ContainerValueType<Container>;
+template <class Container> using StringParamForContainer = std::basic_string_view<typename ContainerValueType<Container>::value_type>;
+} // namespace Detail
+/// \endcond
+
 /*!
  * \brief Joins the given \a strings using the specified \a delimiter.
  *
@@ -69,13 +87,14 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
  * \param omitEmpty Indicates whether empty part should be omitted.
  * \param leftClosure Specifies a string to be inserted before each string (empty string by default).
  * \param rightClosure Specifies a string to be appendend after each string (empty string by default).
- * \tparam Container The STL-container used to provide the \a strings.
+ * \tparam Container Container The STL-container used to provide the \a strings.
+ * \tparam ReturnType Type to store the result; defaults to the container's element type.
  * \returns Returns the joined string.
  */
-template <class Container = std::initializer_list<std::string>, class ReturnType = typename Container::value_type>
-ReturnType joinStrings(const Container &strings, const typename Container::value_type &delimiter = typename Container::value_type(),
-    bool omitEmpty = false, const typename Container::value_type &leftClosure = typename Container::value_type(),
-    const typename Container::value_type &rightClosure = typename Container::value_type())
+template <class Container = std::initializer_list<std::string>, class ReturnType = Detail::DefaultReturnTypeForContainer<Container>>
+ReturnType joinStrings(const Container &strings, Detail::StringParamForContainer<Container> delimiter = Detail::StringParamForContainer<Container>(),
+    bool omitEmpty = false, Detail::StringParamForContainer<Container> leftClosure = Detail::StringParamForContainer<Container>(),
+    Detail::StringParamForContainer<Container> rightClosure = Detail::StringParamForContainer<Container>())
 {
     ReturnType res;
     if (!strings.size()) {
@@ -111,7 +130,7 @@ ReturnType joinStrings(const Container &strings, const typename Container::value
 /*!
  * \brief Converts the specified \a arrayOfLines to a multiline string.
  */
-template <class Container = std::initializer_list<std::string>> inline std::vector<std::string> toMultiline(const Container &arrayOfLines)
+template <class Container = std::initializer_list<std::string>> inline auto toMultiline(const Container &arrayOfLines)
 {
     return joinStrings(arrayOfLines, "\n", false);
 }
@@ -135,7 +154,7 @@ enum class EmptyPartsTreat {
  * \returns Returns the parts.
  */
 template <class Container = std::list<std::string>>
-Container splitString(const typename Container::value_type &string, const typename Container::value_type &delimiter,
+Container splitString(Detail::StringParamForContainer<Container> string, Detail::StringParamForContainer<Container> delimiter,
     EmptyPartsTreat emptyPartsRole = EmptyPartsTreat::Keep, int maxParts = -1)
 {
     --maxParts;
@@ -183,7 +202,7 @@ Container splitString(const typename Container::value_type &string, const typena
  * \remarks This is a simplified version of splitString() where emptyPartsRole is always EmptyPartsTreat::Keep.
  */
 template <class Container = std::list<std::string>>
-Container splitStringSimple(const typename Container::value_type &string, const typename Container::value_type &delimiter, int maxParts = -1)
+Container splitStringSimple(Detail::StringParamForContainer<Container> string, Detail::StringParamForContainer<Container> delimiter, int maxParts = -1)
 {
     --maxParts;
     Container res;
@@ -211,7 +230,7 @@ Container splitStringSimple(const typename Container::value_type &string, const 
 /*!
  * \brief Converts the specified \a multilineString to an array of lines.
  */
-template <class Container = std::vector<std::string>> inline std::vector<std::string> toArrayOfLines(const std::string &multilineString)
+template <class Container = std::vector<std::string>> inline auto toArrayOfLines(const std::string &multilineString)
 {
     return splitString<Container>(multilineString, "\n", EmptyPartsTreat::Keep);
 }
