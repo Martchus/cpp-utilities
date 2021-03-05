@@ -202,7 +202,8 @@ Container splitString(Detail::StringParamForContainer<Container> string, Detail:
  * \remarks This is a simplified version of splitString() where emptyPartsRole is always EmptyPartsTreat::Keep.
  */
 template <class Container = std::list<std::string>>
-Container splitStringSimple(Detail::StringParamForContainer<Container> string, Detail::StringParamForContainer<Container> delimiter, int maxParts = -1)
+Container splitStringSimple(
+    Detail::StringParamForContainer<Container> string, Detail::StringParamForContainer<Container> delimiter, int maxParts = -1)
 {
     --maxParts;
     Container res;
