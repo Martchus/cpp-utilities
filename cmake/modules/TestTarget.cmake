@@ -254,7 +254,10 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
         endif ()
 
         # add target for the coverage reports
-        add_custom_target("${META_TARGET_NAME}_tests_coverage_summary" DEPENDS ${COVERAGE_REPORT_FILES})
+        add_custom_target(
+            "${META_TARGET_NAME}_tests_coverage_summary"
+            DEPENDS ${COVERAGE_REPORT_FILES}
+            USES_TERMINAL)
 
         # NOTE: Those commands have been added before the release of LLVM 5 where coverage reports with statistics per file
         # could not be generated.
@@ -272,7 +275,10 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             COMMAND awk -f "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}" > "${COVERAGE_OVERALL_REPORT_FILE}"
             COMMENT "Generating coverage report (overall figures)"
             DEPENDS "${OVERALL_COVERAGE_AKW_SCRIPT}" "${COVERAGE_REPORT_FILE}")
-        add_custom_target("${META_TARGET_NAME}_tests_coverage_overall_summary" DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}")
+        add_custom_target(
+            "${META_TARGET_NAME}_tests_coverage_overall_summary"
+            DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
+            USES_TERMINAL)
 
         # generate HTML document showing covered/uncovered code
         add_custom_command(
@@ -291,7 +297,8 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             "${META_TARGET_NAME}_tests_coverage"
             DEPENDS ${COVERAGE_REPORT_FILES}
             DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
-            DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
+            DEPENDS "${COVERAGE_HTML_REPORT_FILE}"
+            USES_TERMINAL)
 
         # add targets to global coverage target
         if (NOT TARGET coverage)

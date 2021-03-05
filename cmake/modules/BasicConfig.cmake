@@ -495,7 +495,8 @@ if (NOT TARGET check)
         check
         COMMAND ${CMAKE_CTEST_COMMAND}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS "${CHECK_TARGET_DEPENDS}")
+        DEPENDS "${CHECK_TARGET_DEPENDS}"
+        USES_TERMINAL)
 endif ()
 
 # enable source code based coverage analysis using clang
