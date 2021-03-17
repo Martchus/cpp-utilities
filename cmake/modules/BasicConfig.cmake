@@ -87,6 +87,9 @@ if (NOT DEFINED META_QT_DEFAULT_PLUGINS)
     set(META_QT_DEFAULT_PLUGINS 0) # needs to be exactly 0, Qt's code uses STREQUAL 0
 endif ()
 
+# add option to enable defaults useful for development
+option(ENABLE_DEVEL_DEFAULTS "enable build system options useful during development by default" OFF)
+
 # find standard installation directories - note: Allow overriding CMAKE_INSTALL_LIBDIR and LIB_INSTALL_DIR but don't use the
 # default from GNUInstallDirs (as an Arch Linux user this feels odd and I also want to avoid breaking existing build
 # scripts).
@@ -342,8 +345,8 @@ endif ()
 
 # allow user to configure creation of tidy targets unless the project disables this via META_NO_TIDY
 if (NOT META_NO_TIDY)
-    option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" OFF)
-    option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" OFF)
+    option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" "${ENABLE_DEVEL_DEFAULTS}")
+    option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" "${ENABLE_DEVEL_DEFAULTS}")
 endif ()
 
 # add target for tidying with clang-format
@@ -413,7 +416,7 @@ endif ()
 
 # add target for static code analysis using clang-tidy
 if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
-    option(CLANG_TIDY_ENABLED "enables creation of static-check target using clang-tidy" OFF)
+    option(CLANG_TIDY_ENABLED "enables creation of static-check target using clang-tidy" "${ENABLE_DEVEL_DEFAULTS}")
     set(CLANG_TIDY_CHECKS
         ""
         CACHE STRING
@@ -631,7 +634,7 @@ else ()
 endif ()
 
 # enable warnings and treat them as errors
-option(ENABLE_WARNINGS "adds additional compiler flags to enable warnings" OFF)
+option(ENABLE_WARNINGS "adds additional compiler flags to enable warnings" "${ENABLE_DEVEL_DEFAULTS}")
 set(CLANG_WARNINGS
     -Wall
     -Wextra # reasonable and standard
@@ -666,7 +669,7 @@ if (ENABLE_WARNINGS)
         message(AUTHOR_WARNING "Enabling warnings is not supported for compiler '${CMAKE_CXX_COMPILER_ID}'.")
     endif ()
 endif ()
-option(TREAT_WARNINGS_AS_ERRORS "adds additional compiler flag to treat warnings as errors" OFF)
+option(TREAT_WARNINGS_AS_ERRORS "adds additional compiler flag to treat warnings as errors" "${ENABLE_DEVEL_DEFAULTS}")
 if (TREAT_WARNINGS_AS_ERRORS)
     if (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         list(APPEND META_PRIVATE_COMPILE_OPTIONS -Werror)

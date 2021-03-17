@@ -6,7 +6,12 @@ if (DEFINED TESTING_UTILITIES_LOADED)
 endif ()
 set(TESTING_UTILITIES_LOADED YES)
 
-option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the 'all' target (enabled by default)" ON)
+set(EXCLUDE_TEST_TARGET_BY_DEFAULT ON)
+if (ENABLE_DEVEL_DEFAULTS)
+    set(EXCLUDE_TEST_TARGET_BY_DEFAULT OFF)
+endif ()
+option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the 'all' target (enabled by default)"
+       "${EXCLUDE_TEST_TARGET_BY_DEFAULT}")
 
 function (configure_test_target)
     # parse arguments
