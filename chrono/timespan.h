@@ -247,7 +247,7 @@ constexpr inline double TimeSpan::totalDays() const
  */
 constexpr int TimeSpan::nanoseconds() const
 {
-    return m_ticks % 10l * TimeSpan::nanosecondsPerTick;
+    return static_cast<int>(m_ticks % 10l * TimeSpan::nanosecondsPerTick);
 }
 
 /*!
@@ -255,7 +255,7 @@ constexpr int TimeSpan::nanoseconds() const
  */
 constexpr int TimeSpan::microseconds() const
 {
-    return (m_ticks / ticksPerMicrosecond) % 1000l;
+    return static_cast<int>((m_ticks / ticksPerMicrosecond) % 1000l);
 }
 
 /*!
@@ -263,7 +263,7 @@ constexpr int TimeSpan::microseconds() const
  */
 constexpr inline int TimeSpan::milliseconds() const
 {
-    return (m_ticks / ticksPerMillisecond) % 1000l;
+    return static_cast<int>((m_ticks / ticksPerMillisecond) % 1000l);
 }
 
 /*!
@@ -271,7 +271,7 @@ constexpr inline int TimeSpan::milliseconds() const
  */
 constexpr inline int TimeSpan::seconds() const
 {
-    return (m_ticks / ticksPerSecond) % 60l;
+    return static_cast<int>((m_ticks / ticksPerSecond) % 60l);
 }
 
 /*!
@@ -279,7 +279,7 @@ constexpr inline int TimeSpan::seconds() const
  */
 constexpr inline int TimeSpan::minutes() const
 {
-    return (m_ticks / ticksPerMinute) % 60l;
+    return static_cast<int>((m_ticks / ticksPerMinute) % 60l);
 }
 
 /*!
@@ -287,7 +287,7 @@ constexpr inline int TimeSpan::minutes() const
  */
 constexpr inline int TimeSpan::hours() const
 {
-    return (m_ticks / ticksPerHour) % 24l;
+    return static_cast<int>((m_ticks / ticksPerHour) % 24l);
 }
 
 /*!
@@ -295,7 +295,7 @@ constexpr inline int TimeSpan::hours() const
  */
 constexpr inline int TimeSpan::days() const
 {
-    return (m_ticks / ticksPerDay);
+    return static_cast<int>((m_ticks / ticksPerDay));
 }
 
 /*!
@@ -367,7 +367,7 @@ constexpr inline TimeSpan TimeSpan::operator-(const TimeSpan &other) const
  */
 constexpr inline TimeSpan TimeSpan::operator*(double factor) const
 {
-    return TimeSpan(m_ticks * factor);
+    return TimeSpan(static_cast<std::int64_t>(static_cast<double>(m_ticks) * factor));
 }
 
 /*!
@@ -375,7 +375,7 @@ constexpr inline TimeSpan TimeSpan::operator*(double factor) const
  */
 constexpr inline TimeSpan TimeSpan::operator/(double factor) const
 {
-    return TimeSpan(m_ticks / factor);
+    return TimeSpan(static_cast<std::int64_t>(static_cast<double>(m_ticks) / factor));
 }
 
 /*!
@@ -409,7 +409,7 @@ inline TimeSpan &TimeSpan::operator-=(const TimeSpan &other)
  */
 inline TimeSpan &TimeSpan::operator*=(double factor)
 {
-    m_ticks = m_ticks * factor;
+    m_ticks = static_cast<std::int64_t>(static_cast<double>(m_ticks) * factor);
     return *this;
 }
 
@@ -418,7 +418,7 @@ inline TimeSpan &TimeSpan::operator*=(double factor)
  */
 inline TimeSpan &TimeSpan::operator/=(double factor)
 {
-    m_ticks = m_ticks / factor;
+    m_ticks = static_cast<std::int64_t>(static_cast<double>(m_ticks) / factor);
     return *this;
 }
 

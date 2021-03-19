@@ -281,7 +281,8 @@ template <typename StringType> bool endsWith(const StringType &str, const String
     if (str.size() < phrase.size()) {
         return false;
     }
-    for (auto stri = str.cend() - phrase.size(), strend = str.cend(), phrasei = phrase.cbegin(); stri != strend; ++stri, ++phrasei) {
+    for (auto stri = str.cend() - static_cast<typename StringType::difference_type>(phrase.size()), strend = str.cend(), phrasei = phrase.cbegin();
+         stri != strend; ++stri, ++phrasei) {
         if (*stri != *phrasei) {
             return false;
         }
@@ -298,7 +299,8 @@ template <typename StringType> bool endsWith(const StringType &str, const typena
     if (str.size() < phraseSize) {
         return false;
     }
-    for (auto stri = str.cend() - phraseSize, strend = str.cend(); stri != strend; ++stri, ++phrase) {
+    for (auto stri = str.cend() - static_cast<typename StringType::difference_type>(phraseSize), strend = str.cend(); stri != strend;
+         ++stri, ++phrase) {
         if (*stri != *phrase) {
             return false;
         }
@@ -397,7 +399,7 @@ template <typename CharType> constexpr CharType digitToChar(CharType digit)
  */
 template <typename IntegralType, class StringType = std::string,
     CppUtilities::Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
-StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
+StringType numberToString(IntegralType number, IntegralType base = 10)
 {
     std::size_t resSize = 0;
     for (auto n = number; n; n /= base, ++resSize)
@@ -405,7 +407,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
     StringType res;
     res.reserve(resSize);
     do {
-        res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
+        res.insert(res.begin(), digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % base)));
         number /= base;
     } while (number);
     return res;
@@ -419,7 +421,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  */
 template <typename IntegralType, class StringType = std::string,
     Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
-StringType numberToString(IntegralType number, typename StringType::value_type base = 10)
+StringType numberToString(IntegralType number, IntegralType base = 10)
 {
     const bool negative = number < 0;
     std::size_t resSize;
@@ -433,7 +435,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
     StringType res;
     res.reserve(resSize);
     do {
-        res.insert(res.begin(), digitToChar<typename StringType::value_type>(number % base));
+        res.insert(res.begin(), digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % base)));
         number /= base;
     } while (number);
     if (negative) {
@@ -451,7 +453,7 @@ StringType numberToString(IntegralType number, typename StringType::value_type b
  * \sa stringToNumber(), bufferToNumber()
  */
 template <typename FloatingType, class StringType = std::string, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
-StringType numberToString(FloatingType number, typename StringType::value_type base = 10)
+StringType numberToString(FloatingType number, int base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << number;
@@ -479,7 +481,7 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
     std::string errorMsg;
     errorMsg.reserve(36);
     errorMsg += "The character \"";
-    errorMsg += character;
+    errorMsg += character >= ' ' && character <= '~' ? static_cast<std::string::value_type>(character) : '?';
     errorMsg += "\" is no valid digit.";
     throw ConversionException(std::move(errorMsg));
 }
@@ -493,7 +495,7 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
  * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, typename StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
-IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
+IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
 {
     IntegralType result = 0;
     for (const auto &c : string) {
@@ -501,7 +503,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
             continue;
         }
         result *= base;
-        result += charToDigit<typename StringType::value_type>(c, base);
+        result += static_cast<IntegralType>(charToDigit<typename StringType::value_type>(c, static_cast<typename StringType::value_type>(base)));
     }
     return result;
 }
@@ -515,7 +517,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
-IntegralType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
+IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
 {
     auto i = string.begin();
     auto end = string.end();
@@ -534,7 +536,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
             continue;
         }
         result *= base;
-        result += charToDigit<typename StringType::value_type>(*i, base);
+        result += static_cast<IntegralType>(charToDigit<typename StringType::value_type>(*i, static_cast<typename StringType::value_type>(base)));
     }
     return negative ? -result : result;
 }
@@ -550,7 +552,7 @@ IntegralType stringToNumber(const StringType &string, typename StringType::value
  * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
-FloatingType stringToNumber(const StringType &string, typename StringType::value_type base = 10)
+FloatingType stringToNumber(const StringType &string, int base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
     ss << std::setbase(base) << string;
@@ -575,7 +577,7 @@ FloatingType stringToNumber(const StringType &string, typename StringType::value
  * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
-IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
+IntegralType stringToNumber(const CharType *string, IntegralType base = 10)
 {
     IntegralType result = 0;
     for (; *string; ++string) {
@@ -583,7 +585,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
             continue;
         }
         result *= base;
-        result += charToDigit<CharType>(*string, base);
+        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
     }
     return result;
 }
@@ -599,7 +601,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename FloatingType, class CharType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
-FloatingType stringToNumber(const CharType *string, unsigned char base = 10)
+FloatingType stringToNumber(const CharType *string, int base = 10)
 {
     std::basic_stringstream<CharType> ss;
     ss << std::setbase(base) << string;
@@ -623,7 +625,7 @@ FloatingType stringToNumber(const CharType *string, unsigned char base = 10)
  * \sa numberToString(), stringToNumber()
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
-IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
+IntegralType bufferToNumber(const CharType *string, std::size_t size, IntegralType base = 10)
 {
     IntegralType result = 0;
     for (const CharType *end = string + size; string != end; ++string) {
@@ -631,7 +633,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned c
             continue;
         }
         result *= base;
-        result += charToDigit<CharType>(*string, base);
+        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
     }
     return result;
 }
@@ -644,7 +646,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned c
  * \sa numberToString(), bufferToNumber()
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
-IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
+IntegralType stringToNumber(const CharType *string, IntegralType base = 10)
 {
     if (!*string) {
         return 0;
@@ -664,7 +666,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
             continue;
         }
         result *= base;
-        result += charToDigit<CharType>(*string, base);
+        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
     }
     return negative ? -result : result;
 }
@@ -677,7 +679,7 @@ IntegralType stringToNumber(const CharType *string, unsigned char base = 10)
  * \sa numberToString(), stringToNumber()
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
-IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned char base = 10)
+IntegralType bufferToNumber(const CharType *string, std::size_t size, IntegralType base = 10)
 {
     if (!size) {
         return 0;
@@ -698,7 +700,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, unsigned c
             continue;
         }
         result *= base;
-        result += charToDigit<CharType>(*string, base);
+        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
     }
     return negative ? -result : result;
 }
@@ -716,7 +718,7 @@ template <typename T> std::string interpretIntegerAsString(T integer, int startO
 {
     char buffer[sizeof(T)];
     BE::getBytes(integer, buffer);
-    return std::string(buffer + startOffset, sizeof(T) - startOffset);
+    return std::string(buffer + startOffset, sizeof(T) - static_cast<std::size_t>(startOffset));
 }
 
 CPP_UTILITIES_EXPORT std::string dataSizeToString(std::uint64_t sizeInByte, bool includeByte = false);

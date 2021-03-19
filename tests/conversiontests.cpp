@@ -25,8 +25,8 @@ using namespace CPPUNIT_NS;
 static_assert(toSynchsafeInt(255) == 383, "toSynchsafeInt()");
 static_assert(toNormalInt(383) == 255, "toNormalInt()");
 static_assert(swapOrder(static_cast<std::uint16_t>(0xABCD)) == 0xCDAB, "swapOrder(uint16)");
-static_assert(swapOrder(static_cast<std::uint32_t>(0xABCDEF12)) == 0x12EFCDAB, "swapOrder(uint32)");
-static_assert(swapOrder(static_cast<std::uint64_t>(0xABCDEF1234567890)) == 0x9078563412EFCDAB, "swapOrder(uint64)");
+static_assert(swapOrder(0xABCDEF12u) == 0x12EFCDABu, "swapOrder(uint32)");
+static_assert(swapOrder(0xABCDEF1234567890ul) == 0x9078563412EFCDABul, "swapOrder(uint64)");
 
 /*!
  * \brief The ConversionTests class tests classes and functions provided by the files inside the conversion directory.
@@ -256,16 +256,16 @@ void ConversionTests::testStringConversions()
         auto signedRandom = randomDistSigned(m_randomEngine);
         auto unsignedRandom = randomDistUnsigned(m_randomEngine);
         for (const auto base : initializer_list<std::uint8_t>{ 2, 8, 10, 16 }) {
-            const auto asString = numberToString<std::uint64_t, string>(unsignedRandom, static_cast<string::value_type>(base));
+            const auto asString = numberToString<std::uint64_t, string>(unsignedRandom, base);
             const auto asWideString = numberToString<std::uint64_t, wstring>(unsignedRandom, base);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, unsignedRandom, stringToNumber<std::uint64_t>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, unsignedRandom, stringToNumber<std::uint64_t>(asString, base));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, unsignedRandom, stringToNumber<std::uint64_t>(asWideString, base));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, unsignedRandom, bufferToNumber<std::uint64_t>(asString.data(), asString.size(), base));
         }
         for (const auto base : initializer_list<std::uint8_t>{ 10 }) {
             const auto asString = numberToString<std::int64_t, string>(signedRandom, static_cast<string::value_type>(base));
             const auto asWideString = numberToString<std::int64_t, wstring>(signedRandom, base);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, signedRandom, stringToNumber<std::int64_t>(asString, static_cast<string::value_type>(base)));
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(stringMsg, signedRandom, stringToNumber<std::int64_t>(asString, base));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(wideStringMsg, signedRandom, stringToNumber<std::int64_t>(asWideString, base));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(bufferMsg, signedRandom, bufferToNumber<std::int64_t>(asString.data(), asString.size(), base));
         }

@@ -49,7 +49,7 @@ struct Factor {
         : factor(factor){};
     size_t operator()(size_t value)
     {
-        return static_cast<size_t>(value * factor);
+        return static_cast<size_t>(static_cast<float>(value) * factor);
     }
     float factor;
 };
@@ -340,13 +340,13 @@ const char base64Pad = '=';
  */
 string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
 {
-    string encoded;
-    std::uint8_t mod = dataSize % 3;
+    auto encoded = std::string();
+    auto mod = static_cast<std::uint8_t>(dataSize % 3);
+    auto temp = std::uint32_t();
     encoded.reserve(((dataSize / 3) + (mod > 0)) * 4);
-    std::uint32_t temp;
     for (const std::uint8_t *end = --data + dataSize - mod; data != end;) {
-        temp = *++data << 16;
-        temp |= *++data << 8;
+        temp = static_cast<std::uint32_t>(*++data << 16);
+        temp |= static_cast<std::uint32_t>(*++data << 8);
         temp |= *++data;
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
         encoded.push_back(base64Chars[(temp & 0x0003F000) >> 12]);
@@ -355,15 +355,15 @@ string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
     }
     switch (mod) {
     case 1:
-        temp = *++data << 16;
+        temp = static_cast<std::uint32_t>(*++data << 16);
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
         encoded.push_back(base64Chars[(temp & 0x0003F000) >> 12]);
         encoded.push_back(base64Pad);
         encoded.push_back(base64Pad);
         break;
     case 2:
-        temp = *++data << 16;
-        temp |= *++data << 8;
+        temp = static_cast<std::uint32_t>(*++data << 16);
+        temp |= static_cast<std::uint32_t>(*++data << 8);
         encoded.push_back(base64Chars[(temp & 0x00FC0000) >> 18]);
         encoded.push_back(base64Chars[(temp & 0x0003F000) >> 12]);
         encoded.push_back(base64Chars[(temp & 0x00000FC0) >> 6]);
@@ -412,11 +412,11 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
             } else if (*encodedStr == base64Pad) {
                 switch (end - encodedStr) {
                 case 1:
-                    *++iter = (temp >> 16) & 0xFF;
-                    *++iter = (temp >> 8) & 0xFF;
+                    *++iter = static_cast<std::uint8_t>((temp >> 16) & 0xFF);
+                    *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
                     return make_pair(move(buffer), decodedSize);
                 case 2:
-                    *++iter = (temp >> 10) & 0xFF;
+                    *++iter = static_cast<std::uint8_t>((temp >> 10) & 0xFF);
                     return make_pair(move(buffer), decodedSize);
                 default:
                     throw ConversionException("invalid padding in base64");
@@ -425,9 +425,9 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
                 throw ConversionException("invalid character in base64");
             }
         }
-        *++iter = (temp >> 16) & 0xFF;
-        *++iter = (temp >> 8) & 0xFF;
-        *++iter = (temp)&0xFF;
+        *++iter = static_cast<std::uint8_t>((temp >> 16) & 0xFF);
+        *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
+        *++iter = static_cast<std::uint8_t>(temp & 0xFF);
     }
     return make_pair(move(buffer), decodedSize);
 }

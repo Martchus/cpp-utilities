@@ -534,7 +534,7 @@ inline void BinaryWriter::writeFloat64LE(double value)
  */
 inline void BinaryWriter::writeString(const std::string &value)
 {
-    m_stream->write(value.c_str(), value.length());
+    m_stream->write(value.data(), static_cast<std::streamsize>(value.size()));
 }
 
 /*!
@@ -542,7 +542,7 @@ inline void BinaryWriter::writeString(const std::string &value)
  */
 inline void BinaryWriter::writeTerminatedString(const std::string &value)
 {
-    m_stream->write(value.c_str(), value.length() + 1);
+    m_stream->write(value.data(), static_cast<std::streamsize>(value.size() + 1));
 }
 
 /*!

@@ -153,7 +153,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toNormalInt(std::uint32_t synchsafe
  */
 CPP_UTILITIES_EXPORT constexpr std::uint16_t swapOrder(std::uint16_t value)
 {
-    return ((value >> 8) & 0x00FF) | ((value << 8) & 0xFF00);
+    return static_cast<std::uint16_t>(((value >> 8) & 0x00FF) | ((value << 8) & 0xFF00));
 }
 
 /*!

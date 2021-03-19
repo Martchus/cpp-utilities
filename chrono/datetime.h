@@ -306,7 +306,7 @@ constexpr inline DayOfWeek DateTime::dayOfWeek() const
  */
 constexpr inline int DateTime::hour() const
 {
-    return m_ticks / TimeSpan::ticksPerHour % 24ul;
+    return static_cast<int>(m_ticks / TimeSpan::ticksPerHour % 24ul);
 }
 
 /*!
@@ -314,7 +314,7 @@ constexpr inline int DateTime::hour() const
  */
 constexpr inline int DateTime::minute() const
 {
-    return m_ticks / TimeSpan::ticksPerMinute % 60ul;
+    return static_cast<int>(m_ticks / TimeSpan::ticksPerMinute % 60ul);
 }
 
 /*!
@@ -322,7 +322,7 @@ constexpr inline int DateTime::minute() const
  */
 constexpr inline int DateTime::second() const
 {
-    return m_ticks / TimeSpan::ticksPerSecond % 60ul;
+    return static_cast<int>(m_ticks / TimeSpan::ticksPerSecond % 60ul);
 }
 
 /*!
@@ -330,7 +330,7 @@ constexpr inline int DateTime::second() const
  */
 constexpr inline int DateTime::millisecond() const
 {
-    return m_ticks / TimeSpan::ticksPerMillisecond % 1000ul;
+    return static_cast<int>(m_ticks / TimeSpan::ticksPerMillisecond % 1000ul);
 }
 
 /*!
@@ -338,7 +338,7 @@ constexpr inline int DateTime::millisecond() const
  */
 constexpr inline int DateTime::microsecond() const
 {
-    return m_ticks / TimeSpan::ticksPerMicrosecond % 1000ul;
+    return static_cast<int>(m_ticks / TimeSpan::ticksPerMicrosecond % 1000ul);
 }
 
 /*!
@@ -348,7 +348,7 @@ constexpr inline int DateTime::microsecond() const
  */
 constexpr inline int DateTime::nanosecond() const
 {
-    return m_ticks % 10ul * TimeSpan::nanosecondsPerTick;
+    return static_cast<int>(m_ticks % 10ul * TimeSpan::nanosecondsPerTick);
 }
 
 /*!
@@ -365,7 +365,7 @@ constexpr inline bool DateTime::isNull() const
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
-    return TimeSpan(m_ticks % TimeSpan::ticksPerDay);
+    return TimeSpan(static_cast<std::int64_t>(m_ticks % TimeSpan::ticksPerDay));
 }
 
 /*!
@@ -425,7 +425,7 @@ inline std::string DateTime::toString(DateTimeOutputFormat format, bool noMillis
  */
 constexpr std::time_t DateTime::toTimeStamp() const
 {
-    return (totalTicks() - DateTime::unixEpochStart().totalTicks()) / TimeSpan::ticksPerSecond;
+    return static_cast<std::time_t>((totalTicks() - DateTime::unixEpochStart().totalTicks()) / TimeSpan::ticksPerSecond);
 }
 
 /*!
@@ -516,7 +516,7 @@ constexpr inline bool DateTime::operator>=(const DateTime &other) const
  */
 constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
 {
-    return DateTime(m_ticks + timeSpan.m_ticks);
+    return DateTime(m_ticks + static_cast<std::uint64_t>(timeSpan.m_ticks));
 }
 
 /*!
@@ -525,7 +525,7 @@ constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
  */
 constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
 {
-    return DateTime(m_ticks - timeSpan.m_ticks);
+    return DateTime(m_ticks - static_cast<std::uint64_t>(timeSpan.m_ticks));
 }
 
 /*!
@@ -534,7 +534,7 @@ constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
  */
 constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
 {
-    return TimeSpan(m_ticks + other.m_ticks);
+    return TimeSpan(static_cast<std::int64_t>(m_ticks + other.m_ticks));
 }
 
 /*!
@@ -545,7 +545,7 @@ constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
  */
 constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
 {
-    return TimeSpan(m_ticks - other.m_ticks);
+    return TimeSpan(static_cast<std::int64_t>(m_ticks - other.m_ticks));
 }
 
 /*!
@@ -553,7 +553,7 @@ constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
  */
 inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
 {
-    m_ticks += timeSpan.m_ticks;
+    m_ticks += static_cast<std::uint64_t>(timeSpan.m_ticks);
     return *this;
 }
 
@@ -562,7 +562,7 @@ inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
  */
 inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
 {
-    m_ticks -= timeSpan.m_ticks;
+    m_ticks += static_cast<std::uint64_t>(timeSpan.m_ticks);
     return *this;
 }
 } // namespace CppUtilities

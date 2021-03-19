@@ -416,29 +416,29 @@ std::uint64_t DateTime::timeToTicks(int hour, int minute, int second, double mil
  */
 int DateTime::getDatePart(DatePart part) const
 {
-    const int fullDays = m_ticks / TimeSpan::ticksPerDay;
-    const int full400YearBlocks = fullDays / m_daysPer400Years;
-    const int daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
-    int full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;
+    const auto fullDays = static_cast<int>(m_ticks / TimeSpan::ticksPerDay);
+    const auto full400YearBlocks = fullDays / m_daysPer400Years;
+    const auto daysMinusFull400YearBlocks = fullDays - full400YearBlocks * m_daysPer400Years;
+    auto full100YearBlocks = daysMinusFull400YearBlocks / m_daysPer100Years;
     if (full100YearBlocks == 4) {
         full100YearBlocks = 3;
     }
-    const int daysMinusFull100YearBlocks = daysMinusFull400YearBlocks - full100YearBlocks * m_daysPer100Years;
-    const int full4YearBlocks = daysMinusFull100YearBlocks / m_daysPer4Years;
-    const int daysMinusFull4YearBlocks = daysMinusFull100YearBlocks - full4YearBlocks * m_daysPer4Years;
-    int full1YearBlocks = daysMinusFull4YearBlocks / m_daysPerYear;
+    const auto daysMinusFull100YearBlocks = daysMinusFull400YearBlocks - full100YearBlocks * m_daysPer100Years;
+    const auto full4YearBlocks = daysMinusFull100YearBlocks / m_daysPer4Years;
+    const auto daysMinusFull4YearBlocks = daysMinusFull100YearBlocks - full4YearBlocks * m_daysPer4Years;
+    auto full1YearBlocks = daysMinusFull4YearBlocks / m_daysPerYear;
     if (full1YearBlocks == 4) {
         full1YearBlocks = 3;
     }
     if (part == DatePart::Year) {
         return full400YearBlocks * 400 + full100YearBlocks * 100 + full4YearBlocks * 4 + full1YearBlocks + 1;
     }
-    const int restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
+    const auto restDays = daysMinusFull4YearBlocks - full1YearBlocks * m_daysPerYear;
     if (part == DatePart::DayOfYear) { // day
         return restDays + 1;
     }
-    const int *const daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
-    int month = 1;
+    const auto *const daysToMonth = (full1YearBlocks == 3 && (full4YearBlocks != 24 || full100YearBlocks == 3)) ? m_daysToMonth366 : m_daysToMonth365;
+    auto month = 1;
     while (restDays >= daysToMonth[month]) {
         ++month;
     }

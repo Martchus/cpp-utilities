@@ -12,22 +12,22 @@ namespace Detail {
 template <class Tuple, std::size_t N> struct DimensionsHelper {
     static std::size_t requiredSize(const Tuple &dimensionSizes)
     {
-        return DimensionsHelper<Tuple, N - 1>::requiredSize(dimensionSizes) * std::get<N - 1>(dimensionSizes);
+        return DimensionsHelper<Tuple, N - 1>::requiredSize(dimensionSizes) * static_cast<std::size_t>(std::get<N - 1>(dimensionSizes));
     }
     static std::size_t offset(const Tuple &dimensions, const Tuple &indices, std::size_t factor)
     {
-        return DimensionsHelper<Tuple, N - 1>::offset(dimensions, indices, factor * std::get<N - 1>(dimensions))
-            + (factor * std::get<N - 1>(indices));
+        return DimensionsHelper<Tuple, N - 1>::offset(dimensions, indices, factor * static_cast<std::size_t>(std::get<N - 1>(dimensions)))
+            + (factor * static_cast<std::size_t>(std::get<N - 1>(indices)));
     }
 };
 template <class Tuple> struct DimensionsHelper<Tuple, 1> {
     static std::size_t requiredSize(const Tuple &dimensionSizes)
     {
-        return std::get<0>(dimensionSizes);
+        return static_cast<std::size_t>(std::get<0>(dimensionSizes));
     }
     static std::size_t offset(const Tuple &, const Tuple &indices, std::size_t factor)
     {
-        return factor * std::get<0>(indices);
+        return factor * static_cast<std::size_t>(std::get<0>(indices));
     }
 };
 } // namespace Detail
@@ -70,6 +70,9 @@ struct NoneOwningMultiArray {
 };
 
 /// \brief The MultiArray class provides an *N*-dimensional array.
+/// \tparam T Specifies the type of the data the MultiArray is supposed to contain.
+/// \tparam UnderlyingContainer Specifies the type of the underlying container to use.
+/// \tparam Dimentions Specifies the types used to store the limit/size of the dimentions. Must be safely castable to std::size_t.
 template <typename T, typename UnderlyingContainer, typename... Dimensions> class MultiArray {
 public:
     MultiArray(Dimensions... dimensionSizes);
@@ -89,7 +92,7 @@ private:
     typename UnderlyingContainer::template Type<T> m_buff;
 };
 
-/// \brief Constructs a new *N*-dimensional array. The sizes for the dimensions are passed as arguments.
+/// \brief Constructs a new *N*-dimensional array. The sizes for the dimensions are passed as arguments and must be greather than zero.
 /// \remarks The number of dimensions *N* is deduced from the number of \a dimensionSizes.
 /// \sa makeMultiArray(), makeFixedSizeMultiArray() and makeNoneOwningMultiArray() for more convenient construction
 template <typename T, typename UnderlyingContainer, typename... Dimensions>
@@ -119,7 +122,7 @@ template <typename T, typename UnderlyingContainer, typename... Dimensions>
 template <std::size_t index>
 std::size_t MultiArray<T, UnderlyingContainer, Dimensions...>::dimensionSize() const
 {
-    return std::get<index>(m_dims);
+    return static_cast<std::size_t>(std::get<index>(m_dims));
 }
 
 /// \brief Returns the element at the position specified via \a indices.

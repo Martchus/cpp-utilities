@@ -87,7 +87,7 @@ void BinaryReader::bufferVariableLengthInteger()
     }
     memset(m_buffer, 0, maxPrefixLength);
     m_stream->read(m_buffer + (maxPrefixLength - prefixLength), prefixLength);
-    *(m_buffer + (maxPrefixLength - prefixLength)) ^= mask;
+    *(m_buffer + (maxPrefixLength - prefixLength)) ^= static_cast<char>(mask);
 }
 
 /*!

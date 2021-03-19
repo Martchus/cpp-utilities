@@ -101,9 +101,9 @@ constexpr std::size_t computeTupleElementSize(CharType)
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
         std::is_unsigned<IntegralType>> * = nullptr>
-constexpr std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
+constexpr std::size_t computeTupleElementSize(IntegralType number, IntegralType base = 10)
 {
-    std::size_t size = 0;
+    auto size = std::size_t(0u);
     for (auto n = number; n; n /= base, ++size)
         ;
     return size;
@@ -112,9 +112,9 @@ constexpr std::size_t computeTupleElementSize(IntegralType number, typename Stri
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
         std::is_signed<IntegralType>> * = nullptr>
-constexpr std::size_t computeTupleElementSize(IntegralType number, typename StringType::value_type base = 10)
+constexpr std::size_t computeTupleElementSize(IntegralType number, IntegralType base = 10)
 {
-    std::size_t size = number < 0 ? 1 : 0;
+    auto size = std::size_t(number < 0 ? 1u : 0u);
     for (auto n = number; n; n /= base, ++size)
         ;
     return size;
@@ -176,11 +176,11 @@ inline void append(StringType &target, CharType c)
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
         std::is_unsigned<IntegralType>> * = nullptr>
-inline void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
+inline void append(StringType &target, IntegralType number, IntegralType base = 10)
 {
-    const auto start = target.begin() + target.size();
+    const auto start = target.begin() + static_cast<typename StringType::difference_type>(target.size());
     do {
-        target.insert(start, digitToChar<typename StringType::value_type>(number % base));
+        target.insert(start, static_cast<typename StringType::value_type>(digitToChar<IntegralType>(number % base)));
         number /= base;
     } while (number);
 }
@@ -188,15 +188,15 @@ inline void append(StringType &target, IntegralType number, typename StringType:
 template <class StringType, typename IntegralType,
     Traits::EnableIf<Traits::Not<std::is_same<typename StringType::value_type, IntegralType>>, std::is_integral<IntegralType>,
         std::is_signed<IntegralType>> * = nullptr>
-inline void append(StringType &target, IntegralType number, typename StringType::value_type base = 10)
+inline void append(StringType &target, IntegralType number, IntegralType base = 10)
 {
     if (number < 0) {
         target += '-';
         number = -number;
     }
-    const auto start = target.begin() + target.size();
+    const auto start = target.begin() + static_cast<typename StringType::difference_type>(target.size());
     do {
-        target.insert(start, digitToChar<typename StringType::value_type>(number % base));
+        target.insert(start, static_cast<typename StringType::value_type>(digitToChar<IntegralType>(number % base)));
         number /= base;
     } while (number);
 }
@@ -232,12 +232,14 @@ template <class StringType, class Tuple> struct TupleToString<StringType, Tuple,
 template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> *>
 constexpr std::size_t computeTupleElementSize(TupleType &&tuple, typename StringType::value_type base)
 {
+    CPP_UTILITIES_UNUSED(base)
     return TupleToString<StringType, TupleType, std::tuple_size_v<std::decay_t<TupleType>>>::precomputeSize(std::forward<TupleType>(tuple));
 }
 
 template <class StringType, typename TupleType, Traits::EnableIf<Traits::IsSpecializationOf<std::decay_t<TupleType>, std::tuple>> *>
 constexpr void append(StringType &target, TupleType &&tuple, typename StringType::value_type base)
 {
+    CPP_UTILITIES_UNUSED(base)
     return TupleToString<StringType, TupleType, std::tuple_size_v<std::decay_t<TupleType>>>::append(std::forward<TupleType>(tuple), target);
 }
 

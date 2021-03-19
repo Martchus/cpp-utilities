@@ -18,7 +18,7 @@ namespace CppUtilities {
 void BitReader::skipBits(std::size_t bitCount)
 {
     if (bitCount <= m_bitsAvail) {
-        m_bitsAvail -= bitCount;
+        m_bitsAvail -= static_cast<std::uint8_t>(bitCount);
     } else {
         if ((m_buffer += 1 + (bitCount -= m_bitsAvail) / 8) >= m_end) {
             throw ios_base::failure("end of buffer exceeded");

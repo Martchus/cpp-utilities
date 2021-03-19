@@ -506,13 +506,13 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
 
     // determine the path of the application to be tested
     const char *appPath = m_applicationPathArg.firstValue();
-    string fallbackAppPath;
+    auto fallbackAppPath = string();
     if (!appPath || !*appPath) {
         // try to find the path by removing "_tests"-suffix from own executable path
         // (the own executable path is the path of the test application and its name is usually the name of the application
         //  to be tested with "_tests"-suffix)
         const char *const testAppPath = m_parser.executable();
-        const size_t testAppPathLength = strlen(testAppPath);
+        const auto testAppPathLength = strlen(testAppPath);
         if (testAppPathLength > 6 && !strcmp(testAppPath + testAppPathLength - 6, "_tests")) {
             fallbackAppPath.assign(testAppPath, testAppPathLength - 6);
             appPath = fallbackAppPath.data();
@@ -524,27 +524,27 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
 
     // determine new path for profiling output (to not override profiling output of parent and previous invocations)
     const auto newProfilingPath = [appPath] {
-        string newProfilingPath;
+        auto path = string();
         const char *const llvmProfileFile = getenv("LLVM_PROFILE_FILE");
         if (!llvmProfileFile) {
-            return newProfilingPath;
+            return path;
         }
         // replace eg. "/some/path/tageditor_tests.profraw" with "/some/path/tageditor0.profraw"
         const char *const llvmProfileFileEnd = strstr(llvmProfileFile, ".profraw");
         if (!llvmProfileFileEnd) {
-            return newProfilingPath;
+            return path;
         }
-        const string llvmProfileFileWithoutExtension(llvmProfileFile, llvmProfileFileEnd);
+        const auto llvmProfileFileWithoutExtension = string(llvmProfileFile, llvmProfileFileEnd);
         // extract application name from path
         const char *appName = strrchr(appPath, '/');
         appName = appName ? appName + 1 : appPath;
         // concat new path
-        newProfilingPath = argsToString(llvmProfileFileWithoutExtension, '_', appName, invocationCount, ".profraw");
+        path = argsToString(llvmProfileFileWithoutExtension, '_', appName, invocationCount, ".profraw");
         // append path to profiling list file
         if (const char *const profrawListFile = getenv("LLVM_PROFILE_LIST_FILE")) {
-            ofstream(profrawListFile, ios_base::app) << newProfilingPath << endl;
+            ofstream(profrawListFile, ios_base::app) << path << endl;
         }
-        return newProfilingPath;
+        return path;
     }();
 
     return execAppInternal(appPath, args, output, errors, suppressLogging, timeout, newProfilingPath);

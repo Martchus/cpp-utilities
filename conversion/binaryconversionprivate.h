@@ -6,15 +6,21 @@
 
 #include <cstdint>
 
+// disable warnings about sign conversions when using GCC or Clang
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.
  */
 CPP_UTILITIES_EXPORT constexpr std::int16_t toInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return (static_cast<std::int16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::int16_t>(value[1]) & 0x00FF);
+    return static_cast<std::int16_t>((static_cast<std::int16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::int16_t>(value[1]) & 0x00FF));
 #else
-    return (static_cast<std::int16_t>(value[1]) << 8 & 0xFF00) | (static_cast<std::int16_t>(value[0]) & 0x00FF);
+    return static_cast<std::int16_t>((static_cast<std::int16_t>(value[1]) << 8 & 0xFF00) | (static_cast<std::int16_t>(value[0]) & 0x00FF));
 #endif
 }
 
@@ -24,9 +30,9 @@ CPP_UTILITIES_EXPORT constexpr std::int16_t toInt16(const char *value)
 CPP_UTILITIES_EXPORT constexpr std::uint16_t toUInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return (static_cast<std::uint16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::uint16_t>(value[1]) & 0x00FF);
+    return static_cast<std::uint16_t>((static_cast<std::uint16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::uint16_t>(value[1]) & 0x00FF));
 #else
-    return (static_cast<std::uint16_t>(value[1]) << 8 & 0xFF00) | (static_cast<std::uint16_t>(value[0]) & 0x00FF);
+    return static_cast<std::uint16_t>((static_cast<std::uint16_t>(value[1]) << 8 & 0xFF00) | (static_cast<std::uint16_t>(value[0]) & 0x00FF));
 #endif
 }
 
@@ -36,11 +42,13 @@ CPP_UTILITIES_EXPORT constexpr std::uint16_t toUInt16(const char *value)
 CPP_UTILITIES_EXPORT constexpr std::int32_t toInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    return (static_cast<std::int32_t>(value[0]) << 24 & 0xFF000000) | (static_cast<std::int32_t>(value[1]) << 16 & 0x00FF0000)
-        | (static_cast<std::int32_t>(value[2]) << 8 & 0x0000FF00) | (static_cast<std::int32_t>(value[3]) & 0x000000FF);
+    return static_cast<std::int32_t>((static_cast<std::int32_t>(value[0]) << 24 & 0xFF000000)
+        | (static_cast<std::int32_t>(value[1]) << 16 & 0x00FF0000) | (static_cast<std::int32_t>(value[2]) << 8 & 0x0000FF00)
+        | (static_cast<std::int32_t>(value[3]) & 0x000000FF));
 #else
-    return (static_cast<std::int32_t>(value[3]) << 24 & 0xFF000000) | (static_cast<std::int32_t>(value[2]) << 16 & 0x00FF0000)
-        | (static_cast<std::int32_t>(value[1]) << 8 & 0x0000FF00) | (static_cast<std::int32_t>(value[0]) & 0x000000FF);
+    return static_cast<std::int32_t>((static_cast<std::int32_t>(value[3]) << 24 & 0xFF000000)
+        | (static_cast<std::int32_t>(value[2]) << 16 & 0x00FF0000) | (static_cast<std::int32_t>(value[1]) << 8 & 0x0000FF00)
+        | (static_cast<std::int32_t>(value[0]) & 0x000000FF));
 #endif
 }
 
@@ -125,7 +133,7 @@ CPP_UTILITIES_EXPORT inline double toFloat64(const char *value)
 {
     const auto val = toInt64(value);
     const auto *const c = reinterpret_cast<const char *>(&val);
-    return *reinterpret_cast<const double *const>(c);
+    return *reinterpret_cast<const double *>(c);
 }
 
 /*!
@@ -280,5 +288,9 @@ CPP_UTILITIES_EXPORT inline void getBytes(double value, char *outputbuffer)
     auto i = *reinterpret_cast<std::int64_t *>(c);
     getBytes(i, outputbuffer);
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif // CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
