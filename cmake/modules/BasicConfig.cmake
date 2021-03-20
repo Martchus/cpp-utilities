@@ -653,6 +653,7 @@ set(CLANG_WARNINGS
     -Wno-pedantic # warn NOT if non-standard C++ is used, some vendor extensions are very useful
     -Wno-missing-field-initializers # warn NOT about missing field initializers
     -Wno-useless-cast # warn NOT about useless cases as this is sometimes very useful in templates
+    -Wno-unknown-warning-option # warn NOT about unknown warning options
 )
 set(GCC_WARNINGS
     ${CLANG_WARNINGS}
