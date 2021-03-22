@@ -650,10 +650,12 @@ set(CLANG_WARNINGS
     -Wnull-dereference # warn if a null dereference is detected
     -Wdouble-promotion # warn if float is implicit promoted to double
     -Wformat=2 # warn on security issues around functions that format output (ie printf)
-    -Wno-pedantic # warn NOT if non-standard C++ is used, some vendor extensions are very useful
+    -Wno-pedantic # warn NOT if non-standard C++ is used (some vendor extensions are very useful)
     -Wno-missing-field-initializers # warn NOT about missing field initializers
-    -Wno-useless-cast # warn NOT about useless cases as this is sometimes very useful in templates
-    -Wno-unknown-warning-option # warn NOT about unknown warning options
+    -Wno-useless-cast # warn NOT about useless cases (this is sometimes very useful in templates)
+    -Wno-unused-const-variable # warn NOT about unused constants (usually used in other compile unit)
+    -Wno-unknown-warning-option # warn NOT about unknown warning options (depending on compiler/version not all are
+                                # available)
 )
 set(GCC_WARNINGS
     ${CLANG_WARNINGS}
