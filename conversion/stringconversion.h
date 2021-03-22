@@ -463,7 +463,6 @@ StringType numberToString(FloatingType number, int base = 10)
 /*!
  * \brief Returns number/digit of the specified \a character representation using the specified \a base.
  * \throws A ConversionException will be thrown if the provided \a character does not represent a valid digit for the specified \a base.
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename CharType> CharType charToDigit(CharType character, CharType base)
 {
@@ -492,7 +491,6 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, typename StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
 IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
@@ -514,7 +512,6 @@ IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
 IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
@@ -549,7 +546,6 @@ IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
  * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
 FloatingType stringToNumber(const StringType &string, int base = 10)
@@ -574,7 +570,6 @@ FloatingType stringToNumber(const StringType &string, int base = 10)
  * \tparam CharType The character type.
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename IntegralType, class CharType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
 IntegralType stringToNumber(const CharType *string, IntegralType base = 10)
@@ -598,7 +593,6 @@ IntegralType stringToNumber(const CharType *string, IntegralType base = 10)
  * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
- * \todo Provide an alternative using std::expected (when switching to C++17).
  */
 template <typename FloatingType, class CharType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
 FloatingType stringToNumber(const CharType *string, int base = 10)
