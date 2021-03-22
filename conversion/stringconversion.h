@@ -492,7 +492,7 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, typename StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
+template <typename IntegralType, typename StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>, Traits::Not<std::is_scalar<std::decay_t<StringType>>>> * = nullptr>
 IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
 {
     IntegralType result = 0;
@@ -513,7 +513,7 @@ IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
  * \sa numberToString(), bufferToNumber()
  */
-template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
+template <typename IntegralType, class StringType, Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>, Traits::Not<std::is_scalar<std::decay_t<StringType>>>> * = nullptr>
 IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
 {
     auto i = string.begin();
@@ -547,7 +547,7 @@ IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
  */
-template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>> * = nullptr>
+template <typename FloatingType, class StringType, Traits::EnableIf<std::is_floating_point<FloatingType>, Traits::Not<std::is_scalar<std::decay_t<StringType>>>> * = nullptr>
 FloatingType stringToNumber(const StringType &string, int base = 10)
 {
     std::basic_stringstream<typename StringType::value_type> ss;
