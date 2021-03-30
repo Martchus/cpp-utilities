@@ -419,7 +419,7 @@ void ArgumentParserTests::testParsing()
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL(
-            "Not all parameter for argument \"fields\" provided. You have to provide the following parameter: title album artist trackpos"s,
+            "Not all parameters for argument \"fields\" provided. You have to provide the following parameters: title album artist trackpos"s,
             string(e.what()));
     }
 

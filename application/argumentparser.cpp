@@ -115,7 +115,7 @@ void ArgumentSuggestion::addTo(multiset<ArgumentSuggestion> &suggestions, size_t
  * \class ArgumentReader
  * \brief The ArgumentReader class internally encapsulates the process of reading command line arguments.
  * \remarks
- * - For meaning of parameter see documentation of corresponding member variables.
+ * - For meaning of parameters see documentation of corresponding member variables.
  * - Results are stored in specified \a args and assigned sub arguments.
  * - This class is explicitely *not* part of the public API.
  */
@@ -1611,11 +1611,11 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
                 continue;
             }
             stringstream ss(stringstream::in | stringstream::out);
-            ss << "Not all parameter for argument \"" << arg->name() << "\" ";
+            ss << "Not all parameters for argument \"" << arg->name() << "\" ";
             if (i) {
                 ss << " (" << (i + 1) << " occurrence) ";
             }
-            ss << "provided. You have to provide the following parameter:";
+            ss << "provided. You have to provide the following parameters:";
             size_t valueNamesPrint = 0;
             for (const auto &name : arg->m_valueNames) {
                 ss << ' ' << name;
