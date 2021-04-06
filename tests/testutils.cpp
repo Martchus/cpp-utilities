@@ -241,8 +241,8 @@ std::string TestApplication::testFilePath(const std::string &relativeTestFilePat
             return path;
         }
     }
-    throw std::runtime_error("The test file \"" % relativeTestFilePath % "\" can not be located. Was looking under:"
-        + joinStrings(m_testFilesPaths, "\n", false, std::string(), relativeTestFilePath));
+    throw std::runtime_error("The test file \"" % relativeTestFilePath % "\" can not be located. Was looking under:\n"
+        + joinStrings(m_testFilesPaths, "\n", false, " - ", relativeTestFilePath));
 }
 
 /*!
@@ -259,8 +259,8 @@ std::string TestApplication::testDirPath(const std::string &relativeTestDirPath)
             return path;
         }
     }
-    throw std::runtime_error("The test directory \"" % relativeTestDirPath % "\" can not be located. Was looking under:"
-        + joinStrings(m_testFilesPaths, "\n", false, std::string(), relativeTestDirPath));
+    throw std::runtime_error("The test directory \"" % relativeTestDirPath % "\" can not be located. Was looking under:\n"
+        + joinStrings(m_testFilesPaths, "\n", false, " - ", relativeTestDirPath));
 }
 
 /*!
