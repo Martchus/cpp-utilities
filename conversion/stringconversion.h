@@ -161,7 +161,8 @@ Container splitString(Detail::StringParamForContainer<Container> string, Detail:
     Container res;
     typename Container::value_type *last = nullptr;
     bool merge = false;
-    for (typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
+    typename Container::value_type::size_type i = 0, end = string.size();
+    for (typename Container::value_type::size_type delimPos; i < end; i = delimPos + delimiter.size()) {
         delimPos = string.find(delimiter, i);
         if (!merge && maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
             if (delimPos == i && emptyPartsRole == EmptyPartsTreat::Merge) {
@@ -189,6 +190,9 @@ Container splitString(Detail::StringParamForContainer<Container> string, Detail:
             }
         }
     }
+    if (i == end && emptyPartsRole == EmptyPartsTreat::Keep) {
+        res.emplace_back();
+    }
     return res;
 }
 
@@ -207,7 +211,8 @@ Container splitStringSimple(
 {
     --maxParts;
     Container res;
-    for (typename Container::value_type::size_type i = 0, end = string.size(), delimPos; i < end; i = delimPos + delimiter.size()) {
+    typename Container::value_type::size_type i = 0, end = string.size();
+    for (typename Container::value_type::size_type delimPos; i < end; i = delimPos + delimiter.size()) {
         delimPos = string.find(delimiter, i);
         if (maxParts >= 0 && res.size() == static_cast<typename Container::value_type::size_type>(maxParts)) {
             delimPos = Container::value_type::npos;
@@ -222,6 +227,17 @@ Container splitStringSimple(
 #if __cplusplus >= 201709
         } else {
             res.emplace(string.data() + i, delimPos - i);
+        }
+#endif
+    }
+    if (i == end) {
+#if __cplusplus >= 201709
+        if constexpr (requires { res.emplace_back(); }) {
+#endif
+            res.emplace_back();
+#if __cplusplus >= 201709
+        } else {
+            res.emplace();
         }
 #endif
     }

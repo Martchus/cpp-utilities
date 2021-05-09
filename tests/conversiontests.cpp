@@ -295,6 +295,11 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
     splitTestActual = splitStringSimple<vector<string>>("1,2,3"s, ","s, 2);
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
+    splitTestExpected = { "12", "34", "56", "" };
+    splitTestActual = splitString<vector<string>>("12,34,56,"s, ","s);
+    CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
+    splitTestActual = splitStringSimple<vector<string>>("12,34,56,"s, ","s);
+    CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
     splitTestExpected = { "1", "2,3", "4,,5" };
     splitTestActual = splitString<vector<string>>("1,2,,3,4,,5"s, ","s, EmptyPartsTreat::Merge, 3);
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);

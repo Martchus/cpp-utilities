@@ -114,7 +114,7 @@ set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parse
 set(META_FEATURES_FOR_COMPILER_DETECTION_HEADER cxx_thread_local)
 set(META_VERSION_MAJOR 5)
 set(META_VERSION_MINOR 10)
-set(META_VERSION_PATCH 2)
+set(META_VERSION_PATCH 3)
 
 # find required 3rd party libraries
 include(3rdParty)
