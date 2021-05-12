@@ -1511,7 +1511,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         if (file[0] == '\"' || file[0] == '\'') {
             file.erase(0, 1);
         }
-        if (file.size() > 1 && (file[dir.size() - 2] == '\"' || dir[file.size() - 2] == '\'')) {
+        if (file.size() > 1 && (file[file.size() - 2] == '\"' || file[file.size() - 2] == '\'')) {
             file.erase(file.size() - 2, 1);
         }
         actualFile = move(file);
