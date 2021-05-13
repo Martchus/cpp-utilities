@@ -1,7 +1,7 @@
 #include "./stringconversion.h"
 
 #ifndef CPP_UTILITIES_NO_THREAD_LOCAL
-#include "resources/features.h"
+#include "../feature_detection/features.h"
 #else
 #define CPP_UTILITIES_THREAD_LOCAL
 #endif

@@ -210,7 +210,7 @@ endif ()
 # set TARGET_EXECUTABLE which is used to refer to the target executable at its installation location
 set(TARGET_EXECUTABLE "${CMAKE_INSTALL_FULL_BINDIR}/${META_TARGET_NAME}")
 
-# create header for feature detection
+# create header for feature detection (TODO: remove this in v6 as WriteCompilerDetectionHeader has been deprecated)
 if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
     include(WriteCompilerDetectionHeader)
     write_compiler_detection_header(
