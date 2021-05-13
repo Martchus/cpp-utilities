@@ -219,13 +219,13 @@ if (META_FEATURES_FOR_COMPILER_DETECTION_HEADER)
         FEATURES ${META_FEATURES_FOR_COMPILER_DETECTION_HEADER})
 endif ()
 
-# disable new ABI (can't catch ios_base::failure with new ABI)
-option(FORCE_OLD_ABI "specifies whether usage of old ABI should be forced" OFF)
+# disable new ABI
+option(FORCE_OLD_ABI "specifies whether usage of libstdc++'s old ABI should be forced" OFF)
 if (FORCE_OLD_ABI)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS _GLIBCXX_USE_CXX11_ABI=0)
-    message(STATUS "Forcing usage of old CXX11 ABI.")
+    message(STATUS "Forcing usage of old CXX11 ABI of libstdc++.")
 else ()
-    message(STATUS "Using default CXX11 ABI (not forcing old CX11 ABI).")
+    message(STATUS "Using default CXX11 ABI  of libstdc++ (not forcing old CX11 ABI).")
 endif ()
 
 # enable debug-only code when doing a debug build
