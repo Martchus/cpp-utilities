@@ -18,7 +18,10 @@
 #include <system_error>
 #include <vector>
 
-#if __cplusplus >= 201709
+#if __cplusplus >= 201709 && !defined(REFLECTIVE_RAPIDJSON_GENERATOR)
+#ifndef CPP_UTILITIES_USE_RANGES
+#define CPP_UTILITIES_USE_RANGES
+#endif
 #include <ranges>
 #endif
 
@@ -65,7 +68,7 @@ CPP_UTILITIES_EXPORT void truncateString(std::string &str, char terminationChar 
 
 /// \cond
 namespace Detail {
-#if __cplusplus >= 201709
+#ifdef CPP_UTILITIES_USE_RANGES
 template <class Container>
 using ContainerValueType = typename std::conditional_t<std::ranges::range<Container>,
     std::iterator_traits<std::remove_cvref_t<std::ranges::iterator_t<Container>>>, Container>::value_type;
