@@ -146,7 +146,8 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
         } else if (c == '-') {
             if (valueIndex < dayIndex) {
                 ++valueIndex;
-            } else if (++valueIndex == deltaHourIndex) {
+            } else if (++valueIndex >= secondsIndex) {
+                valueIndex = deltaHourIndex;
                 deltaNegative = true;
             } else {
                 throw ConversionException("unexpected \"-\" after day");
