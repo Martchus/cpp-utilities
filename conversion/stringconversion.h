@@ -442,6 +442,7 @@ template <typename IntegralType, class StringType = std::string, typename BaseTy
     Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
 StringType numberToString(IntegralType number, BaseType base = 10)
 {
+
     const bool negative = number < 0;
     std::size_t resSize;
     if (negative) {
@@ -537,7 +538,7 @@ IntegralType stringToNumber(const StringType &string, BaseType base = 10)
  */
 template <typename IntegralType, class StringType, typename BaseType = IntegralType,
     Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>, Traits::Not<std::is_scalar<std::decay_t<StringType>>>> * = nullptr>
-IntegralType stringToNumber(const StringType &string, IntegralType base = 10)
+IntegralType stringToNumber(const StringType &string, BaseType base = 10)
 {
     auto i = string.begin();
     auto end = string.end();
@@ -581,10 +582,10 @@ FloatingType stringToNumber(const StringType &string, int base = 10)
         return result;
     }
     std::string errorMsg;
-    errorMsg.reserve(42 + string.size());
+    errorMsg.reserve(48 + string.size());
     errorMsg += "The string \"";
     errorMsg += string;
-    errorMsg += "\" is no valid floating number.";
+    errorMsg += "\" is no valid floating point number.";
     throw ConversionException(errorMsg);
 }
 
