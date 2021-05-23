@@ -25,6 +25,10 @@
 #include <ranges>
 #endif
 
+#if defined(CPP_UTILITIES_ENABLE_CHARCONV) || defined(CPP_UTILITIES_ENABLE_CHARCONV_FP)
+#include <charconv>
+#endif
+
 namespace CppUtilities {
 
 /*!

@@ -197,6 +197,16 @@ if (NOT ENABLE_THREAD_LOCAL)
         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL)
 endif ()
 
+# configure use of charconv
+option(ENABLE_CHARCONV "enables use charconv for integer conversions" ON)
+option(ENABLE_CHARCONV_FP "enables use charconv for floating point conversions" ON)
+if (ENABLE_CHARCONV)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ENABLE_CHARCONV)
+endif ()
+if (ENABLE_CHARCONV_FP)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_ENABLE_CHARCONV_FP)
+endif ()
+
 # include modules to apply configuration
 include(BasicConfig)
 include(WindowsResources)
