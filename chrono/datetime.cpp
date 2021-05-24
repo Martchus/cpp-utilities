@@ -93,7 +93,8 @@ DateTime DateTime::fromString(const char *str)
             } else {
                 Detail::raiseAndAdd(*valueIndex, 10, c);
             }
-        } else if ((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex)) || (c == ' ' && (valueIndex == dayIndex))) {
+        } else if ((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex))
+            || ((c == ' ' || c == 'T') && (valueIndex == dayIndex))) {
             if (++valueIndex == valuesEnd) {
                 break; // just ignore further values for now
             }
