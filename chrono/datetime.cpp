@@ -91,8 +91,7 @@ DateTime DateTime::fromString(const char *str)
                 miliSeconds += (c - '0') * miliSecondsFact;
                 miliSecondsFact /= 10;
             } else {
-                *valueIndex *= 10;
-                *valueIndex += c - '0';
+                Detail::raiseAndAdd(*valueIndex, 10, c);
             }
         } else if ((c == '-' || c == ':' || c == '/') || (c == '.' && (valueIndex == secondsIndex)) || (c == ' ' && (valueIndex == dayIndex))) {
             if (++valueIndex == valuesEnd) {
@@ -101,7 +100,7 @@ DateTime DateTime::fromString(const char *str)
         } else if (c == '\0') {
             break;
         } else {
-            throw ConversionException(argsToString("unexpected ", c));
+            throw ConversionException(argsToString("Unexpected character \"", c, '\"'));
         }
     }
     return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, miliSeconds);
@@ -110,10 +109,11 @@ DateTime DateTime::fromString(const char *str)
 /*!
  * \brief Parses the specified ISO date time denotation provided as C-style string.
  * \returns Returns a pair where the first value is the parsed date time and the second value
- *          a time span which can be subtracted from the first value to get the UTC time.
- * \remarks Not all variants allowed by ISO 8601 are supported right now, eg. delimiters can not
- *          be omitted.
- *          The common form (something like "2016-08-29T21:32:31.588539814+02:00") is supported of course.
+ *          the time zone designator (a time span which can be subtracted from the first value to get the UTC time).
+ * \remarks
+ * - Parsing durations and time intervals is *not* supported.
+ * - Truncated representations are *not* supported.
+ * - Standardised extensions (ISO 8601-2:2019) are *not* supported.
  * \sa https://en.wikipedia.org/wiki/ISO_8601
  */
 std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
@@ -126,7 +126,9 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
     int *const secondsIndex = values + 5;
     int *const miliSecondsIndex = values + 6;
     int *const deltaHourIndex = values + 7;
+    int *const valuesEnd = values + 9;
     int *valueIndex = values;
+    unsigned int remainingDigits = 4;
     bool deltaNegative = false;
     double miliSecondsFact = 100.0, miliSeconds = 0.0;
     for (const char *strIndex = str;; ++strIndex) {
@@ -136,13 +138,21 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
                 miliSeconds += (c - '0') * miliSecondsFact;
                 miliSecondsFact /= 10;
             } else {
+                if (!remainingDigits) {
+                    if (++valueIndex == miliSecondsIndex || valueIndex >= valuesEnd) {
+                        throw ConversionException("Max. number of digits exceeded");
+                    }
+                    remainingDigits = 2;
+                }
                 *valueIndex *= 10;
                 *valueIndex += c - '0';
+                remainingDigits -= 1;
             }
         } else if (c == 'T') {
             if (++valueIndex != hourIndex) {
                 throw ConversionException("\"T\" expected before hour");
             }
+            remainingDigits = 2;
         } else if (c == '-') {
             if (valueIndex < dayIndex) {
                 ++valueIndex;
@@ -150,34 +160,38 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
                 valueIndex = deltaHourIndex;
                 deltaNegative = true;
             } else {
-                throw ConversionException("unexpected \"-\" after day");
+                throw ConversionException("Unexpected \"-\" after day");
             }
+            remainingDigits = 2;
         } else if (c == '.') {
             if (valueIndex != secondsIndex) {
-                throw ConversionException("unexpected \".\"");
+                throw ConversionException("Unexpected \".\"");
             } else {
                 ++valueIndex;
             }
         } else if (c == ':') {
             if (valueIndex < hourIndex) {
-                throw ConversionException("unexpected \":\" before hour");
+                throw ConversionException("Unexpected \":\" before hour");
             } else if (valueIndex == secondsIndex) {
-                throw ConversionException("unexpected \":\" after second");
+                throw ConversionException("Unexpected \":\" after second");
             } else {
                 ++valueIndex;
             }
+            remainingDigits = 2;
         } else if ((c == '+') && (++valueIndex >= secondsIndex)) {
             valueIndex = deltaHourIndex;
             deltaNegative = false;
+            remainingDigits = 2;
         } else if ((c == 'Z') && (++valueIndex >= secondsIndex)) {
             valueIndex = deltaHourIndex + 2;
+            remainingDigits = 2;
         } else if (c == '\0') {
             break;
         } else {
-            throw ConversionException(argsToString("unexpected \"", c, '\"'));
+            throw ConversionException(argsToString("Unexpected \"", c, '\"'));
         }
     }
-    auto delta(TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]));
+    auto delta = TimeSpan::fromMinutes(*deltaHourIndex * 60 + values[8]);
     if (deltaNegative) {
         delta = TimeSpan(-delta.totalTicks());
     }

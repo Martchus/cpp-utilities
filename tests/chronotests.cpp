@@ -182,6 +182,12 @@ void ChronoTests::testDateTime()
     const auto test7 = DateTime::fromIsoString("2021-05-20T23:02:45-04:00");
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction (negative timezone offset, 1)", DateTime::fromDateAndTime(2021, 5, 20, 23, 2, 45), test7.first);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction (negative timezone offset, 2)", TimeSpan::fromHours(-4.0), test7.second);
+    // implied separators / too many digits
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("no separators", test5.first - test5.second, DateTime::fromIsoStringGmt("20170823T194015.985077682-0230"));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "not even T separator", DateTime::fromDateAndTime(2017, 8, 23, 19, 40, 15), DateTime::fromIsoStringGmt("20170823194015"));
+    CPPUNIT_ASSERT_THROW_MESSAGE("too many digits after seconds", DateTime::fromIsoString("2017082319401516"), ConversionException);
+    CPPUNIT_ASSERT_THROW_MESSAGE("too many digits after timezone offset", DateTime::fromIsoString("20170823194015.16+02300"), ConversionException);
     // test invalid characters
     CPPUNIT_ASSERT_THROW_MESSAGE("digits after Z", DateTime::fromIsoString("2017-O8-23T19:40:15.985077682Z02:00"), ConversionException);
     CPPUNIT_ASSERT_THROW_MESSAGE("invalid letter", DateTime::fromIsoString("2017-O8-23T19:40:15.985077682:+02:00"), ConversionException);
