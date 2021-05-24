@@ -505,6 +505,27 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
     throw ConversionException(std::move(errorMsg));
 }
 
+/// \cond
+namespace Detail {
+template <typename IntegralType, typename CharType, typename BaseType = IntegralType>
+void raiseAndAdd(IntegralType &result, BaseType base, CharType character)
+{
+    if (character == ' ') {
+        return;
+    }
+#ifdef __GNUC__ // overflow detection only supported on GCC and Clang
+    if (__builtin_mul_overflow(result, base, &result)
+        || __builtin_add_overflow(result, charToDigit(character, static_cast<CharType>(base)), &result)) {
+        throw ConversionException("Number exceeds limit.");
+    }
+#else
+    result *= static_cast<IntegralType>(base);
+    result += static_cast<IntegralType>(charToDigit<CharType>(character, static_cast<CharType>(base)));
+#endif
+}
+} // namespace Detail
+/// \endcond
+
 /*!
  * \brief Converts the given \a string to an unsigned number assuming \a string uses the specified \a base.
  * \tparam IntegralType The data type used to store the converted value.
@@ -519,11 +540,7 @@ IntegralType stringToNumber(const StringType &string, BaseType base = 10)
 {
     IntegralType result = 0;
     for (const auto &c : string) {
-        if (c == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<typename StringType::value_type>(c, static_cast<typename StringType::value_type>(base)));
+        Detail::raiseAndAdd(result, base, c);
     }
     return result;
 }
@@ -552,11 +569,7 @@ IntegralType stringToNumber(const StringType &string, BaseType base = 10)
     }
     IntegralType result = 0;
     for (; i != end; ++i) {
-        if (*i == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<typename StringType::value_type>(*i, static_cast<typename StringType::value_type>(base)));
+        Detail::raiseAndAdd(result, base, *i);
     }
     return negative ? -result : result;
 }
@@ -601,11 +614,7 @@ IntegralType stringToNumber(const CharType *string, BaseType base = 10)
 {
     IntegralType result = 0;
     for (; *string; ++string) {
-        if (*string == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
+        Detail::raiseAndAdd(result, base, *string);
     }
     return result;
 }
@@ -649,11 +658,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, BaseType b
 {
     IntegralType result = 0;
     for (const CharType *end = string + size; string != end; ++string) {
-        if (*string == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
+        Detail::raiseAndAdd(result, base, *string);
     }
     return result;
 }
@@ -683,11 +688,7 @@ IntegralType stringToNumber(const CharType *string, IntegralType base = 10)
     }
     IntegralType result = 0;
     for (; *string; ++string) {
-        if (*string == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
+        Detail::raiseAndAdd(result, base, *string);
     }
     return negative ? -result : result;
 }
@@ -718,11 +719,7 @@ IntegralType bufferToNumber(const CharType *string, std::size_t size, BaseType b
     }
     IntegralType result = 0;
     for (; string != end; ++string) {
-        if (*string == ' ') {
-            continue;
-        }
-        result *= static_cast<IntegralType>(base);
-        result += static_cast<IntegralType>(charToDigit<CharType>(*string, static_cast<CharType>(base)));
+        Detail::raiseAndAdd(result, base, *string);
     }
     return negative ? -result : result;
 }

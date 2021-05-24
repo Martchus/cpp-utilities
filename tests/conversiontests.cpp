@@ -283,8 +283,14 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL(23u, stringToNumber<std::uint32_t>("  023"s));
     CPPUNIT_ASSERT_EQUAL(23u, bufferToNumber<std::uint32_t>("  023", 5));
     CPPUNIT_ASSERT_EQUAL(255u, stringToNumber<std::uint32_t>("fF", 16));
-    CPPUNIT_ASSERT_THROW(stringToNumber<std::uint32_t>("fF", 15), ConversionException);
-    CPPUNIT_ASSERT_THROW(stringToNumber<std::uint32_t>("(", 15), ConversionException);
+    CPPUNIT_ASSERT_THROW_MESSAGE("character out of range", stringToNumber<std::uint32_t>("fF", 15), ConversionException);
+    CPPUNIT_ASSERT_THROW_MESSAGE("invalid character", stringToNumber<std::uint32_t>("(", 15), ConversionException);
+#ifdef __GNUC__ // overflow detection only supported on GCC and Clang
+    CPPUNIT_ASSERT_THROW_MESSAGE("overflow", stringToNumber<std::uint32_t>("100000000", 16), ConversionException);
+    CPPUNIT_ASSERT_THROW_MESSAGE("underflow", stringToNumber<std::int32_t>("-80000001", 16), ConversionException);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("positive limit", 0xFFFFFFFFu, stringToNumber<std::uint32_t>("FFFFFFFF", 16));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("negative limit", -2147483647, stringToNumber<std::int32_t>("-2147483647", 10));
+#endif
 
     // interpretIntegerAsString()
     CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<std::uint32_t>(0x54455354));
