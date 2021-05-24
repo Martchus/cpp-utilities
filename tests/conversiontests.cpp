@@ -292,6 +292,11 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL_MESSAGE("negative limit", -2147483647, stringToNumber<std::int32_t>("-2147483647", 10));
 #endif
 
+    // stringToNumber() / numberToString() with floating point numbers
+    CPPUNIT_ASSERT_EQUAL(1.5f, stringToNumber<float>(numberToString(1.5f)));
+    CPPUNIT_ASSERT_EQUAL(1.5, stringToNumber<double>(numberToString(1.5)));
+    CPPUNIT_ASSERT_EQUAL(-10.25, stringToNumber<double>("-10.25"));
+
     // interpretIntegerAsString()
     CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<std::uint32_t>(0x54455354));
 
