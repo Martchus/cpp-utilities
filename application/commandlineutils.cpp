@@ -1,4 +1,5 @@
 #include "./commandlineutils.h"
+#include "./argumentparserprivate.h"
 
 #include <iostream>
 #include <string>
@@ -73,52 +74,62 @@ void stopConsole()
     fclose(stdout);
     fclose(stdin);
     fclose(stderr);
-    if (auto *consoleWindow = GetConsoleWindow()) {
+    if (auto *const consoleWindow = GetConsoleWindow()) {
         PostMessage(consoleWindow, WM_KEYUP, VK_RETURN, 0);
         FreeConsole();
     }
 }
 
 /*!
- * \brief Starts the console and sets the console output code page to UTF-8 if this is configured.
+ * \brief Ensure the process has a console attached and sets its output code page to UTF-8.
  * \remarks
- * - only available under Windows
- * - used to start a console from a GUI application
- * - closes the console automatically when the application exists
+ * - Only available (and required) under Windows where otherwise stdout/stderr is not printed to the console (at
+ *   least when using `cmd.exe`).
+ * - Used to start a console from a GUI application. Does *not* create a new console if the process already has one.
+ * - Closes the console automatically when the application exits.
+ * - It breaks redirecting stdout/stderr so this can be opted-out by setting the enviornment
+ *   variable `ENABLE_CONSOLE=0` and/or `ENABLE_CP_UTF8=0`.
+ * \sa
+ * - https://docs.microsoft.com/en-us/windows/console/AttachConsole
+ * - https://docs.microsoft.com/en-us/windows/console/AllocConsole
+ * - https://docs.microsoft.com/en-us/windows/console/SetConsoleCP
+ * - https://docs.microsoft.com/en-us/windows/console/SetConsoleOutputCP
  */
 void startConsole()
 {
-    if (!AttachConsole(ATTACH_PARENT_PROCESS) && !AllocConsole()) {
-        return;
+    // attach to the parent process' console or allocate a new console if that's not possible
+    const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE");
+    if ((!consoleEnabled.has_value() || consoleEnabled.value()) && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
+        // redirect stdout
+        auto stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
+        auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        auto fp = _fdopen(conHandle, "w");
+        *stdout = *fp;
+        setvbuf(stdout, nullptr, _IONBF, 0);
+        // redirect stdin
+        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
+        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        fp = _fdopen(conHandle, "r");
+        *stdin = *fp;
+        setvbuf(stdin, nullptr, _IONBF, 0);
+        // redirect stderr
+        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
+        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        fp = _fdopen(conHandle, "w");
+        *stderr = *fp;
+        setvbuf(stderr, nullptr, _IONBF, 0);
+        // sync
+        ios::sync_with_stdio(true);
+        // ensure the console prompt is shown again when app terminates
+        atexit(stopConsole);
     }
-    // redirect stdout
-    auto stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
-    auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-    auto fp = _fdopen(conHandle, "w");
-    *stdout = *fp;
-    setvbuf(stdout, nullptr, _IONBF, 0);
-    // redirect stdin
-    stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
-    conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-    fp = _fdopen(conHandle, "r");
-    *stdin = *fp;
-    setvbuf(stdin, nullptr, _IONBF, 0);
-    // redirect stderr
-    stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
-    conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-    fp = _fdopen(conHandle, "w");
-    *stderr = *fp;
-    setvbuf(stderr, nullptr, _IONBF, 0);
-#ifdef CPP_UTILITIES_FORCE_UTF8_CODEPAGE
-    // set console to handle UTF-8 IO correctly
-    // however, this doesn't work as intended and is therefore disabled by default
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
-#endif
-    // sync
-    ios::sync_with_stdio(true);
-    // ensure the console prompt is shown again when app terminates
-    atexit(stopConsole);
+
+    // set console character set to UTF-8
+    const auto utf8Enabled = isEnvVariableSet("ENABLE_CP_UTF8");
+    if (!utf8Enabled.has_value() || utf8Enabled.value()) {
+        SetConsoleCP(CP_UTF8);
+        SetConsoleOutputCP(CP_UTF8);
+    }
 }
 
 /*!

@@ -33,6 +33,27 @@ using namespace CppUtilities::EscapeCodes;
 namespace CppUtilities {
 
 /*!
+ * \brief Returns whether the specified env variable is set to a non-zero and non-white-space-only value.
+ */
+std::optional<bool> isEnvVariableSet(const char *variableName)
+{
+    const char *envValue = std::getenv(variableName);
+    if (!envValue) {
+        return std::nullopt;
+    }
+    for (; *envValue; ++envValue) {
+        switch (*envValue) {
+        case '0':
+        case ' ':
+            break;
+        default:
+            return true;
+        }
+    }
+    return false;
+}
+
+/*!
  * \brief The ArgumentDenotationType enum specifies the type of a given argument denotation.
  */
 enum ArgumentDenotationType : unsigned char {
@@ -1728,27 +1749,14 @@ NoColorArgument::NoColorArgument()
 {
     setCombinable(true);
 
-    // set the environmentvariable: note that this is not directly used and just assigned for printing help
+    // set the environment variable (not directly used and just assigned for printing help)
     setEnvironmentVariable("ENABLE_ESCAPE_CODES");
 
-    // default-initialize EscapeCodes::enabled from environment variable
-    const char *envValue = getenv(environmentVariable());
-    if (!envValue) {
-        return;
+    // initialize EscapeCodes::enabled from environment variable
+    const auto escapeCodesEnabled = isEnvVariableSet(environmentVariable());
+    if (escapeCodesEnabled.has_value()) {
+        EscapeCodes::enabled = escapeCodesEnabled.value();
     }
-    for (; *envValue; ++envValue) {
-        switch (*envValue) {
-        case '0':
-        case ' ':
-            break;
-        default:
-            // enable escape codes if ENABLE_ESCAPE_CODES contains anything else than spaces or zeros
-            EscapeCodes::enabled = true;
-            return;
-        }
-    }
-    // disable escape codes if ENABLE_ESCAPE_CODES is empty or only contains spaces and zeros
-    EscapeCodes::enabled = false;
 }
 
 /*!

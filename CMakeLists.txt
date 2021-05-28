@@ -171,12 +171,6 @@ else ()
     message(WARNING "The use of std::filesystem has been disabled. Bash completion for files and directories will not work.")
 endif ()
 
-# configure forcing UTF-8 code page under Windows
-option(FORCE_UTF8_CODEPAGE "forces use of UTF-8 code page under Windows via ApplicationUtilities::startConsole()" OFF)
-if (FORCE_UTF8_CODEPAGE)
-    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_FORCE_UTF8_CODEPAGE)
-endif ()
-
 # configure whether escape codes should be enabled by default
 option(ENABLE_ESCAPE_CODES_BY_DEAULT "enables usage of escape codes by default" ON)
 if (ENABLE_ESCAPE_CODES_BY_DEAULT)
