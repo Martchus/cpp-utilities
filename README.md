@@ -101,26 +101,22 @@ make DESTDIR="/temporary/install/location" install # install binaries, headers a
   via `ENABLE_THREAD_LOCAL=OFF`.
 * To disable use of `std::filesystem`, set `USE_STANDARD_FILESYSTEM=OFF`. This is required when building for MacOS and Android at the time of
   writing this documentation. Note that the Bash completion will not be able to suggest files and directories with `USE_STANDARD_FILESYSTEM=OFF`.
+* To disable `NativeFileStream` (and make it just a regular `std::fstream`), set `USE_NATIVE_FILE_BUFFER=OFF`. Note that handling paths with
+  non-ASCII characters will then cease to work on Windows.
 * For more detailed documentation, see the documentation about build variables (in
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in Doxygen version accessible via "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux, Android, Windows and
-  MacOS X in form of Arch Linux packages. These scripts can be used as an example also when building under/for other platforms.
+  MacOS X in form of Arch Linux packages using `ninja`. These scripts can be used as an example also when building under/for other platforms.
 
-#### Building for Windows
-* Building for Windows with GCC as cross compiler and mingw-w64 can be simplified by using a small
-  [Cmake wrapper and a custom toolchain file](https://aur.archlinux.org/cgit/aur.git/tree/mingw-cmake.sh?h=mingw-w64-cmake):
-  ```
-  ${_arch}-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/final/install/location" "path/to/source/directory"
-  make DESTDIR="/temporary/install/location" install-mingw-w64-strip
-  ```
+#### Windows-specific notes
+* To create application icons the tool `ffmpeg`/`avconv` is required.
+* Windows builds are only conducted using mingw-w64/GCC. Using MSVC has never been tested.
 
-* To create the \*.ico file for the application icon ffmpeg/avconv is required.
-* The target `install-mingw-w64-strip` can be used as in the example above to only install files suitable for creating a cross-compiler package
-  and additionally strip the binaries.
-
-#### Building for MacOS X
+#### MacOS-specific notes
+* To create application icons the tool `png2icns` is required.
 * Building for MacOS X under GNU/Linux is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
+* MacOS X builds are not tested regularly but should generally work (maybe with minor tweaks necassary)
 * There is a [Homebrew formula](https://gist.github.com/rakkesh/0b13b8fca5dd1d57d98537ef1dd2e0dd) to build Tag Editor (without GUI)
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel) to build Syncthing Tray
 
