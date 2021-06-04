@@ -516,7 +516,7 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
         if (testAppPathLength > 6 && !strcmp(testAppPath + testAppPathLength - 6, "_tests")) {
             fallbackAppPath.assign(testAppPath, testAppPathLength - 6);
             appPath = fallbackAppPath.data();
-            // TODO: it would not hurt to verify whether "fallbackAppPath" actually exists and is executalbe
+            // TODO: it would not hurt to verify whether "fallbackAppPath" actually exists and is executable
         } else {
             throw runtime_error("Unable to execute application to be tested: no application path specified");
         }
