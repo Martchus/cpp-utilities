@@ -331,9 +331,14 @@ function (use_standard_filesystem)
     # check whether an additional library for std::filesystem support is required
     set(TEST_PROGRAM
         [[
+        #include <chrono>
+        #include <system_error>
         #include <filesystem>
         int main() {
-            auto cwd = std::filesystem::current_path();
+            auto ec = std::error_code();
+            const auto cwd = std::filesystem::current_path();
+            const auto t = std::filesystem::last_write_time(cwd, ec);
+            std::filesystem::last_write_time(cwd, t, ec);
             return static_cast<int>(cwd.string().size());
         }
     ]])
@@ -368,8 +373,8 @@ function (use_standard_filesystem)
         return()
     endif ()
 
-    # prefer the static version of the library because the ABI might not be stable note: stdc++fs seems to be only available
-    # as static lib anyways
+    # prefer the static version of the library because the ABI might not be stable (note: stdc++fs seems to be only available
+    # as static lib anyways)
     configure_static_library_suffixes()
     set(USED_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
     find_library(STANDARD_FILE_SYSTEM_LIBRARY "${REQUIRED_LIBRARY}")
