@@ -6,6 +6,7 @@ if (DEFINED THIRD_PARTY_MODULE_LOADED)
 endif ()
 set(THIRD_PARTY_MODULE_LOADED YES)
 
+cmake_policy(SET CMP0067 NEW) # make check_cxx_source_compiles() pick up the variables for the C++ version
 include(CheckCXXSourceCompiles)
 
 macro (save_default_library_suffixes)
@@ -328,6 +329,10 @@ function (use_standard_filesystem)
     # parse and validate arguments
     parse_arguments_for_use_functions(${ARGN})
 
+    # set c++ standard for `check_cxx_source_compiles()`
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED 17)
+
     # check whether an additional library for std::filesystem support is required
     set(TEST_PROGRAM
         [[
@@ -343,15 +348,14 @@ function (use_standard_filesystem)
         }
     ]])
     set(DEFAULT_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-    set(CMAKE_REQUIRED_FLAGS -std=c++17)
     set(REQUIRED_LIBRARY FAILED)
     set(INDEX 0)
     foreach (LIBRARY "" "stdc++fs" "c++fs")
         if (NOT LIBRARY STREQUAL "")
             set(CMAKE_REQUIRED_LIBRARIES ${DEFAULT_REQUIRED_LIBRARIES} -l${LIBRARY})
         endif ()
-        check_cxx_source_compiles("${TEST_PROGRAM}" COULD_COMPILE_TEST_PROGRAM_${INDEX})
-        if (COULD_COMPILE_TEST_PROGRAM_${INDEX})
+        check_cxx_source_compiles("${TEST_PROGRAM}" STD_FILESYSTEM_TEST_${INDEX})
+        if (STD_FILESYSTEM_TEST_${INDEX})
             set(REQUIRED_LIBRARY "${LIBRARY}")
             break()
         endif ()
