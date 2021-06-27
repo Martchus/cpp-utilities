@@ -583,7 +583,7 @@ function (append_user_defined_additional_libraries)
         list(LENGTH ${LIBS} LIB_COUNT)
     endif ()
     if (LIB_COUNT LESS_EQUAL 0)
-        # just add the addiitional libs to PRIVATE_LIBRARIES if there are no libs yet anyways
+        # just add the additional libs to PRIVATE_LIBRARIES if there are no libs yet anyways
         set(PRIVATE_LIBRARIES
             "${USER_DEFINED_ADDITIONAL_LIBRARIES}"
             PARENT_SCOPE)
