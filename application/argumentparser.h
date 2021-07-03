@@ -665,7 +665,7 @@ inline void Argument::setRequiredValueCount(std::size_t requiredValueCount)
 }
 
 /*!
- * \brief Returns the names of the requried values.
+ * \brief Returns the names of the required values.
  *
  * These names will be shown when printing information about the argument.
  *
@@ -678,12 +678,12 @@ inline const std::vector<const char *> &Argument::valueNames() const
 }
 
 /*!
- * \brief Sets the names of the requried values. These names will be used
+ * \brief Sets the names of the required values. These names will be used
  *        when printing information about the argument.
  *
- * If the number of value names is higher than the number of requried values
+ * If the number of value names is higher than the number of required values
  * the additional value names will be ignored.
- * If the number of value names is lesser than the number of requried values
+ * If the number of value names is lesser than the number of required values
  * generic values will be used for the missing names.
  *
  * \sa appendValueName()
@@ -750,7 +750,7 @@ inline std::size_t Argument::occurrences() const
 }
 
 /*!
- * \brief Returns the indices of the argument's occurences which could be detected when parsing.
+ * \brief Returns the indices of the argument's occurrences which could be detected when parsing.
  */
 inline std::size_t Argument::index(std::size_t occurrence) const
 {
@@ -939,7 +939,7 @@ inline const Argument::CallbackFunction &Argument::callback() const
 
 /*!
  * \brief Sets a \a callback function which will be called by the parser if
- *        the argument could be found and no parsing errors occured.
+ *        the argument could be found and no parsing errors occurred.
  * \remarks The \a callback will be called for each occurrence of the argument.
  * \sa callback()
  */
@@ -1027,7 +1027,7 @@ inline const char *Argument::preDefinedCompletionValues() const
 }
 
 /*!
- * \brief Assignes the values to be used when generating completion for the values.
+ * \brief Assigns the values to be used when generating completion for the values.
  */
 inline void Argument::setPreDefinedCompletionValues(const char *preDefinedCompletionValues)
 {
@@ -1146,7 +1146,7 @@ inline void ArgumentParser::setDefaultArgument(Argument *argument)
 }
 
 /*!
- * \brief Checks whether contraints are violated.
+ * \brief Checks whether constraints are violated.
  * \remarks Automatically called by parseArgs().
  * \throws Throws Failure if constraints are violated.
  */

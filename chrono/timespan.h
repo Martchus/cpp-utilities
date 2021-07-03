@@ -17,7 +17,7 @@ class DateTime;
  * \sa TimeSpan::toString()
  */
 enum class TimeSpanOutputFormat {
-    Normal, /**< the normal form of specifing a time interval: hh:mm:ss */
+    Normal, /**< the normal form of specifying a time interval: hh:mm:ss */
     WithMeasures, /**< measures are used, eg.: 34 d 5 h 10 min 7 s 31 ms */
     TotalSeconds, /**< total seconds (as returned by totalSeconds()), eg. 2304.342 */
 };
@@ -108,7 +108,7 @@ constexpr inline TimeSpan::TimeSpan(std::int64_t ticks)
 }
 
 /*!
- * \brief Constructs a new instance of the TimeSpan class with the specified number of miliseconds.
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of milliseconds.
  */
 constexpr inline TimeSpan TimeSpan::fromMilliseconds(double milliseconds)
 {
@@ -161,7 +161,7 @@ inline TimeSpan TimeSpan::fromString(const std::string &str, char separator)
 }
 
 /*!
- * \brief Constructs a new instace of the TimeSpan class with the minimal number of ticks.
+ * \brief Constructs a new instance of the TimeSpan class with the minimal number of ticks.
  */
 constexpr inline TimeSpan TimeSpan::negativeInfinity()
 {
@@ -169,7 +169,7 @@ constexpr inline TimeSpan TimeSpan::negativeInfinity()
 }
 
 /*!
- * \brief Constructs a new instace of the TimeSpan class with the maximal number of ticks.
+ * \brief Constructs a new instance of the TimeSpan class with the maximal number of ticks.
  */
 constexpr inline TimeSpan TimeSpan::infinity()
 {
@@ -259,7 +259,7 @@ constexpr int TimeSpan::microseconds() const
 }
 
 /*!
- * \brief Returns the miliseconds component of the time interval represented by the current TimeSpan class.
+ * \brief Returns the milliseconds component of the time interval represented by the current TimeSpan class.
  */
 constexpr inline int TimeSpan::milliseconds() const
 {
@@ -355,7 +355,7 @@ constexpr inline TimeSpan TimeSpan::operator+(const TimeSpan &other) const
 }
 
 /*!
- * \brief Substracts one TimeSpan instance from another.
+ * \brief Subtracts one TimeSpan instance from another.
  */
 constexpr inline TimeSpan TimeSpan::operator-(const TimeSpan &other) const
 {
@@ -396,7 +396,7 @@ inline TimeSpan &TimeSpan::operator+=(const TimeSpan &other)
 }
 
 /*!
- * \brief Substracts another TimeSpan from the current instance.
+ * \brief Subtracts another TimeSpan from the current instance.
  */
 inline TimeSpan &TimeSpan::operator-=(const TimeSpan &other)
 {
@@ -436,7 +436,7 @@ inline std::string TimeSpan::toString(TimeSpanOutputFormat format, bool fullSeco
 }
 
 /*!
- * \brief Returns ture if the time interval represented by the current TimeSpan class is null.
+ * \brief Returns true if the time interval represented by the current TimeSpan class is null.
  */
 constexpr inline bool TimeSpan::isNull() const
 {
@@ -444,7 +444,7 @@ constexpr inline bool TimeSpan::isNull() const
 }
 
 /*!
- * \brief Returns ture if the time interval represented by the current TimeSpan class is negative.
+ * \brief Returns true if the time interval represented by the current TimeSpan class is negative.
  */
 constexpr inline bool TimeSpan::isNegative() const
 {
@@ -452,7 +452,7 @@ constexpr inline bool TimeSpan::isNegative() const
 }
 
 /*!
- * \brief Returns whether the time inverval represented by the current instance is the smallest representable TimeSpan.
+ * \brief Returns whether the time interval represented by the current instance is the smallest representable TimeSpan.
  */
 constexpr inline bool TimeSpan::isNegativeInfinity() const
 {
@@ -460,7 +460,7 @@ constexpr inline bool TimeSpan::isNegativeInfinity() const
 }
 
 /*!
- * \brief Returns whether the time inverval represented by the current instance is the longest representable TimeSpan.
+ * \brief Returns whether the time interval represented by the current instance is the longest representable TimeSpan.
  */
 constexpr inline bool TimeSpan::isInfinity() const
 {

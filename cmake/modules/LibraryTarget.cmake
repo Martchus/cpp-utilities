@@ -291,7 +291,7 @@ macro (compute_dependencies_for_package_config DEPENDS OUTPUT_VAR_PKGS OUTPUT_VA
         elseif ("${DEPENDENCY}" MATCHES "\\\$\\<INSTALL_INTERFACE:(.*)\\>")
             continue()
         endif ()
-        # find the name of the pkg-config package for the depencency
+        # find the name of the pkg-config package for the dependency
         string(REPLACE "::" "_" DEPENDENCY_VARNAME "${DEPENDENCY}")
         if (PKG_CONFIG_${DEPENDENCY_VARNAME})
             # add pkg-config modules for the dependency

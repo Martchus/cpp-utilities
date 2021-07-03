@@ -352,7 +352,7 @@ constexpr inline int DateTime::nanosecond() const
 }
 
 /*!
- * \brief Returns ture if the date represented by the current DateTime class is null.
+ * \brief Returns true if the date represented by the current DateTime class is null.
  * \sa DateTime
  */
 constexpr inline bool DateTime::isNull() const
@@ -520,7 +520,7 @@ constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
 }
 
 /*!
- * \brief Substracts another instance.
+ * \brief Subtracts another instance.
  * \returns The result is another DateTime.
  */
 constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
@@ -538,7 +538,7 @@ constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
 }
 
 /*!
- * \brief Substracts two DateTime instances.
+ * \brief Subtracts two DateTime instances.
  * \returns The result is a TimeSpan.
  * \remarks For expressing the delta between two concrete DateTime instances in terms of
  *          years, month and days, use Period::Period instead.
@@ -558,7 +558,7 @@ inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
 }
 
 /*!
- * \brief Substracts a TimeSpan from the current instance.
+ * \brief Subtracts a TimeSpan from the current instance.
  */
 inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
 {

@@ -89,7 +89,7 @@ template <class Container> using StringParamForContainer = std::basic_string_vie
  * \param delimiter Specifies a delimiter to be used (empty string by default).
  * \param omitEmpty Indicates whether empty part should be omitted.
  * \param leftClosure Specifies a string to be inserted before each string (empty string by default).
- * \param rightClosure Specifies a string to be appendend after each string (empty string by default).
+ * \param rightClosure Specifies a string to be appended after each string (empty string by default).
  * \tparam Container Container The STL-container used to provide the \a strings.
  * \tparam ReturnType Type to store the result; defaults to the container's element type.
  * \returns Returns the joined string.
@@ -149,7 +149,7 @@ enum class EmptyPartsTreat {
 
 /*!
  * \brief Splits the given \a string at the specified \a delimiter.
- * \param string The string to be splitted.
+ * \param string The string to be split.
  * \param delimiter Specifies the delimiter.
  * \param emptyPartsRole Specifies the treatment of empty parts.
  * \param maxParts Specifies the maximal number of parts. Values less or equal zero indicate an unlimited number of parts.
@@ -201,7 +201,7 @@ Container splitString(Detail::StringParamForContainer<Container> string, Detail:
 
 /*!
  * \brief Splits the given \a string (which might also be a string view) at the specified \a delimiter.
- * \param string The string to be splitted.
+ * \param string The string to be split.
  * \param delimiter Specifies the delimiter.
  * \param maxParts Specifies the maximal number of parts. Values less or equal zero indicate an unlimited number of parts.
  * \tparam Container The STL-container used to return the parts.
@@ -361,7 +361,7 @@ bool containsSubstrings(const StringType &str, std::initializer_list<const typen
 }
 
 /*!
- * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
  */
 template <typename StringType1, typename StringType2, typename StringType3>
 void findAndReplace(StringType1 &str, const StringType2 &find, const StringType3 &replace)
@@ -372,7 +372,7 @@ void findAndReplace(StringType1 &str, const StringType2 &find, const StringType3
 }
 
 /*!
- * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
  */
 template <typename StringType>
 inline void findAndReplace(StringType &str, const typename StringType::value_type *find, const typename StringType::value_type *replace)
@@ -382,7 +382,7 @@ inline void findAndReplace(StringType &str, const typename StringType::value_typ
 }
 
 /*!
- * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
  */
 template <typename StringType1, typename StringType2>
 inline void findAndReplace(StringType1 &str, const StringType2 &find, const typename StringType1::value_type *replace)
@@ -391,7 +391,7 @@ inline void findAndReplace(StringType1 &str, const StringType2 &find, const type
 }
 
 /*!
- * \brief Replaces all occurences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
  */
 template <typename StringType1, typename StringType2>
 inline void findAndReplace(StringType1 &str, const typename StringType1::value_type *find, const StringType2 &replace)
@@ -468,7 +468,7 @@ StringType numberToString(IntegralType number, BaseType base = 10)
  * \brief Converts the given \a number to its equivalent string representation using the specified \a base.
  * \tparam FloatingType The data type of the given number.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
- * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ * \remarks This function is using std::basic_stringstream internally and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa stringToNumber(), bufferToNumber()
  */
@@ -594,7 +594,7 @@ IntegralType stringToNumber(const StringType &string, BaseType base = 10)
  * \tparam FloatingType The data type used to store the converted value.
  * \tparam StringViewType The string view type (must be an instantiation of the basic_string_view class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ * \remarks This function is using std::basic_stringstream internally and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
  */
@@ -621,7 +621,7 @@ FloatingType stringToNumber(StringViewType stringView, int base = 10)
  * \tparam FloatingType The data type used to store the converted value.
  * \tparam StringType The string type (should be an instantiation of the basic_string class template).
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ * \remarks This function is using std::basic_stringstream internally and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
  */
@@ -657,7 +657,7 @@ IntegralType stringToNumber(const CharType *string, BaseType base = 10)
  * \tparam FloatingType The data type used to store the converted value.
  * \tparam CharType The character type.
  * \throws A ConversionException will be thrown if the provided \a string is not a valid number.
- * \remarks This function is using std::basic_stringstream interanlly and hence also has its limitations (eg. regarding
+ * \remarks This function is using std::basic_stringstream internally and hence also has its limitations (eg. regarding
  *          \a base and types).
  * \sa numberToString(), bufferToNumber()
  */

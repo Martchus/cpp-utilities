@@ -207,7 +207,7 @@ and qtutilities.
 ### Meta-data and overall project configuration
 * `META_PROJECT_NAME=name`: specifies the project name which is used as the
   application/library name, mustn't contain spaces
-* `META_APP_NAME=The Name`: specifies a more readible version of the project
+* `META_APP_NAME=The Name`: specifies a more readable version of the project
   name used for instance in about dialog and desktop file
 * `META_APP_AUTHOR`: specifies the author shown in for instance in about
   dialog
@@ -223,7 +223,7 @@ and qtutilities.
   `CLANG_FORMAT_ENABLED` for this project
 * `META_NO_INSTALL_TARGETS`: the project is not meant to be installed, eg.
   private test helper; prevents creation of install targets
-* `META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION`: implicitely add a source file
+* `META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION`: implicitly add a source file
   with a main()-entry point to test target for running CppUnit test cases
 
 ### Files
@@ -236,13 +236,13 @@ and qtutilities.
 * `WIDGETS_HEADER_FILES`/`WIDGETS_SRC_FILES`: specifies C++ header/source files
   only required for Qt Widgets GUI
 * `QML_HEADER_FILES`/`QML_SRC_FILES`/`QML_RES_FILES`: specifies C++
-  header/source files and Qt resouce files only required for Qt Quick GUI
+  header/source files and Qt resource files only required for Qt Quick GUI
 * `EXCLUDED_FILES`: specifies C++ files which are part of the project (and therefore
   should be formatted by the `tidy` target, added to the documentation and considered
   for translations) but are excluded from the actual build; when adding files
   conditionally to the other `_FILES` variables, be sure to add them at least
   to `EXCLUDED_FILES`
-* `DOC_FILES`: additional markdown files to be inlcuded in the documentation
+* `DOC_FILES`: additional markdown files to be included in the documentation
   created via Doxygen; the first file is used as the main page
 * `REQUIRED_ICONS`: names of the icons required by the application and the
   used libraries (can be generated with
@@ -282,7 +282,7 @@ controlled by the variables documented above. Most important modules are:
     * used by Tag Editor and Syncthing Tray to select between Qt WebEngine,
       Qt WebKit or disabling the built-in webview
 * `LibraryTarget`: does further configuration for building dynamic and static
-  libraries and plugins; `META_PROJECT_TYPE` can be left empty or set explicitely
+  libraries and plugins; `META_PROJECT_TYPE` can be left empty or set explicitly
   to `library`
 * `AppTarget`: does further configuration for building an application;
   `META_PROJECT_TYPE` must be set to `application`

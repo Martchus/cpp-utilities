@@ -279,7 +279,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" mustn't be specified more than 1 time."));
     }
 
-    // constraint checking: no contraint (not resetting verboseArg on purpose)
+    // constraint checking: no constraint (not resetting verboseArg on purpose)
     displayFileInfoArg.reset();
     fileArg.reset();
     verboseArg.setConstraints(0, Argument::varValueCount);
@@ -292,7 +292,7 @@ void ArgumentParserTests::testParsing()
     parser.parseArgs(4, argv4, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
-    // contraint checking: error about missing mandatory argument
+    // constraint checking: error about missing mandatory argument
     const char *argv5[] = { "tageditor", "-i", "-f", "test" };
     displayFileInfoArg.reset();
     fileArg.reset();
@@ -758,7 +758,7 @@ void ArgumentParserTests::testBashCompletion()
  */
 void ArgumentParserTests::testHelp()
 {
-    // identation
+    // indentation
     Indentation indent;
     indent = indent + 3;
     CPPUNIT_ASSERT_EQUAL(static_cast<unsigned char>(4 + 3), indent.level);

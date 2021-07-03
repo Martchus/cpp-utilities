@@ -68,7 +68,7 @@ private:
 /*!
  * \brief Returns whether the TestApplication instance is valid.
  *
- * An instance is considered invalid if an error occured when
+ * An instance is considered invalid if an error occurred when
  * parsing the command line arguments.
  */
 inline TestApplication::operator bool() const

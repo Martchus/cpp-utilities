@@ -20,7 +20,7 @@ endif ()
 message(STATUS "Configuring project ${META_PROJECT_NAME}")
 project(${META_PROJECT_NAME})
 
-# set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitely
+# set META_PROJECT_VARNAME and META_PROJECT_VARNAME_UPPER if not specified explicitly
 if (NOT META_PROJECT_VARNAME)
     set(META_PROJECT_VARNAME "${META_PROJECT_NAME}")
 endif ()
@@ -107,7 +107,7 @@ set(META_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${META_PROJECT_NAME}${META_CONFI
 set(META_DATA_DIR_ABSOLUTE "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
-# set META_GENERIC_NAME to META_APP_NAME if not specified explicitely
+# set META_GENERIC_NAME to META_APP_NAME if not specified explicitly
 if (NOT META_GENERIC_NAME)
     set(META_GENERIC_NAME "${META_APP_NAME}")
 endif ()
@@ -117,7 +117,7 @@ if (NOT META_CXX_STANDARD)
     set(META_CXX_STANDARD 17)
 endif ()
 
-# set version to 0.0.0 if not specified explicitely
+# set version to 0.0.0 if not specified explicitly
 if (NOT META_VERSION_MAJOR)
     set(META_VERSION_MAJOR 0)
 endif ()
@@ -633,7 +633,7 @@ else ()
     endforeach ()
 endif ()
 
-# enable useful warnings and explicitely disable not useful ones and treat warnings them as errors
+# enable useful warnings and explicitly disable not useful ones and treat warnings them as errors
 option(ENABLE_WARNINGS "adds additional compiler flags to enable useful warnings" "${ENABLE_DEVEL_DEFAULTS}")
 set(CLANG_WARNINGS
     -Wall

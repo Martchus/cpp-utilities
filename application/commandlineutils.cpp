@@ -67,7 +67,7 @@ TerminalSize determineTerminalSize()
 #ifdef PLATFORM_WINDOWS
 /*!
  * \brief Closes stdout, stdin and stderr and stops the console.
- * \remarks Interanlly used by startConsole() to close the console when the application exits.
+ * \remarks Internally used by startConsole() to close the console when the application exits.
  */
 void stopConsole()
 {
@@ -87,7 +87,7 @@ void stopConsole()
  *   least when using `cmd.exe`).
  * - Used to start a console from a GUI application. Does *not* create a new console if the process already has one.
  * - Closes the console automatically when the application exits.
- * - It breaks redirecting stdout/stderr so this can be opted-out by setting the enviornment
+ * - It breaks redirecting stdout/stderr so this can be opted-out by setting the environment
  *   variable `ENABLE_CONSOLE=0` and/or `ENABLE_CP_UTF8=0`.
  * \sa
  * - https://docs.microsoft.com/en-us/windows/console/AttachConsole

@@ -138,7 +138,7 @@ void ArgumentSuggestion::addTo(multiset<ArgumentSuggestion> &suggestions, size_t
  * \remarks
  * - For meaning of parameters see documentation of corresponding member variables.
  * - Results are stored in specified \a args and assigned sub arguments.
- * - This class is explicitely *not* part of the public API.
+ * - This class is explicitly *not* part of the public API.
  */
 
 /*!
@@ -418,7 +418,7 @@ bool ArgumentReader::read(ArgumentVector &args)
 /*!
  * \class Wrapper
  * \brief The Wrapper class is internally used print text which might needs to be wrapped preserving the indentation.
- * \remarks This class is explicitely *not* part of the public API.
+ * \remarks This class is explicitly *not* part of the public API.
  */
 
 ostream &operator<<(ostream &os, const Wrapper &wrapper)
@@ -465,7 +465,7 @@ inline bool notEmpty(const char *str)
  * \class Argument
  * \brief The Argument class is a wrapper for command line argument information.
  *
- * Instaces of the Argument class are used as definition when parsing command line
+ * Instances of the Argument class are used as definition when parsing command line
  * arguments. Arguments can be assigned to an ArgumentParser using
  * ArgumentParser::setMainArguments() and to another Argument instance using
  * Argument::setSecondaryArguments().
@@ -1013,7 +1013,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
         throw ParseError(argsToString("The specified argument \"", *reader.argv, "\" is unknown.", suggestions));
     }
 
-    // print Bash completion and prevent the applicaton to continue with the regular execution
+    // print Bash completion and prevent the application to continue with the regular execution
     if (completionMode) {
         printBashCompletion(argc, argv, currentWordIndex, reader);
         invokeExit(0);
@@ -1336,7 +1336,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     if (argc && completionInfo.nextArgumentOrValue) {
         if (currentWordIndex < static_cast<unsigned int>(argc)) {
             opening = argv[currentWordIndex];
-            // For some reason completions for eg. "set --values disk=1 tag=a" are splitted so the
+            // For some reason completions for eg. "set --values disk=1 tag=a" are split so the
             // equation sign is an own argument ("set --values disk = 1 tag = a").
             // This is not how values are treated by the argument parser. Hence the opening
             // must be joined again. In this case only the part after the equation sign needs to be
@@ -1592,7 +1592,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         cout << "; compopt -o filenames";
     }
 
-    // ensure trailing whitespace is ommitted
+    // ensure trailing whitespace is omitted
     if (noWhitespace) {
         cout << "; compopt -o nospace";
     }
@@ -1602,7 +1602,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
 
 /*!
  * \brief Checks the constrains of the specified \a args.
- * \remarks Checks the contraints of sub arguments, too.
+ * \remarks Checks the constraints of sub arguments, too.
  */
 void ArgumentParser::checkConstraints(const ArgumentVector &args)
 {
@@ -1650,7 +1650,7 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
             throw ParseError(ss.str());
         }
 
-        // check contraints of sub arguments recursively
+        // check constraints of sub arguments recursively
         checkConstraints(arg->m_subArgs);
     }
 }
@@ -1722,7 +1722,7 @@ HelpArgument::HelpArgument(ArgumentParser &parser)
  * \brief The NoColorArgument class allows to specify whether use of escape codes or similar technique to provide formatted output
  *        on the terminal should be enabled/disabled.
  *
- * This argument will either prevent or explicitely allow the use of escape codes or similar technique to provide formatted output
+ * This argument will either prevent or explicitly allow the use of escape codes or similar technique to provide formatted output
  * on the terminal. More explicitly, the argument will always allow to negate the default value of EscapeCodes::enabled which can be
  * configured at build time by setting the CMake variable ENABLE_ESCAPE_CODES_BY_DEFAULT.
  *
@@ -1760,7 +1760,7 @@ NoColorArgument::NoColorArgument()
 }
 
 /*!
- * \brief Sets EscapeCodes::enabled according to the presense of the first instantiation of NoColorArgument.
+ * \brief Sets EscapeCodes::enabled according to the presence of the first instantiation of NoColorArgument.
  */
 void NoColorArgument::apply() const
 {

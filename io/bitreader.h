@@ -36,7 +36,7 @@ private:
  * \brief Constructs a new BitReader.
  * \remarks
  *  - Does not take ownership over the specified \a buffer.
- *  - bufferSize must be equal or greather than 1.
+ *  - bufferSize must be equal or greater than 1.
  */
 inline BitReader::BitReader(const char *buffer, std::size_t bufferSize)
     : BitReader(buffer, buffer + bufferSize)
@@ -47,7 +47,7 @@ inline BitReader::BitReader(const char *buffer, std::size_t bufferSize)
  * \brief Constructs a new BitReader.
  * \remarks
  *  - Does not take ownership over the specified \a buffer.
- *  - \a end must be greather than \a buffer.
+ *  - \a end must be greater than \a buffer.
  */
 inline BitReader::BitReader(const char *buffer, const char *end)
     : m_buffer(reinterpret_cast<const std::uint8_t *>(buffer))
@@ -143,7 +143,7 @@ inline std::size_t BitReader::bitsAvailable()
  * \brief Resets the reader.
  * \remarks
  *  - Does not take ownership over the specified \a buffer.
- *  - bufferSize must be equal or greather than 1.
+ *  - bufferSize must be equal or greater than 1.
  */
 inline void BitReader::reset(const char *buffer, std::size_t bufferSize)
 {
@@ -156,7 +156,7 @@ inline void BitReader::reset(const char *buffer, std::size_t bufferSize)
  * \brief Resets the reader.
  * \remarks
  *  - Does not take ownership over the specified \a buffer.
- *  - \a end must be greather than \a buffer.
+ *  - \a end must be greater than \a buffer.
  */
 inline void BitReader::reset(const char *buffer, const char *end)
 {

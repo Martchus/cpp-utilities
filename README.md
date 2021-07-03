@@ -121,7 +121,7 @@ make DESTDIR="/temporary/install/location" install # install binaries, headers a
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel) to build Syncthing Tray
 
 #### Development builds
-During development I find it useful to build all required projects (for instace c++utilities, qtutilities, tagparser and tageditor) as one big
+During development I find it useful to build all required projects (for instance c++utilities, qtutilities, tagparser and tageditor) as one big
 project.
 
 This can be easily achieved by using CMake's `add_subdirectory()` function. For project files see the repository

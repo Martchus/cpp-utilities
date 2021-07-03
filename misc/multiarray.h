@@ -72,7 +72,7 @@ struct NoneOwningMultiArray {
 /// \brief The MultiArray class provides an *N*-dimensional array.
 /// \tparam T Specifies the type of the data the MultiArray is supposed to contain.
 /// \tparam UnderlyingContainer Specifies the type of the underlying container to use.
-/// \tparam Dimentions Specifies the types used to store the limit/size of the dimentions. Must be safely castable to std::size_t.
+/// \tparam Dimensions Specifies the types used to store the limit/size of the dimensions. Must be safely castable to std::size_t.
 template <typename T, typename UnderlyingContainer, typename... Dimensions> class MultiArray {
 public:
     MultiArray(Dimensions... dimensionSizes);
@@ -92,7 +92,7 @@ private:
     typename UnderlyingContainer::template Type<T> m_buff;
 };
 
-/// \brief Constructs a new *N*-dimensional array. The sizes for the dimensions are passed as arguments and must be greather than zero.
+/// \brief Constructs a new *N*-dimensional array. The sizes for the dimensions are passed as arguments and must be greater than zero.
 /// \remarks The number of dimensions *N* is deduced from the number of \a dimensionSizes.
 /// \sa makeMultiArray(), makeFixedSizeMultiArray() and makeNoneOwningMultiArray() for more convenient construction
 template <typename T, typename UnderlyingContainer, typename... Dimensions>

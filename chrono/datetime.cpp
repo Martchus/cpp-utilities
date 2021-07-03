@@ -49,7 +49,7 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  * \todo
  * - Add method for parsing custom string formats.
  * - Add method for printing to custom string formats.
- * - Allow to determine the date part for each compontent at once to prevent multiple
+ * - Allow to determine the date part for each component at once to prevent multiple
  *   invocations of getDatePart().
  */
 
@@ -83,13 +83,13 @@ DateTime DateTime::fromString(const char *str)
     int *const secondsIndex = values + 5;
     int *valueIndex = values;
     int *const valuesEnd = values + 7;
-    double miliSecondsFact = 100.0, miliSeconds = 0.0;
+    double millisecondsFact = 100.0, milliseconds = 0.0;
     for (const char *strIndex = str;; ++strIndex) {
         const char c = *strIndex;
         if (c <= '9' && c >= '0') {
             if (valueIndex > secondsIndex) {
-                miliSeconds += (c - '0') * miliSecondsFact;
-                miliSecondsFact /= 10;
+                milliseconds += (c - '0') * millisecondsFact;
+                millisecondsFact /= 10;
             } else {
                 Detail::raiseAndAdd(*valueIndex, 10, c);
             }
@@ -104,7 +104,7 @@ DateTime DateTime::fromString(const char *str)
             throw ConversionException(argsToString("Unexpected character \"", c, '\"'));
         }
     }
-    return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, miliSeconds);
+    return DateTime::fromDateAndTime(values[0], values[1], *dayIndex, values[3], values[4], *secondsIndex, milliseconds);
 }
 
 /*!
@@ -131,13 +131,13 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
     int *valueIndex = values;
     unsigned int remainingDigits = 4;
     bool deltaNegative = false;
-    double miliSecondsFact = 100.0, miliSeconds = 0.0;
+    double millisecondsFact = 100.0, milliseconds = 0.0;
     for (const char *strIndex = str;; ++strIndex) {
         const char c = *strIndex;
         if (c <= '9' && c >= '0') {
             if (valueIndex == miliSecondsIndex) {
-                miliSeconds += (c - '0') * miliSecondsFact;
-                miliSecondsFact /= 10;
+                milliseconds += (c - '0') * millisecondsFact;
+                millisecondsFact /= 10;
             } else {
                 if (!remainingDigits) {
                     if (++valueIndex == miliSecondsIndex || valueIndex >= valuesEnd) {
@@ -202,7 +202,7 @@ std::pair<DateTime, TimeSpan> DateTime::fromIsoString(const char *str)
     if (valueIndex < dayIndex && !*dayIndex) {
         *dayIndex = 1;
     }
-    return make_pair(DateTime::fromDateAndTime(*yearIndex, *monthIndex, *dayIndex, *hourIndex, values[4], *secondsIndex, miliSeconds), delta);
+    return make_pair(DateTime::fromDateAndTime(*yearIndex, *monthIndex, *dayIndex, *hourIndex, values[4], *secondsIndex, milliseconds), delta);
 }
 
 /*!
