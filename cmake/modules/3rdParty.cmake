@@ -164,18 +164,17 @@ function (use_openssl)
         return()
     endif ()
     message(STATUS "Found OpenSSL")
-    set("${ARGS_LIBRARIES_VARIABLE}"
-        "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto"
-        PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto")
+    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
+        # FIXME: preferably use pkg-config to cover this case without hardcoding OpenSSL's dependencies under Windows
+        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
+    endif ()
     set("${ARGS_PACKAGES_VARIABLE}"
         "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
         PARENT_SCOPE)
-    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
-        # FIXME: preferably use pkg-config to cover this case without hardcoding OpenSSL's dependencies under Windows
-        set("${ARGS_LIBRARIES_VARIABLE}"
-            "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32"
-            PARENT_SCOPE)
-    endif ()
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}}"
+        PARENT_SCOPE)
     set("PKG_CONFIG_OpenSSL_SSL"
         "libssl"
         PARENT_SCOPE)
@@ -197,17 +196,16 @@ function (use_crypto)
         return()
     endif ()
     message(STATUS "Found OpenSSL")
-    set("${ARGS_LIBRARIES_VARIABLE}"
-        "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto"
-        PARENT_SCOPE)
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto")
+    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
+        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
+    endif ()
     set("${ARGS_PACKAGES_VARIABLE}"
         "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
         PARENT_SCOPE)
-    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
-        set("${ARGS_LIBRARIES_VARIABLE}"
-            "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto;-lws2_32;-lgdi32;-lcrypt32"
-            PARENT_SCOPE)
-    endif ()
+    set("${ARGS_LIBRARIES_VARIABLE}"
+        "${${ARGS_LIBRARIES_VARIABLE}}"
+        PARENT_SCOPE)
     set("PKG_CONFIG_OpenSSL_Crypto"
         "libcrypto"
         PARENT_SCOPE)
