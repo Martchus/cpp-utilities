@@ -156,8 +156,14 @@ function (use_openssl)
 
     find_package(OpenSSL ${ARGS_FIND_PACKAGE})
     if (NOT OpenSSL_FOUND)
+        message(STATUS "Unable to find OpenSSL")
         return()
     endif ()
+    if (NOT TARGET OpenSSL::SSL OR NOT TARGET OpenSSL::Crypto)
+        message(WARNING "Found OpenSSL but imported targets OpenSSL::SSL and/or OpenSSL::Crypto missing.")
+        return()
+    endif ()
+    message(STATUS "Found OpenSSL")
     set("${ARGS_LIBRARIES_VARIABLE}"
         "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto"
         PARENT_SCOPE)
@@ -183,8 +189,14 @@ function (use_crypto)
 
     find_package(OpenSSL ${ARGS_FIND_PACKAGE})
     if (NOT OpenSSL_FOUND)
+        message(STATUS "Unable to find OpenSSL")
         return()
     endif ()
+    if (NOT TARGET OpenSSL::Crypto)
+        message(WARNING "Found OpenSSL but imported target OpenSSL::Crypto missing.")
+        return()
+    endif ()
+    message(STATUS "Found OpenSSL")
     set("${ARGS_LIBRARIES_VARIABLE}"
         "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto"
         PARENT_SCOPE)
