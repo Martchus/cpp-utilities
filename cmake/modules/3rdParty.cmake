@@ -151,20 +151,29 @@ function (use_iconv)
         PARENT_SCOPE)
 endfunction ()
 
-function (use_openssl)
-    parse_arguments_for_use_functions(${ARGN})
-
+macro (_cpp_utilities_use_openssl OPENSSL_TARGETS)
     find_package(OpenSSL ${ARGS_FIND_PACKAGE})
     if (NOT OpenSSL_FOUND)
         message(STATUS "Unable to find OpenSSL")
         return()
     endif ()
-    if (NOT TARGET OpenSSL::SSL OR NOT TARGET OpenSSL::Crypto)
-        message(WARNING "Found OpenSSL but imported targets OpenSSL::SSL and/or OpenSSL::Crypto missing.")
+    foreach (OPENSSL_TARGET ${OPENSSL_TARGETS})
+        if (TARGET "${OPENSSL_TARGET}")
+            continue()
+        endif ()
+        set(MESSAGE_MODE WARNING)
+        if (REQUIRED IN_LIST ARGS_FIND_PACKAGE)
+            set(MESSAGE_MODE FATAL_ERROR)
+        endif ()
+        message(
+            "${MESSAGE_MODE}"
+            "Found OpenSSL but imported target \"${OPENSSL_TARGET}\" is missing. Possibly the devel package for OpenSSL is not installed."
+        )
         return()
-    endif ()
-    message(STATUS "Found OpenSSL")
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::SSL;OpenSSL::Crypto")
+    endforeach ()
+
+    message(STATUS "Found required OpenSSL targets (${OPENSSL_TARGETS})")
+    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${OPENSSL_TARGETS}")
     if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
         # FIXME: preferably use pkg-config to cover this case without hardcoding OpenSSL's dependencies under Windows
         set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
@@ -175,40 +184,23 @@ function (use_openssl)
     set("${ARGS_LIBRARIES_VARIABLE}"
         "${${ARGS_LIBRARIES_VARIABLE}}"
         PARENT_SCOPE)
-    set("PKG_CONFIG_OpenSSL_SSL"
-        "libssl"
-        PARENT_SCOPE)
     set("PKG_CONFIG_OpenSSL_Crypto"
         "libcrypto"
         PARENT_SCOPE)
+endmacro ()
+
+function (use_openssl)
+    parse_arguments_for_use_functions(${ARGN})
+    _cpp_utilities_use_openssl("OpenSSL::SSL;OpenSSL::Crypto")
+    set("PKG_CONFIG_OpenSSL_SSL"
+        "libssl"
+        PARENT_SCOPE)
+
 endfunction ()
 
 function (use_crypto)
     parse_arguments_for_use_functions(${ARGN})
-
-    find_package(OpenSSL ${ARGS_FIND_PACKAGE})
-    if (NOT OpenSSL_FOUND)
-        message(STATUS "Unable to find OpenSSL")
-        return()
-    endif ()
-    if (NOT TARGET OpenSSL::Crypto)
-        message(WARNING "Found OpenSSL but imported target OpenSSL::Crypto missing.")
-        return()
-    endif ()
-    message(STATUS "Found OpenSSL")
-    set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};OpenSSL::Crypto")
-    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
-        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
-    endif ()
-    set("${ARGS_PACKAGES_VARIABLE}"
-        "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
-        PARENT_SCOPE)
-    set("${ARGS_LIBRARIES_VARIABLE}"
-        "${${ARGS_LIBRARIES_VARIABLE}}"
-        PARENT_SCOPE)
-    set("PKG_CONFIG_OpenSSL_Crypto"
-        "libcrypto"
-        PARENT_SCOPE)
+    _cpp_utilities_use_openssl("OpenSSL::Crypto")
 endfunction ()
 
 function (use_zlib)
