@@ -7,6 +7,7 @@
 #include "../io/binaryreader.h"
 #include "../io/binarywriter.h"
 #include "../io/bitreader.h"
+#include "../io/buffersearch.h"
 #include "../io/copy.h"
 #include "../io/inifile.h"
 #include "../io/misc.h"
@@ -43,6 +44,7 @@ class IoTests : public TestFixture {
     CPPUNIT_TEST(testBinaryReader);
     CPPUNIT_TEST(testBinaryWriter);
     CPPUNIT_TEST(testBitReader);
+    CPPUNIT_TEST(testBufferSearch);
     CPPUNIT_TEST(testPathUtilities);
     CPPUNIT_TEST(testIniFile);
     CPPUNIT_TEST(testAdvancedIniFile);
@@ -62,6 +64,7 @@ public:
     void testBinaryReader();
     void testBinaryWriter();
     void testBitReader();
+    void testBufferSearch();
     void testPathUtilities();
     void testIniFile();
     void testAdvancedIniFile();
@@ -233,7 +236,7 @@ void IoTests::testBinaryWriter()
 }
 
 /*!
- * \brief Tests the BitReader.
+ * \brief Tests the BitReader class.
  */
 void IoTests::testBitReader()
 {
@@ -257,6 +260,40 @@ void IoTests::testBitReader()
     CPPUNIT_ASSERT_THROW(reader.skipBits(1), std::ios_base::failure);
     reader.reset(reinterpret_cast<const char *>(testData), sizeof(testData));
     CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(8 * sizeof(testData)), reader.bitsAvailable());
+}
+
+/*!
+ * \brief Tests the BufferSearch class.
+ */
+void IoTests::testBufferSearch()
+{
+    // setup search to test
+    auto expectedResult = std::string();
+    auto hasResult = false;
+    auto bs = BufferSearch("Updated version: ", "\e\n", "Starting build", [&](BufferSearch &, std::string &&result) {
+        CPPUNIT_ASSERT_EQUAL(expectedResult, result);
+        CPPUNIT_ASSERT_MESSAGE("callback only invoked once", !hasResult);
+        hasResult = true;
+    });
+
+    // feed data into the search
+    char buffer[30];
+    bs(buffer, 0);
+    CPPUNIT_ASSERT(!hasResult);
+    std::strcpy(buffer, "Starting Updated");
+    bs(std::string_view(buffer, 16));
+    CPPUNIT_ASSERT(!hasResult);
+    std::strcpy(buffer, " version: some ");
+    bs(buffer, 15);
+    CPPUNIT_ASSERT(!hasResult);
+    expectedResult = "some version number";
+    std::strcpy(buffer, "version number\emore chars");
+    bs(buffer, 25);
+    CPPUNIT_ASSERT(hasResult);
+    hasResult = false;
+    std::strcpy(buffer, "... Starting build ...");
+    bs(buffer, 22);
+    CPPUNIT_ASSERT(!hasResult);
 }
 
 /*!

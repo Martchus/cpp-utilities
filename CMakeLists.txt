@@ -21,6 +21,7 @@ set(HEADER_FILES
     io/binaryreader.h
     io/binarywriter.h
     io/bitreader.h
+    io/buffersearch.h
     io/copy.h
     io/inifile.h
     io/path.h
@@ -49,6 +50,7 @@ set(SRC_FILES
     io/binaryreader.cpp
     io/binarywriter.cpp
     io/bitreader.cpp
+    io/buffersearch.cpp
     io/inifile.cpp
     io/path.cpp
     io/nativefilestream.cpp
@@ -112,8 +114,8 @@ set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 5)
-set(META_VERSION_MINOR 10)
-set(META_VERSION_PATCH 6)
+set(META_VERSION_MINOR 11)
+set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
 include(3rdParty)
