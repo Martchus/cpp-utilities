@@ -2,8 +2,11 @@
 #define IOUTILITIES_BUFFER_SEARCH_H
 
 #include "../global.h"
+#include "../misc/traits.h"
 
+#include <array>
 #include <functional>
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -15,6 +18,7 @@ public:
     BufferSearch(std::string_view searchTerm, std::string_view terminationChars, std::string_view giveUpTerm, CallbackType &&callback);
     void operator()(std::string_view buffer);
     void operator()(const char *buffer, std::size_t bufferSize);
+    template <std::size_t bufferCapacity> void operator()(std::shared_ptr<std::array<char, bufferCapacity>> buffer, std::size_t bufferSize);
     void reset();
 
 private:
@@ -52,6 +56,15 @@ inline BufferSearch::BufferSearch(
 inline void BufferSearch::operator()(std::string_view buffer)
 {
     (*this)(buffer.data(), buffer.size());
+}
+
+/*!
+ * \brief Processes the specified \a buffer which is a shared array with fixed \tp bufferCapacity. Invokes the callback according to the remarks mentioned in the class documentation.
+ */
+template <std::size_t bufferCapacity>
+inline void BufferSearch::operator()(std::shared_ptr<std::array<char, bufferCapacity>> buffer, std::size_t bufferSize)
+{
+    (*this)(buffer->data(), bufferSize);
 }
 
 } // namespace CppUtilities
