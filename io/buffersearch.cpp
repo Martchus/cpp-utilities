@@ -24,7 +24,7 @@ namespace CppUtilities {
 /*!
  * \brief Processes the specified \a buffer. Invokes the callback according to the remarks mentioned in the class documentation.
  */
-void BufferSearch::operator()(const char *buffer, std::size_t bufferSize)
+void BufferSearch::operator()(const std::string_view::value_type *buffer, std::size_t bufferSize)
 {
     if (m_hasResult || (!m_giveUpTerm.empty() && m_giveUpTermIterator == m_giveUpTerm.end())) {
         return;
