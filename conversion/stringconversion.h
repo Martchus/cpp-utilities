@@ -150,7 +150,7 @@ enum class EmptyPartsTreat {
 /*!
  * \brief Splits the given \a string at the specified \a delimiter.
  * \param string The string to be split.
- * \param delimiter Specifies the delimiter.
+ * \param delimiter Specifies the delimiter which must not be empty.
  * \param emptyPartsRole Specifies the treatment of empty parts.
  * \param maxParts Specifies the maximal number of parts. Values less or equal zero indicate an unlimited number of parts.
  * \tparam Container The STL-container used to return the parts.
@@ -202,7 +202,7 @@ Container splitString(Detail::StringParamForContainer<Container> string, Detail:
 /*!
  * \brief Splits the given \a string (which might also be a string view) at the specified \a delimiter.
  * \param string The string to be split.
- * \param delimiter Specifies the delimiter.
+ * \param delimiter Specifies the delimiter which must not be empty.
  * \param maxParts Specifies the maximal number of parts. Values less or equal zero indicate an unlimited number of parts.
  * \tparam Container The STL-container used to return the parts.
  * \returns Returns the parts.
