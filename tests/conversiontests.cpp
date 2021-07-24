@@ -301,6 +301,9 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("TEST"s, interpretIntegerAsString<std::uint32_t>(0x54455354));
 
     // splitString() / joinStrings()
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("empty string", vector<string>({ string() }), splitString<vector<string>>(string(), ","));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "empty string (simple)", vector<string_view>({ string_view() }), splitStringSimple<vector<string_view>>(string_view(), ","));
     vector<string> splitTestExpected({ "1", "2,3" });
     vector<string> splitTestActual = splitString<vector<string>>("1,2,3"s, ","s, EmptyPartsTreat::Keep, 2);
     CPPUNIT_ASSERT_EQUAL(splitTestExpected, splitTestActual);
