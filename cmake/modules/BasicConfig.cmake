@@ -327,7 +327,7 @@ set(FORMATABLE_FILES
     ${EXCLUDED_FILES})
 # only format C/C++ files (and not eg. QML files)
 if (FORMATABLE_FILES)
-    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cpp|h|hpp)")
+    list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cc|cpp|h|hh|hpp)")
 endif ()
 
 # determine source files which might be passed to cmake-format
