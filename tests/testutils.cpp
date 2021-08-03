@@ -600,7 +600,7 @@ string TestApplication::readTestfilePathFromSrcRef()
 {
     // find the path of the current executable on platforms supporting "/proc/self/exe"; otherwise assume the current working directory
     // is the executable path
-    std::string binaryPath;
+    auto binaryPath = std::string();
 #if defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_UNIX)
     try {
         binaryPath = std::filesystem::read_symlink("/proc/self/exe").parent_path();
@@ -609,9 +609,10 @@ string TestApplication::readTestfilePathFromSrcRef()
         cerr << Phrases::Warning << "Unable to detect binary path for finding \"srcdirref\": " << e.what() << Phrases::EndFlush;
     }
 #endif
+    const auto srcdirrefPath = binaryPath + "srcdirref";
     try {
         // read "srcdirref" file which should contain the path of the source directory
-        auto srcDirContent(readFile(binaryPath + "srcdirref", 2 * 1024));
+        auto srcDirContent(readFile(srcdirrefPath, 2 * 1024));
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
             return string();
@@ -627,9 +628,8 @@ string TestApplication::readTestfilePathFromSrcRef()
         }
         return srcDirContent;
 
-    } catch (const std::ios_base::failure &) {
-        cerr << Phrases::Warning << "The file \"srcdirref\" can not be opened. It likely just doesn't exist in the working directory."
-             << Phrases::EndFlush;
+    } catch (const std::ios_base::failure &e) {
+        cerr << Phrases::Warning << "The file \"" << srcdirrefPath << "\" can not be opened: " << e.what() << Phrases::EndFlush;
     }
     return string();
 }
