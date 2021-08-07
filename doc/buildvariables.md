@@ -19,6 +19,8 @@
 * `CMAKE_FIND_LIBRARY_SUFFIXES`: sets the library suffixes the build script will
   consider, e.g. set to `.a;.lib` to prefer static Windows libraries or to
   `.dll;.dll.a` to prefer shared Windows libraries
+* `CMAKE_FIND_DEBUG_MODE=ON/OFF` or `--debug-find` flag: whether verbose debug
+  output for finding libraries should be enabled
 * variables provided by [GNUInstallDirs](https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html)
 
 ### Custom variables
