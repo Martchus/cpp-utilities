@@ -413,7 +413,12 @@ elseif ("${META_PROJECT_TYPE}" STREQUAL "application")
     set(META_PROJECT_IS_APPLICATION YES)
 endif ()
 if (META_PROJECT_IS_LIBRARY)
-    option(BUILD_SHARED_LIBS ON "whether to build shared or static libraries")
+    # when development defaults are enabled, build shared libs by default when targeting GNU/Linux
+    set(BUILD_SHARED_LIBS_BY_DEFAULT "${BUILD_SHARED_LIBS}")
+    if (ENABLE_DEVEL_DEFAULTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(BUILD_SHARED_LIBS_BY_DEFAULT ON)
+    endif ()
+    option(BUILD_SHARED_LIBS "whether to build shared or static libraries" "${BUILD_SHARED_LIBS_BY_DEFAULT}")
     option(
         STATIC_LIBRARY_LINKAGE
         "prefer linking against dependencies statically; adds additional flags for static linkage; only applies when building shared libraries"
