@@ -119,6 +119,11 @@ None of these are enabled or set by default, unless stated otherwise.
       as well.
     * Set `CONFIGURATION_PACKAGE_SUFFIX` to *use* libraries built with
       `CONFIGURATION_NAME`.
+* `ENABLE_WARNINGS`: enables GCC/Clang warnings I consider useful
+* `TREAT_WARNINGS_AS_ERRORS`: treat CCC/Clang warnings as errors
+* `ENABLE_DEVEL_DEFAULTS`: enables defaults I find useful for development (warnings,
+  treat warnings as errors, build tests as part of all/default target, enable tidy
+  targets, build by default shared libs when targeting GNU/Linux, …)
 
 #### Variables for specifying location of 3rd party dependencies
 The build script tries to find the required dependencies at standard loctions
