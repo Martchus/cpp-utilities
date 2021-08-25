@@ -51,9 +51,7 @@ file(
 
 # set windres as resource compiler
 list(APPEND RES_FILES "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc")
-set_property(
-    SOURCE "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc"
-    PROPERTY GENERATED ON)
+set_property(SOURCE "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc" PROPERTY GENERATED ON)
 set(CMAKE_RC_COMPILER_INIT windres)
 set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 enable_language(RC)
