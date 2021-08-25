@@ -292,7 +292,7 @@ if (NOT META_NO_TIDY)
         set(CLANG_FORMAT_RULES "${CPP_UTILITIES_SOURCE_DIR}/coding-style.clang-format")
     endif ()
     if (NOT EXISTS "${CLANG_FORMAT_RULES}")
-        set(CLANG_FORMAT_RULES "${CPP_UTILITIES_CONFIG_DIRS}/codingstyle.clang-format")
+        set(CLANG_FORMAT_RULES "${CPP_UTILITIES_DATA_DIRS}/codingstyle.clang-format")
     endif ()
 endif ()
 

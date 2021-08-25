@@ -265,7 +265,7 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_SOURCE_DIR}/tests/calculateoverallcoverage.awk")
         endif ()
         if (NOT EXISTS "${OVERALL_COVERAGE_AKW_SCRIPT}")
-            set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_CONFIG_DIRS}/tests/calculateoverallcoverage.awk")
+            set(OVERALL_COVERAGE_AKW_SCRIPT "${CPP_UTILITIES_DATA_DIRS}/tests/calculateoverallcoverage.awk")
         endif ()
         add_custom_command(
             OUTPUT "${COVERAGE_OVERALL_REPORT_FILE}"
