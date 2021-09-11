@@ -418,7 +418,13 @@ if (META_PROJECT_IS_LIBRARY)
     if (ENABLE_DEVEL_DEFAULTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set(BUILD_SHARED_LIBS_BY_DEFAULT ON)
     endif ()
-    option(BUILD_SHARED_LIBS "whether to build shared or static libraries" "${BUILD_SHARED_LIBS_BY_DEFAULT}")
+    if (DEFINED CACHE{${META_PROJECT_VARNAME}_BUILD_SHARED_LIBS})
+        # allow overriding BUILD_SHARED_LIBS via a project-specific cache variable
+        set(BUILD_SHARED_LIBS "${${META_PROJECT_VARNAME}_BUILD_SHARED_LIBS}")
+    else ()
+        # make BUILD_SHARED_LIBS an overridable cache variable
+        option(BUILD_SHARED_LIBS "whether to build shared or static libraries" "${BUILD_SHARED_LIBS_BY_DEFAULT}")
+    endif ()
     option(
         STATIC_LIBRARY_LINKAGE
         "prefer linking against dependencies statically; adds additional flags for static linkage; only applies when building shared libraries"
