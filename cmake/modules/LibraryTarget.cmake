@@ -132,11 +132,18 @@ else ()
         ${META_TARGET_NAME}
         PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
         PRIVATE "${PRIVATE_LIBRARIES}")
-    target_include_directories(
-        ${META_TARGET_NAME}
-        PUBLIC $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
-               $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
-        PRIVATE "${PRIVATE_INCLUDE_DIRS}")
+    if (META_IS_PLUGIN)
+        target_include_directories(
+            ${META_TARGET_NAME}
+            PRIVATE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                    "${PRIVATE_INCLUDE_DIRS}")
+    else ()
+        target_include_directories(
+            ${META_TARGET_NAME}
+            PUBLIC $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
+            PRIVATE "${PRIVATE_INCLUDE_DIRS}")
+    endif ()
     target_compile_definitions(
         ${META_TARGET_NAME}
         PUBLIC "${META_PUBLIC_COMPILE_DEFINITIONS}"
