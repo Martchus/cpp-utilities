@@ -43,9 +43,6 @@ set(@META_PROJECT_VARNAME_UPPER@_LIB "@META_TARGET_NAME@")
 set(@META_PROJECT_VARNAME_UPPER@_LIB_IS_SHARED "@BUILD_SHARED_LIBS@")
 set(@META_PROJECT_VARNAME_UPPER@_STATIC_LINKAGE "@STATIC_LINKAGE_CONFIGURED@")
 if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
-    # add target for the library itself
-    include("${CMAKE_CURRENT_LIST_DIR}/@META_PROJECT_NAME@@META_CONFIG_SUFFIX@Targets.cmake")
-
     # make dependencies of the library available
     # caveat: This currently does *not* cover Qt and KF modules which are so far only handled
     #         separately when using the function use_@META_PROJECT_VARNAME@.
@@ -105,6 +102,9 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
         set(PKG_CONFIG_USE_STATIC_LIBS ${@META_PROJECT_VARNAME_UPPER@_DEFAULT_PKG_CONFIG_USE_STATIC_LIBS})
         unset(@META_PROJECT_VARNAME_UPPER@_DEFAULT_PKG_CONFIG_USE_STATIC_LIBS)
     endif ()
+
+    # add target for the library itself
+    include("${CMAKE_CURRENT_LIST_DIR}/@META_PROJECT_NAME@@META_CONFIG_SUFFIX@Targets.cmake")
 endif()
 
 # define function to ease use of library in projects following conventions of c++utilities' build script
