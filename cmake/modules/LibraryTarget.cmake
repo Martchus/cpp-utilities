@@ -101,7 +101,7 @@ else ()
     set(TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif ()
 
-# add target for building the library
+# configure target type for building the library
 if (BUILD_SHARED_LIBS)
     if (META_IS_PLUGIN)
         set(META_LIBRARY_TYPE MODULE)
@@ -110,7 +110,13 @@ if (BUILD_SHARED_LIBS)
     endif ()
 else ()
     set(META_LIBRARY_TYPE STATIC)
+
+    # define QT_STATICPLUGIN when building static Qt plugins
+    if ("${META_PROJECT_TYPE}" STREQUAL "qtplugin")
+        list(APPEND META_PRIVATE_COMPILE_DEFINITIONS QT_STATICPLUGIN)
+    endif ()
 endif ()
+
 
 # add custom libraries
 append_user_defined_additional_libraries()
