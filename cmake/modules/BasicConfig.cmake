@@ -59,6 +59,14 @@ if (CONFIGURATION_DISPLAY_NAME)
     set(META_APP_NAME "${META_APP_NAME} (${CONFIGURATION_DISPLAY_NAME})")
 endif ()
 
+set(NAMESPACE
+    ""
+    CACHE STRING "adds a prefix to files and folders installed in the OS toplevel")
+if (NAMESPACE)
+  set(NAMESPACE_PREFIX "${NAMESPACE}-")
+  set(TARGET_PREFIX "${NAMESPACE}-")
+endif ()
+
 # allow setting a library/application target suffix - A different configuration name might not require a different target
 # name since it might differ anyways (e.g. library extensions for static and shared configuration). Hence there's not simply
 # the configuration name used to distinguish targets as well.
@@ -103,8 +111,8 @@ include(GNUInstallDirs)
 
 # define a few variables
 set(META_TARGET_NAME "${TARGET_PREFIX}${META_PROJECT_NAME}${TARGET_SUFFIX}")
-set(META_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
-set(META_DATA_DIR_ABSOLUTE "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+set(META_DATA_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+set(META_DATA_DIR_ABSOLUTE "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
 string(TOUPPER "${CMAKE_BUILD_TYPE}" META_CURRENT_CONFIGURATION)
 
 # set META_GENERIC_NAME to META_APP_NAME if not specified explicitly
