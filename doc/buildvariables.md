@@ -232,6 +232,15 @@ and qtutilities.
   private test helper; prevents creation of install targets
 * `META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION`: implicitly add a source file
   with a main()-entry point to test target for running CppUnit test cases
+* `TLS_SUPPORT`: enables TLS support
+    * enabled by default for projects using Qt Network; should be disabled
+      when using Qt Network but no TLS is required
+    * currently only relevant when using static Qt (6.2.0 or newer) to link
+      against an appropriate TLS plugin for TLS support in Qt Network
+* `META_TLS_PLUGINS`: specifies an additional list of Qt TLS plugins to
+  check before the known TLS plugins
+    * can be used to give other TLS plugins precedence over the plugins
+      which are checked by default
 
 ### Files
 * `HEADER_FILES`/`SRC_FILES`: specifies C++ header/source files
