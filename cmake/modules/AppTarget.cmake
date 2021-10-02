@@ -140,7 +140,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         get_filename_component(ICON_FILE_EXT "${ICON_FILE}" EXT)
         install(
             FILES "${ICON_FILE}"
-            RENAME "${ICON_FILE_NAME}${META_CONFIG_SUFFIX}${ICON_FILE_EXT}"
+            RENAME "${NAMESPACE_PREFIX}${ICON_FILE_NAME}${META_CONFIG_SUFFIX}${ICON_FILE_EXT}"
             DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
             COMPONENT desktop)
     endforeach ()
@@ -247,7 +247,7 @@ function (add_desktop_file)
         DESKTOP_FILE_CMD
         "${META_TARGET_NAME}"
         DESKTOP_FILE_ICON
-        "${META_PROJECT_NAME}${META_CONFIG_SUFFIX}"
+        "${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}"
         DESKTOP_FILE_ADDITIONAL_ENTRIES
         "${DESKTOP_FILE_ADDITIONAL_ENTRIES}")
 
