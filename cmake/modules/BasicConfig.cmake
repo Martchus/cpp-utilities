@@ -63,8 +63,8 @@ set(NAMESPACE
     ""
     CACHE STRING "adds a prefix to files and folders installed in the OS toplevel")
 if (NAMESPACE)
-  set(NAMESPACE_PREFIX "${NAMESPACE}-")
-  set(TARGET_PREFIX "${NAMESPACE}-")
+    set(NAMESPACE_PREFIX "${NAMESPACE}-")
+    set(TARGET_PREFIX "${NAMESPACE}-")
 endif ()
 
 # allow setting a library/application target suffix - A different configuration name might not require a different target
