@@ -154,6 +154,8 @@ configure_test_target(
     "${TEST_SRC_FILES}"
     LIBRARIES
     "${TEST_LIBRARIES}"
+    FULL_TEST_NAME_OUT_VAR
+    META_MAIN_TEST_NAME
     RUN_ARGS
     "${RUN_TESTS_ARGS}"
     ${TEST_TARGET_OPTIONS})
