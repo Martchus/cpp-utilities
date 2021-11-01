@@ -524,6 +524,18 @@ if (CLANG_SOURCE_BASED_COVERAGE_ENABLED)
     list(APPEND META_ADDITIONAL_LINK_FLAGS ${CLANG_SOURCE_BASED_COVERAGE_FLAGS})
 endif ()
 
+# enable coverage analysis with GCC and gcov
+option(GCOV_COVERAGE_ENABLED "enables creation of coverage targets utilizing gcov" OFF)
+if (GCOV_COVERAGE_ENABLED)
+    if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        message(FATAL_ERROR "gcov coverage only available under GCC, current compiler is ${CMAKE_CXX_COMPILER_ID}")
+    endif ()
+    set(GCC_COVERAGE_AVAILABLE YES)
+    set(GCC_COVERAGE_FLAGS --coverage -fprofile-arcs -ftest-coverage)
+    list(APPEND META_PRIVATE_COMPILE_OPTIONS ${GCC_COVERAGE_FLAGS})
+    list(APPEND META_ADDITIONAL_LINK_FLAGS ${GCC_COVERAGE_FLAGS})
+endif ()
+
 # configure creation of install targets
 if (NOT META_NO_INSTALL_TARGETS)
     # install targets have not been disabled on project level check whether install targets are disabled by the user this

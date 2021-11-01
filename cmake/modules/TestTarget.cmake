@@ -294,17 +294,80 @@ if (CLANG_SOURCE_BASED_COVERAGE_AVAILABLE)
             DEPENDS ${COVERAGE_REPORT_FILES}
             DEPENDS "${COVERAGE_OVERALL_REPORT_FILE}"
             DEPENDS "${COVERAGE_HTML_REPORT_FILE}")
-
-        # add targets to global coverage target
-        if (NOT TARGET coverage)
-            add_custom_target(coverage)
-        endif ()
-        add_dependencies(coverage "${META_TARGET_NAME}_tests_coverage")
     else ()
         message(
             FATAL_ERROR "Unable to generate target for coverage report because llvm-profdata and llvm-cov are not available."
         )
     endif ()
+endif ()
+
+# enable coverage analysis with GCC and gcov
+if (GCC_COVERAGE_AVAILABLE)
+    set(GCONV_DATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/gcov-data")
+    set(GCONV_HTML_REPORT_DIR "${CMAKE_CURRENT_BINARY_DIR}/gcov-html-report")
+    set(GCONV_HTML_REPORT_INDEX "${GCONV_HTML_REPORT_DIR}/index.html")
+    set(GCONV_INFO_FILE "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.info")
+
+    get_filename_component(CURRENT_SUB_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}" NAME)
+    set(GCOV_DATA_FILES)
+    foreach (FILE ${ALL_FILES})
+        if (FILE MATCHES ".*\\.(h|hpp|c|cpp)")
+            list(APPEND GCOV_DATA_FILES "CMakeFiles/${CURRENT_SUB_DIRECTORY}.dir/${FILE}.gcda")
+        endif ()
+    endforeach ()
+
+    # add command to execute tests generating raw profiling data
+    add_custom_command(
+        OUTPUT ${GCOV_DATA_FILES}
+        COMMAND "${CMAKE_COMMAND}" -E env $<TARGET_FILE:${META_TARGET_NAME}_tests> -p "${CMAKE_CURRENT_SOURCE_DIR}/testfiles"
+                -w "${CMAKE_CURRENT_BINARY_DIR}/testworkingdir" ${RUN_TESTS_APPLICATION_ARGS}
+        COMMENT "Executing ${META_TARGET_NAME}_tests to generate gcov profiling data for coverage report"
+        DEPENDS "${META_TARGET_NAME}_tests")
+
+    # add commands for processing raw profiling data
+    find_program(GCOV_BIN gcov)
+    find_program(GENINFO_BIN geninfo)
+    find_program(GENHTML_BIN genhtml)
+    if (GCOV_BIN
+        AND GENINFO_BIN
+        AND GENHTML_BIN)
+
+        # generate coverage info
+        add_custom_command(
+            OUTPUT "${GCONV_INFO_FILE}"
+            COMMAND
+                "${GENINFO_BIN}" --base-directory "${CMAKE_CURRENT_SOURCE_DIR}" --output-filename "${GCONV_INFO_FILE}"
+                --gcov-tool "${GCOV_BIN}" --test-name "${META_TARGET_NAME}_tests" --no-external "${CMAKE_CURRENT_BINARY_DIR}"
+            COMMENT "Generating coverage info"
+            DEPENDS ${GCOV_DATA_FILES})
+        add_custom_target("${META_TARGET_NAME}_tests_coverage_info" DEPENDS "${GCONV_INFO_FILE}")
+
+        # generate HTML document showing covered/uncovered code
+        add_custom_command(
+            OUTPUT "${GCONV_HTML_REPORT_INDEX}"
+            COMMAND "${GENHTML_BIN}" "${GCONV_INFO_FILE}" -o "${GCONV_HTML_REPORT_DIR}"
+            COMMENT "Generating HTML document showing covered/uncovered code"
+            DEPENDS "${GCONV_INFO_FILE}")
+        add_custom_target("${META_TARGET_NAME}_tests_coverage_html" DEPENDS "${GCONV_HTML_REPORT_INDEX}")
+
+        # create target for all coverage docs
+        add_custom_target(
+            "${META_TARGET_NAME}_tests_coverage"
+            DEPENDS "${GCONV_INFO_FILE}"
+            DEPENDS "${GCONV_HTML_REPORT_INDEX}")
+    else ()
+        message(
+            FATAL_ERROR
+                "Unable to generate target for coverage report because gcov, geninfo and/or genhtml are not available.")
+    endif ()
+endif ()
+
+if (TARGET "${META_TARGET_NAME}_tests_coverage")
+    # add targets to global coverage target
+    if (NOT TARGET coverage)
+        add_custom_target(coverage)
+    endif ()
+    add_dependencies(coverage "${META_TARGET_NAME}_tests_coverage")
 endif ()
 
 set(META_HAVE_TESTS YES)
