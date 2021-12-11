@@ -277,7 +277,7 @@ void IoTests::testBufferSearch()
     });
 
     // feed data into the search
-    char buffer[30];
+    char buffer[30] = { 0 };
     bs(buffer, 0);
     CPPUNIT_ASSERT(!hasResult);
     std::strcpy(buffer, "Starting Updated");
