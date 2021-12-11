@@ -78,7 +78,7 @@ DateTime DateTime::fromTimeStamp(time_t timeStamp)
  */
 DateTime DateTime::fromString(const char *str)
 {
-    int values[6] = { 0 };
+    int values[7] = { 0 };
     int *const dayIndex = values + 2;
     int *const secondsIndex = values + 5;
     int *valueIndex = values;
