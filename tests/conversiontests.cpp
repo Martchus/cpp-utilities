@@ -24,9 +24,9 @@ using namespace CPPUNIT_NS;
 // compile-time checks for binary conversion
 static_assert(toSynchsafeInt(255) == 383, "toSynchsafeInt()");
 static_assert(toNormalInt(383) == 255, "toNormalInt()");
-static_assert(swapOrder(static_cast<std::uint16_t>(0xABCD)) == 0xCDAB, "swapOrder(uint16)");
-static_assert(swapOrder(0xABCDEF12u) == 0x12EFCDABu, "swapOrder(uint32)");
-static_assert(swapOrder(0xABCDEF1234567890ul) == 0x9078563412EFCDABul, "swapOrder(uint64)");
+static_assert(swapOrder(static_cast<std::uint16_t>(0xABCD)) == 0xCDAB, "swapOrder(std::uint16_t)");
+static_assert(swapOrder(static_cast<std::uint32_t>(0xABCDEF12u)) == 0x12EFCDABu, "swapOrder(std::uint32_t)");
+static_assert(swapOrder(static_cast<std::uint64_t>(0xABCDEF1234567890ul)) == 0x9078563412EFCDABul, "swapOrder(std::uint64_t)");
 
 /*!
  * \brief The ConversionTests class tests classes and functions provided by the files inside the conversion directory.
