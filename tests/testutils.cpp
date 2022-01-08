@@ -9,6 +9,7 @@
 #include "../misc/parseerror.h"
 
 #include <cerrno>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -293,10 +294,11 @@ string TestApplication::workingCopyPathAs(
     const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath, WorkingCopyMode mode) const
 {
     // ensure working directory is present
+    auto workingCopyPath = std::string();
     if (!dirExists(m_workingDir) && !makeDir(m_workingDir)) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": can't create working directory \""
              << m_workingDir << "\"." << Phrases::EndFlush;
-        return string();
+        return workingCopyPath;
     }
 
     // ensure subdirectory exists
@@ -319,26 +321,37 @@ string TestApplication::workingCopyPathAs(
             // fail otherwise
             cerr << Phrases::Error << "Unable to create working copy for \"" << relativeWorkingCopyPath << "\": can't create directory \""
                  << currentLevel << "\" (inside working directory)." << Phrases::EndFlush;
-            return string();
+            return workingCopyPath;
         }
     }
 
-    // just return the path if we don't want to actually create a copy
-    if (mode == WorkingCopyMode::NoCopy) {
-        return m_workingDir + relativeWorkingCopyPath;
+    workingCopyPath = m_workingDir + relativeWorkingCopyPath;
+    switch (mode) {
+    case WorkingCopyMode::NoCopy:
+        // just return the path if we don't want to actually create a copy
+        return workingCopyPath;
+    case WorkingCopyMode::Cleanup:
+        // ensure the file does not exist in cleanup mode
+        if (std::remove(workingCopyPath.data()) != 0 && errno != ENOENT) {
+            const auto error = std::strerror(errno);
+            cerr << Phrases::Error << "Unable to delete \"" << workingCopyPath << "\": " << error << Phrases::EndFlush;
+            workingCopyPath.clear();
+        }
+        return workingCopyPath;
+    default:;
     }
 
     // copy the file
-    const auto origFilePath(testFilePath(relativeTestFilePath));
-    auto workingCopyPath(m_workingDir + relativeWorkingCopyPath);
+    const auto origFilePath = testFilePath(relativeTestFilePath);
     size_t workingCopyPathAttempt = 0;
     NativeFileStream origFile, workingCopy;
     origFile.open(origFilePath, ios_base::in | ios_base::binary);
     if (origFile.fail()) {
         cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath
              << "\": an IO error occurred when opening original file \"" << origFilePath << "\"." << Phrases::EndFlush;
-        cerr << "error: " << strerror(errno) << endl;
-        return string();
+        cerr << "error: " << std::strerror(errno) << endl;
+        workingCopyPath.clear();
+        return workingCopyPath;
     }
     workingCopy.open(workingCopyPath, ios_base::out | ios_base::binary | ios_base::trunc);
     while (workingCopy.fail() && fileSystemItemExists(workingCopyPath)) {
@@ -351,7 +364,8 @@ string TestApplication::workingCopyPathAs(
         cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath
              << "\": an IO error occurred when opening target file \"" << workingCopyPath << "\"." << Phrases::EndFlush;
         cerr << "error: " << strerror(errno) << endl;
-        return string();
+        workingCopyPath.clear();
+        return workingCopyPath;
     }
     workingCopy << origFile.rdbuf();
     workingCopy.close();
@@ -362,7 +376,8 @@ string TestApplication::workingCopyPathAs(
     cerr << Phrases::Error << "Unable to create working copy for \"" << relativeTestFilePath << "\": ";
     if (origFile.fail()) {
         cerr << "an IO error occurred when reading original file \"" << origFilePath << "\"";
-        return string();
+        workingCopyPath.clear();
+        return workingCopyPath;
     }
     if (workingCopy.fail()) {
         if (origFile.fail()) {
@@ -371,7 +386,8 @@ string TestApplication::workingCopyPathAs(
         cerr << " an IO error occurred when writing to target file \"" << workingCopyPath << "\".";
     }
     cerr << "error: " << strerror(errno) << endl;
-    return string();
+    workingCopyPath.clear();
+    return workingCopyPath;
 }
 
 #ifdef PLATFORM_UNIX

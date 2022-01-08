@@ -15,7 +15,8 @@ namespace CppUtilities {
  */
 enum class WorkingCopyMode {
     CreateCopy, /**< a working copy of the test file is created */
-    NoCopy /**< only the directory for the working copy is created but not the test file itself */
+    NoCopy, /**< only the directory for the working copy is created but not the test file itself */
+    Cleanup, /**< the directory for the working copy is created if needed or a previously existing file is deleted */
 };
 
 class CPP_UTILITIES_EXPORT TestApplication {
