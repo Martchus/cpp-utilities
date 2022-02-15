@@ -1,3 +1,5 @@
+#define CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+
 #include "./timespan.h"
 
 #include "../conversion/stringconversion.h"

@@ -52,8 +52,10 @@ enum class DatePart {
 
 class CPP_UTILITIES_EXPORT DateTime {
 public:
+    using TickType = std::uint64_t;
+
     explicit constexpr DateTime();
-    explicit constexpr DateTime(std::uint64_t ticks);
+    explicit constexpr DateTime(TickType ticks);
     static DateTime fromDate(int year = 1, int month = 1, int day = 1);
     static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
     static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
@@ -67,8 +69,8 @@ public:
     template <typename TimePoint> static DateTime fromChronoTimePoint(TimePoint timePoint);
     template <typename TimePoint> constexpr static DateTime fromChronoTimePointGmt(TimePoint timePoint);
 
-    constexpr std::uint64_t &ticks();
-    constexpr std::uint64_t totalTicks() const;
+    constexpr TickType &ticks();
+    constexpr TickType totalTicks() const;
     int year() const;
     int month() const;
     int day() const;
@@ -117,11 +119,11 @@ public:
     DateTime &operator-=(const TimeSpan &timeSpan);
 
 private:
-    static std::uint64_t dateToTicks(int year, int month, int day);
-    static std::uint64_t timeToTicks(int hour, int minute, int second, double millisecond);
+    static TickType dateToTicks(int year, int month, int day);
+    static TickType timeToTicks(int hour, int minute, int second, double millisecond);
     int getDatePart(DatePart part) const;
 
-    std::uint64_t m_ticks;
+    TickType m_ticks;
     static const int m_daysPerYear;
     static const int m_daysPer4Years;
     static const int m_daysPer100Years;
@@ -146,7 +148,7 @@ constexpr inline DateTime::DateTime()
 /*!
  * \brief Constructs a DateTime with the specified number of \a ticks.
  */
-constexpr inline DateTime::DateTime(std::uint64_t ticks)
+constexpr inline DateTime::DateTime(TickType ticks)
     : m_ticks(ticks)
 {
 }
@@ -247,7 +249,7 @@ template <typename TimePoint> constexpr DateTime DateTime::fromChronoTimePointGm
 /*!
  * \brief Returns a mutable reference to the total ticks.
  */
-constexpr inline std::uint64_t &DateTime::ticks()
+constexpr inline DateTime::TickType &DateTime::ticks()
 {
     return m_ticks;
 }
@@ -255,7 +257,7 @@ constexpr inline std::uint64_t &DateTime::ticks()
 /*!
  * \brief Returns the number of ticks which represent the value of the current instance.
  */
-constexpr inline std::uint64_t DateTime::totalTicks() const
+constexpr inline DateTime::TickType DateTime::totalTicks() const
 {
     return m_ticks;
 }
@@ -365,7 +367,7 @@ constexpr inline bool DateTime::isNull() const
  */
 constexpr inline TimeSpan DateTime::timeOfDay() const
 {
-    return TimeSpan(static_cast<std::int64_t>(m_ticks % TimeSpan::ticksPerDay));
+    return TimeSpan(static_cast<TimeSpan::TickType>(m_ticks % TimeSpan::ticksPerDay));
 }
 
 /*!
@@ -381,7 +383,7 @@ inline bool DateTime::isLeapYear() const
  */
 constexpr inline bool DateTime::isEternity() const
 {
-    return m_ticks == std::numeric_limits<decltype(m_ticks)>::max();
+    return m_ticks == std::numeric_limits<TickType>::max();
 }
 
 /*!
@@ -433,7 +435,7 @@ constexpr std::time_t DateTime::toTimeStamp() const
  */
 constexpr inline DateTime DateTime::eternity()
 {
-    return DateTime(std::numeric_limits<decltype(m_ticks)>::max());
+    return DateTime(std::numeric_limits<TickType>::max());
 }
 
 /*!
@@ -516,7 +518,7 @@ constexpr inline bool DateTime::operator>=(const DateTime &other) const
  */
 constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
 {
-    return DateTime(m_ticks + static_cast<std::uint64_t>(timeSpan.m_ticks));
+    return DateTime(m_ticks + static_cast<TickType>(timeSpan.m_ticks));
 }
 
 /*!
@@ -525,7 +527,7 @@ constexpr inline DateTime DateTime::operator+(const TimeSpan &timeSpan) const
  */
 constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
 {
-    return DateTime(m_ticks - static_cast<std::uint64_t>(timeSpan.m_ticks));
+    return DateTime(m_ticks - static_cast<TickType>(timeSpan.m_ticks));
 }
 
 /*!
@@ -534,7 +536,7 @@ constexpr inline DateTime DateTime::operator-(const TimeSpan &timeSpan) const
  */
 constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
 {
-    return TimeSpan(static_cast<std::int64_t>(m_ticks + other.m_ticks));
+    return TimeSpan(static_cast<TimeSpan::TickType>(m_ticks + other.m_ticks));
 }
 
 /*!
@@ -545,7 +547,7 @@ constexpr inline TimeSpan DateTime::operator+(const DateTime &other) const
  */
 constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
 {
-    return TimeSpan(static_cast<std::int64_t>(m_ticks - other.m_ticks));
+    return TimeSpan(static_cast<TimeSpan::TickType>(m_ticks - other.m_ticks));
 }
 
 /*!
@@ -553,7 +555,7 @@ constexpr inline TimeSpan DateTime::operator-(const DateTime &other) const
  */
 inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
 {
-    m_ticks += static_cast<std::uint64_t>(timeSpan.m_ticks);
+    m_ticks += static_cast<TickType>(timeSpan.m_ticks);
     return *this;
 }
 
@@ -562,7 +564,7 @@ inline DateTime &DateTime::operator+=(const TimeSpan &timeSpan)
  */
 inline DateTime &DateTime::operator-=(const TimeSpan &timeSpan)
 {
-    m_ticks += static_cast<std::uint64_t>(timeSpan.m_ticks);
+    m_ticks += static_cast<TickType>(timeSpan.m_ticks);
     return *this;
 }
 } // namespace CppUtilities
@@ -572,7 +574,7 @@ namespace std {
 template <> struct hash<CppUtilities::DateTime> {
     inline size_t operator()(const CppUtilities::DateTime &dateTime) const
     {
-        return hash<decltype(dateTime.totalTicks())>()(dateTime.totalTicks());
+        return hash<CppUtilities::DateTime::TickType>()(dateTime.totalTicks());
     }
 };
 } // namespace std

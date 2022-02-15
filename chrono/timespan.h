@@ -26,21 +26,30 @@ class CPP_UTILITIES_EXPORT TimeSpan {
     friend class DateTime;
 
 public:
+    using TickType = std::int64_t;
+
     explicit constexpr TimeSpan();
-    explicit constexpr TimeSpan(std::int64_t ticks);
+    explicit constexpr TimeSpan(TickType ticks);
 
     static constexpr TimeSpan fromMilliseconds(double milliseconds);
     static constexpr TimeSpan fromSeconds(double seconds);
     static constexpr TimeSpan fromMinutes(double minutes);
     static constexpr TimeSpan fromHours(double hours);
     static constexpr TimeSpan fromDays(double days);
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+    static constexpr TimeSpan fromMilliseconds(TickType milliseconds);
+    static constexpr TimeSpan fromSeconds(TickType seconds);
+    static constexpr TimeSpan fromMinutes(TickType minutes);
+    static constexpr TimeSpan fromHours(TickType hours);
+    static constexpr TimeSpan fromDays(TickType days);
+#endif
     static TimeSpan fromString(const std::string &str, char separator = ':');
     static TimeSpan fromString(const char *str, char separator);
     static constexpr TimeSpan negativeInfinity();
     static constexpr TimeSpan infinity();
 
-    std::int64_t &ticks();
-    constexpr std::int64_t totalTicks() const;
+    TickType &ticks();
+    constexpr TickType totalTicks() const;
     constexpr double totalMicroseconds() const;
     constexpr double totalMilliseconds() const;
     constexpr double totalSeconds() const;
@@ -66,11 +75,19 @@ public:
     constexpr TimeSpan operator-(const TimeSpan &other) const;
     constexpr TimeSpan operator*(double factor) const;
     constexpr TimeSpan operator/(double factor) const;
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+    constexpr TimeSpan operator*(TickType factor) const;
+    constexpr TimeSpan operator/(TickType factor) const;
+#endif
     constexpr double operator/(TimeSpan other) const;
     TimeSpan &operator+=(const TimeSpan &other);
     TimeSpan &operator-=(const TimeSpan &other);
     TimeSpan &operator*=(double factor);
     TimeSpan &operator/=(double factor);
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+    TimeSpan &operator*=(TickType factor);
+    TimeSpan &operator/=(TickType factor);
+#endif
 
     std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
     void toString(std::string &result, TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
@@ -79,16 +96,16 @@ public:
     constexpr bool isNegativeInfinity() const;
     constexpr bool isInfinity() const;
 
-    static constexpr std::int64_t nanosecondsPerTick = 100uL;
-    static constexpr std::int64_t ticksPerMicrosecond = 10uL;
-    static constexpr std::int64_t ticksPerMillisecond = 10000uL;
-    static constexpr std::int64_t ticksPerSecond = 10000000uL;
-    static constexpr std::int64_t ticksPerMinute = 600000000uL;
-    static constexpr std::int64_t ticksPerHour = 36000000000uL;
-    static constexpr std::int64_t ticksPerDay = 864000000000uL;
+    static constexpr TickType nanosecondsPerTick = 100L;
+    static constexpr TickType ticksPerMicrosecond = 10L;
+    static constexpr TickType ticksPerMillisecond = 10000L;
+    static constexpr TickType ticksPerSecond = 10000000L;
+    static constexpr TickType ticksPerMinute = 600000000L;
+    static constexpr TickType ticksPerHour = 36000000000L;
+    static constexpr TickType ticksPerDay = 864000000000L;
 
 private:
-    std::int64_t m_ticks;
+    TickType m_ticks;
 };
 
 /*!
@@ -102,7 +119,7 @@ constexpr inline TimeSpan::TimeSpan()
 /*!
  * \brief Constructs a new instance of the TimeSpan class with the specified number of ticks.
  */
-constexpr inline TimeSpan::TimeSpan(std::int64_t ticks)
+constexpr inline TimeSpan::TimeSpan(TickType ticks)
     : m_ticks(ticks)
 {
 }
@@ -112,7 +129,7 @@ constexpr inline TimeSpan::TimeSpan(std::int64_t ticks)
  */
 constexpr inline TimeSpan TimeSpan::fromMilliseconds(double milliseconds)
 {
-    return TimeSpan(static_cast<std::int64_t>(milliseconds * static_cast<double>(ticksPerMillisecond)));
+    return TimeSpan(static_cast<TickType>(milliseconds * static_cast<double>(ticksPerMillisecond)));
 }
 
 /*!
@@ -120,7 +137,7 @@ constexpr inline TimeSpan TimeSpan::fromMilliseconds(double milliseconds)
  */
 constexpr inline TimeSpan TimeSpan::fromSeconds(double seconds)
 {
-    return TimeSpan(static_cast<std::int64_t>(seconds * static_cast<double>(ticksPerSecond)));
+    return TimeSpan(static_cast<TickType>(seconds * static_cast<double>(ticksPerSecond)));
 }
 
 /*!
@@ -128,7 +145,7 @@ constexpr inline TimeSpan TimeSpan::fromSeconds(double seconds)
  */
 constexpr inline TimeSpan TimeSpan::fromMinutes(double minutes)
 {
-    return TimeSpan(static_cast<std::int64_t>(minutes * static_cast<double>(ticksPerMinute)));
+    return TimeSpan(static_cast<TickType>(minutes * static_cast<double>(ticksPerMinute)));
 }
 
 /*!
@@ -136,7 +153,7 @@ constexpr inline TimeSpan TimeSpan::fromMinutes(double minutes)
  */
 constexpr inline TimeSpan TimeSpan::fromHours(double hours)
 {
-    return TimeSpan(static_cast<std::int64_t>(hours * static_cast<double>(ticksPerHour)));
+    return TimeSpan(static_cast<TickType>(hours * static_cast<double>(ticksPerHour)));
 }
 
 /*!
@@ -144,8 +161,50 @@ constexpr inline TimeSpan TimeSpan::fromHours(double hours)
  */
 constexpr inline TimeSpan TimeSpan::fromDays(double days)
 {
-    return TimeSpan(static_cast<std::int64_t>(days * static_cast<double>(ticksPerDay)));
+    return TimeSpan(static_cast<TickType>(days * static_cast<double>(ticksPerDay)));
 }
+
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+/*!
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of milliseconds.
+ */
+constexpr inline TimeSpan TimeSpan::fromMilliseconds(TickType milliseconds)
+{
+    return TimeSpan(milliseconds * ticksPerMillisecond);
+}
+
+/*!
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of seconds.
+ */
+constexpr inline TimeSpan TimeSpan::fromSeconds(TickType seconds)
+{
+    return TimeSpan(seconds * ticksPerSecond);
+}
+
+/*!
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of minutes.
+ */
+constexpr inline TimeSpan TimeSpan::fromMinutes(TickType minutes)
+{
+    return TimeSpan(minutes * ticksPerMinute);
+}
+
+/*!
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of hours.
+ */
+constexpr inline TimeSpan TimeSpan::fromHours(TickType hours)
+{
+    return TimeSpan(hours * ticksPerHour);
+}
+
+/*!
+ * \brief Constructs a new instance of the TimeSpan class with the specified number of days.
+ */
+constexpr inline TimeSpan TimeSpan::fromDays(TickType days)
+{
+    return TimeSpan(days * ticksPerDay);
+}
+#endif
 
 /*!
  * \brief Parses the given std::string as TimeSpan.
@@ -165,7 +224,7 @@ inline TimeSpan TimeSpan::fromString(const std::string &str, char separator)
  */
 constexpr inline TimeSpan TimeSpan::negativeInfinity()
 {
-    return TimeSpan(std::numeric_limits<decltype(m_ticks)>::min());
+    return TimeSpan(std::numeric_limits<TickType>::min());
 }
 
 /*!
@@ -173,13 +232,13 @@ constexpr inline TimeSpan TimeSpan::negativeInfinity()
  */
 constexpr inline TimeSpan TimeSpan::infinity()
 {
-    return TimeSpan(std::numeric_limits<decltype(m_ticks)>::max());
+    return TimeSpan(std::numeric_limits<TickType>::max());
 }
 
 /*!
  * \brief Returns a mutable reference to the total ticks.
  */
-inline std::int64_t &TimeSpan::ticks()
+inline TimeSpan::TickType &TimeSpan::ticks()
 {
     return m_ticks;
 }
@@ -187,7 +246,7 @@ inline std::int64_t &TimeSpan::ticks()
 /*!
  * \brief Returns the number of ticks that represent the value of the current TimeSpan class.
  */
-constexpr inline std::int64_t TimeSpan::totalTicks() const
+constexpr inline TimeSpan::TickType TimeSpan::totalTicks() const
 {
     return m_ticks;
 }
@@ -378,6 +437,24 @@ constexpr inline TimeSpan TimeSpan::operator/(double factor) const
     return TimeSpan(static_cast<std::int64_t>(static_cast<double>(m_ticks) / factor));
 }
 
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+/*!
+ * \brief Multiplies a TimeSpan by the specified \a factor.
+ */
+constexpr inline TimeSpan TimeSpan::operator*(std::int64_t factor) const
+{
+    return TimeSpan(m_ticks * factor);
+}
+
+/*!
+ * \brief Divides a TimeSpan by the specified \a factor.
+ */
+constexpr inline TimeSpan TimeSpan::operator/(std::int64_t factor) const
+{
+    return TimeSpan(m_ticks / factor);
+}
+#endif
+
 /*!
  * \brief Computes the ratio between two TimeSpan instances.
  */
@@ -421,6 +498,26 @@ inline TimeSpan &TimeSpan::operator/=(double factor)
     m_ticks = static_cast<std::int64_t>(static_cast<double>(m_ticks) / factor);
     return *this;
 }
+
+#ifdef CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+/*!
+ * \brief Multiplies the current instance by the specified \a factor.
+ */
+inline TimeSpan &TimeSpan::operator*=(std::int64_t factor)
+{
+    m_ticks *= factor;
+    return *this;
+}
+
+/*!
+ * \brief Divides the current instance by the specified \a factor.
+ */
+inline TimeSpan &TimeSpan::operator/=(std::int64_t factor)
+{
+    m_ticks /= factor;
+    return *this;
+}
+#endif
 
 /*!
  * \brief Converts the value of the current TimeSpan object to its equivalent std::string representation

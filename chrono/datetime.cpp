@@ -385,7 +385,7 @@ DateTime DateTime::exactGmtNow()
 /*!
  * \brief Converts the given date expressed in \a year, \a month and \a day to ticks.
  */
-std::uint64_t DateTime::dateToTicks(int year, int month, int day)
+DateTime::TickType DateTime::dateToTicks(int year, int month, int day)
 {
     if (!inRangeInclMax(year, 1, 9999)) {
         throw ConversionException("year is out of range");
@@ -408,7 +408,7 @@ std::uint64_t DateTime::dateToTicks(int year, int month, int day)
 /*!
  * \brief Converts the given time expressed in \a hour, \a minute, \a second and \a millisecond to ticks.
  */
-std::uint64_t DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
+DateTime::TickType DateTime::timeToTicks(int hour, int minute, int second, double millisecond)
 {
     if (!inRangeExclMax(hour, 0, 24)) {
         throw ConversionException("hour is out of range");

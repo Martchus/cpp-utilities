@@ -1,3 +1,5 @@
+#define CHRONO_UTILITIES_TIMESPAN_INTEGER_SCALE_OVERLOADS
+
 #include "../chrono/datetime.h"
 #include "../chrono/format.h"
 #include "../chrono/period.h"
@@ -27,7 +29,7 @@ static_assert(DateTime(2) < DateTime(3), "operator <");
 static_assert(DateTime(3) > DateTime(2), "operator >");
 static_assert(DateTime::eternity().isEternity() && !DateTime().isEternity(), "isEternity()");
 static constexpr auto dateFromUnixEpoch(
-    DateTime::unixEpochStart() + TimeSpan::fromHours(1) + TimeSpan::fromMinutes(2) + TimeSpan::fromSeconds(3.1256789));
+    DateTime::unixEpochStart() + TimeSpan::fromHours(1.0) + TimeSpan::fromMinutes(2.0) + TimeSpan::fromSeconds(3.1256789));
 static_assert(dateFromUnixEpoch.dayOfWeek() == DayOfWeek::Thursday, "dayOfWeek()");
 static_assert(dateFromUnixEpoch.hour() == 1, "hour()");
 static_assert(dateFromUnixEpoch.minute() == 2, "minute()");
@@ -36,7 +38,7 @@ static_assert(dateFromUnixEpoch.millisecond() == 125, "millisecond()");
 static_assert(dateFromUnixEpoch.microsecond() == 678, "microsecond()");
 static_assert(dateFromUnixEpoch.nanosecond() == 900, "nanosecond()");
 static_assert(dateFromUnixEpoch.isSameDay(DateTime::unixEpochStart()), "isSameDay()");
-static_assert(!dateFromUnixEpoch.isSameDay(DateTime::unixEpochStart() + TimeSpan::fromHours(24)), "!isSameDay()");
+static_assert(!dateFromUnixEpoch.isSameDay(DateTime::unixEpochStart() + TimeSpan::fromHours(24.0)), "!isSameDay()");
 
 // compile-time checks for TimeSpan class
 static_assert(TimeSpan().isNull(), "isNull()");
@@ -47,10 +49,10 @@ static_assert(TimeSpan::negativeInfinity().isNegativeInfinity() && !TimeSpan().i
 static_assert(TimeSpan::fromMilliseconds(1.0125).nanoseconds() == 500, "fromMilliseconds()/nanoseconds()");
 static_assert(TimeSpan::fromMilliseconds(1.0125).microseconds() == 12, "fromMilliseconds()/microseconds()");
 static_assert(TimeSpan::fromMilliseconds(1.0125).milliseconds() == 1, "fromMilliseconds()/milliseconds()");
-static_assert(TimeSpan::fromSeconds(61).seconds() == 1, "fromSeconds()/seconds()");
-static_assert(TimeSpan::fromSeconds(61).minutes() == 1, "fromSeconds()/minutes()");
-static_assert(TimeSpan::fromMinutes(61).minutes() == 1, "fromMinutes()/minutes()");
-static_assert(TimeSpan::fromHours(25).hours() == 1, "fromMinutes()/hours()");
+static_assert(TimeSpan::fromSeconds(TimeSpan::TickType(61)).seconds() == 1, "fromSeconds()/seconds()");
+static_assert(TimeSpan::fromSeconds(TimeSpan::TickType(61)).minutes() == 1, "fromSeconds()/minutes()");
+static_assert(TimeSpan::fromMinutes(TimeSpan::TickType(61)).minutes() == 1, "fromMinutes()/minutes()");
+static_assert(TimeSpan::fromHours(TimeSpan::TickType(25)).hours() == 1, "fromMinutes()/hours()");
 static_assert(TimeSpan::fromDays(20.5).days() == 20, "fromDays()/days()");
 static_assert(TimeSpan::fromMinutes(1.5).totalMicroseconds() == 90e6, "totalMicroseconds()");
 static_assert(TimeSpan::fromMinutes(1.5).totalMilliseconds() == 90e3, "totalMilliseconds()");
@@ -111,8 +113,8 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_EQUAL(DayOfWeek::Wednesday, test1.dayOfWeek());
     CPPUNIT_ASSERT_EQUAL((31 + 29), test1.dayOfYear());
     CPPUNIT_ASSERT(test1.isLeapYear());
-    CPPUNIT_ASSERT(test1.isSameDay(test1 + TimeSpan::fromHours(8)));
-    CPPUNIT_ASSERT(!test1.isSameDay(test1 + TimeSpan::fromHours(9)));
+    CPPUNIT_ASSERT(test1.isSameDay(test1 + TimeSpan::fromHours(8.0)));
+    CPPUNIT_ASSERT(!test1.isSameDay(test1 + TimeSpan::fromHours(9.0)));
     CPPUNIT_ASSERT_EQUAL("Wed 2012-02-29 15:34:20.033"s, test1.toString(DateTimeOutputFormat::DateTimeAndShortWeekday));
     const auto test2 = DateTime::fromDateAndTime(1, 1, 1, 15, 34, 20, 33.0);
     CPPUNIT_ASSERT_EQUAL(1, test2.year());
@@ -175,7 +177,7 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_EQUAL_MESSAGE("only year and month", DateTime::fromDate(2008, 12), DateTime::fromIsoStringGmt("2008-12"));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("only date", DateTime::fromDate(2008, 12, 5), DateTime::fromIsoStringGmt("2008-12-05"));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Zulu time", TimeSpan(), DateTime::fromIsoString("2017-08-23T19:40:15.985077682Z").second);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("no minutes", TimeSpan::fromHours(3), DateTime::fromIsoString("2017-08-23T19:40:15.985077682+03").second);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("no minutes", TimeSpan::fromHours(3.0), DateTime::fromIsoString("2017-08-23T19:40:15.985077682+03").second);
     const auto test6 = DateTime::fromIsoString("1970-01-01T01:02:03+01:00");
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction (positive timezone offset, 1)", DateTime::fromDateAndTime(1970, 1, 1, 1, 2, 3), test6.first);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("no seconds fraction (positive timezone offset, 2)", TimeSpan::fromHours(1.0), test6.second);
@@ -217,7 +219,7 @@ void ChronoTests::testDateTime()
 // test now() and exactNow() (or at least whether both behave the same)
 #if defined(PLATFORM_UNIX)
     const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
-    CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2) && delta > TimeSpan::fromSeconds(-2));
+    CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2.0) && delta > TimeSpan::fromSeconds(-2.0));
 #endif
 }
 
@@ -230,7 +232,7 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), TimeSpan::fromString(string()));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromSeconds(5.0), TimeSpan::fromString("5.0"));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromMinutes(5.5), TimeSpan::fromString("5:30"));
-    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(7) + TimeSpan::fromMinutes(5.5), TimeSpan::fromString("7:5:30"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(7.0) + TimeSpan::fromMinutes(5.5), TimeSpan::fromString("7:5:30"));
     const auto test1 = TimeSpan::fromString("2:34:53:2.5");
     // test days(), hours(), ...
     CPPUNIT_ASSERT_EQUAL(3, test1.days());
@@ -243,7 +245,7 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT(test1.totalMinutes() > (2 * 24 * 60 + 34 * 60 + 53) && test1.totalHours() < (2 * 24 * 60 + 34 * 60 + 54));
     // test toString(...)
     CPPUNIT_ASSERT_EQUAL("3 d 10 h 53 min 2 s 500 ms"s, test1.toString(TimeSpanOutputFormat::WithMeasures, false));
-    CPPUNIT_ASSERT_EQUAL("07:05:30"s, (TimeSpan::fromHours(7) + TimeSpan::fromMinutes(5.5)).toString());
+    CPPUNIT_ASSERT_EQUAL("07:05:30"s, (TimeSpan::fromHours(7.0) + TimeSpan::fromMinutes(5.5)).toString());
     CPPUNIT_ASSERT_EQUAL("-5 s"s, TimeSpan::fromSeconds(-5.0).toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("0 s"s, TimeSpan().toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("5e+02 µs"s, TimeSpan::fromMilliseconds(0.5).toString(TimeSpanOutputFormat::WithMeasures, false));
@@ -268,16 +270,18 @@ void ChronoTests::testTimeSpan()
 void ChronoTests::testOperators()
 {
     auto dateTime = DateTime::fromDateAndTime(1999, 1, 5, 4, 16);
-    CPPUNIT_ASSERT_EQUAL(7, (dateTime + TimeSpan::fromDays(2)).day());
-    CPPUNIT_ASSERT_EQUAL(6, (dateTime + TimeSpan::fromHours(24)).day());
-    CPPUNIT_ASSERT_EQUAL(3, (dateTime + TimeSpan::fromHours(24) + TimeSpan::fromHours(-1)).hour());
-    CPPUNIT_ASSERT_EQUAL(17, (dateTime + TimeSpan::fromHours(24) - TimeSpan::fromMinutes(-1)).minute());
-    dateTime += TimeSpan::fromDays(365);
+    CPPUNIT_ASSERT_EQUAL(7, (dateTime + TimeSpan::fromDays(2.0)).day());
+    CPPUNIT_ASSERT_EQUAL(6, (dateTime + TimeSpan::fromHours(24.0)).day());
+    CPPUNIT_ASSERT_EQUAL(3, (dateTime + TimeSpan::fromHours(24.0) + TimeSpan::fromHours(-1.0)).hour());
+    CPPUNIT_ASSERT_EQUAL(17, (dateTime + TimeSpan::fromHours(24.0) - TimeSpan::fromMinutes(-1.0)).minute());
+    dateTime += TimeSpan::fromDays(365.0);
     CPPUNIT_ASSERT_EQUAL(2000, dateTime.year());
     CPPUNIT_ASSERT_EQUAL(5, dateTime.day());
-    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(1), TimeSpan::fromHours(12) * 2);
-    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(12), TimeSpan::fromDays(1) / 2);
-    CPPUNIT_ASSERT_EQUAL(2.0, TimeSpan::fromDays(1) / TimeSpan::fromHours(12));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(1.0), TimeSpan::fromHours(12.0) * 2.0);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(12.0), TimeSpan::fromDays(1.0) / 2.0);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(1.0), TimeSpan::fromHours(12.0) * TimeSpan::TickType(2));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(12.0), TimeSpan::fromDays(1.0) / TimeSpan::TickType(2));
+    CPPUNIT_ASSERT_EQUAL(2.0, TimeSpan::fromDays(1.0) / TimeSpan::fromHours(12.0));
 }
 
 /*!
@@ -312,8 +316,8 @@ void ChronoTests::testHashing()
     CPPUNIT_ASSERT_EQUAL(2_st, dateTimes.size());
 
     set<TimeSpan> timeSpans;
-    timeSpans.emplace(TimeSpan::fromDays(5));
-    timeSpans.emplace(TimeSpan::fromDays(10));
-    timeSpans.emplace(TimeSpan::fromDays(5));
+    timeSpans.emplace(TimeSpan::fromDays(5.0));
+    timeSpans.emplace(TimeSpan::fromDays(10.0));
+    timeSpans.emplace(TimeSpan::fromDays(5.0));
     CPPUNIT_ASSERT_EQUAL(2_st, timeSpans.size());
 }
