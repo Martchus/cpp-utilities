@@ -1,3 +1,5 @@
+#define CPP_UTILITIES_PATHHELPER_STRING_VIEW
+
 #include "./path.h"
 
 #include <cstdlib>
@@ -12,16 +14,32 @@ namespace CppUtilities {
 /*!
  * \brief Returns the file name and extension of the specified \a path string.
  */
-string fileName(const string &path)
+std::string fileName(const std::string &path)
 {
-    size_t lastSlash = path.rfind('/');
-    size_t lastBackSlash = path.rfind('\\');
-    size_t lastSeparator;
-    if (lastSlash == string::npos && lastBackSlash == string::npos) {
+    return std::string(fileName(std::string_view(path)));
+}
+
+/*!
+ * \brief Returns the directory of the specified \a path string (including trailing slash).
+ */
+std::string directory(const std::string &path)
+{
+    return std::string(directory(std::string_view(path)));
+}
+
+/*!
+ * \brief Returns the file name and extension of the specified \a path string.
+ */
+std::string_view fileName(std::string_view path)
+{
+    std::size_t lastSlash = path.rfind('/');
+    std::size_t lastBackSlash = path.rfind('\\');
+    std::size_t lastSeparator;
+    if (lastSlash == std::string::npos && lastBackSlash == std::string::npos) {
         return path;
-    } else if (lastSlash == string::npos) {
+    } else if (lastSlash == std::string::npos) {
         lastSeparator = lastBackSlash;
-    } else if (lastBackSlash == string::npos) {
+    } else if (lastBackSlash == std::string::npos) {
         lastSeparator = lastSlash;
     } else {
         lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
@@ -32,16 +50,16 @@ string fileName(const string &path)
 /*!
  * \brief Returns the directory of the specified \a path string (including trailing slash).
  */
-string directory(const string &path)
+std::string_view directory(std::string_view path)
 {
-    size_t lastSlash = path.rfind('/');
-    size_t lastBackSlash = path.rfind('\\');
-    size_t lastSeparator;
-    if (lastSlash == string::npos && lastBackSlash == string::npos) {
-        return string();
-    } else if (lastSlash == string::npos) {
+    std::size_t lastSlash = path.rfind('/');
+    std::size_t lastBackSlash = path.rfind('\\');
+    std::size_t lastSeparator;
+    if (lastSlash == std::string::npos && lastBackSlash == std::string::npos) {
+        return std::string_view();
+    } else if (lastSlash == std::string::npos) {
         lastSeparator = lastBackSlash;
-    } else if (lastBackSlash == string::npos) {
+    } else if (lastBackSlash == std::string::npos) {
         lastSeparator = lastSlash;
     } else {
         lastSeparator = lastSlash > lastBackSlash ? lastSlash : lastBackSlash;
