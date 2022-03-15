@@ -144,3 +144,6 @@ There is also a [sub project](https://build.opensuse.org/project/show/home:mkitt
 
 #### Gentoo
 Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
+
+## License
+All code is licensed under [GPL-2-or-later](LICENSE).
