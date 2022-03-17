@@ -1,5 +1,23 @@
 #include "./testutils.h"
 
+#include "../conversion/stringconversion.h"
+
+/*!
+ * \brief Allows printing std::wstring using CPPUNIT_ASSERT_EQUAL.
+ */
+std::ostream &operator<<(std::ostream &out, const std::wstring &s)
+{
+    const auto utf8 = CppUtilities::
+#ifdef CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN
+        convertUtf16LEToUtf8
+#else
+        convertUtf16BEToUtf8
+#endif
+        (reinterpret_cast<const char *>(s.data()), s.size() * (sizeof(std::wstring::value_type) / sizeof(char)));
+    out.write(utf8.first.get(), utf8.second);
+    return out;
+}
+
 #include "../conversion/conversionexception.h"
 #include "../conversion/stringbuilder.h"
 
@@ -312,6 +330,15 @@ void IoTests::testPathUtilities()
     string invalidPath("lib/c++uti*lities.so?");
     removeInvalidChars(invalidPath);
     CPPUNIT_ASSERT(invalidPath == "libc++utilities.so");
+
+    const auto input = std::string_view("some/path/täst");
+#ifdef PLATFORM_WINDOWS
+    const auto expected = std::wstring(L"some/path/täst");
+#else
+    const auto expected = input;
+#endif
+    const auto output = makeNativePath(input);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("makeNativePath()", expected, output);
 }
 
 /*!
