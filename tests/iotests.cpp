@@ -14,7 +14,7 @@ std::ostream &operator<<(std::ostream &out, const std::wstring &s)
         convertUtf16BEToUtf8
 #endif
         (reinterpret_cast<const char *>(s.data()), s.size() * (sizeof(std::wstring::value_type) / sizeof(char)));
-    out.write(utf8.first.get(), utf8.second);
+    out.write(utf8.first.get(), static_cast<std::streamsize>(utf8.second));
     return out;
 }
 
