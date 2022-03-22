@@ -514,6 +514,13 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     if (NOT META_IS_PLUGIN)
         foreach (HEADER_FILE ${HEADER_FILES} ${ADDITIONAL_HEADER_FILES})
             get_filename_component(HEADER_DIR "${HEADER_FILE}" DIRECTORY)
+            string(FIND "${HEADER_DIR}" "${META_PROJECT_NAME}/" HEADER_DIR_PRO)
+            if (HEADER_DIR STREQUAL META_PROJECT_NAME)
+                unset(HEADER_DIR)
+            elseif (HEADER_DIR_PRO EQUAL 0)
+                string(LENGTH "${META_PROJECT_NAME}/" HEADER_DIR_BEGIN)
+                string(SUBSTRING "${HEADER_DIR}" "${HEADER_DIR_BEGIN}" -1 HEADER_DIR)
+            endif ()
             install(
                 FILES "${HEADER_FILE}"
                 DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}"
