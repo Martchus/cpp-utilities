@@ -440,8 +440,18 @@ endif ()
 if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE AND META_PROJECT_IS_LIBRARY))
     set(STATIC_LINKAGE_CONFIGURED ON)
 
-    # add options to opt out from linking statically against the C and C++ standard library as it might not work under all
-    # platforms (see https://github.com/Martchus/syncthingtray/issues/64)
+    # add options to opt out from linking statically against certain core libraries as it might not work under all platforms
+    # (see https://github.com/Martchus/syncthingtray/issues/64)
+    if (APPLE OR LINUX)
+        set(DEFAUT_NO_STATIC_ENFORCE ON)
+        # note: The -static flag is considered completely unsupported under Apple platforms (see
+        # https://stackoverflow.com/questions/844819/how-to-static-link-on-os-x) and generally not a good idea to use under
+        # GNU/Linux as it leads to linking statically against glibc.
+    else ()
+        set(DEFAULT_NO_STATIC_ENFORCE OFF)
+    endif ()
+    option(NO_STATIC_ENFORCE "prevent enforcing static linkage despite generally aiming for a statically linked build"
+           "${DEFAUT_NO_STATIC_ENFORCE}")
     option(NO_STATIC_LIBGCC
            "prevent linking statically against libgcc despite aiming otherwise for a statically linked build" OFF)
     option(NO_STATIC_LIBSTDCXX
@@ -449,10 +459,8 @@ if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE 
 
     # add additional linker flags to achieve a fully statically linked build
     set(STATIC_LINKAGE_LINKER_FLAGS)
-    if (NOT APPLE)
+    if (NOT NO_STATIC_ENFORCE)
         list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static)
-        # note: The -static flag is considered completely unsupported under Apple platforms (see
-        # https://stackoverflow.com/questions/844819/how-to-static-link-on-os-x).
     endif ()
     if (NOT NO_STATIC_LIBGCC)
         list(APPEND STATIC_LINKAGE_LINKER_FLAGS -static-libgcc)
