@@ -442,7 +442,7 @@ if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE 
 
     # add options to opt out from linking statically against certain core libraries as it might not work under all platforms
     # (see https://github.com/Martchus/syncthingtray/issues/64)
-    if (APPLE OR LINUX)
+    if (APPLE OR UNIX)
         set(DEFAUT_NO_STATIC_ENFORCE ON)
         # note: The -static flag is considered completely unsupported under Apple platforms (see
         # https://stackoverflow.com/questions/844819/how-to-static-link-on-os-x) and generally not a good idea to use under
