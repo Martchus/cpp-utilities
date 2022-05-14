@@ -5,6 +5,7 @@
 #include "../misc/traits.h"
 
 #include <iomanip>
+#include <optional>
 #include <ostream>
 #include <string>
 
@@ -195,6 +196,19 @@ CPP_UTILITIES_EXPORT int execHelperApp(
 CPP_UTILITIES_EXPORT int execHelperAppInSearchPath(
     const char *appName, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
 #endif // PLATFORM_UNIX
+
+/*!
+ * \brief Allows printing std::optional objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
+ */
+template <typename Optional, Traits::EnableIf<Traits::IsSpecializationOf<Optional, std::optional>> * = nullptr>
+inline std::ostream &operator<<(std::ostream &out, const Optional &optional)
+{
+    if (optional.has_value()) {
+        return out << *optional;
+    } else {
+        return out << "[no value]";
+    }
+}
 
 /*!
  * \brief The AsHexNumber class allows printing values asserted with cppunit (or similar test framework) using the
