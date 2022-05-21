@@ -941,7 +941,7 @@ void ArgumentParser::parseArgs(int argc, const char *const *argv, ParseArgumentB
         if (behavior & ParseArgumentBehavior::ExitOnFailure) {
             CMD_UTILS_START_CONSOLE;
             cerr << failure;
-            invokeExit(1);
+            invokeExit(EXIT_FAILURE);
         }
         throw;
     }
@@ -1016,7 +1016,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // print Bash completion and prevent the application to continue with the regular execution
     if (completionMode) {
         printBashCompletion(argc, argv, currentWordIndex, reader);
-        invokeExit(0);
+        invokeExit(EXIT_SUCCESS);
     }
 }
 
