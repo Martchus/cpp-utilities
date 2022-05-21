@@ -39,6 +39,7 @@ std::string readFile(std::string_view path, std::string_view::size_type maxSize)
     file.seekg(ios_base::beg);
     // ignore warning about null pointer dereference from GCC 12 for now (which is *likely* not correct)
 #ifdef __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"
 #endif
     res.assign((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
