@@ -20,6 +20,7 @@ enum class Response { None, Yes, No };
 CPP_UTILITIES_EXPORT bool confirmPrompt(const char *message, Response defaultResponse = Response::None);
 
 #ifdef PLATFORM_WINDOWS
+CPP_UTILITIES_EXPORT bool handleVirtualTerminalProcessing();
 CPP_UTILITIES_EXPORT void startConsole();
 CPP_UTILITIES_EXPORT std::pair<std::vector<std::unique_ptr<char[]>>, std::vector<char *>> convertArgsToUtf8();
 #define CMD_UTILS_START_CONSOLE ::CppUtilities::startConsole();
@@ -27,9 +28,11 @@ CPP_UTILITIES_EXPORT std::pair<std::vector<std::unique_ptr<char[]>>, std::vector
     auto utf8Args = ::CppUtilities::convertArgsToUtf8();                                                                                             \
     argv = utf8Args.second.data();                                                                                                                   \
     argc = static_cast<int>(utf8Args.second.size());
+#define CMD_UTILS_HANDLE_VIRTUAL_TERMINAL_PROCESSING ::CppUtilities::handleVirtualTerminalProcessing();
 #else
 #define CMD_UTILS_START_CONSOLE
 #define CMD_UTILS_CONVERT_ARGS_TO_UTF8
+#define CMD_UTILS_HANDLE_VIRTUAL_TERMINAL_PROCESSING
 #endif
 
 /*!

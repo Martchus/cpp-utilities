@@ -1,6 +1,8 @@
 #include "./commandlineutils.h"
 #include "./argumentparserprivate.h"
 
+#include "../io/ansiescapecodes.h"
+
 #include <iostream>
 #include <string>
 
@@ -8,6 +10,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #else
+#include <cstring>
 #include <fcntl.h>
 #include <windows.h>
 #endif
@@ -65,6 +68,47 @@ TerminalSize determineTerminalSize()
 }
 
 #ifdef PLATFORM_WINDOWS
+/*!
+ * \brief Enables virtual terminal processing (and thus processing of ANSI escape codes) of the console
+ *        determined by the specified \a nStdHandle.
+ * \sa https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+ */
+static bool enableVirtualTerminalProcessing(DWORD nStdHandle)
+{
+    auto stdHandle = GetStdHandle(nStdHandle);
+    if (stdHandle == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    auto dwMode = DWORD();
+    if (!GetConsoleMode(stdHandle, &dwMode)) {
+        return false;
+    }
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    return SetConsoleMode(stdHandle, dwMode);
+}
+
+/*!
+ * \brief Enables virtual terminal processing (and thus processing of ANSI escape codes) of the console
+ *        or disables use of ANSI escape codes if that's not possible.
+ */
+bool handleVirtualTerminalProcessing()
+{
+    // try to enable virtual terminal processing
+    if (enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)) {
+         return true;
+    }
+    // disable use on ANSI escape codes otherwise if it makes sense
+    const char *const msyscon = std::getenv("MSYSCON");
+    if (msyscon && std::strstr(msyscon, "mintty")) {
+        return false;  // no need to disable escape codes if it is just mintty
+    }
+    const char *const term = std::getenv("TERM");
+    if (term && std::strstr(term, "xterm")) {
+        return false;  // no need to disable escape codes if it is some xterm-like terminal
+    }
+    return EscapeCodes::enabled = false;
+}
+
 /*!
  * \brief Closes stdout, stdin and stderr and stops the console.
  * \remarks Internally used by startConsole() to close the console when the application exits.
@@ -130,6 +174,9 @@ void startConsole()
         SetConsoleCP(CP_UTF8);
         SetConsoleOutputCP(CP_UTF8);
     }
+
+    // enable virtual terminal processing or disable ANSI-escape if that's not possible
+    handleVirtualTerminalProcessing();
 }
 
 /*!
