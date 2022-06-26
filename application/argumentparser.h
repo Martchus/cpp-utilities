@@ -273,6 +273,7 @@ public:
         Implicit = 0x2,
         Operation = 0x4,
         Deprecated = 0x8,
+        Greedy = 0x10,
     };
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);

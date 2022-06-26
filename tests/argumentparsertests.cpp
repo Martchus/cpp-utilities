@@ -452,6 +452,27 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(fieldsArg.isPresent());
     CPPUNIT_ASSERT_EQUAL("fields"sv, std::string_view(fieldsArg.values().at(0)));
     CPPUNIT_ASSERT_EQUAL("album=test"sv, std::string_view(fieldsArg.values().at(1)));
+
+    // greedy-flag
+    const char *argv19[] = { "tageditor", "get", "--fields", "foo", "bar", "--help" };
+    parser.resetArgs();
+    try {
+        parser.parseArgs(6, argv19, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
+        CPPUNIT_FAIL("Exception expected.");
+    } catch (const ParseError &e) {
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("--help assumed to be an argument without greedy-flag (leading to error)",
+            "The argument \"help\" can not be combined with \"get\"."sv, std::string_view(e.what()));
+    }
+    parser.resetArgs();
+    fieldsArg.setFlags(Argument::Flags::Greedy, true);
+    parser.parseArgs(6, argv19, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
+    CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
+    CPPUNIT_ASSERT(fieldsArg.isPresent());
+    CPPUNIT_ASSERT_MESSAGE("--help not considered an argument with greedy-flag", !parser.helpArg().isPresent());
+    CPPUNIT_ASSERT_EQUAL("foo"sv, std::string_view(fieldsArg.values().at(0)));
+    CPPUNIT_ASSERT_EQUAL("bar"sv, std::string_view(fieldsArg.values().at(1)));
+    CPPUNIT_ASSERT_EQUAL("--help"sv, std::string_view(fieldsArg.values().at(2)));
+    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), std::out_of_range);
 }
 
 /*!

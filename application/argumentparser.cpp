@@ -206,7 +206,8 @@ bool ArgumentReader::read(ArgumentVector &args)
     // iterate through all argument denotations; loop might exit earlier when an denotation is unknown
     while (argv != end) {
         // check whether there are still values to read
-        if (values && lastArgInLevel->requiredValueCount() != Argument::varValueCount && values->size() < lastArgInLevel->requiredValueCount()) {
+        if (values && ((lastArgInLevel->requiredValueCount() != Argument::varValueCount) || (lastArgInLevel->flags() & Argument::Flags::Greedy))
+            && values->size() < lastArgInLevel->requiredValueCount()) {
             // read arg as value and continue with next arg
             values->emplace_back(argDenotation ? argDenotation : *argv);
             ++index;
@@ -1092,7 +1093,7 @@ void ArgumentParser::verifyArgs(const ArgumentVector &args)
         assert(!arg->abbreviation() || find(abbreviations.cbegin(), abbreviations.cend(), arg->abbreviation()) == abbreviations.cend());
         abbreviations.push_back(arg->abbreviation());
         assert(!arg->name() || find_if(names.cbegin(), names.cend(), [arg](const char *name) { return !strcmp(arg->name(), name); }) == names.cend());
-        assert(arg->requiredValueCount() == 0 || arg->subArguments().size() == 0);
+        assert(arg->requiredValueCount() == 0 || arg->subArguments().size() == 0 || (arg->flags() & Argument::Flags::Greedy));
         names.emplace_back(arg->name());
     }
     for (const Argument *arg : args) {
