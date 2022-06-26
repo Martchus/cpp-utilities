@@ -119,34 +119,34 @@ void ArgumentParserTests::testArgument()
 void ArgumentParserTests::testParsing()
 {
     // setup parser with some test argument definitions
-    ArgumentParser parser;
+    auto parser = ArgumentParser();
     parser.setExitFunction(std::bind(&ArgumentParserTests::failOnExit, this, std::placeholders::_1));
     SET_APPLICATION_INFO;
-    QT_CONFIG_ARGUMENTS qtConfigArgs;
-    Argument verboseArg("verbose", 'v', "be verbose");
+    auto qtConfigArgs = QT_CONFIG_ARGUMENTS();
+    auto verboseArg = Argument("verbose", 'v', "be verbose");
     verboseArg.setCombinable(true);
-    Argument fileArg("file", 'f', "specifies the path of the file to be opened");
+    auto fileArg = Argument("file", 'f', "specifies the path of the file to be opened");
     fileArg.setValueNames({ "path" });
     fileArg.setRequiredValueCount(1);
     fileArg.setEnvironmentVariable("PATH");
-    Argument filesArg("files", 'f', "specifies the path of the file(s) to be opened");
+    auto filesArg = Argument("files", 'f', "specifies the path of the file(s) to be opened");
     filesArg.setValueNames({ "path 1", "path 2" });
     filesArg.setRequiredValueCount(Argument::varValueCount);
-    Argument outputFileArg("output-file", 'o', "specifies the path of the output file");
+    auto outputFileArg = Argument("output-file", 'o', "specifies the path of the output file");
     outputFileArg.setValueNames({ "path" });
     outputFileArg.setRequiredValueCount(1);
     outputFileArg.setRequired(true);
     outputFileArg.setCombinable(true);
-    Argument printFieldNamesArg("print-field-names", '\0', "prints available field names");
-    Argument displayFileInfoArg("display-file-info", 'i', "displays general file information");
-    Argument notAlbumArg("album", 'a', "should not be confused with album value");
+    auto printFieldNamesArg = Argument("print-field-names", '\0', "prints available field names");
+    auto displayFileInfoArg = Argument("display-file-info", 'i', "displays general file information");
+    auto notAlbumArg = Argument("album", 'a', "should not be confused with album value");
     displayFileInfoArg.setDenotesOperation(true);
     displayFileInfoArg.setSubArguments({ &fileArg, &verboseArg, &notAlbumArg });
-    Argument fieldsArg("fields", '\0', "specifies the fields");
+    auto fieldsArg = Argument("fields", '\0', "specifies the fields");
     fieldsArg.setRequiredValueCount(Argument::varValueCount);
     fieldsArg.setValueNames({ "title", "album", "artist", "trackpos" });
     fieldsArg.setImplicit(true);
-    Argument displayTagInfoArg("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
+    auto displayTagInfoArg = Argument("get", 'p', "displays the values of all specified tag fields (displays all fields if none specified)");
     displayTagInfoArg.setDenotesOperation(true);
     displayTagInfoArg.setSubArguments({ &fieldsArg, &filesArg, &verboseArg, &notAlbumArg });
     parser.setMainArguments(
@@ -167,11 +167,11 @@ void ArgumentParserTests::testParsing()
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT_EQUAL("The argument \"files\" can not be combined with \"fields\"."s, string(e.what()));
         // test printing btw
-        stringstream ss;
+        auto ss = std::stringstream();
         ss << e;
         CPPUNIT_ASSERT_EQUAL(
-            "Error: Unable to parse arguments: The argument \"files\" can not be combined with \"fields\".\nSee --help for available commands.\n"s,
-            ss.str());
+            "Error: Unable to parse arguments: The argument \"files\" can not be combined with \"fields\".\nSee --help for available commands.\n"sv,
+            std::string_view(ss.str()));
     }
     CPPUNIT_ASSERT(parser.isUncombinableMainArgPresent());
 
@@ -182,14 +182,14 @@ void ArgumentParserTests::testParsing()
     // check results
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
     CPPUNIT_ASSERT(!displayFileInfoArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(parser.executable(), "tageditor"));
+    CPPUNIT_ASSERT_EQUAL("tageditor"sv, std::string_view(parser.executable()));
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
-    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT_EQUAL("album"sv, std::string_view(fieldsArg.values().at(0)));
+    CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
+    CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
+    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), std::out_of_range);
     CPPUNIT_ASSERT_EQUAL(&displayTagInfoArg, parser.specifiedOperation());
 
     // skip empty args
@@ -203,13 +203,13 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(3), ""));
-    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(4), out_of_range);
+    CPPUNIT_ASSERT_EQUAL("album"sv, std::string_view(fieldsArg.values().at(0)));
+    CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
+    CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
+    CPPUNIT_ASSERT_EQUAL(""sv, std::string_view(fieldsArg.values().at(3)));
+    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(4), std::out_of_range);
     CPPUNIT_ASSERT(filesArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
+    CPPUNIT_ASSERT_EQUAL("somefile"sv, std::string_view(filesArg.values().at(0)));
 
     // error about unknown argument: forget get/-p
     const char *argv3[] = { "tageditor", "album", "title", "diskpos", "--files", "somefile" };
@@ -218,7 +218,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(6, argv3, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"album\" is unknown.\nDid you mean get or --help?"sv, std::string_view(e.what()));
     }
 
     // error about unknown argument: mistake in final argument
@@ -228,7 +228,7 @@ void ArgumentParserTests::testParsing()
         parser.parseArgs(7, argv18, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean --files or --no-color?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--fi\" is unknown.\nDid you mean --files or --no-color?"sv, std::string_view(e.what()));
     }
 
     // warning about unknown argument
@@ -265,8 +265,8 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fileArg.values().at(0), "test"));
-    CPPUNIT_ASSERT_THROW(fileArg.values().at(1), out_of_range);
+    CPPUNIT_ASSERT_EQUAL("test"sv, std::string_view(fileArg.values().at(0)));
+    CPPUNIT_ASSERT_THROW(fileArg.values().at(1), std::out_of_range);
 
     // constraint checking: no multiple occurrences (not resetting verboseArg on purpose)
     displayFileInfoArg.reset();
@@ -276,7 +276,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" mustn't be specified more than 1 time."));
+        CPPUNIT_ASSERT_EQUAL("The argument \"verbose\" mustn't be specified more than 1 time."sv, std::string_view(e.what()));
     }
 
     // constraint checking: no constraint (not resetting verboseArg on purpose)
@@ -302,7 +302,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT(!strcmp(e.what(), "The argument \"verbose\" must be specified at least 1 time."));
+        CPPUNIT_ASSERT_EQUAL("The argument \"verbose\" must be specified at least 1 time."sv, std::string_view(e.what()));
     }
     verboseArg.setRequired(false);
 
@@ -315,7 +315,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!fileArg.isPresent());
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, filesArg.values(0).size());
-    CPPUNIT_ASSERT(!strcmp(filesArg.values(0).front(), "test"));
+    CPPUNIT_ASSERT_EQUAL("test"sv, std::string_view(filesArg.values(0).at(0)));
     CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
     // constraint checking: no complains about missing -i
@@ -332,7 +332,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown.\nDid you mean get or --help?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"-f\" is unknown.\nDid you mean get or --help?"sv, std::string_view(e.what()));
     }
 
     // equation sign syntax
@@ -351,7 +351,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT(verboseArg.isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
-    CPPUNIT_ASSERT_EQUAL("test"s, string(fileArg.values(0).front()));
+    CPPUNIT_ASSERT_EQUAL("test"sv, std::string_view(fileArg.values(0).front()));
 
     // specifying value directly after abbreviation
     const char *argv12[] = { "tageditor", "-iftest" };
@@ -360,7 +360,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
-    CPPUNIT_ASSERT(!strcmp(fileArg.values(0).front(), "test"));
+    CPPUNIT_ASSERT_EQUAL("test"sv, std::string_view(fileArg.values().at(0)));
 
     // specifying top-level argument after abbreviation
     const char *argv17[] = { "tageditor", "-if=test-v", "--no-color" };
@@ -371,7 +371,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(parser.noColorArg().isPresent());
     CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values(0).size());
-    CPPUNIT_ASSERT_EQUAL("test-v"s, string(fileArg.values(0).front()));
+    CPPUNIT_ASSERT_EQUAL("test-v"sv, std::string_view(fileArg.values(0).front()));
 
     // default argument
     const char *argv8[] = { "tageditor" };
@@ -383,9 +383,9 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(!fileArg.isPresent());
-    if (getenv("PATH")) {
+    if (const auto path = std::getenv("PATH")) {
         CPPUNIT_ASSERT(fileArg.firstValue());
-        CPPUNIT_ASSERT(!strcmp(fileArg.firstValue(), getenv("PATH")));
+        CPPUNIT_ASSERT_EQUAL(std::string_view(path), std::string_view(fileArg.firstValue()));
     } else {
         CPPUNIT_ASSERT(!fileArg.firstValue());
     }
@@ -401,12 +401,12 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!verboseArg.isPresent());
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album=test"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "title"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(2), "diskpos"));
+    CPPUNIT_ASSERT_EQUAL("album=test"sv, std::string_view(fieldsArg.values().at(0)));
+    CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
+    CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
     CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), out_of_range);
     CPPUNIT_ASSERT(filesArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(filesArg.values().at(0), "somefile"));
+    CPPUNIT_ASSERT_EQUAL("somefile"sv, std::string_view(filesArg.values().at(0)));
     CPPUNIT_ASSERT(!notAlbumArg.isPresent());
 
     // constraint checking: required value count with insufficient number of provided parameters
@@ -419,8 +419,8 @@ void ArgumentParserTests::testParsing()
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
         CPPUNIT_ASSERT_EQUAL(
-            "Not all parameters for argument \"fields\" provided. You have to provide the following parameters: title album artist trackpos"s,
-            string(e.what()));
+            "Not all parameters for argument \"fields\" provided. You have to provide the following parameters: title album artist trackpos"sv,
+            std::string_view(e.what()));
     }
 
     // constraint checking: truncated argument not wrongly detected
@@ -432,7 +432,7 @@ void ArgumentParserTests::testParsing()
         CPPUNIT_FAIL("Exception expected.");
     } catch (const ParseError &e) {
         CPPUNIT_ASSERT(!qtConfigArgs.qtWidgetsGuiArg().isPresent());
-        CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown.\nDid you mean --help or get?"s, string(e.what()));
+        CPPUNIT_ASSERT_EQUAL("The specified argument \"--hel\" is unknown.\nDid you mean --help or get?"sv, std::string_view(e.what()));
     }
 
     // nested operations
@@ -442,7 +442,7 @@ void ArgumentParserTests::testParsing()
     parser.parseArgs(6, argv14, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "album=test"));
+    CPPUNIT_ASSERT_EQUAL("album=test"sv, std::string_view(fieldsArg.values().at(0)));
 
     // implicit flag still works when argument doesn't denote operation
     parser.resetArgs();
@@ -450,8 +450,8 @@ void ArgumentParserTests::testParsing()
     parser.parseArgs(6, argv14, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(displayTagInfoArg.isPresent());
     CPPUNIT_ASSERT(fieldsArg.isPresent());
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(0), "fields"));
-    CPPUNIT_ASSERT(!strcmp(fieldsArg.values().at(1), "album=test"));
+    CPPUNIT_ASSERT_EQUAL("fields"sv, std::string_view(fieldsArg.values().at(0)));
+    CPPUNIT_ASSERT_EQUAL("album=test"sv, std::string_view(fieldsArg.values().at(1)));
 }
 
 /*!
