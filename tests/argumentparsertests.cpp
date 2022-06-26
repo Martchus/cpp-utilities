@@ -324,7 +324,7 @@ void ArgumentParserTests::testParsing()
     parser.parseArgs(2, argv6, ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks);
     CPPUNIT_ASSERT(qtConfigArgs.qtWidgetsGuiArg().isPresent());
 
-    // constraint checking: dependend arguments (-f requires -i or -p)
+    // constraint checking: dependent arguments (-f requires -i or -p)
     const char *argv7[] = { "tageditor", "-f", "test" };
     parser.resetArgs();
     try {

@@ -40,7 +40,7 @@ None of these are enabled or set by default, unless stated otherwise.
   (enabled by default)
 * `BASH_COMPLETION_ENABLED=ON/OFF`: enables Bash completion (enabled by
   default)
-* `LOGGING_ENABLED=ON/OFF`: enables further loggin in some applications
+* `LOGGING_ENABLED=ON/OFF`: enables further logging in some applications
 * `FORCE_OLD_ABI=ON/OFF`: forces use of old C++ ABI
     * sets `_GLIBCXX_USE_CXX11_ABI=0`
     * only relevant when using libstdc++

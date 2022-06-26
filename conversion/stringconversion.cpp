@@ -125,7 +125,7 @@ private:
 /*!
  * \brief Converts the specified string from one character set to another.
  * \remarks
- * - The term "size" referes here always to the actual number of bytes and not to the number of characters
+ * - The term "size" refers here always to the actual number of bytes and not to the number of characters
  *   (eg. the size of the UTF-8 string "ö" is 2 and not 1).
  * - The expected size of the output buffer can be specified via \a outputBufferSizeFactor. This hint helps
  *   to reduce buffer reallocations during the conversion (eg. for the conversion from Latin-1 to UTF-16
