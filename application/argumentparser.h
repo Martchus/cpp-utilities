@@ -267,13 +267,16 @@ class CPP_UTILITIES_EXPORT Argument {
 public:
     typedef std::function<void(const ArgumentOccurrence &)> CallbackFunction;
 
+    /// \brief The Flags enum specifies options for treating the argument in a special way.
     enum class Flags : std::uint64_t {
-        None = 0x0,
-        Combinable = 0x1,
-        Implicit = 0x2,
-        Operation = 0x4,
-        Deprecated = 0x8,
-        Greedy = 0x10,
+        None = 0x0, /**< No flags are present. The default for Argument(). */
+        Combinable
+        = 0x1, /**< It is no error if this argument occurs besides other arguments on the same level. The default for ConfigValueArgument. */
+        Implicit = 0x2, /**< The argument is assumed to be present if its values are present. Only one argument can be implicit at the same level. */
+        Operation = 0x4, /**< The argument is an operation, so no `--` prefix is required when specifying it. The default for OperationArgument(). */
+        Deprecated = 0x8, /**< The argument is considered deprecated and therefore excluded from the help. */
+        Greedy
+        = 0x10, /**< The argument is "greedy" so when Argument::varValueCount is used all subsequent arguments will be considered values of that argument. This is useful to pass remaining arguments down to another argument parser as-is. */
     };
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
@@ -952,8 +955,8 @@ inline void Argument::setCallback(Argument::CallbackFunction callback)
 /*!
  * \brief Returns the secondary arguments for this argument.
  *
- * \sa setSecondaryArguments()
- * \sa hasSecondaryArguments()
+ * \sa setSubArguments()
+ * \sa hasSubArguments()
  */
 inline const ArgumentVector &Argument::subArguments() const
 {
@@ -964,7 +967,7 @@ inline const ArgumentVector &Argument::subArguments() const
  * \brief Returns an indication whether the argument has secondary arguments.
  *
  * \sa secondaryArguments()
- * \sa setSecondaryArguments()
+ * \sa setSubArguments()
  */
 inline bool Argument::hasSubArguments() const
 {

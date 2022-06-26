@@ -469,7 +469,7 @@ inline bool notEmpty(const char *str)
  * Instances of the Argument class are used as definition when parsing command line
  * arguments. Arguments can be assigned to an ArgumentParser using
  * ArgumentParser::setMainArguments() and to another Argument instance using
- * Argument::setSecondaryArguments().
+ * Argument::setSubArguments().
  */
 
 /*!
@@ -629,7 +629,7 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
  *
  * \sa secondaryArguments()
  * \sa addSecondaryArgument()
- * \sa hasSecondaryArguments()
+ * \sa hasSubArguments()
  */
 void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments)
 {
@@ -652,8 +652,8 @@ void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments
  * \brief Adds \a arg as a secondary argument for this argument.
  *
  * \sa secondaryArguments()
- * \sa setSecondaryArguments()
- * \sa hasSecondaryArguments()
+ * \sa setSubArguments()
+ * \sa hasSubArguments()
  */
 void Argument::addSubArgument(Argument *arg)
 {
