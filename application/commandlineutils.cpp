@@ -95,16 +95,16 @@ bool handleVirtualTerminalProcessing()
 {
     // try to enable virtual terminal processing
     if (enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)) {
-         return true;
+        return true;
     }
     // disable use on ANSI escape codes otherwise if it makes sense
     const char *const msyscon = std::getenv("MSYSCON");
     if (msyscon && std::strstr(msyscon, "mintty")) {
-        return false;  // no need to disable escape codes if it is just mintty
+        return false; // no need to disable escape codes if it is just mintty
     }
     const char *const term = std::getenv("TERM");
     if (term && std::strstr(term, "xterm")) {
-        return false;  // no need to disable escape codes if it is some xterm-like terminal
+        return false; // no need to disable escape codes if it is some xterm-like terminal
     }
     return EscapeCodes::enabled = false;
 }
