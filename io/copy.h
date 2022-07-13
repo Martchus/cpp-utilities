@@ -16,11 +16,11 @@ namespace CppUtilities {
 template <std::size_t bufferSize> class CPP_UTILITIES_EXPORT CopyHelper {
 public:
     CopyHelper();
-    void copy(std::istream &input, std::ostream &output, std::size_t count);
-    void callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool(void)> &isAborted,
+    void copy(std::istream &input, std::ostream &output, std::uint64_t count);
+    void callbackCopy(std::istream &input, std::ostream &output, std::uint64_t count, const std::function<bool(void)> &isAborted,
         const std::function<void(double)> &callback);
-    void copy(NativeFileStream &input, NativeFileStream &output, std::size_t count);
-    void callbackCopy(NativeFileStream &input, NativeFileStream &output, std::size_t count, const std::function<bool(void)> &isAborted,
+    void copy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count);
+    void callbackCopy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count, const std::function<bool(void)> &isAborted,
         const std::function<void(double)> &callback);
     char *buffer();
 
@@ -40,7 +40,7 @@ template <std::size_t bufferSize> CopyHelper<bufferSize>::CopyHelper()
  * \remarks Set an exception mask using std::ios::exceptions() to get a std::ios_base::failure exception
  *          when an IO error occurs.
  */
-template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std::size_t count)
+template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(std::istream &input, std::ostream &output, std::uint64_t count)
 {
     while (count > bufferSize) {
         input.read(m_buffer, bufferSize);
@@ -62,7 +62,7 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(std::istream
  *          when an IO error occurs.
  */
 template <std::size_t bufferSize>
-void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::size_t count, const std::function<bool(void)> &isAborted,
+void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &output, std::uint64_t count, const std::function<bool(void)> &isAborted,
     const std::function<void(double)> &callback)
 {
     const auto totalBytes = count;
@@ -87,7 +87,7 @@ void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &out
  *   when an IO error occurs.
  * - Possibly uses native APIs such as POSIX sendfile() to improve the speed (not implemented yet).
  */
-template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileStream &input, NativeFileStream &output, std::size_t count)
+template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count)
 {
     copy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count);
 }
@@ -104,7 +104,7 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileSt
  * - Possibly uses native APIs such as POSIX sendfile() to improve the speed (not implemented yet).
  */
 template <std::size_t bufferSize>
-void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStream &output, std::size_t count,
+void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count,
     const std::function<bool(void)> &isAborted, const std::function<void(double)> &callback)
 {
     callbackCopy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count, isAborted, callback);
