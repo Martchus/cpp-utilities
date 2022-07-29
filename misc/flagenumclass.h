@@ -85,6 +85,17 @@ constexpr FlagEnumClass &modFlagEnum(FlagEnumClass &flagVariable, FlagEnumClass 
     return value ? (flagVariable += relevantFlags) : (flagVariable -= relevantFlags);
 }
 
+/*!
+ * \brief Returns whether the specified \a flagVariable has set all flags specified via \a flagsToCheck to true.
+ */
+template <typename FlagEnumClass, Traits::EnableIf<IsFlagEnumClass<FlagEnumClass>> * = nullptr>
+constexpr bool checkFlagEnum(FlagEnumClass flagVariable, FlagEnumClass flagsToCheck)
+{
+    return (static_cast<typename std::underlying_type<FlagEnumClass>::type>(flagVariable)
+               & static_cast<typename std::underlying_type<FlagEnumClass>::type>(flagsToCheck))
+        == static_cast<typename std::underlying_type<FlagEnumClass>::type>(flagsToCheck);
+}
+
 } // namespace CppUtilities
 
 #endif // CPP_UTILITIES_FLAG_ENUM_CLASS_H

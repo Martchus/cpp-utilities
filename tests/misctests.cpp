@@ -1,3 +1,4 @@
+#include "../misc/flagenumclass.h"
 #include "../misc/levenshtein.h"
 #include "../misc/multiarray.h"
 
@@ -171,3 +172,35 @@ void MiscTests::testTestUtilities()
 
     TESTUTILS_ASSERT_LIKE("assert like works", ".*foo.*", "   foo   ");
 }
+
+// test flagenumclass.h
+
+namespace FlagEnumTests {
+enum class TestFlags { None, Foo = 1, Bar = 2, Baz = 4, Biz = 8 };
+}
+
+CPP_UTILITIES_MARK_FLAG_ENUM_CLASS(FlagEnumTests, FlagEnumTests::TestFlags);
+
+namespace FlagEnumTests {
+
+constexpr bool testFlagEnumClass()
+{
+    // test const operations
+    const auto testFlags = TestFlags::Foo | TestFlags::Baz;
+    static_assert(testFlags & TestFlags::Foo);
+    static_assert(!(testFlags & TestFlags::Bar));
+    static_assert(testFlags & TestFlags::Baz);
+    static_assert(checkFlagEnum(testFlags, TestFlags::Foo | TestFlags::Baz));
+    static_assert(checkFlagEnum(testFlags, TestFlags::Foo));
+    static_assert(!checkFlagEnum(testFlags, TestFlags::Foo | TestFlags::Bar));
+
+    // test modifying
+    auto nonConstFlags = TestFlags::Foo | TestFlags::Biz;
+    modFlagEnum(nonConstFlags, TestFlags::Foo | TestFlags::Bar, false);
+    nonConstFlags += TestFlags::Bar;
+    modFlagEnum(nonConstFlags, TestFlags::Baz | TestFlags::Biz, true);
+    return nonConstFlags == (TestFlags::Bar | TestFlags::Baz | TestFlags::Biz);
+}
+static_assert(testFlagEnumClass());
+
+} // namespace FlagEnumTests
