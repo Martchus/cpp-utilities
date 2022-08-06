@@ -322,6 +322,7 @@ public:
     void setCallback(CallbackFunction callback);
     const ArgumentVector &subArguments() const;
     void setSubArguments(const ArgumentInitializerList &subArguments);
+    void addSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArgument(Argument *arg);
     bool hasSubArguments() const;
     const ArgumentVector &parents() const;

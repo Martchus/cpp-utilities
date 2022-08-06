@@ -618,7 +618,7 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
 }
 
 /*!
- * \brief Sets the secondary arguments for this arguments.
+ * \brief Sets the secondary arguments for this argument.
  *
  * The given arguments will be considered as secondary arguments of this argument by the argument parser.
  * This means that the parser will complain if these arguments are given, but not this argument.
@@ -627,21 +627,47 @@ Argument *firstPresentUncombinableArg(const ArgumentVector &args, const Argument
  * The Argument does not take ownership. Do not destroy the given arguments as long as they are
  * used as secondary arguments.
  *
+ * \sa addSubArguments()
  * \sa secondaryArguments()
  * \sa addSecondaryArgument()
  * \sa hasSubArguments()
  */
-void Argument::setSubArguments(const ArgumentInitializerList &secondaryArguments)
+void Argument::setSubArguments(const ArgumentInitializerList &subArguments)
 {
     // remove this argument from the parents list of the previous secondary arguments
-    for (Argument *arg : m_subArgs) {
+    for (Argument *const arg : m_subArgs) {
         arg->m_parents.erase(remove(arg->m_parents.begin(), arg->m_parents.end(), this), arg->m_parents.end());
     }
-    // assign secondary arguments
-    m_subArgs.assign(secondaryArguments);
-    // add this argument to the parents list of the assigned secondary arguments
-    // and set the parser
-    for (Argument *arg : m_subArgs) {
+    // clear currently assigned args before adding new ones
+    m_subArgs.clear();
+    addSubArguments(subArguments);
+}
+
+/*!
+ * \brief Sets the secondary arguments for this argument.
+ *
+ * The given arguments will be considered as secondary arguments of this argument by the argument parser.
+ * This means that the parser will complain if these arguments are given, but not this argument.
+ * If secondary arguments are labeled as mandatory their parent is also mandatory.
+ *
+ * The Argument does not take ownership. Do not destroy the given arguments as long as they are
+ * used as secondary arguments.
+ *
+ * \sa setSubArguments()
+ * \sa secondaryArguments()
+ * \sa addSecondaryArgument()
+ * \sa hasSubArguments()
+ */
+void Argument::addSubArguments(const ArgumentInitializerList &subArguments)
+{
+    // append secondary arguments
+    const auto requiredCap = m_subArgs.size() + subArguments.size();
+    if (requiredCap < m_subArgs.capacity()) {
+        m_subArgs.reserve(requiredCap); // does insert this for us?
+    }
+    m_subArgs.insert(m_subArgs.end(), subArguments.begin(), subArguments.end());
+    // add this argument to the parents list of the assigned secondary arguments and set the parser
+    for (Argument *const arg : subArguments) {
         if (find(arg->m_parents.cbegin(), arg->m_parents.cend(), this) == arg->m_parents.cend()) {
             arg->m_parents.push_back(this);
         }
