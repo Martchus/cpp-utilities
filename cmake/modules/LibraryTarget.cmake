@@ -256,6 +256,18 @@ foreach (INTERFACE_REQUIRED_PKG_CONFIG_MODULE ${INTERFACE_REQUIRED_PKG_CONFIG_MO
     )
 endforeach ()
 
+# add all REQUIRED_PACKAGES that are exported by the current build to INTERFACE_REQUIRED_PACKAGES
+foreach (REQUIRED_PACKAGE ${REQUIRED_PACKAGES})
+    # note: Looks like CMake (as of version 3.24.0) adds a check for targets that are exported as
+    # part of the current build in "*Targets.cmake" export files as those targets are also added as
+    # "IMPORTED_LINK_DEPENDENT_LIBRARIES". For instance, qtforkawesome and qtquickforkawesome are
+    # built within the same project and qtforkawesome ends up as IMPORTED_LINK_DEPENDENT_LIBRARIES
+    # on qtquickforkawesome's export and is checked to exist.
+    if ("${EXPORT_${REQUIRED_PACKAGE}}")
+        list(APPEND INTERFACE_REQUIRED_PACKAGES "${REQUIRED_PACKAGE}")
+    endif ()
+endforeach ()
+
 # create the CMake package config file from template
 if (INTERFACE_REQUIRED_PACKAGES)
     list(REMOVE_ITEM INTERFACE_REQUIRED_PACKAGES "")
@@ -509,6 +521,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         DESTINATION "${META_DATA_DIR}/cmake"
         EXPORT_LINK_INTERFACE_LIBRARIES
         COMPONENT cmake-config)
+
+    # allow checking for the export in subsequent sibling projects/directories
+    set("EXPORT_${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}" ON PARENT_SCOPE)
 
     # add install target for header files
     if (NOT META_IS_PLUGIN)
