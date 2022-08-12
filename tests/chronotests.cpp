@@ -70,6 +70,7 @@ static_assert(TimeSpan::fromDays(20.5).totalDays() == 20.5, "totalDays()");
 class ChronoTests : public TestFixture {
     CPPUNIT_TEST_SUITE(ChronoTests);
     CPPUNIT_TEST(testDateTime);
+    CPPUNIT_TEST(testDateTimeExpression);
     CPPUNIT_TEST(testTimeSpan);
     CPPUNIT_TEST(testOperators);
     CPPUNIT_TEST(testPeriod);
@@ -85,6 +86,7 @@ public:
     }
 
     void testDateTime();
+    void testDateTimeExpression();
     void testTimeSpan();
     void testOperators();
     void testPeriod();
@@ -221,6 +223,84 @@ void ChronoTests::testDateTime()
     const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
     CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2.0) && delta > TimeSpan::fromSeconds(-2.0));
 #endif
+}
+
+/*!
+ * \brief Tests parsing a DateTimeExpression. Checks for the parts in particular.
+ */
+void ChronoTests::testDateTimeExpression()
+{
+    // check adding ISO timestamp parts one-by-one
+    auto expr = DateTimeExpression::fromIsoString("1");
+    auto parts = DateTimeParts::Year;
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Month, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Day, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Hour, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0:0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Minute, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Second, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Millisecond, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0+0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::DeltaHour, expr.parts);
+    expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0-0:0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::DeltaMinute, expr.parts);
+
+    // check that omitting parts in the middle is not possible anyways
+    CPPUNIT_ASSERT_THROW(DateTimeExpression::fromIsoString("1-1T0"), ConversionException);
+
+    // check ::fromString()
+    expr = DateTimeExpression::fromString("1");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts = DateTimeParts::Year, expr.parts);
+    expr = DateTimeExpression::fromString("1/1");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Month, expr.parts);
+    expr = DateTimeExpression::fromString("1/1/1");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Day, expr.parts);
+    expr = DateTimeExpression::fromString("1/1/1 0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Hour, expr.parts);
+    expr = DateTimeExpression::fromString("1/1/1 0:0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Minute, expr.parts);
+    expr = DateTimeExpression::fromString("1/1/1 0:0:0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Second, expr.parts);
+    expr = DateTimeExpression::fromString("1/1/1 0:0:0.0");
+    CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
+    CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Millisecond, expr.parts);
 }
 
 /*!

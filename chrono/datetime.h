@@ -3,6 +3,8 @@
 
 #include "./timespan.h"
 
+#include "../misc/flagenumclass.h"
+
 #include <cstdint>
 #include <ctime>
 #include <limits>
@@ -138,6 +140,43 @@ private:
 };
 
 /*!
+ * \brief The DateTimeParts enum specifies which parts of a timestamp are present.
+ */
+enum class DateTimeParts : std::uint64_t {
+    None = 0, /**< no parts are present */
+    Year = (1 << 0), /**< the year is present */
+    Month = (1 << 1), /**< the month is present */
+    Day = (1 << 2), /**< the day is present */
+    Hour = (1 << 3), /**< the hour is present */
+    Minute = (1 << 4), /**< the minute is present */
+    Second = (1 << 5), /**< the second is present */
+    Millisecond = (1 << 6), /**< the millisecond is present */
+    DeltaHour = (1 << 7), /**< the timezone-delta hour is present */
+    DeltaMinute = (1 << 8), /**< the timezone-delta minute is present */
+};
+
+/*!
+ * \brief The DateTimeExpression struct holds information about a time expression (e.g. an ISO-8601 timestamp).
+ */
+struct CPP_UTILITIES_EXPORT DateTimeExpression {
+    DateTime value; /**< The value of the time expression as DateTime object. */
+    TimeSpan delta; /**< The delta of \a value from UTC as TimeSpan object. */
+    DateTimeParts parts = DateTimeParts::None; /**< The parts present in the expression as flag enum. */
+
+    constexpr DateTime gmt() const;
+    static DateTimeExpression fromIsoString(const char *str);
+    static DateTimeExpression fromString(const char *str);
+};
+
+/*!
+ * \brief Returns the value in UTC time.
+ */
+constexpr DateTime DateTimeExpression::gmt() const
+{
+    return value - delta;
+}
+
+/*!
  * \brief Constructs a DateTime.
  */
 constexpr inline DateTime::DateTime()
@@ -203,8 +242,7 @@ inline DateTime DateTime::fromString(const std::string &str)
  */
 inline DateTime DateTime::fromIsoStringGmt(const char *str)
 {
-    const auto tmp = fromIsoString(str);
-    return tmp.first - tmp.second;
+    return DateTimeExpression::fromIsoString(str).gmt();
 }
 
 /*!
@@ -215,7 +253,7 @@ inline DateTime DateTime::fromIsoStringGmt(const char *str)
  */
 inline DateTime DateTime::fromIsoStringLocal(const char *str)
 {
-    return fromIsoString(str).first;
+    return DateTimeExpression::fromIsoString(str).value;
 }
 
 /*!
@@ -578,5 +616,7 @@ template <> struct hash<CppUtilities::DateTime> {
     }
 };
 } // namespace std
+
+CPP_UTILITIES_MARK_FLAG_ENUM_CLASS(CppUtilities, CppUtilities::DateTimeParts);
 
 #endif // CHRONO_UTILITIES_DATETIME_H
