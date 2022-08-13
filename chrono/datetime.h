@@ -155,9 +155,6 @@ enum class DateTimeParts : std::uint64_t {
     DeltaMinute = (1 << 8), /**< the timezone-delta minute is present */
 };
 
-/*!
- * \brief The DateTimeExpression struct holds information about a time expression (e.g. an ISO-8601 timestamp).
- */
 struct CPP_UTILITIES_EXPORT DateTimeExpression {
     DateTime value; /**< The value of the time expression as DateTime object. */
     TimeSpan delta; /**< The delta of \a value from UTC as TimeSpan object. */

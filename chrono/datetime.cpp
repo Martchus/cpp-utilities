@@ -54,6 +54,18 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  */
 
 /*!
+ * \struct DateTimeExpression
+ * \brief The DateTimeExpression struct holds information about a time expression (e.g. an ISO-8601 timestamp).
+ *
+ * This struct holds the date and time specification (DateTimeExpression::value), the time-zone delta
+ * (DateTimeExpression::delta) and what parts are actually specified (DateTimeExpression::parts).
+ *
+ * The idea is to be able to preserve a time-zone delta and present parts when deserializing and then
+ * serializing again. Note that it still does not allow to preserve the format of the original timestamp
+ * exactly.
+ */
+
+/*!
  * \brief Constructs a new DateTime object with the local time from the specified UNIX \a timeStamp.
  */
 DateTime DateTime::fromTimeStamp(time_t timeStamp)
