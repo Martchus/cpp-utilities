@@ -153,6 +153,11 @@ enum class DateTimeParts : std::uint64_t {
     SubSecond = (1 << 6), /**< the second contains a fractional part */
     DeltaHour = (1 << 7), /**< the timezone-delta hour is present */
     DeltaMinute = (1 << 8), /**< the timezone-delta minute is present */
+    Date = Year | Month | Day, /**< year, month and day are present */
+    Time = Hour | Minute | Second | SubSecond, /**< hour, minute and (sub)second are present */
+    DateTime = Date | Time, /**< all parts a DateTime object can represent are present */
+    TimeZoneDelta = DeltaHour | DeltaMinute, /**< the timezone-delta hour and minute are present */
+    All = DateTime | TimeZoneDelta, /**< all parts a DateTime object can represent plus the full timezone-delta are present */
 };
 
 struct CPP_UTILITIES_EXPORT DateTimeExpression {
