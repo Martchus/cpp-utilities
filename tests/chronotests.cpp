@@ -230,44 +230,53 @@ void ChronoTests::testDateTime()
  */
 void ChronoTests::testDateTimeExpression()
 {
-    // check adding ISO timestamp parts one-by-one
+    // check adding ISO timestamp parts one-by-one and serialization back to string
     auto expr = DateTimeExpression::fromIsoString("1");
     auto parts = DateTimeParts::Year;
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Month, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Day, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Hour, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Minute, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00:00"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Second, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00:00:00"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::SubSecond, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00:00:00.000"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0+0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::DeltaHour, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00:00:00.000+00"s, expr.toIsoString());
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0-0:0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
     CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::DeltaMinute, expr.parts);
+    CPPUNIT_ASSERT_EQUAL("0001-01-01T00:00:00.000+00:00"s, expr.toIsoString());
 
     // check that omitting parts in the middle is not possible anyways
     CPPUNIT_ASSERT_THROW(DateTimeExpression::fromIsoString("1-1T0"), ConversionException);

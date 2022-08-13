@@ -166,6 +166,8 @@ struct CPP_UTILITIES_EXPORT DateTimeExpression {
     DateTimeParts parts = DateTimeParts::None; /**< The parts present in the expression as flag enum. */
 
     constexpr DateTime gmt() const;
+    constexpr bool operator==(const DateTimeExpression &other) const;
+    std::string toIsoString(char dateDelimiter = '-', char timeDelimiter = ':', char timeZoneDelimiter = ':') const;
     static DateTimeExpression fromIsoString(const char *str);
     static DateTimeExpression fromString(const char *str);
 };
@@ -176,6 +178,14 @@ struct CPP_UTILITIES_EXPORT DateTimeExpression {
 constexpr DateTime DateTimeExpression::gmt() const
 {
     return value - delta;
+}
+
+/*!
+ * \brief Returns whether the expressions are equivalent.
+ */
+constexpr bool DateTimeExpression::operator==(const DateTimeExpression &other) const
+{
+    return value == other.value && delta == other.delta && parts == other.parts;
 }
 
 /*!

@@ -528,4 +528,78 @@ DateTimeExpression DateTimeExpression::fromString(const char *str)
     return res;
 }
 
+/*!
+ * \brief Returns the string representation of the current instance in the ISO format.
+ * \remarks Only present parts will be included.
+ */
+std::string DateTimeExpression::toIsoString(char dateDelimiter, char timeDelimiter, char timeZoneDelimiter) const
+{
+    auto s = std::stringstream(std::stringstream::in | std::stringstream::out);
+    s << setfill('0');
+    if (parts & DateTimeParts::Year) {
+        s << setw(4) << value.year();
+    }
+    if (parts & DateTimeParts::Month) {
+        if (s.tellp()) {
+            s << dateDelimiter;
+        }
+        s << setw(2) << value.month();
+    }
+    if (parts & DateTimeParts::Day) {
+        if (s.tellp()) {
+            s << dateDelimiter;
+        }
+        s << setw(2) << value.day();
+    }
+    if (parts & DateTimeParts::Hour) {
+        if (s.tellp()) {
+            s << 'T';
+        }
+        s << setw(2) << value.hour();
+    }
+    if (parts & DateTimeParts::Minute) {
+        if (s.tellp()) {
+            s << timeDelimiter;
+        }
+        s << setw(2) << value.minute();
+    }
+    if (parts & DateTimeParts::Second) {
+        if (s.tellp()) {
+            s << timeDelimiter;
+        }
+        s << setw(2) << value.second();
+    }
+    if (parts & DateTimeParts::SubSecond) {
+        const auto milli = value.millisecond();
+        const auto micro = value.microsecond();
+        const auto nano = value.nanosecond();
+        s << '.' << setw(3) << milli;
+        if (micro || nano) {
+            s << setw(3) << micro;
+            if (nano) {
+                s << nano / TimeSpan::nanosecondsPerTick;
+            }
+        }
+    }
+    if (parts & DateTimeParts::TimeZoneDelta) {
+        auto d = delta;
+        if (d.isNegative()) {
+            s << '-';
+            d = TimeSpan(-d.totalTicks());
+        } else {
+            s << '+';
+        }
+        if (parts & DateTimeParts::DeltaHour) {
+            s << setw(2) << d.hours();
+        }
+        if (parts & DateTimeParts::DeltaMinute) {
+            if (parts & DateTimeParts::DeltaHour) {
+                s << timeZoneDelimiter;
+            }
+            s << setw(2) << d.minutes();
+        }
+    }
+    return s.str();
+}
+
 } // namespace CppUtilities
