@@ -150,7 +150,7 @@ enum class DateTimeParts : std::uint64_t {
     Hour = (1 << 3), /**< the hour is present */
     Minute = (1 << 4), /**< the minute is present */
     Second = (1 << 5), /**< the second is present */
-    Millisecond = (1 << 6), /**< the millisecond is present */
+    SubSecond = (1 << 6), /**< the second contains a fractional part */
     DeltaHour = (1 << 7), /**< the timezone-delta hour is present */
     DeltaMinute = (1 << 8), /**< the timezone-delta minute is present */
 };

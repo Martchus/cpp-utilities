@@ -259,7 +259,7 @@ void ChronoTests::testDateTimeExpression()
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
-    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Millisecond, expr.parts);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::SubSecond, expr.parts);
     expr = DateTimeExpression::fromIsoString("1-1-1T0:0:0.0+0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
@@ -300,7 +300,7 @@ void ChronoTests::testDateTimeExpression()
     expr = DateTimeExpression::fromString("1/1/1 0:0:0.0");
     CPPUNIT_ASSERT_EQUAL(DateTime(), expr.value);
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), expr.delta);
-    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::Millisecond, expr.parts);
+    CPPUNIT_ASSERT_EQUAL(parts |= DateTimeParts::SubSecond, expr.parts);
 }
 
 /*!
