@@ -11,6 +11,11 @@ inline std::ostream &operator<<(std::ostream &out, const CppUtilities::DateTime 
     return out << value.toString(CppUtilities::DateTimeOutputFormat::DateAndTime, false);
 }
 
+inline std::ostream &operator<<(std::ostream &out, const CppUtilities::DateTimeExpression &value)
+{
+    return out << value.toIsoString();
+}
+
 inline std::ostream &operator<<(std::ostream &out, const CppUtilities::TimeSpan &value)
 {
     return out << value.toString(CppUtilities::TimeSpanOutputFormat::Normal, false);
