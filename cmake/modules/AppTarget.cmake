@@ -188,6 +188,11 @@ find_template_file("appdata.xml" CPP_UTILITIES APP_APPSTREAM_TEMPLATE_FILE)
 # define generic function to add *.desktop files
 include(CMakeParseArguments)
 function (add_custom_desktop_file)
+    # skip if not building with GUI support
+    if (NOT META_DESKTOP_FILE_FOR_CLI AND ((NOT DEFINED META_GUI_OPTIONAL OR META_GUI_OPTIONAL) AND NOT (WIDGETS_GUI OR QUICK_GUI)))
+        return ()
+    endif ()
+
     # parse arguments
     set(ONE_VALUE_ARGS
         FILE_NAME
@@ -221,6 +226,11 @@ endfunction ()
 
 # define function to add *.desktop file and meta info from project meta data
 function (add_desktop_file)
+    # skip if not building with GUI support
+    if (NOT META_DESKTOP_FILE_FOR_CLI AND ((NOT DEFINED META_GUI_OPTIONAL OR META_GUI_OPTIONAL) AND NOT (WIDGETS_GUI OR QUICK_GUI)))
+        return ()
+    endif ()
+
     # compose actions
     set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
     foreach (ACTION_VAR ${META_APP_ACTIONS})
