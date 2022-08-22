@@ -270,11 +270,14 @@ function (add_desktop_file)
         # add indentation of two additional spaces
         string(REGEX REPLACE "\n([^$])" "\n  \\1" META_APP_APPDATA_BODY "${META_APP_APPDATA_BODY}")
     endif ()
+
     # create appstream desktop file from template
-    configure_file("${APP_APPSTREAM_TEMPLATE_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml" @ONLY)
+    set(APPSTREAM_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml")
+    configure_file("${APP_APPSTREAM_TEMPLATE_FILE}" "${APPSTREAM_FILE}" @ONLY)
+
     # add install for the appstream file
     install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml"
+        FILES "${APPSTREAM_FILE}"
         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
         COMPONENT appimage)
 endfunction ()
