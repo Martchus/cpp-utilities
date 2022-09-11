@@ -177,8 +177,11 @@ else ()
         AND NOT META_IS_PLUGIN
         AND MINGW
         AND VERSIONED_MINGW_LIBRARIES)
-        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_SOVERSION}.dll")
-        set(TARGET_SUFFIX_FOR_PC "-${META_SOVERSION}")
+        if (NOT META_DLLVERSION)
+            string(REPLACE "." "-" META_DLLVERSION "${META_SOVERSION}")
+        endif ()
+        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "-${META_DLLVERSION}.dll")
+        set(TARGET_SUFFIX_FOR_PC "-${META_DLLVERSION}")
     endif ()
 
     # avoid duplicating the "lib" prefix if the target name already starts with "lib"
