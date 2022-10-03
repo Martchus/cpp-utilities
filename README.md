@@ -143,7 +143,8 @@ several architectures.
 There is also a [sub project](https://build.opensuse.org/project/show/home:mkittler:vcs) containing the builds from the Git master branch.
 
 #### Gentoo
-Packages are provided by perfect7gentleman; checkout his [repository](https://github.com/perfect7gentleman/pg_overlay).
+Checkout [Case_Of's overlay](https://codeberg.org/Case_Of/gentoo-overlay)
+or [perfect7gentleman's overlay](https://gitlab.com/Perfect_Gentleman/PG_Overlay).
 
 ## Copyright notice and license
 Copyright © 2015-2022 Marius Kittler
