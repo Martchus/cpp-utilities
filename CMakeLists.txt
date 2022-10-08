@@ -77,6 +77,7 @@ set(CMAKE_MODULE_FILES
     cmake/modules/LibraryTarget.cmake
     cmake/modules/TestUtilities.cmake
     cmake/modules/TestTarget.cmake
+    cmake/modules/AppUtilities.cmake
     cmake/modules/AppTarget.cmake
     cmake/modules/WindowsResources.cmake
     cmake/modules/TemplateFinder.cmake
