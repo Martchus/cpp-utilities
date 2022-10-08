@@ -33,27 +33,6 @@ using namespace CppUtilities::EscapeCodes;
 namespace CppUtilities {
 
 /*!
- * \brief Returns whether the specified env variable is set to a non-zero and non-white-space-only value.
- */
-std::optional<bool> isEnvVariableSet(const char *variableName)
-{
-    const char *envValue = std::getenv(variableName);
-    if (!envValue) {
-        return std::nullopt;
-    }
-    for (; *envValue; ++envValue) {
-        switch (*envValue) {
-        case '0':
-        case ' ':
-            break;
-        default:
-            return true;
-        }
-    }
-    return false;
-}
-
-/*!
  * \brief The ArgumentDenotationType enum specifies the type of a given argument denotation.
  */
 enum ArgumentDenotationType : unsigned char {

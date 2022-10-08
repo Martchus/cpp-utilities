@@ -4,8 +4,6 @@
 #include "./argumentparser.h"
 #include "./commandlineutils.h"
 
-#include <optional>
-
 namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT ArgumentReader {
@@ -57,8 +55,6 @@ inline Wrapper::Wrapper(const char *str, Indentation currentIndentation)
     , m_indentation(currentIndentation)
 {
 }
-
-std::optional<bool> isEnvVariableSet(const char *variableName);
 
 } // namespace CppUtilities
 

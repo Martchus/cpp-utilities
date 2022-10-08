@@ -3,6 +3,7 @@
 
 #include "../global.h"
 
+#include <optional>
 #include <ostream>
 
 #ifdef PLATFORM_WINDOWS
@@ -18,6 +19,7 @@ namespace CppUtilities {
 enum class Response { None, Yes, No };
 
 CPP_UTILITIES_EXPORT bool confirmPrompt(const char *message, Response defaultResponse = Response::None);
+CPP_UTILITIES_EXPORT std::optional<bool> isEnvVariableSet(const char *variableName);
 
 #ifdef PLATFORM_WINDOWS
 CPP_UTILITIES_EXPORT bool handleVirtualTerminalProcessing();

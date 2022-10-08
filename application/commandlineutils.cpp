@@ -44,6 +44,27 @@ bool confirmPrompt(const char *message, Response defaultResponse)
 }
 
 /*!
+ * \brief Returns whether the specified env variable is set to a non-zero and non-white-space-only value.
+ */
+std::optional<bool> isEnvVariableSet(const char *variableName)
+{
+    const char *envValue = std::getenv(variableName);
+    if (!envValue) {
+        return std::nullopt;
+    }
+    for (; *envValue; ++envValue) {
+        switch (*envValue) {
+        case '0':
+        case ' ':
+            break;
+        default:
+            return true;
+        }
+    }
+    return false;
+}
+
+/*!
  * \brief Returns the current size of the terminal.
  * \remarks Unknown members of the returned TerminalSize are set to zero.
  */
