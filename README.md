@@ -65,6 +65,8 @@ The following counts for `c++utilities` and my other libraries unless stated oth
 * Graphviz for diagrams in the API documentation (optional)
 * clang-format for tidying (optional)
 * llvm-profdata, llvm-cov and cppunit for source-based code coverage analysis (optional)
+* [appstreamcli](https://www.freedesktop.org/wiki/Distributions/AppStream/) for validation
+  of generated AppStream files (optional)
 
 #### Runtime dependencies
 * The c++utilities library itself only needs
