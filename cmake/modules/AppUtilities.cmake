@@ -63,6 +63,22 @@ function (add_appstream_file)
         string(REGEX REPLACE "\n([^$])" "\n  \\1" META_APP_APPDATA_BODY "${META_APP_APPDATA_BODY}")
     endif ()
 
+    # make the day of the last modification the release date
+    set(META_RELEASE_DATE_${META_PROJECT_VARNAME_UPPER} "" CACHE STRING "release date of ${META_PROJECT_NAME}")
+    if (META_RELEASE_DATE_${META_PROJECT_VARNAME_UPPER} STREQUAL "")
+        execute_process(
+            COMMAND
+            sh -c "date --iso-8601 --reference=\"$(find . -type f -not -path '*.git/*' -printf '%T@ %P\n' | sort -n | awk '{print $2}' | tail -n1)\""
+            WORKING_DIRECTORY
+            "${CMAKE_SOURCE_DIR}"
+            OUTPUT_VARIABLE META_RELEASE_DATE
+        )
+        string(STRIP "${META_RELEASE_DATE}" META_RELEASE_DATE)
+        set(META_RELEASE_DATE_${META_PROJECT_VARNAME_UPPER} "${META_RELEASE_DATE}" CACHE STRING "release date of ${META_PROJECT_NAME}" FORCE)
+    else ()
+        set(META_RELEASE_DATE "${META_RELEASE_DATE_${META_PROJECT_VARNAME_UPPER}}")
+    endif ()
+
     # create appstream desktop file from template
     set(APPSTREAM_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.appdata.xml")
     configure_file("${APP_APPSTREAM_TEMPLATE_FILE}" "${APPSTREAM_FILE}" @ONLY)
