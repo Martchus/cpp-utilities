@@ -503,7 +503,7 @@ endif ()
 
 # add autotools-style check target
 if (NOT TARGET check)
-    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
+    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V -E ".*appstream.*")
     add_custom_target(
         check
         COMMAND ${CMAKE_CTEST_COMMAND}

@@ -72,6 +72,14 @@ function (add_appstream_file)
         FILES "${APPSTREAM_FILE}"
         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
         COMPONENT appimage)
+
+    # add test
+    find_program(APPSTREAMCLI_BIN "appstreamcli")
+    if (NOT APPSTREAMCLI_BIN)
+        message(STATUS "Could not find appstreamcli; won't add test/target to validate appstream files")
+    else ()
+        add_test(NAME "${META_TARGET_NAME}_appstream_validation" COMMAND "${APPSTREAMCLI_BIN}" validate "${APPSTREAM_FILE}")
+    endif ()
 endfunction ()
 
 # define function to add *.desktop file and meta info from project meta data
