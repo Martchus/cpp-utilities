@@ -174,6 +174,19 @@ if (NOT META_PROJECT_LICENSE)
     endif ()
 endif ()
 
+# determine RDNS automatically from other meta-data
+if (NOT META_PROJECT_RDNS)
+    if (NOT META_PROJECT_RDNS_BASE)
+        if (META_APP_URL MATCHES ".*github\\.com.*")
+            set(META_PROJECT_RDNS_BASE "io.github") # assume GitHub pages
+        else ()
+            set(META_PROJECT_RDNS_BASE "org")
+        endif ()
+    endif ()
+    string(TOLOWER "${META_APP_AUTHOR}" META_APP_AUTHOR_LOWER)
+    set(META_PROJECT_RDNS "${META_PROJECT_RDNS_BASE}.${META_APP_AUTHOR_LOWER}.${META_PROJECT_NAME}${TARGET_SUFFIX}")
+endif ()
+
 # provide variables for other projects built as part of the same subdirs project to access files from this project
 get_directory_property(HAS_PARENT PARENT_DIRECTORY)
 if (HAS_PARENT)

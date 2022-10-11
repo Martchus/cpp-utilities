@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop-application">
-  <id>@META_ID@</id>
+  <id>@META_PROJECT_RDNS@</id>
   <metadata_license>MIT</metadata_license>
   <project_license>@META_PROJECT_LICENSE@</project_license>
   <name>@META_APP_NAME@</name>
