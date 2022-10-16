@@ -359,6 +359,11 @@ set(FORMATABLE_FILES
     ${QML_HEADER_FILES}
     ${QML_SRC_FILES}
     ${EXCLUDED_FILES})
+if (QT_TESTS)
+    foreach (QT_TEST ${QT_TESTS})
+        list(APPEND FORMATABLE_FILES "tests/${QT_TEST}.cpp")
+    endforeach ()
+endif ()
 # only format C/C++ files (and not eg. QML files)
 if (FORMATABLE_FILES)
     list(FILTER FORMATABLE_FILES INCLUDE REGEX ".*\\.(c|cc|cpp|h|hh|hpp)")
