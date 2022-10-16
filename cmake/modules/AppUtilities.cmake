@@ -66,7 +66,7 @@ function (add_appstream_file)
     # skip if not all required meta-data is present
     if (NOT META_RELEASE_DATE)
         message(STATUS "The variable META_RELEASE_DATE is not set. Not creating an AppStream file.")
-        return ()
+        return()
     endif ()
 
     # create appstream desktop file from template
