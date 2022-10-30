@@ -132,6 +132,34 @@ This can be easily achieved by using CMake's `add_subdirectory()` function. For 
 
 For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`.
 
+#### CMake presets
+There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available
+but also some specific to certain Arch Linux packaging found in the AUR and my PKGBUILDs repository.
+
+Use `cmake --list-presets` to list all presets. All `cmake` commands need to be executed within the source
+directory. Builds will be created within a sub-directory of the path specified via the environment variable
+`BUILD_DIR`. Here is an example for creating a build with the `arch-static-compat-devel` preset and invoking
+tests:
+
+```
+export BUILD_DIR=$HOME/builds                                   # set build directory via environment variable
+cmake --preset arch-static-compat-devel                         # configure build
+cmake --build --preset arch-static-compat-devel -- -v           # conduct build
+cmake --build --preset arch-static-compat-devel --target check  # run tests
+cmake --build --preset arch-static-compat-devel --target tidy   # apply formatting
+```
+
+This preset is quite special (see [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries)
+for details about it). The most useful presets for development are likely `devel`, `devel-qt6` and `debug`.
+
+Note that these presets are supposed to cover all of my projects (so some of them aren't really making a
+difference when just building c++utilities itself). To use presets in other projects, simply symlink the
+file `CMakePresets.json` into the source directory of those projects which works with the "subdirs" projects
+mentioned in the previous section as well.
+
+Note that the devel preset (and all presets inheriting from it) uses ccache which therefore needs to be
+installed.
+
 #### Arch Linux package
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of the latest release and
 the Git master.

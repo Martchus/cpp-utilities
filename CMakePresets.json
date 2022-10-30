@@ -1,0 +1,208 @@
+{
+  "version": 5,
+  "cmakeMinimumRequired": {"major": 3, "minor": 23, "patch": 0},
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default config using Ninja",
+      "description": "Keeps defaults, uses Ninja, base for any of the other presets",
+      "generator": "Ninja",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default",
+      "cacheVariables": {},
+      "environment": {"TEST_FILE_PATH": "${sourceDir}/testfiles"}
+    },
+    {
+      "name": "no-webview",
+      "inherits": "default",
+      "displayName": "Disables web view",
+      "description": "Same as default but disables web view",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-no-webview",
+      "cacheVariables": {
+        "WEBVIEW_PROVIDER": {"type": "STRING", "value": "none"}
+      }
+    },
+    {
+      "name": "no-kde",
+      "inherits": "default",
+      "displayName": "Disables KDE integrations",
+      "description": "Same as default but disables KDE integrations",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-no-kde",
+      "cacheVariables": {
+        "NO_PLASMOID": {"type": "BOOL", "value": "ON"},
+        "NO_FILE_ITEM_ACTION_PLUGIN": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "qt6",
+      "inherits": "default",
+      "displayName": "Use Qt 6 (instead of Qt 5)",
+      "description": "Same as default but configures use of Qt 6 (only relevant if project uses Qt)",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-qt6",
+      "cacheVariables": {
+        "QT_PACKAGE_PREFIX": {"type": "STRING", "value": "Qt6"},
+        "BUILD_WITH_QT6": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "ccache",
+      "inherits": "default",
+      "displayName": "Use ccache",
+      "description": "Same as default but uses ccache",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": {"type": "STRING", "value": "ccache"},
+        "CMAKE_CXX_COMPILER_LAUNCHER": {"type": "STRING", "value": "ccache"}
+      }
+    },
+    {
+      "name": "devel",
+      "inherits": "ccache",
+      "displayName": "Generic development config",
+      "description": "Development build with testsuite using ccache with many warnings enabled and treated as errors",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel",
+      "cacheVariables": {
+        "ENABLE_DEVEL_DEFAULTS": {"type": "BOOL", "value": "ON"},
+        "CONFIGURATION_NAME": {"type": "STRING", "value": "devel"},
+        "CONFIGURATION_PACKAGE_SUFFIX": {"type": "STRING", "value": "-devel"},
+        "CONFIGURATION_PACKAGE_SUFFIX_QTUTILITIES": {"type": "STRING", "value": "-devel"},
+        "CONFIGURATION_PACKAGE_SUFFIX_QTFORKAWESOME": {"type": "STRING", "value": "-devel"},
+        "CONFIGURATION_TARGET_SUFFIX": {"type": "STRING", "value": "devel"}
+      }
+    },
+    {
+      "name": "devel-qt6",
+      "inherits": ["qt6", "devel"],
+      "displayName": "Generic development config using Qt 6",
+      "description": "Same as devel but configures use of Qt 6 (only relevant if project uses Qt)",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-qt6",
+      "cacheVariables": {
+        "QT_PACKAGE_PREFIX": {"type": "STRING", "value": "Qt6"},
+        "BUILD_WITH_QT6": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "devel",
+      "displayName": "Generic debug build with development config",
+      "description": "Same as devel but creates a debug build",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Debug"}
+      }
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32",
+      "inherits": ["no-webview", "no-kde"],
+      "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging",
+      "description": "Build targeting x86_64-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32",
+      "toolchainFile": "/usr/share/mingw/toolchain-x86_64-w64-mingw32.cmake",
+      "environment": {
+        "CROSS_TOOL_PREFIX": "x86_64-w64-mingw32-",
+        "CROSS_INSTALL_PREFIX": "/usr/x86_64-w64-mingw32",
+        "CPPFLAGS": "-D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS",
+        "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector",
+        "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
+        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
+        "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "PATH", "value": "/usr/bin/x86_64-w64-mingw32-wine"}
+      }
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-static",
+      "inherits": "arch-x86_64-w64-mingw32",
+      "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging (static)",
+      "description": "Build targeting x86_64-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-static",
+      "toolchainFile": "/usr/share/mingw/toolchain-x86_64-w64-mingw32-static.cmake",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-qt6",
+      "inherits": ["qt6", "arch-x86_64-w64-mingw32"],
+      "displayName": "Combination of qt6 and arch-x86_64-w64-mingw32",
+      "description": "See description of qt6 and arch-x86_64-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-qt6"
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-static-qt6",
+      "inherits": ["qt6", "arch-x86_64-w64-mingw32-static"],
+      "displayName": "Combination of qt6 and arch-x86_64-w64-mingw32-static",
+      "description": "See description of qt6 and arch-x86_64-w64-mingw32-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-static-qt6"
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-devel",
+      "inherits": ["devel", "arch-x86_64-w64-mingw32"],
+      "displayName": "Combination of devel and arch-x86_64-w64-mingw32",
+      "description": "See descriptions of devel and arch-x86_64-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-devel"
+    },
+    {
+      "name": "arch-static-compat",
+      "inherits": ["no-webview", "no-kde", "qt6"],
+      "displayName": "Target static-compat environment for Arch Linux",
+      "description": "Build using static-compat packages for Arch Linux found in my PKGBUILDs repo",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-static-compat",
+      "environment": {
+        "CROSS_INSTALL_PREFIX": "/usr/static-compat",
+        "CC": "$env{CROSS_INSTALL_PREFIX}/bin/gcc",
+        "CXX": "$env{CROSS_INSTALL_PREFIX}/bin/g++",
+        "CFLAGS": "$penv{CFLAGS} -fPIC -static-libgcc -static-libstdc++",
+        "CXXFLAGS": "$penv{CXXFLAGS} -fPIC -static-libgcc -static-libstdc++",
+        "LDFLAGS": "$penv{LDFLAGS} -static-libgcc -static-libstdc++",
+        "PKG_CONFIG_PATH": "$env{CROSS_INSTALL_PREFIX}/lib/pkgconfig:$env{CROSS_INSTALL_PREFIX}/share/pkgconfig",
+        "PKG_CONFIG_SYSROOT_DIR": "$env{CROSS_INSTALL_PREFIX}",
+        "PKG_CONFIG_LIBDIR": "$env{CROSS_INSTALL_PREFIX}/lib/pkgconfig:$env{CROSS_INSTALL_PREFIX}/share/pkgconfig",
+        "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}"},
+        "CMAKE_DISABLE_FIND_PACKAGE_harfbuzz": {"type": "BOOL", "value": "ON"},
+        "Boost_USE_STATIC_RUNTIME": {"type": "BOOL", "value": "ON"},
+        "GLIB2_USE_PKG_CONFIG": {"type": "BOOL", "value": "ON"},
+        "WAYLAND_USE_PKG_CONFIG": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "arch-static-compat-devel",
+      "inherits": ["devel", "arch-static-compat"],
+      "displayName": "Combination of devel and arch-static-compat",
+      "description": "See descriptions of devel and arch-static-compat",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-static-compat-devel"
+    }
+  ],
+  "buildPresets": [
+    {"name": "default", "configurePreset": "default"},
+    {"name": "qt6", "configurePreset": "qt6"},
+    {"name": "devel", "configurePreset": "devel"},
+    {"name": "devel-qt6", "configurePreset": "devel-qt6"},
+    {"name": "debug", "configurePreset": "debug"},
+    {"name": "arch-x86_64-w64-mingw32", "configurePreset": "arch-x86_64-w64-mingw32"},
+    {"name": "arch-x86_64-w64-mingw32-static", "configurePreset": "arch-x86_64-w64-mingw32-static"},
+    {"name": "arch-x86_64-w64-mingw32-qt6", "configurePreset": "arch-x86_64-w64-mingw32-qt6"},
+    {"name": "arch-x86_64-w64-mingw32-static-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-qt6"},
+    {"name": "arch-x86_64-w64-mingw32-devel", "configurePreset": "arch-x86_64-w64-mingw32-devel"},
+    {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
+    {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"}
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ]
+}
