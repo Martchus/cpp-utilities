@@ -27,7 +27,7 @@ The library contains helpers for:
     - writing formatted output using ANSI escape sequences
     - instantiating a standard IO stream from a native file descriptor to support UTF-8 encoded
       file paths under Windows and Android's `content://` URLs
-* using SFINAE by providing additional traits, eg. for checking whether a type is iteratable
+* using SFINAE by providing additional traits, eg. for checking whether a type is iterable
 * testing with *CppUnit*
     - finding testfiles and make working copies of testfiles
     - assert standard output
