@@ -174,11 +174,11 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     // -> read TEST_FILE_PATH environment variable
     bool hasTestFilePathFromEnv;
     if (auto testFilePathFromEnv = readTestfilePathFromEnv(); (hasTestFilePathFromEnv = !testFilePathFromEnv.empty())) {
-        m_testFilesPaths.emplace_back(move(testFilePathFromEnv));
+        m_testFilesPaths.emplace_back(std::move(testFilePathFromEnv));
     }
     // -> find source directory
     if (auto testFilePathFromSrcDirRef = readTestfilePathFromSrcRef(); !testFilePathFromSrcDirRef.empty()) {
-        m_testFilesPaths.emplace_back(move(testFilePathFromSrcDirRef));
+        m_testFilesPaths.emplace_back(std::move(testFilePathFromSrcDirRef));
     }
     // -> try testfiles directory in working directory
     m_testFilesPaths.emplace_back("./testfiles/");

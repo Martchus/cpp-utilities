@@ -1531,7 +1531,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             if (dir.size() > 1 && (dir[dir.size() - 2] == '\"' || dir[dir.size() - 2] == '\'')) {
                 dir.erase(dir.size() - 2, 1);
             }
-            actualDir = move(dir);
+            actualDir = std::move(dir);
         }
         // determine the "file" part
         string file = fileName(unescapedOpening);
@@ -1541,7 +1541,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         if (file.size() > 1 && (file[file.size() - 2] == '\"' || file[file.size() - 2] == '\'')) {
             file.erase(file.size() - 2, 1);
         }
-        actualFile = move(file);
+        actualFile = std::move(file);
     }
 
     // -> completion for files and dirs

@@ -437,10 +437,10 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
                 case 1:
                     *++iter = static_cast<std::uint8_t>((temp >> 16) & 0xFF);
                     *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
-                    return make_pair(move(buffer), decodedSize);
+                    return make_pair(std::move(buffer), decodedSize);
                 case 2:
                     *++iter = static_cast<std::uint8_t>((temp >> 10) & 0xFF);
-                    return make_pair(move(buffer), decodedSize);
+                    return make_pair(std::move(buffer), decodedSize);
                 default:
                     throw ConversionException("invalid padding in base64");
                 }
@@ -452,6 +452,6 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
         *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
         *++iter = static_cast<std::uint8_t>(temp & 0xFF);
     }
-    return make_pair(move(buffer), decodedSize);
+    return make_pair(std::move(buffer), decodedSize);
 }
 } // namespace CppUtilities
