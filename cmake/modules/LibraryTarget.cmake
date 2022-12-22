@@ -160,13 +160,17 @@ else ()
         ${META_TARGET_NAME}
         PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                    SOVERSION "${META_SOVERSION}"
-                   CXX_STANDARD "${META_CXX_STANDARD}"
                    C_VISIBILITY_PRESET hidden
                    CXX_VISIBILITY_PRESET hidden
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                    QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
+    if (NOT META_CXX_STANDARD STREQUAL "any")
+        set_target_properties(
+            ${META_TARGET_NAME}
+            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+    endif ()
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
     endif ()
@@ -235,8 +239,12 @@ if (META_HEADER_ONLY_LIB)
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
         PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
                    SOVERSION "${META_SOVERSION}"
-                   CXX_STANDARD "${META_CXX_STANDARD}"
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
+    if (NOT META_CXX_STANDARD STREQUAL "any")
+        set_target_properties(
+            ${META_TARGET_NAME}_interface_sources_for_qtcreator
+            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+    endif ()
 endif ()
 
 # generate CMake code to configure additional arguments for required CMake-packages

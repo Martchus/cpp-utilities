@@ -56,13 +56,17 @@ target_compile_options(
     PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(
     ${META_TARGET_NAME}
-    PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}"
-               C_VISIBILITY_PRESET hidden
+    PROPERTIES C_VISIBILITY_PRESET hidden
                CXX_VISIBILITY_PRESET hidden
                LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
+if (NOT META_CXX_STANDARD STREQUAL "any")
+    set_target_properties(
+        ${META_TARGET_NAME}
+        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+endif ()
 
 # set properties for macOS bundle and generate icon for macOS bundle
 if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
