@@ -23,22 +23,25 @@ set(WINDOWS_RC_FILE_CFG "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.rc.config
 set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows")
 
 # create Windows icon from png with ffmpeg if available
-unset(WINDOWS_ICON_PATH)
 unset(WINDOWS_ICON_RC_ENTRY)
-if (WINDOWS_ICON_ENABLED AND PNG_ICON_PATH)
-    find_program(FFMPEG_BIN ffmpeg avconv)
-    if (FFMPEG_BIN)
-        set(WINDOWS_ICON_PATH "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_NAME}.ico")
+if (WINDOWS_ICON_ENABLED)
+    if (NOT WINDOWS_ICON_PATH AND PNG_ICON_PATH)
+        find_program(FFMPEG_BIN ffmpeg avconv)
+        if (FFMPEG_BIN)
+            set(WINDOWS_ICON_PATH "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_NAME}.ico")
+            add_custom_command(
+                COMMENT "Generating icon for Windows executable"
+                OUTPUT "${WINDOWS_ICON_PATH}"
+                COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" "${WINDOWS_ICON_PATH}"
+                DEPENDS "${PNG_ICON_PATH}")
+            message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
+        else ()
+            message(STATUS "Unable to find ffmpeg, not creating a Windows icon")
+        endif ()
+    endif ()
+    if (WINDOWS_ICON_PATH)
         set(WINDOWS_ICON_RC_ENTRY "IDI_ICON1   ICON    DISCARDABLE \"${WINDOWS_ICON_PATH}\"")
-        add_custom_command(
-            COMMENT "Generating icon for Windows executable"
-            OUTPUT "${WINDOWS_ICON_PATH}"
-            COMMAND ${FFMPEG_BIN} -y -i "${PNG_ICON_PATH}" "${WINDOWS_ICON_PATH}"
-            DEPENDS "${PNG_ICON_PATH}")
         set_source_files_properties("${WINDOWS_RC_FILE}" PROPERTIES OBJECT_DEPENDS "${WINDOWS_ICON_PATH}")
-        message(STATUS "Generating Windows icon from \"${PNG_ICON_PATH}\" via ${FFMPEG_BIN}.")
-    else ()
-        message(STATUS "Unable to find ffmpeg, not creating a Windows icon")
     endif ()
 endif ()
 

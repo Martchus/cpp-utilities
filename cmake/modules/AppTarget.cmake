@@ -73,7 +73,9 @@ if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
                    MACOSX_BUNDLE_BUNDLE_VERSION "${META_APP_VERSION}"
                    MACOSX_BUNDLE_LONG_VERSION_STRING "${META_APP_VERSION}"
                    MACOSX_BUNDLE_SHORT_VERSION_STRING "${META_APP_VERSION}")
-    if (PNG_ICON_PATH)
+    if (MACOSX_ICON_PATH)
+        target_sources(${META_TARGET_NAME} PRIVATE "${MACOSX_ICON_PATH}")
+    elseif (PNG_ICON_PATH)
         find_program(PNG2ICNS_BIN png2icns)
         if (PNG2ICNS_BIN)
             set(RESOURCES_DIR "${CMAKE_CURRENT_BINARY_DIR}/${META_TARGET_NAME}.app/Contents/Resources")
