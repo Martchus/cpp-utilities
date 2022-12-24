@@ -84,6 +84,7 @@ set(CMAKE_MODULE_FILES
     cmake/modules/Doxygen.cmake
     cmake/modules/ListToString.cmake
     cmake/modules/ShellCompletion.cmake
+    cmake/modules/DevelUtilities.cmake
     cmake/modules/3rdParty.cmake)
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
