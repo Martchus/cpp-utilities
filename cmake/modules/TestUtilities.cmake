@@ -67,9 +67,7 @@ function (configure_test_target)
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE})
     if (NOT META_CXX_STANDARD STREQUAL "any")
-        set_target_properties(
-            "${TEST_TARGET_NAME}"
-            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+        set_target_properties("${TEST_TARGET_NAME}" PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
 
     # make the test recognized by ctest

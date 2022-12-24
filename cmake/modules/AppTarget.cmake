@@ -63,9 +63,7 @@ set_target_properties(
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
 if (NOT META_CXX_STANDARD STREQUAL "any")
-    set_target_properties(
-        ${META_TARGET_NAME}
-        PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+    set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
 endif ()
 
 # set properties for macOS bundle and generate icon for macOS bundle

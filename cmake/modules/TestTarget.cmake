@@ -121,9 +121,7 @@ if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
     if (NOT META_CXX_STANDARD STREQUAL "any")
-        set_target_properties(
-            ${META_TARGET_NAME}_testlib
-            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+        set_target_properties(${META_TARGET_NAME}_testlib PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
     if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
         target_include_directories(${META_TARGET_NAME}_testlib

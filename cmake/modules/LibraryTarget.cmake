@@ -167,9 +167,7 @@ else ()
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                    QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
     if (NOT META_CXX_STANDARD STREQUAL "any")
-        set_target_properties(
-            ${META_TARGET_NAME}
-            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+        set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
     if (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
@@ -241,9 +239,8 @@ if (META_HEADER_ONLY_LIB)
                    SOVERSION "${META_SOVERSION}"
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}")
     if (NOT META_CXX_STANDARD STREQUAL "any")
-        set_target_properties(
-            ${META_TARGET_NAME}_interface_sources_for_qtcreator
-            PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
+        set_target_properties(${META_TARGET_NAME}_interface_sources_for_qtcreator PROPERTIES CXX_STANDARD
+                                                                                             "${META_CXX_STANDARD}")
     endif ()
 endif ()
 
