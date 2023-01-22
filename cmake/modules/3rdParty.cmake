@@ -274,6 +274,7 @@ function (use_package)
     set("PACKAGE_ARGS_${ARGS_PACKAGE_NAME}"
         "${ARGS_PACKAGE_ARGS}"
         PARENT_SCOPE)
+    set("${ARGS_PACKAGE_NAME}_VERSION" "${${ARGS_PACKAGE_NAME}_VERSION}" PARENT_SCOPE)
 endfunction ()
 
 function (use_pkg_config_module)
