@@ -33,6 +33,10 @@ Makefile*
 *.qmlproject.user
 *.qmlproject.user.*
 
+# Visual Studio
+/.vs
+/out
+
 # Dolphin
 .directory
 
