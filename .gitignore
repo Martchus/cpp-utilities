@@ -26,11 +26,10 @@ ui_*.h
 Makefile*
 *-build-*
 
-# QtCreator
-
+# Qt Creator
 *.autosave
 
-#QtCtreator Qml
+# Qt Ctreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
 
