@@ -2,7 +2,9 @@
 
 #ifndef CPP_UTILITIES_NO_THREAD_LOCAL
 #include "../feature_detection/features.h"
-#else
+#endif
+
+#ifndef CPP_UTILITIES_THREAD_LOCAL
 #define CPP_UTILITIES_THREAD_LOCAL
 #endif
 

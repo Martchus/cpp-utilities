@@ -226,9 +226,6 @@
 #    else
 #      define CPP_UTILITIES_COMPILER_CXX_THREAD_LOCAL 0
 #    endif
-
-#  else
-#    error Unsupported compiler
 #  endif
 
 #  if defined(CPP_UTILITIES_COMPILER_CXX_THREAD_LOCAL) && CPP_UTILITIES_COMPILER_CXX_THREAD_LOCAL
@@ -236,7 +233,7 @@
 #  elif CPP_UTILITIES_COMPILER_IS_GNU || CPP_UTILITIES_COMPILER_IS_Clang || CPP_UTILITIES_COMPILER_IS_AppleClang
 #    define CPP_UTILITIES_THREAD_LOCAL __thread
 #  elif CPP_UTILITIES_COMPILER_IS_MSVC
-#    define CPP_UTILITIES_THREAD_LOCAL __declspec(thread)
+#    define CPP_UTILITIES_THREAD_LOCAL __declspec(thread) static
 #  else
 // CPP_UTILITIES_THREAD_LOCAL not defined for this configuration.
 #  endif
