@@ -6,13 +6,14 @@
 #include <iostream>
 #include <string>
 
-#ifndef PLATFORM_WINDOWS
-#include <sys/ioctl.h>
-#include <unistd.h>
-#else
-#include <cstring>
 #include <fcntl.h>
+#ifdef PLATFORM_WINDOWS
+#include <cstring>
+#include <io.h>
 #include <windows.h>
+#else
+#include <unistd.h>
+#include <sys/ioctl.h>
 #endif
 
 using namespace std;
