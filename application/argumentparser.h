@@ -530,7 +530,7 @@ inline const char *Argument::name() const
  */
 inline void Argument::setName(const char *name)
 {
-#ifdef CPP_UTILITIES_DEBUG_BUILD
+#if defined(CPP_UTILITIES_DEBUG_BUILD) && !defined(_MSC_VER)
     if (name && *name) {
         assert(*name != '-');
         for (const char *c = name; *c; ++c) {
