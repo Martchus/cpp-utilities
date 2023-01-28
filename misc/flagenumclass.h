@@ -9,8 +9,7 @@ namespace CppUtilities {
  * \brief The IsFlagEnumClass class is used to decide whether to enable operations for flag enums for \tp T.
  * \remarks This class is still experimental and might be changed or removed in future minior releases.
  */
-template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {
-};
+template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {};
 
 // clang-format off
 /*!
