@@ -12,8 +12,8 @@
 #include <io.h>
 #include <windows.h>
 #else
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 
 using namespace std;

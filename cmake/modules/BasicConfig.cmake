@@ -121,7 +121,7 @@ endif ()
 # set default CXX_STANDARD for all library, application and test targets
 if (NOT META_CXX_STANDARD)
     if (MSVC)
-        set(META_CXX_STANDARD 20)  # MSVC needs C++ 20 mode for designated initializers
+        set(META_CXX_STANDARD 20) # MSVC needs C++ 20 mode for designated initializers
     else ()
         set(META_CXX_STANDARD 17)
     endif ()
