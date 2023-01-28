@@ -109,7 +109,7 @@ void ArgumentParserTests::testArgument()
 #endif
     ArgumentOccurrence occurrence(0, vector<Argument *>(), nullptr);
     occurrence.values.emplace_back("bar");
-    argument.m_occurrences.emplace_back(move(occurrence));
+    argument.m_occurrences.emplace_back(std::move(occurrence));
     CPPUNIT_ASSERT_EQUAL("bar"s, string(argument.firstValue()));
 }
 
