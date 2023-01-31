@@ -14,10 +14,10 @@ if (NOT META_NO_CPP_UNIT)
     # make cppunit library/include dir configurable
     set(CPP_UNIT_LIB
         NOTFOUND
-        CACHE FILEPATH "cppunit lib" FORCE)
+        CACHE FILEPATH "cppunit lib")
     set(CPP_UNIT_INCLUDE_DIR
         NOTFOUND
-        CACHE FILEPATH "cppunit include dir" FORCE)
+        CACHE FILEPATH "cppunit include dir")
 
     # set default for minimum version (only checked when using pkg-config)
     if (NOT META_REQUIRED_CPP_UNIT_VERSION)
@@ -31,18 +31,26 @@ if (NOT META_NO_CPP_UNIT)
         if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
             set(CPP_UNIT_LIB
                 "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}" "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}"
-                CACHE FILEPATH "cppunit lib" FORCE)
+                CACHE FILEPATH "CppUnit library" FORCE)
             set(CPP_UNIT_INCLUDE_DIR
                 ${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}
-                CACHE FILEPATH "cppunit include dir" FORCE)
+                CACHE FILEPATH "CppUnit include dir" FORCE)
             link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
-        else ()
-            # fall back to find_library
-            find_library(DETECTED_CPP_UNIT_LIB cppunit)
-            set(CPP_UNIT_LIB
-                "${DETECTED_CPP_UNIT_LIB}"
-                CACHE FILEPATH "cppunit lib" FORCE)
         endif ()
+    endif ()
+
+    # fall back to find_package (as vcpkg provides one)
+    if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
+        find_package(CppUnit CONFIG)
+        if (TARGET CppUnit)
+            set(CPP_UNIT_LIB CppUnit CACHE STRING "CppUnit target" FORCE)
+        endif ()
+    endif ()
+
+    # fall back to find_library
+    if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
+        find_library(DETECTED_CPP_UNIT_LIB cppunit)
+        set(CPP_UNIT_LIB "${DETECTED_CPP_UNIT_LIB}" CACHE FILEPATH "CppUnit library" FORCE)
     endif ()
 
     if (NOT CPP_UNIT_LIB)
