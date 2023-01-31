@@ -266,28 +266,30 @@ template <class StringType = std::string, class... Args> inline StringType argsT
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
 template <class Tuple, class StringType,
-    Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
+    Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>, Traits::IsSpecializingAnyOf<StringType, std::basic_string, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(const Tuple &lhs, const StringType &rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(&rhs)))
+constexpr auto operator%(const Tuple &lhs, const StringType &rhs) -> decltype(std::tuple_cat(lhs, std::tuple<const StringType&>(rhs)))
 {
-    return std::tuple_cat(lhs, std::make_tuple(&rhs));
+    return std::tuple_cat(lhs, std::tuple<const StringType &>(rhs));
 }
 
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-template <class Tuple> constexpr auto operator%(const Tuple &lhs, const char *rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(rhs)))
+template <class Tuple,
+    Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>>
+    * = nullptr > constexpr auto operator%(const Tuple &lhs, const char *rhs) -> decltype(std::tuple_cat(lhs, std::tuple<const char*>(rhs)))
 {
-    return std::tuple_cat(lhs, std::make_tuple(rhs));
+    return std::tuple_cat(lhs, std::tuple<const char *>(rhs));
 }
 
 /*!
  * \brief Allows construction of string-tuples via %-operator, eg. string1 % "string2" % string3.
  */
-template <class Tuple, typename IntegralType, Traits::EnableIf<std::is_integral<IntegralType>> * = nullptr>
-constexpr auto operator%(const Tuple &lhs, IntegralType rhs) -> decltype(std::tuple_cat(lhs, std::make_tuple(rhs)))
+template <class Tuple, typename IntegralType, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>, std::is_integral<IntegralType>> * = nullptr>
+constexpr auto operator%(const Tuple &lhs, IntegralType rhs) -> decltype(std::tuple_cat(lhs, std::tuple<IntegralType>(rhs)))
 {
-    return std::tuple_cat(lhs, std::make_tuple(rhs));
+    return std::tuple_cat(lhs, std::tuple<IntegralType>(rhs));
 }
 
 /*!
@@ -296,9 +298,9 @@ constexpr auto operator%(const Tuple &lhs, IntegralType rhs) -> decltype(std::tu
 template <class StringType,
     Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(const StringType &lhs, const StringType &rhs) -> decltype(std::make_tuple(&lhs, &rhs))
+constexpr auto operator%(const StringType &lhs, const StringType &rhs) -> decltype(std::tuple<const StringType&, const StringType&>(lhs, rhs))
 {
-    return std::make_tuple(&lhs, &rhs);
+    return std::tuple<const StringType &, const StringType &>(lhs, rhs);
 }
 
 /*!
@@ -307,9 +309,9 @@ constexpr auto operator%(const StringType &lhs, const StringType &rhs) -> declty
 template <class StringType,
     Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(const char *lhs, const StringType &rhs) -> decltype(std::make_tuple(lhs, &rhs))
+constexpr auto operator%(const char *lhs, const StringType &rhs) -> decltype(std::tuple<const char*, const StringType&>(lhs, rhs))
 {
-    return std::make_tuple(lhs, &rhs);
+    return std::tuple<const char *, const StringType &>(lhs, rhs);
 }
 
 /*!
@@ -318,9 +320,9 @@ constexpr auto operator%(const char *lhs, const StringType &rhs) -> decltype(std
 template <class StringType,
     Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(const StringType &lhs, const char *rhs) -> decltype(std::make_tuple(&lhs, rhs))
+constexpr auto operator%(const StringType &lhs, const char *rhs) -> decltype(std::tuple<const StringType&, const char*>(lhs, rhs))
 {
-    return std::make_tuple(&lhs, rhs);
+    return std::tuple<const StringType &, const char *>(lhs, rhs);
 }
 
 /*!
@@ -329,9 +331,9 @@ constexpr auto operator%(const StringType &lhs, const char *rhs) -> decltype(std
 template <class StringType,
     Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(const StringType &lhs, char rhs) -> decltype(std::make_tuple(&lhs, rhs))
+constexpr auto operator%(const StringType &lhs, char rhs) -> decltype(std::tuple<const StringType&, char>(lhs, rhs))
 {
-    return std::make_tuple(&lhs, rhs);
+    return std::tuple<const StringType &, char>(lhs, rhs);
 }
 
 /*!
@@ -340,9 +342,9 @@ constexpr auto operator%(const StringType &lhs, char rhs) -> decltype(std::make_
 template <class StringType,
     Traits::EnableIfAny<Traits::IsSpecializationOf<StringType, std::basic_string>, Traits::IsSpecializationOf<StringType, std::basic_string_view>>
         * = nullptr>
-constexpr auto operator%(char lhs, const StringType &rhs) -> decltype(std::make_tuple(lhs, &rhs))
+constexpr auto operator%(char lhs, const StringType &rhs) -> decltype(std::tuple<char, const StringType&>(lhs, rhs))
 {
-    return std::make_tuple(lhs, &rhs);
+    return std::tuple<char, const StringType &>(lhs, rhs);
 }
 
 /*!
@@ -360,7 +362,7 @@ template <class Tuple, class StringType,
         * = nullptr>
 inline std::string operator+(const Tuple &lhs, const StringType &rhs)
 {
-    return tupleToString(std::tuple_cat(lhs, std::make_tuple(&rhs)));
+    return tupleToString(std::tuple_cat(lhs, std::tuple<const StringType &>(rhs)));
 }
 
 /*!
@@ -375,7 +377,7 @@ inline std::string operator+(const Tuple &lhs, const StringType &rhs)
 template <class Tuple, Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>> * = nullptr>
 inline std::string operator+(const Tuple &lhs, const char *rhs)
 {
-    return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
+    return tupleToString(std::tuple_cat(lhs, std::tuple<const char *>(rhs)));
 }
 
 /*!
@@ -391,7 +393,7 @@ template <class Tuple, typename IntegralType,
     Traits::EnableIf<Traits::IsSpecializationOf<Tuple, std::tuple>, std::is_integral<IntegralType>> * = nullptr>
 inline std::string operator+(const Tuple &lhs, IntegralType rhs)
 {
-    return tupleToString(std::tuple_cat(lhs, std::make_tuple(rhs)));
+    return tupleToString(std::tuple_cat(lhs, std::tuple<IntegralType>(rhs)));
 }
 } // namespace CppUtilities
 
