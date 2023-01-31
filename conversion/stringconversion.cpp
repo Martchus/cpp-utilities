@@ -20,6 +20,13 @@
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
+// note: The windows header seriously defines a macro called "max" breaking the (common) use
+// of std::numeric_limits in the subsequent code. So we need to undefine this macro. Note that
+// this is not the case using mingw-w64 but it is happening with windows.h from Windows Kits
+// version 10.0.22000.0 via Visual Studio 2022.
+#ifdef max
+#undef max
+#endif
 #endif
 
 using namespace std;
