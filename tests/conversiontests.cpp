@@ -363,10 +363,10 @@ void ConversionTests::testStringConversions()
     CPPUNIT_ASSERT_EQUAL("foo"s, truncateTest);
 
     // encodeBase64() / decodeBase64() with random data
-    uniform_int_distribution<std::uint8_t> randomDistChar;
+    std::uniform_int_distribution<int> randomDistChar;
     std::uint8_t originalBase64Data[4047];
     for (std::uint8_t &c : originalBase64Data) {
-        c = randomDistChar(m_randomEngine);
+        c = static_cast<std::uint8_t>(randomDistChar(m_randomEngine) & 0xFF);
     }
     auto encodedBase64Data = encodeBase64(originalBase64Data, sizeof(originalBase64Data));
     auto decodedBase64Data = decodeBase64(encodedBase64Data.data(), static_cast<std::uint32_t>(encodedBase64Data.size()));
