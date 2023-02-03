@@ -7,8 +7,8 @@
 #include <functional>
 #include <initializer_list>
 #include <limits>
-#include <vector>
 #include <tuple>
+#include <vector>
 #ifdef CPP_UTILITIES_DEBUG_BUILD
 #include <cassert>
 #endif

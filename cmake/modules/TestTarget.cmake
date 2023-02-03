@@ -43,14 +43,18 @@ if (NOT META_NO_CPP_UNIT)
     if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
         find_package(CppUnit CONFIG)
         if (TARGET CppUnit)
-            set(CPP_UNIT_LIB CppUnit CACHE STRING "CppUnit target" FORCE)
+            set(CPP_UNIT_LIB
+                CppUnit
+                CACHE STRING "CppUnit target" FORCE)
         endif ()
     endif ()
 
     # fall back to find_library
     if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
         find_library(DETECTED_CPP_UNIT_LIB cppunit)
-        set(CPP_UNIT_LIB "${DETECTED_CPP_UNIT_LIB}" CACHE FILEPATH "CppUnit library" FORCE)
+        set(CPP_UNIT_LIB
+            "${DETECTED_CPP_UNIT_LIB}"
+            CACHE FILEPATH "CppUnit library" FORCE)
     endif ()
 
     if (NOT CPP_UNIT_LIB)
