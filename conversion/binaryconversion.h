@@ -4,6 +4,16 @@
 #include "../global.h"
 
 #include <cstdint>
+#include <cstring>
+#include <type_traits>
+
+// use std::bit_cast and std::byteswap if available as only GCC is able to optimize the custom bitshift code in all cases
+// note: Clang 15.0.0 is only able to optimize the bitshift code in getBytes() functions and MSVC 19.10 is not able to
+//       optimize it at all. Unfortunately bit_cast and byteswap are only available in C++20 and 23 respectively so the
+//       custom code needs to stay for compatibility.
+#if __cplusplus >= 202002L
+#include <bit>
+#endif
 
 // detect byte order according to __BYTE_ORDER__
 #if defined(__BYTE_ORDER__)
