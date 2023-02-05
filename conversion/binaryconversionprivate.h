@@ -133,31 +133,21 @@ CPP_UTILITIES_EXPORT inline double toFloat64(const char *value)
 }
 
 /*!
- * \brief Stores the specified 16-bit signed integer value at a specified position in a char array.
+ * \brief Returns the specified (unsigned) integer converted from the specified char array.
+ * \remarks
+ * - The \a value must point to a sequence of characters that is at least as long as the specified integer type.
+ * - This function is potentially faster than the width-specific toInt…() because the width-specific functions use
+ *   custom code that may not be optimized by the compiler. (Only GCC optimized it but not Clang and MSVC.) Note
+ *   that the width-specific functions cannot be changed as they are constexpr and thus cannot use memcpy().
  */
-CPP_UTILITIES_EXPORT inline void getBytes(std::int16_t value, char *outputbuffer)
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT inline T toInt(const char *value)
 {
+    auto dst = T();
+    std::memcpy(&dst, value, sizeof(T));
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
+    dst = swapOrder(dst);
 #endif
-}
-
-/*!
- * \brief Stores the specified 16-bit unsigned integer value at a specified position in a char array.
- */
-CPP_UTILITIES_EXPORT inline void getBytes(std::uint16_t value, char *outputbuffer)
-{
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
-#endif
+    return dst;
 }
 
 /*!
@@ -178,91 +168,18 @@ CPP_UTILITIES_EXPORT inline void getBytes24(std::uint32_t value, char *outputbuf
 }
 
 /*!
- * \brief Stores the specified 32-bit signed integer value at a specified position in a char array.
+ * \brief Stores the specified (unsigned) integer value in a char array.
+ * \remarks
+ * - The \a value outputbuffer must point to a sequence of characters that is at least as long as the specified integer type.
+ * - This function is potentially faster than the width-specific toInt…() because the width-specific functions use
+ *   custom code that may not be optimized by the compiler. (Only GCC optimized it but not Clang and MSVC.)
  */
-CPP_UTILITIES_EXPORT inline void getBytes(std::int32_t value, char *outputbuffer)
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT inline void getBytes(T value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
+    value = swapOrder(value);
 #endif
-}
-
-/*!
- * \brief Stores the specified 32-bit signed integer value at a specified position in a char array.
- */
-CPP_UTILITIES_EXPORT inline void getBytes(std::uint32_t value, char *outputbuffer)
-{
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
-#endif
-}
-
-/*!
- * \brief Stores the specified 64-bit signed integer value at a specified position in a char array.
- */
-CPP_UTILITIES_EXPORT inline void getBytes(std::int64_t value, char *outputbuffer)
-{
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 56) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 48) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 40) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value >> 32) & 0xFF);
-    outputbuffer[4] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[5] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[7] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[7] = static_cast<char>((value >> 56) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >> 48) & 0xFF);
-    outputbuffer[5] = static_cast<char>((value >> 40) & 0xFF);
-    outputbuffer[4] = static_cast<char>((value >> 32) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
-#endif
-}
-
-/*!
- * \brief Stores the specified 64-bit unsigned integer value at a specified position in a char array.
- */
-CPP_UTILITIES_EXPORT inline void getBytes(std::uint64_t value, char *outputbuffer)
-{
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
-    outputbuffer[0] = static_cast<char>((value >> 56) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 48) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 40) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value >> 32) & 0xFF);
-    outputbuffer[4] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[5] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[7] = static_cast<char>((value)&0xFF);
-#else
-    outputbuffer[7] = static_cast<char>((value >> 56) & 0xFF);
-    outputbuffer[6] = static_cast<char>((value >> 48) & 0xFF);
-    outputbuffer[5] = static_cast<char>((value >> 40) & 0xFF);
-    outputbuffer[4] = static_cast<char>((value >> 32) & 0xFF);
-    outputbuffer[3] = static_cast<char>((value >> 24) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
-    outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
-#endif
+    std::memcpy(outputbuffer, &value, sizeof(T));
 }
 
 /*!

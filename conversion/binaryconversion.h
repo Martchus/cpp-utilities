@@ -5,6 +5,7 @@
 #include "../misc/traits.h"
 
 #include <cstdint>
+#include <cstring>
 
 // use helpers from bits header if available instead of custom code using bit operations
 #if __cplusplus >= 202002L
