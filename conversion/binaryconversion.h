@@ -80,28 +80,6 @@
 namespace CppUtilities {
 
 /*!
- * \brief Encapsulates binary conversion functions using the big endian byte order.
- * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
- */
-namespace BE {
-
-#define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 0
-#include "./binaryconversionprivate.h"
-#undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-} // namespace BE
-
-/*!
- * \brief Encapsulates binary conversion functions using the little endian byte order.
- * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
- */
-namespace LE {
-
-#define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 1
-#include "./binaryconversionprivate.h"
-#undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
-} // namespace LE
-
-/*!
  * \brief Returns the 8.8 fixed point representation converted from the specified 32-bit floating point number.
  */
 CPP_UTILITIES_EXPORT constexpr std::uint16_t toFixed8(float float32value)
@@ -190,6 +168,28 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
 }
 
 #endif
+
+/*!
+ * \brief Encapsulates binary conversion functions using the big endian byte order.
+ * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
+ */
+namespace BE {
+
+#define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 0
+#include "./binaryconversionprivate.h"
+#undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
+} // namespace BE
+
+/*!
+ * \brief Encapsulates binary conversion functions using the little endian byte order.
+ * \sa <a href="http://en.wikipedia.org/wiki/Endianness">Endianness - Wikipedia</a>
+ */
+namespace LE {
+
+#define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL 1
+#include "./binaryconversionprivate.h"
+#undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
+} // namespace LE
 
 } // namespace CppUtilities
 
