@@ -119,13 +119,13 @@ void ConversionTests::testConversion(
     stringstream msg;
     msg << message << '(' << hex << '0' << 'x' << random << ')';
     vice(random, m_buff);
-    CPPUNIT_ASSERT_MESSAGE(msg.str(), versa(m_buff) == random);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.str(), random, versa(m_buff));
 }
 
 #define TEST_TYPE(endianness, function) decltype(endianness::function(m_buff))
 
 #define TEST_CONVERSION(function, endianness)                                                                                                        \
-    testConversion<TEST_TYPE(endianness, function)>("testing " #function,                                                                            \
+    testConversion<TEST_TYPE(endianness, function)>("testing " #endianness "::" #function,                                                           \
         static_cast<void (*)(TEST_TYPE(endianness, function), char *)>(&endianness::getBytes), endianness::function,                                 \
         numeric_limits<TEST_TYPE(endianness, function)>::min(), numeric_limits<TEST_TYPE(endianness, function)>::max())
 
@@ -134,8 +134,8 @@ void ConversionTests::testConversion(
 #define TEST_LE_CONVERSION(function) TEST_CONVERSION(function, LE)
 
 #define TEST_CUSTOM_CONVERSION(vice, versa, endianness, min, max)                                                                                    \
-    testConversion<TEST_TYPE(endianness, versa)>(                                                                                                    \
-        "testing " #versa, static_cast<void (*)(TEST_TYPE(endianness, versa), char *)>(&endianness::vice), endianness::versa, min, max)
+    testConversion<TEST_TYPE(endianness, versa)>("testing " #versa " (" #endianness ")",                                                             \
+        static_cast<void (*)(TEST_TYPE(endianness, versa), char *)>(&endianness::vice), endianness::versa, min, max)
 
 /*!
  * \brief Tests most important binary conversions.
