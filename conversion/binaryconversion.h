@@ -2,12 +2,12 @@
 #define CONVERSION_UTILITIES_BINARY_CONVERSION_H
 
 #include "../global.h"
+#include "../misc/traits.h"
 
 #include <cstdint>
 
 // use helpers from bits header if available instead of custom code using bit operations
 #if __cplusplus >= 202002L
-#include "../misc/traits.h"
 #include <bit>
 #endif
 
@@ -167,6 +167,36 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
         | ((value & 0x000000000000FF00) << (5 * 8)) | ((value) << (7 * 8));
 }
 
+/*!
+ * \brief Swaps the byte order of the specified 16-bit integer.
+ */
+CPP_UTILITIES_EXPORT constexpr std::int16_t swapOrder(std::int16_t value)
+{
+    return static_cast<std::int16_t>(((static_cast<std::uint16_t>(value) >> 8) & 0x00FF) | ((static_cast<std::uint16_t>(value) << 8) & 0xFF00));
+}
+
+/*!
+ * \brief Swaps the byte order of the specified 32-bit integer.
+ */
+CPP_UTILITIES_EXPORT constexpr std::int32_t swapOrder(std::int32_t value)
+{
+    return static_cast<std::int32_t>((static_cast<std::uint32_t>(value) >> 24) | ((static_cast<std::uint32_t>(value) & 0x00FF0000) >> 8)
+        | ((static_cast<std::uint32_t>(value) & 0x0000FF00) << 8) | (static_cast<std::uint32_t>(value) << 24));
+}
+
+/*!
+ * \brief Swaps the byte order of the specified 64-bit integer.
+ */
+CPP_UTILITIES_EXPORT constexpr std::int64_t swapOrder(std::int64_t value)
+{
+    return static_cast<std::int64_t>((static_cast<std::uint64_t>(value) >> (7 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x00FF000000000000) >> (5 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x0000FF0000000000) >> (3 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x000000FF00000000) >> (1 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x00000000FF000000) << (1 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x0000000000FF0000) << (3 * 8))
+        | ((static_cast<std::uint64_t>(value) & 0x000000000000FF00) << (5 * 8)) | ((static_cast<std::uint64_t>(value)) << (7 * 8)));
+}
 #endif
 
 /*!

@@ -27,6 +27,9 @@ static_assert(toNormalInt(383) == 255, "toNormalInt()");
 static_assert(swapOrder(static_cast<std::uint16_t>(0xABCD)) == 0xCDAB, "swapOrder(std::uint16_t)");
 static_assert(swapOrder(static_cast<std::uint32_t>(0xABCDEF12u)) == 0x12EFCDABu, "swapOrder(std::uint32_t)");
 static_assert(swapOrder(static_cast<std::uint64_t>(0xABCDEF1234567890ul)) == 0x9078563412EFCDABul, "swapOrder(std::uint64_t)");
+static_assert(swapOrder(static_cast<std::int16_t>(0xABCD)) == static_cast<std::int16_t>(0xCDAB), "swapOrder(std::int16_t)");
+static_assert(swapOrder(static_cast<std::int32_t>(0xABCDEF12)) == 0x12EFCDAB, "swapOrder(std::int32_t)");
+static_assert(swapOrder(static_cast<std::int64_t>(0xABCDEF1234567890l)) == static_cast<std::int64_t>(0x9078563412EFCDABl), "swapOrder(std::int64_t)");
 
 /*!
  * \brief The ConversionTests class tests classes and functions provided by the files inside the conversion directory.
