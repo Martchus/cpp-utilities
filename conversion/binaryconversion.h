@@ -5,6 +5,12 @@
 
 #include <cstdint>
 
+// use helpers from bits header if available instead of custom code using bit operations
+#if __cplusplus >= 202002L
+#include "../misc/traits.h"
+#include <bit>
+#endif
+
 // detect byte order according to __BYTE_ORDER__
 #if defined(__BYTE_ORDER__)
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -148,6 +154,15 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toNormalInt(std::uint32_t synchsafe
         | ((synchsafeInt & 0x7f000000u) >> 3);
 }
 
+// define helpers for byte swapping
+#ifdef __cpp_lib_byteswap // in C++ 23 we can just use the stdlib
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT constexpr T swapOrder(T value)
+{
+    return std::byteswap(value);
+}
+
+#else // provide custom code for C++ 20 and older (will also be optimized by GCC and Clang to use bswap)
+
 /*!
  * \brief Swaps the byte order of the specified 16-bit unsigned integer.
  */
@@ -173,6 +188,9 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
         | ((value & 0x000000FF00000000) >> (1 * 8)) | ((value & 0x00000000FF000000) << (1 * 8)) | ((value & 0x0000000000FF0000) << (3 * 8))
         | ((value & 0x000000000000FF00) << (5 * 8)) | ((value) << (7 * 8));
 }
+
+#endif
+
 } // namespace CppUtilities
 
 #endif // CONVERSION_UTILITIES_BINARY_CONVERSION_H
