@@ -2,10 +2,6 @@
 #error "Do not include binaryconversionprivate.h directly."
 #else
 
-#include "../global.h"
-
-#include <cstdint>
-
 // disable warnings about sign conversions when using GCC or Clang
 #ifdef __GNUC__
 #pragma GCC diagnostic push
