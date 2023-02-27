@@ -40,7 +40,7 @@ using namespace CppUtilities::EscapeCodes;
 namespace CppUtilities {
 
 /// \cond
-bool fileSystemItemExists(const string &path)
+static bool fileSystemItemExists(const string &path)
 {
 #ifdef PLATFORM_UNIX
     struct stat res;
@@ -55,7 +55,7 @@ bool fileSystemItemExists(const string &path)
 #endif
 }
 
-bool fileExists(const string &path)
+static bool fileExists(const string &path)
 {
 #ifdef PLATFORM_UNIX
     struct stat res;
@@ -70,7 +70,7 @@ bool fileExists(const string &path)
 #endif
 }
 
-bool dirExists(const string &path)
+static bool dirExists(const string &path)
 {
 #ifdef PLATFORM_UNIX
     struct stat res;
@@ -85,7 +85,7 @@ bool dirExists(const string &path)
 #endif
 }
 
-bool makeDir(const string &path)
+static bool makeDir(const string &path)
 {
 #ifdef PLATFORM_UNIX
     return mkdir(path.data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
