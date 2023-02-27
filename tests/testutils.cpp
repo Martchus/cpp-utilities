@@ -178,7 +178,7 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     }
     // -> find source directory
     if (auto testFilePathFromSrcDirRef = readTestfilePathFromSrcRef(); !testFilePathFromSrcDirRef.empty()) {
-        m_testFilesPaths.emplace_back(std::move(testFilePathFromSrcDirRef));
+        m_testFilesPaths.insert(m_testFilesPaths.end(), std::make_move_iterator(testFilePathFromSrcDirRef.begin()), std::make_move_iterator(testFilePathFromSrcDirRef.end()));
     }
     // -> try testfiles directory in working directory
     m_testFilesPaths.emplace_back("./testfiles/");
@@ -612,10 +612,11 @@ string TestApplication::readTestfilePathFromEnv()
  * \remarks That file is supposed to contain the path the the source directory. It is supposed to be stored by the build system in the
  *          same directory as the test executable. The CMake modules contained of these utilities ensure that's the case.
  */
-string TestApplication::readTestfilePathFromSrcRef()
+std::vector<std::string> TestApplication::readTestfilePathFromSrcRef()
 {
     // find the path of the current executable on platforms supporting "/proc/self/exe"; otherwise assume the current working directory
     // is the executable path
+    auto res = std::vector<std::string>();
     auto binaryPath = std::string();
 #if defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_UNIX)
     try {
@@ -628,25 +629,30 @@ string TestApplication::readTestfilePathFromSrcRef()
     const auto srcdirrefPath = binaryPath + "srcdirref";
     try {
         // read "srcdirref" file which should contain the path of the source directory
-        auto srcDirContent(readFile(srcdirrefPath, 2 * 1024));
+        const auto srcDirContent = readFile(srcdirrefPath, 2 * 1024);
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
-            return string();
+            return res;
         }
-        srcDirContent += "/testfiles/";
 
-        // check whether the referenced source directory contains a "testfiles" directory
-        if (!dirExists(srcDirContent)) {
-            cerr << Phrases::Warning
-                 << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
-                 << Phrases::End << "Referenced source directory: " << srcDirContent << endl;
-            return string();
+        // check whether the referenced source directories contain a "testfiles" directory
+        const auto srcPaths = splitStringSimple<std::vector<std::string_view>>(srcDirContent, "\n");
+        for (const auto &srcPath : srcPaths) {
+            auto testfilesPath = argsToString(srcPath, "/testfiles/");
+            if (dirExists(testfilesPath)) {
+                res.emplace_back(std::move(testfilesPath));
+            } else {
+                cerr << Phrases::Warning
+                     << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
+                     << Phrases::End << "Referenced source directory: " << testfilesPath << endl;
+            }
+
         }
-        return srcDirContent;
+        return res;
 
     } catch (const std::ios_base::failure &e) {
         cerr << Phrases::Warning << "The file \"" << srcdirrefPath << "\" can not be opened: " << e.what() << Phrases::EndFlush;
     }
-    return string();
+    return res;
 }
 } // namespace CppUtilities

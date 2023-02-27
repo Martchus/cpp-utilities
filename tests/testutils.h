@@ -52,7 +52,7 @@ public:
 
 private:
     static std::string readTestfilePathFromEnv();
-    static std::string readTestfilePathFromSrcRef();
+    static std::vector<std::string> readTestfilePathFromSrcRef();
 
     ArgumentParser m_parser;
     OperationArgument m_listArg;

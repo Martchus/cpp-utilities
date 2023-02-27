@@ -344,7 +344,10 @@ endif ()
 # useful if there's a test target; this is for instance also used in mocked configuration of syncthingtray) -> add a file
 # called "srcdirref" to the build directory; this file contains the path of the sources so tests can easily find test files
 # contained in the source directory
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/srcdirref" "${CMAKE_CURRENT_SOURCE_DIR}")
+if (NOT META_SRCDIR_REFS)
+    set(META_SRCDIR_REFS "${CMAKE_CURRENT_SOURCE_DIR}")
+endif ()
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/srcdirref" "${META_SRCDIR_REFS}")
 # -> ensure the directory "testfiles" exists in the build directory; tests of my projects use it by default to create working
 # copies of testfiles
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/testfiles")
