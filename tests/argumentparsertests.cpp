@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <regex>
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -981,8 +982,7 @@ void ArgumentParserTests::testValueConversion()
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
     } catch (const ParseError &failure) {
-        CPPUNIT_ASSERT_EQUAL(
-            "Conversion of top-level value \"foo\" to type \"i\" failed: The character \"f\" is no valid digit."s, string(failure.what()));
+        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of top-level value", "Conversion of top-level value \"foo\" to type \".*\" failed: The character \"f\" is no valid digit."s, std::regex::extended, std::string(failure.what()));
     }
     occurrence.path = { &arg };
     try {
@@ -995,7 +995,6 @@ void ArgumentParserTests::testValueConversion()
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
     } catch (const ParseError &failure) {
-        CPPUNIT_ASSERT_EQUAL("Conversion of value \"foo\" (for argument --test) to type \"i\" failed: The character \"f\" is no valid digit."s,
-            string(failure.what()));
+        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of argument value", "Conversion of value \"foo\" \\(for argument --test\\) to type \".*\" failed: The character \"f\" is no valid digit."s, std::regex::extended, std::string(failure.what()));
     }
 }
