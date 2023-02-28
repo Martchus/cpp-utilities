@@ -185,7 +185,7 @@ void IoTests::testBinaryWriter()
     stringstream outputStream(ios_base::in | ios_base::out | ios_base::binary);
     outputStream.exceptions(ios_base::failbit | ios_base::badbit);
     char testData[397];
-#if !defined(PLATFORM_WINDOWS) || defined(PLATFORM_MINGW) || defined(PLATFORM_CYGWIN)
+#if defined(__GLIBCXX__) && !defined(_LIBCPP_VERSION)
 #define USE_RDBUF_DIRECTLY
     outputStream.rdbuf()->pubsetbuf(testData, sizeof(testData));
 #endif
@@ -248,7 +248,11 @@ void IoTests::testBinaryWriter()
                                      "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
                                      "234567890123456789012345678901234567890123456789012345678901234567890123456789");
     writer.writeTerminatedString("def");
-    outputStream.flush();
+
+#ifndef USE_RDBUF_DIRECTLY
+    outputStream.seekg(0);
+    outputStream.read(testData, 58);
+#endif
 
     // test written values
     for (char c : testData) {
