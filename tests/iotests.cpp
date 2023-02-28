@@ -213,12 +213,12 @@ void IoTests::testBinaryWriter()
     // test written values
     for (char c : testData) {
         const auto pos = static_cast<std::size_t>(testFile.tellg());
-        char expected;
-        testFile.read(&expected, 1);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(argsToString("offset ", pos), asHexNumber(expected), asHexNumber(c));
         if (pos >= 58) {
             break;
         }
+        char expected;
+        testFile.read(&expected, 1);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(argsToString("offset ", pos), asHexNumber(expected), asHexNumber(c));
     }
     testFile.seekg(0);
     outputStream.seekp(0);
@@ -257,12 +257,12 @@ void IoTests::testBinaryWriter()
     // test written values
     for (char c : testData) {
         const auto pos = static_cast<std::size_t>(testFile.tellg());
-        char expected;
-        testFile.read(&expected, 1);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(argsToString("offset ", pos), asHexNumber(expected), asHexNumber(c));
         if (pos >= 58) {
             break;
         }
+        char expected;
+        testFile.read(&expected, 1);
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(argsToString("offset ", pos), asHexNumber(expected), asHexNumber(c));
     }
 
     // test ownership
