@@ -157,8 +157,21 @@ difference when just building c++utilities itself). To use presets in other proj
 file `CMakePresets.json` into the source directory of those projects which works with the "subdirs" projects
 mentioned in the previous section as well.
 
-Note that the devel preset (and all presets inheriting from it) uses ccache which therefore needs to be
+Note that the `devel` preset (and all presets inheriting from it) uses `ccache` which therefore needs to be
 installed.
+
+Note that the win-x64-msvc-static preset is still in development. It needs various additional environment
+variables to be set:
+* `MSYS2_ROOT`: for Perl provided via MSYS2 packages (only used by `qtforkawesome` so far)
+* `MSVC_ROOT`: for compiler and stdlib usually installed as part of Visual Studio setup, e.g.
+  `C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933`
+* `WIN_KITS_ROOT`: for Windows platform headers/libraries usually installed as part of Visual Studio setup,
+  e.g. `C:/Program Files (x86)/Windows Kits/10`
+* `QT_ROOT`: for Qt libraries provided by official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
+* `QT_TOOLS`:  for additional build tools provided by official Qt installer, e.g. `D:/programming/qt/Tools`
+* `VCPKG_ROOT`: directory of VCPKG checkout; used for other dependencies, e.g.
+  `D:/programming/projects\c++\cmake\vcpkg`
+
 
 #### Arch Linux package
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of the latest release and

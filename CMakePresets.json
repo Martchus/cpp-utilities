@@ -182,6 +182,66 @@
       "displayName": "Combination of devel and arch-static-compat",
       "description": "See descriptions of devel and arch-static-compat",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-static-compat-devel"
+    },
+    {
+      "name": "win-x64-msvc-static",
+      "inherits": ["no-webview", "no-kde", "qt6"],
+      "displayName": "Target x64-windows-static on Windows",
+      "description": "Build on Windows targeting x64-windows-static using MSVC, Qt 6 (for Qt libs and CMake/Ninja), vcpkg (for other dependencies) and MSYS2 (for Perl)",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static",
+      "environment": {
+        "INCLUDE": "$env{MSVC_ROOT}/include;$env{MSVC_ROOT}/ATLMFC/include;$env{WIN_KITS_ROOT}/include/10.0.22000.0/ucrt;$env{WIN_KITS_ROOT}//include/10.0.22000.0//um;$env{WIN_KITS_ROOT}//include/10.0.22000.0//shared;$env{WIN_KITS_ROOT}/include/10.0.22000.0//winrt;$env{WIN_KITS_ROOT}/include/10.0.22000.0//cppwinrt",
+        "LIB": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/ucrt/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0//um/x64",
+        "LIBPATH": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/ucrt/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/um/x64"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_TOOLCHAIN_FILE": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static"},
+        "CMAKE_PREFIX_PATH": {"type": "PATH", "value": "$env{QT_ROOT}"},
+        "CMAKE_MAKE_PROGRAM": {"type": "FILEPATH", "value": "$env{QT_TOOLS}/Ninja/ninja.exe"},
+        "CMAKE_AR_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/Hostx64/x64/lib.exe"},
+        "CMAKE_C_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/HostX64/x64/cl.exe"},
+        "CMAKE_CXX_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/HostX64/x64/cl.exe"},
+        "CMAKE_RC_COMPILER": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/rc.exe"},
+        "CMAKE_LINKER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/Hostx64/x64/link.exe"},
+        "CMAKE_MT": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/mt.exe"},
+        "CMAKE_MSVC_RUNTIME_LIBRARY": {"type": "STRING", "value": "MultiThreaded$<$<CONFIG:Debug>:Debug>"},
+        "PERL_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/perl.exe"},
+        "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
+        "Iconv_LIBRARY": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/iconv.lib"},
+        "Iconv_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
+        "Boost_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
+        "Boost_FILESYSTEM_LIBRARY_DIR_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_filesystem-vc140-mt.lib"},
+        "Boost_IOSTREAMS_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_iostreams-vc140-mt.lib"},
+        "Boost_REGEX_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_regex-vc140-mt.lib"},
+        "Boost_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib"},
+        "Boost_USE_STATIC_RUNTIME": {"type": "BOOL", "value": "ON"},
+        "CPP_UNIT_LIB": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/cppunit.lib"},
+        "CPP_UNIT_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
+        "ZLIB_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
+        "ZLIB_LIBRARY_DEBUG": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/zlib.lib"},
+        "ZLIB_LIBRARY_RELEASE": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/zlib.lib"}
+      }
+    },
+    {
+      "name": "win-x64-msvc-static-devel",
+      "inherits": ["win-x64-msvc-static", "devel"],
+      "displayName": "Combination of devel and win-x64-msvc-static",
+      "description": "See descriptions of devel and win-x64-msvc-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static-devel",
+      "cacheVariables": {
+        "CLANG_FORMAT_ENABLED": {"type": "BOOL", "value": "OFF"},
+        "CLANG_TIDY_ENABLED": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_FORMAT_ENABLED": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
+      "name": "win-x64-msvc-static-debug",
+      "inherits": ["win-x64-msvc-static-devel", "debug"],
+      "displayName": "Combination of debug and win-x64-msvc-static",
+      "description": "See descriptions of debug and win-x64-msvc-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static-debug"
     }
   ],
   "buildPresets": [
@@ -196,7 +256,10 @@
     {"name": "arch-x86_64-w64-mingw32-static-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-qt6"},
     {"name": "arch-x86_64-w64-mingw32-devel", "configurePreset": "arch-x86_64-w64-mingw32-devel"},
     {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
-    {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"}
+    {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"},
+    {"name": "win-x64-msvc-static", "configurePreset": "win-x64-msvc-static"},
+    {"name": "win-x64-msvc-static-devel", "configurePreset": "win-x64-msvc-static-devel"},
+    {"name": "win-x64-msvc-static-debug", "configurePreset": "win-x64-msvc-static-debug"}
   ],
   "testPresets": [
     {
