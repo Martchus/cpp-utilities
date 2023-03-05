@@ -40,6 +40,7 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-qt6",
       "cacheVariables": {
         "QT_PACKAGE_PREFIX": {"type": "STRING", "value": "Qt6"},
+        "KF_PACKAGE_PREFIX": {"type": "STRING", "value": "KF6"},
         "BUILD_WITH_QT6": {"type": "BOOL", "value": "ON"}
       }
     },
