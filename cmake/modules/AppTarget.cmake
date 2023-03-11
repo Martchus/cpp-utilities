@@ -33,8 +33,15 @@ append_user_defined_additional_libraries()
 
 # add target for building the application
 if (ANDROID)
-    # create a shared library which can be loaded from the Java-side
-    add_library(${META_TARGET_NAME} SHARED ${ALL_FILES})
+    # create a shared library which can be loaded from the Java-side, needs to be a module target to avoid
+    # "QT_ANDROID_GENERATE_DEPLOYMENT_SETTINGS only works on Module targets" when using
+    # `qt_android_generate_deployment_settings`.
+    add_library(${META_TARGET_NAME} MODULE ${ALL_FILES})
+    # set suffix to avoid "Cannot find application binary in build dir …/lib…_arm64-v8a.so." when using
+    # `qt_android_add_apk_target`.
+    if (ANDROID_ABI)
+        set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "_${ANDROID_ABI}.so")
+    endif ()
 else ()
     add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
