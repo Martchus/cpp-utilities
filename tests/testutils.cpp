@@ -178,7 +178,8 @@ TestApplication::TestApplication(int argc, const char *const *argv)
     }
     // -> find source directory
     if (auto testFilePathFromSrcDirRef = readTestfilePathFromSrcRef(); !testFilePathFromSrcDirRef.empty()) {
-        m_testFilesPaths.insert(m_testFilesPaths.end(), std::make_move_iterator(testFilePathFromSrcDirRef.begin()), std::make_move_iterator(testFilePathFromSrcDirRef.end()));
+        m_testFilesPaths.insert(m_testFilesPaths.end(), std::make_move_iterator(testFilePathFromSrcDirRef.begin()),
+            std::make_move_iterator(testFilePathFromSrcDirRef.end()));
     }
     // -> try testfiles directory in working directory
     m_testFilesPaths.emplace_back("./testfiles/");
@@ -646,7 +647,6 @@ std::vector<std::string> TestApplication::readTestfilePathFromSrcRef()
                      << "The source directory referenced by the file \"srcdirref\" does not contain a \"testfiles\" directory or does not exist."
                      << Phrases::End << "Referenced source directory: " << testfilesPath << endl;
             }
-
         }
         return res;
 

@@ -44,7 +44,7 @@ using PathValueType =
 #else
     char
 #endif
-   ;
+    ;
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
 static_assert(std::is_same_v<typename std::filesystem::path::value_type, PathValueType>);
 #endif
@@ -99,7 +99,8 @@ inline
 #else
     PathStringView
 #endif
-    extractNativePath(NativePathStringView path) {
+    extractNativePath(NativePathStringView path)
+{
 #ifdef PLATFORM_WINDOWS
     auto res = convertUtf16LEToUtf8(reinterpret_cast<const char *>(path.data()), path.size() * 2);
     return std::string(res.first.get(), res.second);

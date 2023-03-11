@@ -982,7 +982,9 @@ void ArgumentParserTests::testValueConversion()
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
     } catch (const ParseError &failure) {
-        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of top-level value", "Conversion of top-level value \"foo\" to type \".*\" failed: The character \"f\" is no valid digit."s, std::regex::extended, std::string(failure.what()));
+        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of top-level value",
+            "Conversion of top-level value \"foo\" to type \".*\" failed: The character \"f\" is no valid digit."s, std::regex::extended,
+            std::string(failure.what()));
     }
     occurrence.path = { &arg };
     try {
@@ -995,6 +997,8 @@ void ArgumentParserTests::testValueConversion()
         occurrence.convertValues<int>();
         CPPUNIT_FAIL("Expected exception");
     } catch (const ParseError &failure) {
-        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of argument value", "Conversion of value \"foo\" \\(for argument --test\\) to type \".*\" failed: The character \"f\" is no valid digit."s, std::regex::extended, std::string(failure.what()));
+        TESTUTILS_ASSERT_LIKE_FLAGS("conversion error of argument value",
+            "Conversion of value \"foo\" \\(for argument --test\\) to type \".*\" failed: The character \"f\" is no valid digit."s,
+            std::regex::extended, std::string(failure.what()));
     }
 }
