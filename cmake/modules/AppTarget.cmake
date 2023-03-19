@@ -64,12 +64,19 @@ target_compile_options(
     PRIVATE "${META_PRIVATE_COMPILE_OPTIONS}")
 set_target_properties(
     ${META_TARGET_NAME}
-    PROPERTIES C_VISIBILITY_PRESET hidden
-               CXX_VISIBILITY_PRESET hidden
-               LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
+    PROPERTIES LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
+if (NOT ANDROID)
+    set_target_properties(
+        ${META_TARGET_NAME}
+        PROPERTIES C_VISIBILITY_PRESET hidden
+                   CXX_VISIBILITY_PRESET hidden)
+    # note: Android *.so files need CXX visibility set to default (see qtbase commit
+    # 29b17fa335388c9b93f70c29b2398cf2fee65785). Otherwise loading the app will fail
+    # with the error "dlsym failed: undefined symbol: main".
+endif ()
 if (NOT META_CXX_STANDARD STREQUAL "any")
     set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
 endif ()
