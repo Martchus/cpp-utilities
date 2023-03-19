@@ -2,17 +2,19 @@
 #define IOUTILITIES_COPY_H
 
 #include "./nativefilestream.h"
+#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && defined(PLATFORM_LINUX)
+#define CPP_UTILITIES_USE_SEND_FILE
+#include "../conversion/stringbuilder.h"
+#endif
+
+#ifdef CPP_UTILITIES_USE_SEND_FILE
+#include <errno.h>
+#include <sys/sendfile.h>
+#endif
 
 #include <functional>
 #include <iostream>
-
-#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && defined(PLATFORM_LINUX)
-#define CPP_UTILITIES_USE_SEND_FILE
-#include <c++utilities/conversion/stringbuilder.h>
-
-#include <errno.h>
-#include <sys/sendfile.h>
-
+#ifdef CPP_UTILITIES_USE_SEND_FILE
 #include <algorithm>
 #include <cstring>
 #endif
