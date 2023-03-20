@@ -78,18 +78,26 @@ The following counts for `c++utilities` and my other libraries unless stated oth
 * For dependencies of my other projects check the README.md of these projects.
 
 ### How to build
-Example using `make`:
+Example:
 ```
-cd "path/to/build/directory"
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX="/final/install/location" \
-      "path/to/projectdirectory"
-make tidy # format source files (optional, must be enabled via CLANG_FORMAT_ENABLED)
+cmake -G Ninja \
+      -S "path/to/source/directory" \
+      -B "path/to/build/directory" \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="/final/install/location"
 make # build the binaries
-make check # build and run tests (optional)
-make coverage # build and run tests measuring test coverage (optional, must be enabled via CLANG_SOURCE_BASED_COVERAGE_ENABLED)
-make apidoc # build API documentation (optional)
-make DESTDIR="/temporary/install/location" install # install binaries, headers and additional files
+cmake --build "path/to/build/directory"
+# format source files (optional, must be enabled via CLANG_FORMAT_ENABLED)
+cmake --build "path/to/build/directory" --target tidy
+# build and run tests (optional)
+cmake --build "path/to/build/directory" --target check
+# build and run tests measuring test coverage (optional, must be enabled via CLANG_SOURCE_BASED_COVERAGE_ENABLED)
+cmake --build "path/to/build/directory" --target coverage
+# build API documentation (optional)
+cmake --build "path/to/build/directory" --target apidoc
+# install binaries, headers and additional files
+DESTDIR="/temporary/install/location" \
+  cmake --install "path/to/build/directory"
 ```
 
 #### General notes
