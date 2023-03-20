@@ -136,7 +136,8 @@ project.
 
 This can be easily achieved by using CMake's `add_subdirectory()` function. For project files see the repository
 [subdirs](https://github.com/Martchus/subdirs). For an example, see
-[build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight).
+[build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight) or
+[build instructions for Tag Editor](https://github.com/Martchus/tageditor#building-this-straight).
 
 For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`.
 
@@ -178,8 +179,9 @@ variables to be set:
 * `QT_ROOT`: for Qt libraries provided by official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
 * `QT_TOOLS`:  for additional build tools provided by official Qt installer, e.g. `D:/programming/qt/Tools`
 * `VCPKG_ROOT`: directory of VCPKG checkout; used for other dependencies, e.g.
-  `D:/programming/projects\c++\cmake\vcpkg`
+  `D:/programming/projects/c++/cmake/vcpkg`
 
+### Packaging
 
 #### Arch Linux package
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux packages of the latest release and
