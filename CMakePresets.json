@@ -208,6 +208,8 @@
         "CMAKE_MT": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/mt.exe"},
         "CMAKE_MSVC_RUNTIME_LIBRARY": {"type": "STRING", "value": "MultiThreaded$<$<CONFIG:Debug>:Debug>"},
         "PERL_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/perl.exe"},
+        "DOXYGEN_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/doxygen.exe"},
+        "CLANG_FORMAT_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/clang-format.exe"},
         "REALPATH_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/realpath.exe"},
         "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
         "Iconv_LIBRARY": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/iconv.lib"},
