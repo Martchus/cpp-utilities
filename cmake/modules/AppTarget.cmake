@@ -42,7 +42,8 @@ if (ANDROID)
     if (ANDROID_ABI)
         set_target_properties(${META_TARGET_NAME} PROPERTIES SUFFIX "_${ANDROID_ABI}.so")
     endif ()
-    set_target_properties(${META_TARGET_NAME} PROPERTIES QT_ANDROID_VERSION_NAME "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}")
+    set_target_properties(${META_TARGET_NAME} PROPERTIES QT_ANDROID_VERSION_NAME
+                                                         "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}")
 else ()
     add_executable(${META_TARGET_NAME} ${GUI_TYPE} ${ALL_FILES})
 endif ()
@@ -69,13 +70,10 @@ set_target_properties(
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
                QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
 if (NOT ANDROID)
-    set_target_properties(
-        ${META_TARGET_NAME}
-        PROPERTIES C_VISIBILITY_PRESET hidden
-                   CXX_VISIBILITY_PRESET hidden)
+    set_target_properties(${META_TARGET_NAME} PROPERTIES C_VISIBILITY_PRESET hidden CXX_VISIBILITY_PRESET hidden)
     # note: Android *.so files need CXX visibility set to default (see qtbase commit
-    # 29b17fa335388c9b93f70c29b2398cf2fee65785). Otherwise loading the app will fail
-    # with the error "dlsym failed: undefined symbol: main".
+    # 29b17fa335388c9b93f70c29b2398cf2fee65785). Otherwise loading the app will fail with the error "dlsym failed: undefined
+    # symbol: main".
 endif ()
 if (NOT META_CXX_STANDARD STREQUAL "any")
     set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")

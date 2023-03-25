@@ -566,7 +566,7 @@ void IoTests::testCopyWithNativeFileStream()
     // repeat with callback version
     auto percentage = 0.0;
     const auto isAborted = [] { return false; };
-    const auto callback = [&percentage] (double p) { percentage = p; };
+    const auto callback = [&percentage](double p) { percentage = p; };
     testFile.seekg(0);
     outputStream.open(outputPath, ios_base::out | ios_base::trunc | ios_base::binary);
     copyHelper.callbackCopy(testFile, outputStream, 50, isAborted, callback);
