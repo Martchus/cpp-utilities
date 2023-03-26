@@ -34,7 +34,7 @@ enum class Direction : char { Up = 'A', Down = 'B', Forward = 'C', Backward = 'D
 inline void setStyle(std::ostream &stream, TextAttribute displayAttribute = TextAttribute::Reset)
 {
     if (enabled) {
-        stream << '\e' << '[' << static_cast<char>(displayAttribute) << 'm';
+        stream << '\033' << '[' << static_cast<char>(displayAttribute) << 'm';
     }
 }
 
@@ -42,14 +42,14 @@ inline void setStyle(
     std::ostream &stream, Color color, ColorContext context = ColorContext::Foreground, TextAttribute displayAttribute = TextAttribute::Reset)
 {
     if (enabled) {
-        stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(context) << static_cast<char>(color) << 'm';
+        stream << '\033' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(context) << static_cast<char>(color) << 'm';
     }
 }
 
 inline void setStyle(std::ostream &stream, Color foregroundColor, Color backgroundColor, TextAttribute displayAttribute = TextAttribute::Reset)
 {
     if (enabled) {
-        stream << '\e' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(ColorContext::Foreground)
+        stream << '\033' << '[' << static_cast<char>(displayAttribute) << ';' << static_cast<char>(ColorContext::Foreground)
                << static_cast<char>(foregroundColor) << ';' << static_cast<char>(ColorContext::Background) << static_cast<char>(backgroundColor)
                << 'm';
     }
@@ -58,42 +58,42 @@ inline void setStyle(std::ostream &stream, Color foregroundColor, Color backgrou
 inline void resetStyle(std::ostream &stream)
 {
     if (enabled) {
-        stream << '\e' << '[' << static_cast<char>(TextAttribute::Reset) << 'm';
+        stream << '\033' << '[' << static_cast<char>(TextAttribute::Reset) << 'm';
     }
 }
 
 inline void setCursor(std::ostream &stream, unsigned int row = 0, unsigned int col = 0)
 {
     if (enabled) {
-        stream << '\e' << '[' << row << ';' << col << 'H';
+        stream << '\033' << '[' << row << ';' << col << 'H';
     }
 }
 
 inline void moveCursor(std::ostream &stream, unsigned int cells, Direction direction)
 {
     if (enabled) {
-        stream << '\e' << '[' << cells << static_cast<char>(direction);
+        stream << '\033' << '[' << cells << static_cast<char>(direction);
     }
 }
 
 inline void saveCursor(std::ostream &stream)
 {
     if (enabled) {
-        stream << "\e[s";
+        stream << "\033[s";
     }
 }
 
 inline void restoreCursor(std::ostream &stream)
 {
     if (enabled) {
-        stream << "\e[u";
+        stream << "\033[u";
     }
 }
 
 inline void eraseDisplay(std::ostream &stream)
 {
     if (enabled) {
-        stream << "\e[2J";
+        stream << "\033[2J";
     }
 }
 

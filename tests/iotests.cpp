@@ -650,15 +650,15 @@ void IoTests::testAnsiEscapeCodes()
         << "blue, blinking text on red background" << EscapeCodes::TextAttribute::Reset << '\n';
     cout << "\noutput for formatting with ANSI escape codes:\n" << ss1.str() << "---------------------------------------------\n";
     fstream("/tmp/test.txt", ios_base::out | ios_base::trunc) << ss1.str();
-    CPPUNIT_ASSERT_EQUAL("\e[1;31mError: \e[0m\e[1msome error\e[0m\n"
-                         "\e[1;33mWarning: \e[0m\e[1msome warning\e[0m\n"
-                         "\e[1;34mInfo: \e[0m\e[1msome info\e[0m\n"
-                         "\e[1;31m==> ERROR: \e[0m\e[1mArch-style error\e[0m\n"
-                         "\e[1;33m==> WARNING: \e[0m\e[1mArch-style warning\e[0m\n"
-                         "    \e[0m\e[1mArch-style message\e[0m\n"
-                         "\e[1;32m==> \e[0m\e[1mArch-style success\e[0m\n"
-                         "\e[1;32m  -> \e[0m\e[1mArch-style sub-message\e[0m\n"
-                         "\e[5;34;41mblue, blinking text on red background\e[0m\n"s,
+    CPPUNIT_ASSERT_EQUAL("\033[1;31mError: \033[0m\033[1msome error\033[0m\n"
+                         "\033[1;33mWarning: \033[0m\033[1msome warning\033[0m\n"
+                         "\033[1;34mInfo: \033[0m\033[1msome info\033[0m\n"
+                         "\033[1;31m==> ERROR: \033[0m\033[1mArch-style error\033[0m\n"
+                         "\033[1;33m==> WARNING: \033[0m\033[1mArch-style warning\033[0m\n"
+                         "    \033[0m\033[1mArch-style message\033[0m\n"
+                         "\033[1;32m==> \033[0m\033[1mArch-style success\033[0m\n"
+                         "\033[1;32m  -> \033[0m\033[1mArch-style sub-message\033[0m\n"
+                         "\033[5;34;41mblue, blinking text on red background\033[0m\n"s,
         ss1.str());
 
     stringstream ss2;

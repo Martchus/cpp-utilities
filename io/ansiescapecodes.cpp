@@ -164,30 +164,30 @@ std::string_view formattedPhraseString(Phrases phrase)
     using namespace std::string_view_literals;
     switch (phrase) {
     case Phrases::Error:
-        return "\e[1;31mError: \e[0m\e[1m"sv;
+        return "\033[1;31mError: \033[0m\033[1m"sv;
     case Phrases::Warning:
-        return "\e[1;33mWarning: \e[0m\e[1m"sv;
+        return "\033[1;33mWarning: \033[0m\033[1m"sv;
     case Phrases::PlainMessage:
-        return "    \e[0m\e[1m"sv;
+        return "    \033[0m\033[1m"sv;
     case Phrases::SuccessMessage:
-        return "\e[1;32m==> \e[0m\e[1m"sv;
+        return "\033[1;32m==> \033[0m\033[1m"sv;
     case Phrases::SubMessage:
-        return "\e[1;32m  -> \e[0m\e[1m"sv;
+        return "\033[1;32m  -> \033[0m\033[1m"sv;
     case Phrases::ErrorMessage:
-        return "\e[1;31m==> ERROR: \e[0m\e[1m"sv;
+        return "\033[1;31m==> ERROR: \033[0m\033[1m"sv;
     case Phrases::WarningMessage:
-        return "\e[1;33m==> WARNING: \e[0m\e[1m";
+        return "\033[1;33m==> WARNING: \033[0m\033[1m";
     case Phrases::Info:
-        return "\e[1;34mInfo: \e[0m\e[1m"sv;
+        return "\033[1;34mInfo: \033[0m\033[1m"sv;
     case Phrases::SubError:
-        return "\e[1;31m  -> ERROR: \e[0m\e[1m"sv;
+        return "\033[1;31m  -> ERROR: \033[0m\033[1m"sv;
     case Phrases::SubWarning:
-        return "\e[1;33m  -> WARNING: \e[0m\e[1m"sv;
+        return "\033[1;33m  -> WARNING: \033[0m\033[1m"sv;
     case Phrases::InfoMessage:
-        return "\e[1;37m==> \e[0m\e[1m"sv;
+        return "\033[1;37m==> \033[0m\033[1m"sv;
     case Phrases::End:
     case Phrases::EndFlush:
-        return "\e[0m\n";
+        return "\033[0m\n";
     default:
         return std::string_view{};
     }
