@@ -196,6 +196,7 @@
       },
       "cacheVariables": {
         "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Release"},
         "CMAKE_TOOLCHAIN_FILE": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"},
         "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static"},
         "CMAKE_PREFIX_PATH": {"type": "PATH", "value": "$env{QT_ROOT}"},
@@ -207,24 +208,19 @@
         "CMAKE_LINKER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/Hostx64/x64/link.exe"},
         "CMAKE_MT": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/mt.exe"},
         "CMAKE_MSVC_RUNTIME_LIBRARY": {"type": "STRING", "value": "MultiThreaded$<$<CONFIG:Debug>:Debug>"},
+        "CMAKE_CXX_FLAGS_DEBUG": {"type": "STRING", "value": "/MTd /Zi /Ob0 /Od /RTC1"},
+        "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "/MT /O2 /Ob2 /DNDEBUG"},
+        "CMAKE_CXX_FLAGS_MINSIZEREL": {"type": "STRING", "value": "/MT /O1 /Ob1 /DNDEBUG"},
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": {"type": "STRING", "value": "/MT /Zi /O2 /Ob1 /DNDEBUG"},
+        "VCPKG_TARGET_TRIPLET": {"type": "STRING", "value": "x64-windows-static"},
         "PERL_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/perl.exe"},
         "DOXYGEN_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/doxygen.exe"},
         "CLANG_FORMAT_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/clang-format.exe"},
         "REALPATH_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/realpath.exe"},
         "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
-        "Iconv_LIBRARY": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/iconv.lib"},
-        "Iconv_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
-        "Boost_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
-        "Boost_FILESYSTEM_LIBRARY_DIR_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_filesystem-vc140-mt.lib"},
-        "Boost_IOSTREAMS_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_iostreams-vc140-mt.lib"},
-        "Boost_REGEX_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/boost_regex-vc140-mt.lib"},
-        "Boost_LIBRARY_RELEASE": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib"},
-        "Boost_USE_STATIC_RUNTIME": {"type": "BOOL", "value": "ON"},
         "CPP_UNIT_LIB": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/cppunit.lib"},
         "CPP_UNIT_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
-        "ZLIB_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
-        "ZLIB_LIBRARY_DEBUG": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/zlib.lib"},
-        "ZLIB_LIBRARY_RELEASE": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/zlib.lib"}
+        "QUICK_GUI": {"type": "BOOL", "value": "OFF"}
       }
     },
     {
