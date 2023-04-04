@@ -202,7 +202,7 @@ variables to be set:
 * `QT_ROOT`: for Qt libraries provided by official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
 * `QT_TOOLS`:  for additional build tools provided by official Qt installer, e.g. `D:/programming/qt/Tools`
 * `VCPKG_ROOT`: directory of VCPKG checkout used for other dependencies; install the following packages:
-  ````
+  ```
   vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static
   ```
 
