@@ -155,7 +155,8 @@ void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStr
         output.flush();
         const auto totalBytes = static_cast<std::streamoff>(count);
         while (count) {
-            const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, std::min(count, bufferSize));
+            const auto bytesToCopy = static_cast<std::size_t>(std::min(count, static_cast<std::uint64_t>(bufferSize)));
+            const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, bytesToCopy);
             if (bytesCopied < 0) {
                 throw std::ios_base::failure(argsToString("sendfile64() failed: ", std::strerror(errno)));
             }
