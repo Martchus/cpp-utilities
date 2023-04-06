@@ -117,7 +117,7 @@ set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 5)
 set(META_VERSION_MINOR 22)
-set(META_VERSION_PATCH 0)
+set(META_VERSION_PATCH 1)
 
 # find required 3rd party libraries
 include(3rdParty)
