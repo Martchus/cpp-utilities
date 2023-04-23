@@ -114,9 +114,13 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileSt
         while (count) {
             const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, count);
             if (bytesCopied < 0) {
+                if (errno == EINVAL && static_cast<std::uint64_t>(totalBytes) == count) {
+                    // try again the unoptimized version, maybe the filesystem doesn't support sendfile
+                    goto unoptimized_version;
+                }
                 throw std::ios_base::failure(argsToString("sendfile64() failed: ", std::strerror(errno)));
             }
-            count -= static_cast<std::size_t>(bytesCopied);
+            count -= static_cast<std::uint64_t>(bytesCopied);
         }
         input.sync();
         output.sync();
@@ -126,6 +130,7 @@ template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileSt
         input.seekp(inputTellp + totalBytes);
         return;
     }
+unoptimized_version:
 #endif
     copy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count);
 }
@@ -158,6 +163,10 @@ void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStr
             const auto bytesToCopy = static_cast<std::size_t>(std::min(count, static_cast<std::uint64_t>(bufferSize)));
             const auto bytesCopied = ::sendfile64(output.fileDescriptor(), input.fileDescriptor(), nullptr, bytesToCopy);
             if (bytesCopied < 0) {
+                if (errno == EINVAL && static_cast<std::uint64_t>(totalBytes) == count) {
+                    // try again the unoptimized version, maybe the filesystem doesn't support sendfile
+                    goto unoptimized_version;
+                }
                 throw std::ios_base::failure(argsToString("sendfile64() failed: ", std::strerror(errno)));
             }
             count -= static_cast<std::uint64_t>(bytesCopied);
@@ -175,6 +184,7 @@ void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStr
         callback(1.0);
         return;
     }
+unoptimized_version:
 #endif
     callbackCopy(static_cast<std::istream &>(input), static_cast<std::ostream &>(output), count, isAborted, callback);
 }
