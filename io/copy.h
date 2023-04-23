@@ -103,7 +103,7 @@ void CopyHelper<bufferSize>::callbackCopy(std::istream &input, std::ostream &out
 template <std::size_t bufferSize> void CopyHelper<bufferSize>::copy(NativeFileStream &input, NativeFileStream &output, std::uint64_t count)
 {
 #ifdef CPP_UTILITIES_USE_SEND_FILE
-    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1) {
+    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1 && output.fileDescriptor() != input.fileDescriptor()) {
         const auto inputTellg = output.tellg();
         const auto inputTellp = output.tellp();
         const auto outputTellg = output.tellg();
@@ -151,7 +151,7 @@ void CopyHelper<bufferSize>::callbackCopy(NativeFileStream &input, NativeFileStr
     const std::function<bool(void)> &isAborted, const std::function<void(double)> &callback)
 {
 #ifdef CPP_UTILITIES_USE_SEND_FILE
-    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1) {
+    if (output.fileDescriptor() != -1 && input.fileDescriptor() != -1 && output.fileDescriptor() != input.fileDescriptor()) {
         const auto inputTellg = output.tellg();
         const auto inputTellp = output.tellp();
         const auto outputTellg = output.tellg();
