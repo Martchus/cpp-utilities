@@ -195,6 +195,12 @@ if (NOT ENABLE_THREAD_LOCAL)
         PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_THREAD_LOCAL)
 endif ()
 
+# configure use of platform-specific APIs for optimizing CopyHelper
+option(USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER "enables use of platform-specific APIs for optimizing CopyHelper" ON)
+if (USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
+endif ()
+
 # include modules to apply configuration
 include(BasicConfig)
 include(WindowsResources)

@@ -2,7 +2,7 @@
 #define IOUTILITIES_COPY_H
 
 #include "./nativefilestream.h"
-#if defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && defined(PLATFORM_LINUX)
+#if defined(CPP_UTILITIES_USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER) && defined(CPP_UTILITIES_USE_NATIVE_FILE_BUFFER) && defined(PLATFORM_LINUX)
 #define CPP_UTILITIES_USE_SEND_FILE
 #include "../conversion/stringbuilder.h"
 #endif
