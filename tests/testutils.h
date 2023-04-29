@@ -277,11 +277,25 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  *
  * \remarks Requires cppunit.
  */
-#define TESTUTILS_ASSERT_EXEC(args)                                                                                                                  \
+#define TESTUTILS_ASSERT_EXEC(args) TESTUTILS_ASSERT_EXEC_EXIT_STATUS(args, 0)
+
+/*!
+ * \brief Asserts the execution of the application with the specified CLI \a args and the specified \a expectedExitStatus.
+ *
+ * The application is executed via TestApplication::execApp(). Output is stored in the std::string variables stdout
+ * and stderr.
+ *
+ * \remarks Requires cppunit.
+ */
+#define TESTUTILS_ASSERT_EXEC_EXIT_STATUS(args, expectedExitStatus)                                                                                  \
     {                                                                                                                                                \
-        const auto returnCode = execApp(args, stdout, stderr);                                                                                       \
-        if (returnCode != 0) {                                                                                                                       \
-            CPPUNIT_FAIL(::CppUtilities::argsToString("app failed with return code ", returnCode, "\nstdout: ", stdout, "\nstderr: ", stderr));      \
+        const auto status = execApp(args, stdout, stderr);                                                                                           \
+        if (!WIFEXITED(status)) {                                                                                                                    \
+            CPPUNIT_FAIL(::CppUtilities::argsToString("app did not terminate normally\nstdout: ", stdout, "\nstderr: ", stderr));                    \
+        }                                                                                                                                            \
+        if (const auto exitStatus = WEXITSTATUS(status); exitStatus != expectedExitStatus) {                                                         \
+            CPPUNIT_FAIL(::CppUtilities::argsToString(                                                                                               \
+                "app exited with status ", exitStatus, " (expected ", expectedExitStatus, ")\nstdout: ", stdout, "\nstderr: ", stderr));             \
         }                                                                                                                                            \
     }
 
