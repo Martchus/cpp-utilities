@@ -238,10 +238,15 @@
     },
     {
       "name": "win-x64-msvc-static-debug",
-      "inherits": ["win-x64-msvc-static-devel", "debug"],
+      "inherits": ["debug", "win-x64-msvc-static-devel"],
       "displayName": "Combination of debug and win-x64-msvc-static",
       "description": "See descriptions of debug and win-x64-msvc-static",
-      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static-debug"
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static-debug",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER_LAUNCHER": {"type": "STRING", "value": ""},
+        "CMAKE_CXX_COMPILER_LAUNCHER": {"type": "STRING", "value": ""},
+        "CPP_UNIT_LIB": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/debug/lib/cppunitd.lib"}
+      }
     }
   ],
   "buildPresets": [
