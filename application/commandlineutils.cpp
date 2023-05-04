@@ -230,7 +230,7 @@ pair<vector<unique_ptr<char[]>>, vector<char *>> convertArgsToUtf8()
         }
 
         res.second.emplace_back(argv.get());
-        res.first.emplace_back(move(argv));
+        res.first.emplace_back(std::move(argv));
     }
 
     LocalFree(argv_w);
