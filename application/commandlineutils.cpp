@@ -10,6 +10,7 @@
 #ifdef PLATFORM_WINDOWS
 #include <cstring>
 #include <io.h>
+#include <tchar.h>
 #include <windows.h>
 #else
 #include <sys/ioctl.h>
@@ -91,6 +92,19 @@ TerminalSize determineTerminalSize()
 
 #ifdef PLATFORM_WINDOWS
 /*!
+ * \brief Returns whether Mintty is used.
+ */
+static bool isMintty()
+{
+    static const auto mintty = [] {
+        const char *const msyscon = std::getenv("MSYSCON");
+        const char *const termprog = std::getenv("TERM_PROGRAM");
+        return (msyscon && std::strstr(msyscon, "mintty")) || (termprog && std::strstr(termprog, "mintty"));
+    }();
+    return mintty;
+}
+
+/*!
  * \brief Enables virtual terminal processing (and thus processing of ANSI escape codes) of the console
  *        determined by the specified \a nStdHandle.
  * \sa https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
@@ -119,9 +133,9 @@ bool handleVirtualTerminalProcessing()
     if (enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)) {
         return true;
     }
-    // disable use on ANSI escape codes otherwise if it makes sense
+    // disable use of ANSI escape codes otherwise if it makes sense
     const char *const msyscon = std::getenv("MSYSCON");
-    if (msyscon && std::strstr(msyscon, "mintty")) {
+    if (isMintty()) {
         return false; // no need to disable escape codes if it is just mintty
     }
     const char *const term = std::getenv("TERM");
@@ -163,31 +177,91 @@ void stopConsole()
  */
 void startConsole()
 {
+    if (isMintty()) {
+        return;
+    }
+
+    // skip if ENABLE_CONSOLE is set to 0
+    if (const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE"); consoleEnabled.has_value() && !consoleEnabled.value()) {
+        return;
+    }
+
+    // check whether there's a redirection; skip messing with any streams then
+    auto pos = std::fpos_t();
+    std::fgetpos(stdout, &pos);
+    const auto skipstdout = pos >= 0;
+    std::fgetpos(stderr, &pos);
+    const auto skipstderr = pos >= 0;
+    std::fgetpos(stdin, &pos);
+    const auto skipstdin = pos >= 0;
+    const auto skip = skipstdout || skipstderr || skipstdin;
+
     // attach to the parent process' console or allocate a new console if that's not possible
-    const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE");
-    if ((!consoleEnabled.has_value() || consoleEnabled.value()) && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
+    if (!skip && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
+        FILE* fp;
+#ifdef _MSC_VER
+        // take care of normal streams
+        if (!skipstdout) {
+            freopen_s(&fp, "CONOUT$", "w", stdout);
+            std::cout.clear();
+            std::clog.clear();
+        }
+        if (!skipstderr) {
+            freopen_s(&fp, "CONOUT$", "w", stderr);
+            std::cerr.clear();
+        }
+        if (!skipstdin) {
+            freopen_s(&fp, "CONIN$", "r", stdin);
+            std::cin.clear();
+        }
+        // take care of wide streams
+        auto hConOut = CreateFile(_T("CONOUT$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        auto hConIn = CreateFile(_T("CONIN$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (!skipstdout) {
+            SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
+            std::wcout.clear();
+            std::wclog.clear();
+        }
+        if (!skipstderr) {
+            SetStdHandle(STD_ERROR_HANDLE, hConOut);
+            std::wcerr.clear();
+        }
+        if (!skipstdin) {
+            SetStdHandle(STD_INPUT_HANDLE, hConIn);
+            std::wcin.clear();
+        }
+#else
         // redirect stdout
-        auto stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
-        auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-        auto fp = _fdopen(conHandle, "w");
-        *stdout = *fp;
-        setvbuf(stdout, nullptr, _IONBF, 0);
+        auto stdHandle = std::intptr_t();
+        auto conHandle = int();
+        if (!skipstdout) {
+            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
+            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+            fp = _fdopen(conHandle, "w");
+            *stdout = *fp;
+            setvbuf(stdout, nullptr, _IONBF, 0);
+        }
         // redirect stdin
-        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
-        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-        fp = _fdopen(conHandle, "r");
-        *stdin = *fp;
-        setvbuf(stdin, nullptr, _IONBF, 0);
+        if (!skipstdin) {
+            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
+            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+            fp = _fdopen(conHandle, "r");
+            *stdin = *fp;
+            setvbuf(stdin, nullptr, _IONBF, 0);
+        }
         // redirect stderr
-        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
-        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-        fp = _fdopen(conHandle, "w");
-        *stderr = *fp;
-        setvbuf(stderr, nullptr, _IONBF, 0);
+        if (!skipstderr) {
+            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
+            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+            fp = _fdopen(conHandle, "w");
+            *stderr = *fp;
+            setvbuf(stderr, nullptr, _IONBF, 0);
+        }
         // sync
         ios::sync_with_stdio(true);
+#endif
         // ensure the console prompt is shown again when app terminates
-        atexit(stopConsole);
+        std::atexit(stopConsole);
     }
 
     // set console character set to UTF-8
