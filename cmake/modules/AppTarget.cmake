@@ -110,6 +110,38 @@ if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
     endif ()
 endif ()
 
+# create CLI-wrapper to be able to use CLI in Windows-termial without hacks
+if (GUI_TYPE STREQUAL "WIN32")
+    option(BUILD_CLI_WRAPPER "whether to build a CLI wrapper" ON)
+endif ()
+if (BUILD_CLI_WRAPPER)
+    set(CLI_WRAPPER_TARGET_NAME "${META_TARGET_NAME}-cli")
+
+    # add Boost::boost target which represents include directory for header-only deps and add Boost::filesystem as it is
+    # needed by Boost.Process
+    set(BOOST_ARGS 1.75 REQUIRED COMPONENTS filesystem)
+    set(USE_PACKAGE_ARGS
+        LIBRARIES_VARIABLE CLI_WRAPPER_TARGET_NAME_LIBS
+        PACKAGES_VARIABLE CLI_WRAPPER_TARGET_NAME_PKGS)
+    use_package(TARGET_NAME Boost::boost PACKAGE_NAME Boost PACKAGE_ARGS "${BOOST_ARGS}" ${USE_PACKAGE_ARGS})
+    use_package(TARGET_NAME Boost::filesystem PACKAGE_NAME Boost PACKAGE_ARGS "${BOOST_ARGS}" ${USE_PACKAGE_ARGS})
+
+    # find source file
+    include(TemplateFinder)
+    find_template_file_full_name("cli-wrapper.cpp" CPP_UTILITIES CLI_WRAPPER_SRC_FILE)
+
+    # add and configure additional executable
+    add_executable(${CLI_WRAPPER_TARGET_NAME} ${CLI_WRAPPER_RES_FILES} ${CLI_WRAPPER_SRC_FILE})
+    target_link_libraries(${CLI_WRAPPER_TARGET_NAME} PRIVATE "${CLI_WRAPPER_TARGET_NAME_LIBS}")
+    if (MINGW)
+        # workaround https://github.com/boostorg/process/issues/96
+        target_compile_definitions(${CLI_WRAPPER_TARGET_NAME} PRIVATE BOOST_USE_WINDOWS_H WIN32_LEAN_AND_MEAN)
+    elseif (MSVC)
+        # prevent "Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately."
+        target_compile_definitions(${CLI_WRAPPER_TARGET_NAME} PRIVATE _WIN32_WINNT=0x0601)
+    endif ()
+endif ()
+
 # add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
@@ -129,6 +161,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}" COMPONENT binary)
     else ()
         install(TARGETS ${META_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
+        if (CLI_WRAPPER_TARGET_NAME)
+            install(TARGETS ${CLI_WRAPPER_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
+        endif ()
     endif ()
 
     if (NOT TARGET install-binary)
