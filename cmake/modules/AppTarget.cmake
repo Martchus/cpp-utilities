@@ -110,6 +110,19 @@ if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
     endif ()
 endif ()
 
+# create CLI-wrapper to be able to use CLI in Windows-termial without hacks
+if (BUILD_CLI_WRAPPER)
+    # find source file
+    include(TemplateFinder)
+    find_template_file_full_name("cli-wrapper.cpp" CPP_UTILITIES CLI_WRAPPER_SRC_FILE)
+
+    # add and configure additional executable
+    set(CLI_WRAPPER_TARGET_NAME "${META_TARGET_NAME}-cli")
+    add_executable(${CLI_WRAPPER_TARGET_NAME} ${CLI_WRAPPER_RES_FILES} ${CLI_WRAPPER_SRC_FILE})
+    set_target_properties(${CLI_WRAPPER_TARGET_NAME} PROPERTIES CXX_STANDARD 17)
+    target_compile_definitions(${CLI_WRAPPER_TARGET_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS=1)
+endif ()
+
 # add install targets
 if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     # add install target for binary
@@ -129,6 +142,9 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}${SELECTED_LIB_SUFFIX}" COMPONENT binary)
     else ()
         install(TARGETS ${META_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
+        if (CLI_WRAPPER_TARGET_NAME)
+            install(TARGETS ${CLI_WRAPPER_TARGET_NAME} RUNTIME DESTINATION bin COMPONENT binary)
+        endif ()
     endif ()
 
     if (NOT TARGET install-binary)

@@ -98,9 +98,16 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/template.pc.in)
 set(SCRIPT_FILES)
 if (MINGW)
-    list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/windows.rc.in)
+    list(APPEND CMAKE_TEMPLATE_FILES
+        cmake/templates/windows.rc.in
+        cmake/templates/windows-cli-wrapper.rc.in
+    )
     list(APPEND SCRIPT_FILES scripts/wine.sh)
 endif ()
+if (WIN32)
+    list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/cli-wrapper.cpp)
+endif ()
+set(EXCLUDED_FILES cmake/templates/cli-wrapper.cpp)
 
 set(DOC_FILES README.md doc/buildvariables.md doc/testapplication.md)
 set(EXTRA_FILES tests/calculateoverallcoverage.awk coding-style.clang-format)
