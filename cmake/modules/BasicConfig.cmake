@@ -690,6 +690,10 @@ else ()
     endforeach ()
 endif ()
 
+# configure warnings
 configure_development_warnings(APPEND_OUTPUT_VAR META_PRIVATE_COMPILE_OPTIONS)
+if (MSVC)
+    list(APPEND META_PRIVATE_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS=1)
+endif ()
 
 set(BASIC_PROJECT_CONFIG_DONE YES)
