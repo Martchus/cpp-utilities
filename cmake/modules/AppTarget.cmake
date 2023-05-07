@@ -133,6 +133,7 @@ if (BUILD_CLI_WRAPPER)
     # add and configure additional executable
     add_executable(${CLI_WRAPPER_TARGET_NAME} ${CLI_WRAPPER_RES_FILES} ${CLI_WRAPPER_SRC_FILE})
     target_link_libraries(${CLI_WRAPPER_TARGET_NAME} PRIVATE "${CLI_WRAPPER_TARGET_NAME_LIBS}")
+    set_target_properties(${CLI_WRAPPER_TARGET_NAME} PROPERTIES CXX_STANDARD 17)
     if (MINGW)
         # workaround https://github.com/boostorg/process/issues/96
         target_compile_definitions(${CLI_WRAPPER_TARGET_NAME} PRIVATE BOOST_USE_WINDOWS_H WIN32_LEAN_AND_MEAN)
