@@ -12,7 +12,7 @@ endif ()
 option(WINDOWS_RESOURCES_ENABLED "controls whether Windows resources are enabled" ON)
 option(WINDOWS_ICON_ENABLED "controls whether Windows icon is enabled" ON)
 
-if (NOT MINGW OR NOT WINDOWS_RESOURCES_ENABLED)
+if (NOT WIN32 OR NOT WINDOWS_RESOURCES_ENABLED)
     return()
 endif ()
 
@@ -60,13 +60,17 @@ if (BUILD_CLI_WRAPPER AND META_PROJECT_TYPE STREQUAL "application")
         INPUT "${WINDOWS_CLI_RC_FILE}-configured.rc")
 endif ()
 
-# set windres as resource compiler
+# add resource file to sources
 list(APPEND RES_FILES "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc")
 set_property(SOURCE "${WINDOWS_RC_FILE}-${CMAKE_BUILD_TYPE}.rc" PROPERTY GENERATED ON)
 if (BUILD_CLI_WRAPPER AND META_PROJECT_TYPE STREQUAL "application")
     list(APPEND CLI_WRAPPER_RES_FILES "${WINDOWS_CLI_RC_FILE}-${CMAKE_BUILD_TYPE}.rc")
     set_property(SOURCE "${WINDOWS_CLI_RC_FILE}-${CMAKE_BUILD_TYPE}.rc" PROPERTY GENERATED ON)
 endif ()
-set(CMAKE_RC_COMPILER_INIT windres)
-set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+
+# configure resource compiler; use windres when compiling with mingw-w64
+if (MINGW)
+    set(CMAKE_RC_COMPILER_INIT windres)
+    set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+endif ()
 enable_language(RC)
