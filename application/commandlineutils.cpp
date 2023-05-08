@@ -134,12 +134,10 @@ bool handleVirtualTerminalProcessing()
         return true;
     }
     // disable use of ANSI escape codes otherwise if it makes sense
-    const char *const msyscon = std::getenv("MSYSCON");
     if (isMintty()) {
         return false; // no need to disable escape codes if it is just mintty
     }
-    const char *const term = std::getenv("TERM");
-    if (term && std::strstr(term, "xterm")) {
+    if (const char *const term = std::getenv("TERM"); term && std::strstr(term, "xterm")) {
         return false; // no need to disable escape codes if it is some xterm-like terminal
     }
     return EscapeCodes::enabled = false;
@@ -160,14 +158,21 @@ void stopConsole()
 }
 
 /*!
- * \brief Ensure the process has a console attached and sets its output code page to UTF-8.
+ * \brief Ensure the process has a console attached and properly setup.
  * \remarks
- * - Only available (and required) under Windows where otherwise stdout/stderr is not printed to the console (at
- *   least when using `cmd.exe`).
- * - Used to start a console from a GUI application. Does *not* create a new console if the process already has one.
- * - Closes the console automatically when the application exits.
- * - It breaks redirecting stdout/stderr so this can be opted-out by setting the environment
- *   variable `ENABLE_CONSOLE=0` and/or `ENABLE_CP_UTF8=0`.
+ * - Only available (and required) under Windows where otherwise standard I/O is not possible via the console (unless
+ *   when using Mintty).
+ * - Attaching a console breaks redirections/pipes so this needs to be opted-in by setting the environment variable
+ *   `ENABLE_CONSOLE=1`.
+ * - Note that this is only useful to start a console from a GUI application. It is not necassary to call this function
+ *   from a console application.
+ * - The console is automatically closed when the application exits.
+ * - This function alone does not provide good results. It still breaks redirections in PowerShell and other shells and
+ *   after the application exists the command prompt is not displayed. A CLI-wrapper is required for proper behavior. The
+ *   build system automatically generates one when the CMake variable BUILD_CLI_WRAPPER is set. Note that this CLI-wrapper
+ *   still relies on this function (and thus sets `ENABLE_CONSOLE=1`). Without this standard I/O would still not be
+ *   possible via the console. The part for skipping in case there's a redirection is still required. Otherwise
+ *   redirections/pipes are broken when using the CLI-wrapper as well.
  * \sa
  * - https://docs.microsoft.com/en-us/windows/console/AttachConsole
  * - https://docs.microsoft.com/en-us/windows/console/AllocConsole
@@ -176,16 +181,12 @@ void stopConsole()
  */
 void startConsole()
 {
-    if (isMintty()) {
+    // skip if ENABLE_CONSOLE is set to 0 or not set at all
+    if (const auto e = isEnvVariableSet("ENABLE_CONSOLE"); !e.has_value() || !e.value()) {
         return;
     }
 
-    // skip if ENABLE_CONSOLE is set to 0
-    if (const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE"); consoleEnabled.has_value() && !consoleEnabled.value()) {
-        return;
-    }
-
-    // check whether there's a redirection; skip messing with any streams then
+    // check whether there's a redirection; skip messing with any streams then to not break redirections/pipes
     auto pos = std::fpos_t();
     std::fgetpos(stdout, &pos);
     const auto skipstdout = pos >= 0;
@@ -264,14 +265,15 @@ void startConsole()
     }
 
     // set console character set to UTF-8
-    const auto utf8Enabled = isEnvVariableSet("ENABLE_CP_UTF8");
-    if (!utf8Enabled.has_value() || utf8Enabled.value()) {
+    if (const auto e = isEnvVariableSet("ENABLE_CP_UTF8"); !e.has_value() || e.value()) {
         SetConsoleCP(CP_UTF8);
         SetConsoleOutputCP(CP_UTF8);
     }
 
     // enable virtual terminal processing or disable ANSI-escape if that's not possible
-    handleVirtualTerminalProcessing();
+    if (const auto e = isEnvVariableSet("ENABLE_HANDLING_VIRTUAL_TERMINAL_PROCESSING"); !e.has_value() || e.value()) {
+        handleVirtualTerminalProcessing();
+    }
 }
 
 /*!

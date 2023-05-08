@@ -7,26 +7,9 @@
 #include <string_view>
 
 /*!
- * \brief Enables virutal terminal processing.
- */
-static bool enableVirtualTerminalProcessing(DWORD nStdHandle)
-{
-    auto stdHandle = GetStdHandle(nStdHandle);
-    if (stdHandle == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-    auto dwMode = DWORD();
-    if (!GetConsoleMode(stdHandle, &dwMode)) {
-        return false;
-    }
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    return SetConsoleMode(stdHandle, dwMode);
-}
-
-/*!
  * \brief Returns \a replacement if \a value matches \a key; otherwise returns \a value.
  */
-static std::size_t replace(std::size_t value, std::size_t key, std::size_t replacement)
+static constexpr std::size_t replace(std::size_t value, std::size_t key, std::size_t replacement)
 {
     return value == key ? replacement : value;
 }
@@ -36,22 +19,14 @@ static std::size_t replace(std::size_t value, std::size_t key, std::size_t repla
  */
 int main()
 {
-    // setup console
-    // -> enable UTF-8 as this is used by all my applications
+    // ensure environment variables are set so the main executable will attach to the parent's console
+    // note: This is still required for this wrapper to receive standard I/O. We also still rely on the main
+    //       process to enable UTF-8 and virtual terminal processing.
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
-    // -> ensure environment variables for hack to attach to parent's console are enabled; this is still required
-    //    for this wrapper to receive standard I/O
     SetEnvironmentVariableW(L"ENABLE_CONSOLE", L"1");
     SetEnvironmentVariableW(L"ENABLE_CP_UTF8", L"1");
-    // -> unset environment variables that would lead to skipping the hack; for the wrapper the hack is even
-    //    required when using Mintty
-    SetEnvironmentVariableW(L"MSYSCON", L"");
-    SetEnvironmentVariableW(L"TERM_PROGRAM", L"");
-    // -> enable support for ANSI escape codes if possible
-    if (enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)) {
-        SetEnvironmentVariableW(L"ENABLE_ESCAPE_CODES", L"1");
-    }
+    SetEnvironmentVariableW(L"ENABLE_HANDLING_VIRTUAL_TERMINAL_PROCESSING", L"1");
 
     // determine the wrapper executable path
     wchar_t pathBuffer[MAX_PATH];
