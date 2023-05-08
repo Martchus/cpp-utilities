@@ -7,7 +7,8 @@
 #include <string_view>
 
 /*!
- * \brief Enables virutal terminal processing.
+ * \brief Enables virtual terminal processing (and thus processing of ANSI escape codes) of the console
+ *        or disables use of ANSI escape codes if that's not possible.
  */
 static bool enableVirtualTerminalProcessing(DWORD nStdHandle)
 {
@@ -44,14 +45,11 @@ int main()
     //    for this wrapper to receive standard I/O
     SetEnvironmentVariableW(L"ENABLE_CONSOLE", L"1");
     SetEnvironmentVariableW(L"ENABLE_CP_UTF8", L"1");
-    // -> unset environment variables that would lead to skipping the hack; for the wrapper the hack is even
-    //    required when using Mintty
-    SetEnvironmentVariableW(L"MSYSCON", L"");
-    SetEnvironmentVariableW(L"TERM_PROGRAM", L"");
     // -> enable support for ANSI escape codes if possible
-    if (enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)) {
-        SetEnvironmentVariableW(L"ENABLE_ESCAPE_CODES", L"1");
-    }
+    SetEnvironmentVariableW(L"HANDLE_VIRTUAL_TERMINAL_PROCESSING", L"1");
+    //SetEnvironmentVariableW(L"ENABLE_ESCAPE_CODES",
+    //                        enableVirtualTerminalProcessing(STD_OUTPUT_HANDLE) && enableVirtualTerminalProcessing(STD_ERROR_HANDLE)
+    //                        ? L"1" : L"0");
 
     // determine the wrapper executable path
     wchar_t pathBuffer[MAX_PATH];

@@ -166,8 +166,8 @@ void stopConsole()
  *   least when using `cmd.exe`).
  * - Used to start a console from a GUI application. Does *not* create a new console if the process already has one.
  * - Closes the console automatically when the application exits.
- * - It breaks redirecting stdout/stderr so this can be opted-out by setting the environment
- *   variable `ENABLE_CONSOLE=0` and/or `ENABLE_CP_UTF8=0`.
+ * - Attaching a console breaks redirecting stdout/stderr so this needs to be opted-in by setting the environment
+ *   variable `ENABLE_CONSOLE=1`.
  * \sa
  * - https://docs.microsoft.com/en-us/windows/console/AttachConsole
  * - https://docs.microsoft.com/en-us/windows/console/AllocConsole
@@ -176,86 +176,48 @@ void stopConsole()
  */
 void startConsole()
 {
-    if (isMintty()) {
-        return;
-    }
-
-    // skip if ENABLE_CONSOLE is set to 0
-    if (const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE"); consoleEnabled.has_value() && !consoleEnabled.value()) {
-        return;
-    }
-
-    // check whether there's a redirection; skip messing with any streams then
-    auto pos = std::fpos_t();
-    std::fgetpos(stdout, &pos);
-    const auto skipstdout = pos >= 0;
-    std::fgetpos(stderr, &pos);
-    const auto skipstderr = pos >= 0;
-    std::fgetpos(stdin, &pos);
-    const auto skipstdin = pos >= 0;
-    const auto skip = skipstdout || skipstderr || skipstdin;
-
     // attach to the parent process' console or allocate a new console if that's not possible
-    if (!skip && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
+    if (const auto consoleEnabled = isEnvVariableSet("ENABLE_CONSOLE");
+        consoleEnabled.has_value() && consoleEnabled.value() && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
         FILE* fp;
 #ifdef _MSC_VER
         // take care of normal streams
-        if (!skipstdout) {
-            freopen_s(&fp, "CONOUT$", "w", stdout);
-            std::cout.clear();
-            std::clog.clear();
-        }
-        if (!skipstderr) {
-            freopen_s(&fp, "CONOUT$", "w", stderr);
-            std::cerr.clear();
-        }
-        if (!skipstdin) {
-            freopen_s(&fp, "CONIN$", "r", stdin);
-            std::cin.clear();
-        }
+        freopen_s(&fp, "CONOUT$", "w", stdout);
+        std::cout.clear();
+        std::clog.clear();
+        freopen_s(&fp, "CONOUT$", "w", stderr);
+        std::cerr.clear();
+        freopen_s(&fp, "CONIN$", "r", stdin);
+        std::cin.clear();
         // take care of wide streams
         auto hConOut = CreateFile(_T("CONOUT$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         auto hConIn = CreateFile(_T("CONIN$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (!skipstdout) {
-            SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
-            std::wcout.clear();
-            std::wclog.clear();
-        }
-        if (!skipstderr) {
-            SetStdHandle(STD_ERROR_HANDLE, hConOut);
-            std::wcerr.clear();
-        }
-        if (!skipstdin) {
-            SetStdHandle(STD_INPUT_HANDLE, hConIn);
-            std::wcin.clear();
-        }
+        SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
+        std::wcout.clear();
+        std::wclog.clear();
+        SetStdHandle(STD_ERROR_HANDLE, hConOut);
+        std::wcerr.clear();
+        SetStdHandle(STD_INPUT_HANDLE, hConIn);
+        std::wcin.clear();
 #else
         // redirect stdout
-        auto stdHandle = std::intptr_t();
-        auto conHandle = int();
-        if (!skipstdout) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "w");
-            *stdout = *fp;
-            setvbuf(stdout, nullptr, _IONBF, 0);
-        }
+        auto stdHandle = reinterpret_cast<std::intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
+        auto conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        fp = _fdopen(conHandle, "w");
+        *stdout = *fp;
+        setvbuf(stdout, nullptr, _IONBF, 0);
         // redirect stdin
-        if (!skipstdin) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "r");
-            *stdin = *fp;
-            setvbuf(stdin, nullptr, _IONBF, 0);
-        }
+        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
+        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        fp = _fdopen(conHandle, "r");
+        *stdin = *fp;
+        setvbuf(stdin, nullptr, _IONBF, 0);
         // redirect stderr
-        if (!skipstderr) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "w");
-            *stderr = *fp;
-            setvbuf(stderr, nullptr, _IONBF, 0);
-        }
+        stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
+        conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+        fp = _fdopen(conHandle, "w");
+        *stderr = *fp;
+        setvbuf(stderr, nullptr, _IONBF, 0);
         // sync
         ios::sync_with_stdio(true);
 #endif
@@ -271,7 +233,10 @@ void startConsole()
     }
 
     // enable virtual terminal processing or disable ANSI-escape if that's not possible
-    handleVirtualTerminalProcessing();
+    const auto handleVirtualTerminalProcessing = isEnvVariableSet("HANDLE_VIRTUAL_TERMINAL_PROCESSING");
+    if (!handleVirtualTerminalProcessing.has_value() || handleVirtualTerminalProcessing.value()) {
+        handleVirtualTerminalProcessing();
+    }
 }
 
 /*!
