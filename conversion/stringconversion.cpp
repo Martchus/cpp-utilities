@@ -8,6 +8,7 @@
 #define CPP_UTILITIES_THREAD_LOCAL
 #endif
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
@@ -203,20 +204,23 @@ StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferS
 #ifdef PLATFORM_WINDOWS
 /*!
  * \brief Converts the specified multi-byte string (assumed to be UTF-8) to a wide string using the WinAPI.
- * \remarks Only available under Windows.
+ * \remarks
+ * - Only available under Windows.
+ * - If \a inputBuffer exceeds std::numeric_limits<int>::max() it will be truncated.
  */
 std::wstring convertMultiByteToWide(std::error_code &ec, std::string_view inputBuffer)
 {
     // calculate required size
     auto widePath = std::wstring();
-    auto size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), inputBuffer.size(), nullptr, 0);
+    auto bufferSize = static_cast<int>(std::clamp<std::size_t>(inputBuffer.size(), 0, std::numeric_limits<int>::max()));
+    auto size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), bufferSize, nullptr, 0);
     if (size <= 0) {
         ec = std::error_code(GetLastError(), std::system_category());
         return widePath;
     }
     // do the actual conversion
     widePath.resize(static_cast<std::wstring::size_type>(size));
-    size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), inputBuffer.size(), widePath.data(), size);
+    size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), bufferSize, widePath.data(), size);
     if (size <= 0) {
         ec = std::error_code(GetLastError(), std::system_category());
         widePath.clear();
