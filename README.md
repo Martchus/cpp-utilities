@@ -190,17 +190,17 @@ installed.
 
 The `win-x64-msvc-static` preset (and all presets inheriting from it) need various additional environment
 variables to be set:
-* `MSYS2_ROOT`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen and FFmpeg provided
-  via MSYS2 packages; install the following packages:
+* `MSYS2_ROOT`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg and Go (only
+  used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
   ```
-  pacman -Syu perl mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg
+  pacman -Syu perl mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
   ```
 * `MSVC_ROOT`: for compiler and stdlib usually installed as part of Visual Studio setup, e.g.
   `C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933`
 * `WIN_KITS_ROOT`: for Windows platform headers/libraries usually installed as part of Visual Studio setup,
   e.g. `C:/Program Files (x86)/Windows Kits/10`
-* `QT_ROOT`: for Qt libraries provided by official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
-* `QT_TOOLS`:  for additional build tools provided by official Qt installer, e.g. `D:/programming/qt/Tools`
+* `QT_ROOT`: for Qt libraries provided by the official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
+* `QT_TOOLS`:  for additional build tools provided by the official Qt installer, e.g. `D:/programming/qt/Tools`
 * `VCPKG_ROOT`: directory of VCPKG checkout used for other dependencies; install the following packages:
   ```
   vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static
