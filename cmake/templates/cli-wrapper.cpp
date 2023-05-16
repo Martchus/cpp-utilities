@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <cwchar>
 #include <iostream>
-#include <system_error>
 #include <string_view>
+#include <system_error>
 
 /*!
  * \brief Returns \a replacement if \a value matches \a key; otherwise returns \a value.
@@ -58,17 +58,16 @@ int main()
     startupInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     // start main executable in new group and print debug information if that's not possible
-    auto res = CreateProcessW(
-        pathBuffer,                // path of main executable
-        commadLine,                // command line arguments
-        nullptr,                   // process handle not inheritable
-        nullptr,                   // thread handle not inheritable
-        true,                      // set handle inheritance to true
-        CREATE_NEW_PROCESS_GROUP,  // creation flags
-        nullptr,                   // use parent's environment block
-        nullptr,                   // use parent's starting directory
-        &startupInfo,              // pointer to STARTUPINFO structure
-        &processInformation);      // pointer to PROCESS_INFORMATION structure
+    auto res = CreateProcessW(pathBuffer, // path of main executable
+        commadLine, // command line arguments
+        nullptr, // process handle not inheritable
+        nullptr, // thread handle not inheritable
+        true, // set handle inheritance to true
+        CREATE_NEW_PROCESS_GROUP, // creation flags
+        nullptr, // use parent's environment block
+        nullptr, // use parent's starting directory
+        &startupInfo, // pointer to STARTUPINFO structure
+        &processInformation); // pointer to PROCESS_INFORMATION structure
     if (!res) {
         std::cerr << "Unable to launch main executable: " << std::error_code(GetLastError(), std::system_category()) << '\n';
         std::wcerr << L" - assumed path: " << pathBuffer << L'\n';

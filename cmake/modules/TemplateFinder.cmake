@@ -8,7 +8,9 @@ set(TEMPLATE_FINDER_LOADED YES)
 
 function (find_template_file FILE_NAME_WITHOUT_EXTENSION PROJECT_VAR_NAME OUTPUT_VAR)
     find_template_file_full_name("${FILE_NAME_WITHOUT_EXTENSION}.in" "${PROJECT_VAR_NAME}" "${OUTPUT_VAR}")
-    set(${OUTPUT_VAR} "${${OUTPUT_VAR}}" PARENT_SCOPE)
+    set(${OUTPUT_VAR}
+        "${${OUTPUT_VAR}}"
+        PARENT_SCOPE)
 endfunction ()
 
 function (find_template_file_full_name FILE_NAME PROJECT_VAR_NAME OUTPUT_VAR)

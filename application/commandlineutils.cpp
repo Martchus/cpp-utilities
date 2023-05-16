@@ -198,7 +198,7 @@ void startConsole()
 
     // attach to the parent process' console or allocate a new console if that's not possible
     if (!skip && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
-        FILE* fp;
+        FILE *fp;
 #ifdef _MSC_VER
         // take care of normal streams
         if (!skipstdout) {
@@ -215,8 +215,10 @@ void startConsole()
             std::cin.clear();
         }
         // take care of wide streams
-        auto hConOut = CreateFile(_T("CONOUT$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        auto hConIn = CreateFile(_T("CONIN$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        auto hConOut = CreateFile(
+            _T("CONOUT$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        auto hConIn = CreateFile(
+            _T("CONIN$"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (!skipstdout) {
             SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
             std::wcout.clear();
