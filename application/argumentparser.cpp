@@ -361,6 +361,9 @@ bool ArgumentReader::read(ArgumentVector &args)
             ++parser.m_actualArgc;
             lastArg = lastArgInLevel = matchingArg;
             argDenotation = nullptr;
+            if ((values->size() < matchingArg->requiredValueCount()) && (matchingArg->flags() & Argument::Flags::Greedy)) {
+                continue;
+            }
             read(lastArg->m_subArgs);
             argDenotation = nullptr;
             continue;
