@@ -182,7 +182,7 @@ bool ArgumentReader::read(ArgumentVector &args)
     Argument *lastArgInLevel = nullptr;
     vector<const char *> *values = nullptr;
 
-    // iterate through all argument denotations; loop might exit earlier when an denotation is unknown
+    // iterate through all argument denotations; loop might exit earlier when a denotation is unknown
     while (argv != end) {
         // check whether there are still values to read
         if (values && ((lastArgInLevel->requiredValueCount() != Argument::varValueCount) || (lastArgInLevel->flags() & Argument::Flags::Greedy))
