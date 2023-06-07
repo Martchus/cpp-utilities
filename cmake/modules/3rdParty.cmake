@@ -157,6 +157,10 @@ macro (_cpp_utilities_use_openssl OPENSSL_TARGETS)
         message(STATUS "Unable to find OpenSSL")
         return()
     endif ()
+    set(OPENSSL_IS_STATIC FALSE)
+    if (OPENSSL_CRYPTO_LIBRARY MATCHES ".*\\.a" OR OPENSSL_SSL_LIBRARY MATCHES ".*\\.a")
+        set(OPENSSL_IS_STATIC TRUE)
+    endif ()
     foreach (OPENSSL_TARGET ${OPENSSL_TARGETS})
         if (TARGET "${OPENSSL_TARGET}")
             continue()
@@ -174,9 +178,14 @@ macro (_cpp_utilities_use_openssl OPENSSL_TARGETS)
 
     message(STATUS "Found required OpenSSL targets (${OPENSSL_TARGETS})")
     set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};${OPENSSL_TARGETS}")
-    if (WIN32 AND OPENSSL_USE_STATIC_LIBS)
-        # FIXME: preferably use pkg-config to cover this case without hardcoding OpenSSL's dependencies under Windows
-        set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
+
+    # add transitive dependencies for static OpenSSL libs as the CMake find module does not do a good job
+    if (OPENSSL_USE_STATIC_LIBS OR OPENSSL_IS_STATIC)
+        if (WIN32)
+            set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-lws2_32;-lgdi32;-lcrypt32")
+        elseif (LINUX)
+            set("${ARGS_LIBRARIES_VARIABLE}" "${${ARGS_LIBRARIES_VARIABLE}};-ldl")
+        endif ()
     endif ()
     set("${ARGS_PACKAGES_VARIABLE}"
         "${${ARGS_PACKAGES_VARIABLE}};OpenSSL"
