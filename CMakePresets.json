@@ -242,6 +242,7 @@
         "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
         "CPP_UNIT_LIB": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/lib/cppunit.lib"},
         "CPP_UNIT_INCLUDE_DIR": {"type": "PATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/include"},
+        "Vulkan_INCLUDE_DIR": {"type": "PATH", "value": ""},
         "QUICK_GUI": {"type": "BOOL", "value": "OFF"}
       }
     },
