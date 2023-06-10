@@ -393,8 +393,18 @@ endif ()
 
 # allow user to configure creation of tidy targets unless the project disables this via META_NO_TIDY
 if (NOT META_NO_TIDY)
-    option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" "${ENABLE_DEVEL_DEFAULTS}")
-    option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" "${ENABLE_DEVEL_DEFAULTS}")
+    find_program(CLANG_FORMAT_BIN clang-format)
+    find_program(CMAKE_FORMAT_BIN cmake-format)
+    set(CLANG_FORMAT_ENABLED_DEFAULT OFF)
+    set(CMAKE_FORMAT_ENABLED_DEFAULT OFF)
+    if (CLANG_FORMAT_BIN)
+        set(CLANG_FORMAT_ENABLED_DEFAULT ON)
+    endif ()
+    if (CMAKE_FORMAT_BIN)
+        set(CMAKE_FORMAT_ENABLED_DEFAULT ON)
+    endif ()
+    option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" "${CLANG_FORMAT_ENABLED_DEFAULT}")
+    option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" "${CMAKE_FORMAT_ENABLED_DEFAULT}")
 endif ()
 
 # add target for tidying with clang-format
@@ -402,7 +412,6 @@ if (NOT META_NO_TIDY
     AND CLANG_FORMAT_ENABLED
     AND FORMATABLE_FILES
     AND EXISTS "${CLANG_FORMAT_RULES}")
-    find_program(CLANG_FORMAT_BIN clang-format)
     if (NOT CLANG_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; clang-format not found")
     endif ()
@@ -432,7 +441,6 @@ endif ()
 if (NOT META_NO_TIDY
     AND CMAKE_FORMAT_ENABLED
     AND FORMATABLE_FILES_CMAKE)
-    find_program(CMAKE_FORMAT_BIN cmake-format)
     if (NOT CMAKE_FORMAT_BIN)
         message(FATAL_ERROR "Unable to add tidy target; cmake-format not found")
     endif ()
