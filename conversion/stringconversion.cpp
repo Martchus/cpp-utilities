@@ -215,14 +215,14 @@ std::wstring convertMultiByteToWide(std::error_code &ec, std::string_view inputB
     auto bufferSize = static_cast<int>(std::clamp<std::size_t>(inputBuffer.size(), 0, std::numeric_limits<int>::max()));
     auto size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), bufferSize, nullptr, 0);
     if (size <= 0) {
-        ec = std::error_code(GetLastError(), std::system_category());
+        ec = std::error_code(static_cast<int>(GetLastError()), std::system_category());
         return widePath;
     }
     // do the actual conversion
     widePath.resize(static_cast<std::wstring::size_type>(size));
     size = MultiByteToWideChar(CP_UTF8, 0, inputBuffer.data(), bufferSize, widePath.data(), size);
     if (size <= 0) {
-        ec = std::error_code(GetLastError(), std::system_category());
+        ec = std::error_code(static_cast<int>(GetLastError()), std::system_category());
         widePath.clear();
     }
     return widePath;
@@ -240,14 +240,14 @@ WideStringData convertMultiByteToWide(std::error_code &ec, const char *inputBuff
     WideStringData widePath;
     widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, nullptr, 0);
     if (widePath.second <= 0) {
-        ec = std::error_code(GetLastError(), std::system_category());
+        ec = std::error_code(static_cast<int>(GetLastError()), std::system_category());
         return widePath;
     }
     // do the actual conversion
     widePath.first = make_unique<wchar_t[]>(static_cast<size_t>(widePath.second));
     widePath.second = MultiByteToWideChar(CP_UTF8, 0, inputBuffer, inputBufferSize, widePath.first.get(), widePath.second);
     if (widePath.second <= 0) {
-        ec = std::error_code(GetLastError(), std::system_category());
+        ec = std::error_code(static_cast<int>(GetLastError()), std::system_category());
         widePath.first.reset();
     }
     return widePath;
