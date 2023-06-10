@@ -81,14 +81,14 @@ These build instructions apply to `c++utilities` but also to my other projects u
   projects for further details.
 
 ### How to build
-Example using Ninja:
+Generic example using Ninja:
 ```
 cmake -G Ninja \
       -S "path/to/source/directory" \
       -B "path/to/build/directory" \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX="/final/install/location"
-make # build the binaries
+# build the binaries
 cmake --build "path/to/build/directory"
 # format source files (optional, must be enabled via CLANG_FORMAT_ENABLED)
 cmake --build "path/to/build/directory" --target tidy
@@ -103,10 +103,11 @@ DESTDIR="/temporary/install/location" \
   cmake --install "path/to/build/directory"
 ```
 
+This example is rather generic. For a development build I recommended using CMakePresets as
+documented in the "CMake presets" section below. It also contains more concrete instructions for
+building on Windows.
+
 #### General notes
-* ```LIB_SUFFIX```, ```LIB_SUFFIX_32``` and ```LIB_SUFFIX_64``` can be set to specify a suffix
-  for the library directory, eg. lib*64* or lib*32*. The 32/64 variants are only used when building
-  for 32/64-bit architecture.
 * By default the build system will *build* static libs. To *build* shared libraries *instead*, set
   `BUILD_SHARED_LIBS=ON`.
 * By default the build system will prefer *linking against* shared libraries. To force *linking against*
@@ -115,7 +116,8 @@ DESTDIR="/temporary/install/location" \
 * If thread local storage is not supported by your compiler/platform (might be the case on MacOS), you can
   disable making use of it via `ENABLE_THREAD_LOCAL=OFF`.
 * To disable use of `std::filesystem`, set `USE_STANDARD_FILESYSTEM=OFF`. Note that the Bash completion will
-  not be able to suggest files and directories with `USE_STANDARD_FILESYSTEM=OFF`.
+  not be able to suggest files and directories with `USE_STANDARD_FILESYSTEM=OFF`. Note that this will only
+  help with `c++utilities` itself. My other projects might use `std::filesystem` unconditionally.
 * To disable `NativeFileStream` (and make it just a regular `std::fstream`), set `USE_NATIVE_FILE_BUFFER=OFF`.
   Note that handling paths with non-ASCII characters will then cease to work on Windows.
 * The Qt-based applications support bundeling icon themes by specifying e.g.
@@ -155,7 +157,9 @@ tagparser and tageditor) as one big project.
 This can be easily achieved by using CMake's `add_subdirectory()` function. For project files see the repository
 [subdirs](https://github.com/Martchus/subdirs). For an example, see
 [build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight) or
-[build instructions for Tag Editor](https://github.com/Martchus/tageditor#building-this-straight).
+[build instructions for Tag Editor](https://github.com/Martchus/tageditor#building-this-straight). The `subdirs`
+repository also contains the script `sync-all.sh` to clone all possibly relevant repositories and keep them
+up-to-date later on.
 
 For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`. To tweak various settings (e.g. warnings) for development,
 use `-DENABLE_DEVEL_DEFAULTS=ON`.
@@ -166,34 +170,59 @@ but also some specific to certain Arch Linux packaging found in the AUR and my P
 
 Use `cmake --list-presets` to list all presets. All `cmake` commands need to be executed within the source
 directory. Builds will be created within a sub-directory of the path specified via the environment variable
-`BUILD_DIR`. Here is an example for creating a build with the `arch-static-compat-devel` preset and invoking
-tests:
+`BUILD_DIR`.
 
-```
-export BUILD_DIR=$HOME/builds                                   # set build directory via environment variable
-cmake --preset arch-static-compat-devel                         # configure build
-cmake --build --preset arch-static-compat-devel -- -v           # conduct build
-cmake --build --preset arch-static-compat-devel --target check  # run tests
-cmake --build --preset arch-static-compat-devel --target tidy   # apply formatting
-```
+The most useful presets for development are likely `devel`, `devel-qt6` and `debug`. Note that the `devel`
+preset (and all presets inheriting from it) use `ccache` which therefore needs to be installed.
 
-This preset is quite special (see [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries)
-for details about it). The most useful presets for development are likely `devel`, `devel-qt6` and `debug`.
+Here is a simple example to build with the `devel-qt6` preset:
+```
+export BUILD_DIR=$HOME/builds                    # set build directory via environment variable
+cmake --preset devel-qt6                         # configure build
+cmake --build --preset devel-qt6 -- -v           # conduct build
+cmake --build --preset devel-qt6 --target check  # run tests
+cmake --build --preset devel-qt6 --target tidy   # apply formatting
+```
 
 Note that these presets are supposed to cover all of my projects (so some of them aren't really making a
 difference when just building `c++utilities` itself). To use presets in other projects, simply symlink the
-file `CMakePresets.json` into the source directory of those projects which works with the "subdirs" projects
-mentioned in the previous section as well.
+file `CMakePresets.json` into the source directory of those projects. This is also done by the "subdirs"
+projects mentioned in the previous section.
 
-Note that the `devel` preset (and all presets inheriting from it) use `ccache` which therefore needs to be
-installed.
+After invoking the configuration via the command-line, you can also open the project in Qt Creator and import
+it as an existing build (instead of adding a new build configuration).
 
-The `win-x64-msvc-static` preset (and all presets inheriting from it) need various additional environment
-variables to be set:
+##### Remarks for building on Windows
+To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset in a
+MSYS2 mingw64 shell. Set the `BUILD_DIR` environment variable and then run the following commands:
+```
+# install dependencies
+pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
+
+# clone repositories as mentioned under "Building this straight"
+cd /path/to/store/sources
+...
+git clone ...
+...
+
+# configure and invoke build
+cd subdirs
+cmake --preset devel-qt6
+cmake --build --preset devel-qt6 -- -v
+```
+
+Note that:
+* not all those dependencies are required by all my projects and some are just optional.
+* you can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`.
+* you must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
+  on Arch Linux.
+
+To build with MSVC you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) need
+various additional environment variables to be set and you need to install dependencies from various sources:
 * `MSYS2_ROOT`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg and Go (only
   used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
   ```
-  pacman -Syu perl mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
+  pacman -Syu perl-YAML mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
   ```
 * `MSVC_ROOT`: for compiler and stdlib usually installed as part of Visual Studio setup, e.g.
   `C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933`
@@ -205,6 +234,18 @@ variables to be set:
   ```
   vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static
   ```
+
+When building with MSVC, do *not* use any of the MSYS2 shells. The environment of those shells leads to
+build problems.
+
+##### Remarks about special presets
+The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
+are doing. When creating a normal build under Arch Linux it is recommended to still use e.g. `devel-qt6`.
+
+Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows using `mingw-w64` packages.
+Use the presets starting with `arch-static-compat-devel` to create a self-contained executable that is also
+usable under older GNU/Linux distributions using `static-compat` packages (see
+[PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it.
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
