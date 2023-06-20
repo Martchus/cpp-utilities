@@ -1,6 +1,15 @@
+// assert that CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL is defined; a value of:
+// - 0 means to define functions for BE namespace
+// - 1 means to define functions for LE namespace
 #ifndef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
 #error "Do not include binaryconversionprivate.h directly."
 #else
+
+// define macro if swapping byte order is required
+#if (CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0 && defined(CONVERSION_UTILITIES_BYTE_ORDER_LITTLE_ENDIAN))                                 \
+    || (CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 1 && defined(CONVERSION_UTILITIES_BYTE_ORDER_BIG_ENDIAN))
+#define CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
+#endif
 
 // disable warnings about sign conversions when using GCC or Clang
 #ifdef __GNUC__
@@ -144,7 +153,7 @@ template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILIT
 {
     auto dst = T();
     std::memcpy(&dst, value, sizeof(T));
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
+#ifdef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
     dst = swapOrder(dst);
 #endif
     return dst;
@@ -176,7 +185,7 @@ CPP_UTILITIES_EXPORT inline void getBytes24(std::uint32_t value, char *outputbuf
  */
 template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT inline void getBytes(T value, char *outputbuffer)
 {
-#if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
+#ifdef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
     value = swapOrder(value);
 #endif
     std::memcpy(outputbuffer, &value, sizeof(T));
@@ -205,5 +214,7 @@ CPP_UTILITIES_EXPORT inline void getBytes(double value, char *outputbuffer)
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
+
+#undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
 
 #endif // CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL
