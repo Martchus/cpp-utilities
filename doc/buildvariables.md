@@ -105,7 +105,8 @@ None of these are enabled or set by default, unless stated otherwise.
     * Using `CMAKE_EXE_LINKER_FLAGS` or `CMAKE_SHARED_LINKER_FLAGS` is often not helpful
       because the additional flags need to be added at the end of the linker line most
       of the time.
-* `CONFIGURATION_NAME`: specifies a name to be incorporated into install paths
+* `CONFIGURATION_NAME`: specifies a name to be incorporated into install paths as a
+  *suffix*
     * Builds with different configuration names can be installed alongside within the
       same install prefix.
     * Use cases
@@ -117,8 +118,17 @@ None of these are enabled or set by default, unless stated otherwise.
       between different configurations (e.g. static vs. shared libraries).
     * Set `CONFIGURATION_TARGET_SUFFIX` in accordance so library names are affected
       as well.
-    * Set `CONFIGURATION_PACKAGE_SUFFIX` to *use* libraries built with
-      `CONFIGURATION_NAME`.
+    * Set `CONFIGURATION_PACKAGE_SUFFIX` when building consuming libraries to *use*
+      libraries (and their headers and other files) built with `CONFIGURATION_NAME`.
+* `NAMESPACE`: specifies a name to be incorporated into install paths as a *prefix*
+    * Builds with different namespaces can be installed alongside within the same
+      install prefix.
+    * This may be used by packagers who want to give the package a more unique
+      name, e.g. Debian is using `NAMESPACE=martchus` for c++utilities and
+      qtutilities. Supposedly this should be avoided for developer-facing packaging
+      like vcpkg as it is likely not expected by those users.
+    * Set `PACKAGE_NAMESPACE_PREFIX` when building consuming libraries to *use*
+      libraries (and their headers and other files) built with `NAMESPACE`.
 * `ENABLE_WARNINGS`: enables GCC/Clang warnings I consider useful
 * `TREAT_WARNINGS_AS_ERRORS`: treat CCC/Clang warnings as errors
 * `ENABLE_DEVEL_DEFAULTS`: enables defaults I find useful for development (warnings,
