@@ -530,9 +530,12 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         COMPONENT cmake-config)
 
     # allow checking for the export in subsequent sibling projects/directories
-    set("EXPORT_${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}"
-        ON
-        PARENT_SCOPE)
+    get_directory_property(HAS_PARENT_DIRECTORY PARENT_DIRECTORY)
+    if (HAS_PARENT_DIRECTORY)
+        set("EXPORT_${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}"
+            ON
+            PARENT_SCOPE)
+    endif ()
 
     # add install target for header files
     if (NOT META_IS_PLUGIN)
