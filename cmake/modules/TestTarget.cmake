@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.6.0 FATAL_ERROR)
 
 if (NOT BASIC_PROJECT_CONFIG_DONE)
     message(FATAL_ERROR "Before including the TestTarget module, the BasicConfig module must be included.")
@@ -9,7 +9,7 @@ endif ()
 
 include(TestUtilities)
 
-# find and link against cppunit if required (used by all my projects, so it is required by default)
+# find and link against CppUnit if required (used by all my projects, so it is required by default)
 if (NOT META_NO_CPP_UNIT)
     # make cppunit library/include dir configurable
     set(CPP_UNIT_LIB
@@ -18,66 +18,57 @@ if (NOT META_NO_CPP_UNIT)
     set(CPP_UNIT_INCLUDE_DIR
         NOTFOUND
         CACHE FILEPATH "cppunit include dir")
+    if (CPP_UNIT_LIB)
+        set(DETECTED_CPP_UNIT_LIB "${CPP_UNIT_LIB}")
+    endif ()
 
     # set default for minimum version (only checked when using pkg-config)
     if (NOT META_REQUIRED_CPP_UNIT_VERSION)
         set(META_REQUIRED_CPP_UNIT_VERSION 1.13.0)
     endif ()
 
-    # auto-detection: try to find via pkg-config first
-    if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
+    # find CppUnit via pkg-config first
+    if (NOT DETECTED_CPP_UNIT_LIB)
         include(FindPkgConfig)
-        pkg_search_module(CPP_UNIT_CONFIG_${META_PROJECT_NAME} cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
-        if (CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-            set(CPP_UNIT_LIB
-                "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LDFLAGS_OTHER}" "${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARIES}"
-                CACHE FILEPATH "CppUnit library" FORCE)
-            set(CPP_UNIT_INCLUDE_DIR
-                ${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_INCLUDE_DIRS}
-                CACHE FILEPATH "CppUnit include dir" FORCE)
-            link_directories(${CPP_UNIT_CONFIG_${META_PROJECT_NAME}_LIBRARY_DIRS})
+        pkg_search_module(CppUnit IMPORTED_TARGET cppunit>=${META_REQUIRED_CPP_UNIT_VERSION})
+        if (CppUnit_FOUND)
+            set(DETECTED_CPP_UNIT_LIB "PkgConfig::CppUnit")
         endif ()
     endif ()
 
     # fall back to find_package (as vcpkg provides one)
-    if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
+    if (NOT DETECTED_CPP_UNIT_LIB)
         find_package(CppUnit CONFIG)
         if (TARGET CppUnit)
-            set(CPP_UNIT_LIB
-                CppUnit
-                CACHE STRING "CppUnit target" FORCE)
+            set(DETECTED_CPP_UNIT_LIB CppUnit)
         endif ()
     endif ()
 
     # fall back to find_library
-    if (NOT CPP_UNIT_LIB AND NOT CPP_UNIT_INCLUDE_DIR)
-        find_library(DETECTED_CPP_UNIT_LIB cppunit)
-        set(CPP_UNIT_LIB
-            "${DETECTED_CPP_UNIT_LIB}"
-            CACHE FILEPATH "CppUnit library" FORCE)
+    if (NOT DETECTED_CPP_UNIT_LIB)
+        find_library(DETECTED_CPP_UNIT_LIB cppunit NO_CACHE)
+        if (DETECTED_CPP_UNIT_LIB)
+            message(
+                WARNING
+                    "CppUnit has only been detected via find_library() so the version could not be checked and include paths are maybe missing. The required version for ${META_PROJECT_NAME} is ${META_REQUIRED_CPP_UNIT_VERSION}."
+            )
+        endif ()
     endif ()
 
-    if (NOT CPP_UNIT_LIB)
-        message(WARNING "Unable to add test target because cppunit could not be located.")
+    if (NOT DETECTED_CPP_UNIT_LIB)
+        message(WARNING "Unable to add test target because CppUnit could not be located.")
         set(META_HAVE_TESTS NO)
         set(TEST_CONFIG_DONE YES)
         return()
     endif ()
 
-    list(APPEND TEST_LIBRARIES "${CPP_UNIT_LIB}")
-    if (NOT CPP_UNIT_CONFIG_${META_PROJECT_NAME}_FOUND)
-        message(
-            WARNING
-                "Cppunit not detected via pkg-config so the version couldn't be checked. Required version for ${META_PROJECT_NAME} is ${META_REQUIRED_CPP_UNIT_VERSION}."
-        )
-    endif ()
-
+    list(APPEND TEST_LIBRARIES "${DETECTED_CPP_UNIT_LIB}")
     if (CPP_UNIT_INCLUDE_DIR)
         list(APPEND TEST_INCLUDE_DIRS "${CPP_UNIT_INCLUDE_DIR}")
     endif ()
 endif ()
 
-# add default cppunit test application if requested
+# add default CppUnit test application if requested
 if (META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION)
     if (META_NO_CPP_UNIT)
         message(
