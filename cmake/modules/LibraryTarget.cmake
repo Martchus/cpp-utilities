@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.17.0 FATAL_ERROR)
 
 if (NOT BASIC_PROJECT_CONFIG_DONE)
     message(FATAL_ERROR "Before including the LibraryTarget module, the BasicConfig module must be included.")
