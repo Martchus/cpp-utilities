@@ -245,7 +245,7 @@ are doing. When creating a normal build under Arch Linux it is recommended to st
 Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows using `mingw-w64` packages.
 Use the presets starting with `arch-static-compat-devel` to create a self-contained executable that is also
 usable under older GNU/Linux distributions using `static-compat` packages (see
-[PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it.
+[PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
