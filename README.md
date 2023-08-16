@@ -194,12 +194,16 @@ it as an existing build (instead of adding a new build configuration).
 
 ##### Remarks for building on Windows
 To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset in a
-MSYS2 mingw64 shell. Set the `BUILD_DIR` environment variable and then run the following commands:
+MSYS2 mingw64 shell. Set the `BUILD_DIR` environment variable to specify the directory to store build
+artefacts.
+
+Run the following commands to build one of my applications and its `c++utilities`/`qtutilities` dependencies
+in one go:
 ```
-# install dependencies
+# install dependencies; you may strip down this list depending on the application and features to enable
 pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
 
-# clone repositories as mentioned under "Building this straight"
+# clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
 ...
 git clone ...
@@ -213,6 +217,11 @@ cmake --build --preset devel-qt6 -- -v
 
 Note that:
 * not all those dependencies are required by all my projects and some are just optional.
+    * Especially `mingw-w64-x86_64-go` is only required when building Syncthing Tray with built-in
+      Syncthing-library enabled.
+    * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
+      and Password Manager can be built without Qt GUI. The libraries `c++utilities` and `tagparser` don't
+      require Qt at all.
 * you can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`.
 * you must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
   on Arch Linux.
