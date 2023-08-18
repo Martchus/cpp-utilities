@@ -198,7 +198,7 @@ MSYS2 mingw64 shell. Set the `BUILD_DIR` environment variable to specify the dir
 artefacts.
 
 Run the following commands to build one of my applications and its `c++utilities`/`qtutilities` dependencies
-in one go:
+in one go (in this example Syncthing Tray):
 ```
 # install dependencies; you may strip down this list depending on the application and features to enable
 pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
@@ -209,14 +209,37 @@ cd /path/to/store/sources
 git clone ...
 ...
 
-# configure and invoke build
-cd subdirs
+# configure and invoke the build
+cd subdirs/syncthingtray
 cmake --preset devel-qt6
-cmake --build --preset devel-qt6 -- -v
+cmake --build "$BUILD_DIR/syncthingtray/devel-qt6" devel-qt6 -- -v
+```
+
+Run the following commands to build libraries individually (in this example `tagparser`) and
+installing them in some directory (in this example `$BUILD_DIR/install`) for use in another
+project:
+```
+# install dependencies
+pacman -Syu git mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit
+
+# clone relevant repositories, e.g. here just tagparser and its dependency c++utilities
+cd /path/to/store/sources
+git config core.symlinks true
+git clone https://github.com/Martchus/cpp-utilities.git c++utilities
+git clone https://github.com/Martchus/tagparser.git
+
+# configure and invoke the build and installation of the projects individually
+cmake --preset devel-qt6 -S c++utilities -DCMAKE_INSTALL_PREFIX="$BUILD_DIR/install"
+cmake --build "$BUILD_DIR/c++utilities/devel-qt6" --target install -- -v
+ln -rs c++utilities/CMakePresets.json tagparser/CMakePresets.json
+cmake --preset devel-qt6 -S tagparser -DCMAKE_INSTALL_PREFIX="$BUILD_DIR/install"
+cmake --build "$BUILD_DIR/tagparser/devel-qt6" --target install -- -v
 ```
 
 Note that:
 * not all those dependencies are required by all my projects and some are just optional.
+    * The second example to just build `c++utilities` and `tagparser` already shows a stripped-down list
+      of dependencies.
     * Especially `mingw-w64-x86_64-go` is only required when building Syncthing Tray with built-in
       Syncthing-library enabled.
     * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
