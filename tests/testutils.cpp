@@ -437,10 +437,23 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     auto path = enableSearchPath ? boost::process::search_path(appPath) : boost::process::filesystem::path(appPath);
     auto ctx = boost::asio::io_context();
     auto group = boost::process::group();
-    auto argsAsVector = std::vector<std::string>();
+    auto argsAsVector =
+#if defined(PLATFORM_WINDOWS)
+        std::vector<std::wstring>();
+#else
+        std::vector<std::string>();
+#endif
     if (*args) {
         for (const char *const *arg = args + 1; *arg; ++arg) {
+#if defined(PLATFORM_WINDOWS)
+            auto ec = std::error_code();
+            argsAsVector.emplace_back(convertMultiByteToWide(ec, std::string_view(*arg)));
+            if (ec) {
+                throw std::runtime_error(argsToString("unable to convert arg \"", *arg, "\" to wide string"));
+            }
+#else
             argsAsVector.emplace_back(*arg);
+#endif
         }
     }
     auto outputBuffer = boost::asio::streambuf(), errorBuffer = boost::asio::streambuf();
