@@ -9,6 +9,10 @@
 #include <ostream>
 #include <string>
 
+#if defined(PLATFORM_UNIX) || defined(CPP_UTILITIES_BOOST_PROCESS)
+#define CPP_UTILITIES_HAS_EXEC_APP
+#endif
+
 namespace CppUtilities {
 
 /*!
@@ -34,7 +38,7 @@ public:
     std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
     std::string workingCopyPathAs(const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath,
         WorkingCopyMode mode = WorkingCopyMode::CreateCopy) const;
-#ifdef PLATFORM_UNIX
+#ifdef CPP_UTILITIES_HAS_EXEC_APP
     int execApp(const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1) const;
 #endif
 
@@ -180,7 +184,7 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPathAs(
     return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeWorkingCopyPath, mode);
 }
 
-#ifdef PLATFORM_UNIX
+#ifdef CPP_UTILITIES_HAS_EXEC_APP
 /*!
  * \brief Convenience function which executes the application to be tested with the specified \a args.
  * \remarks A TestApplication must be present.
@@ -195,7 +199,7 @@ CPP_UTILITIES_EXPORT int execHelperApp(
     const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
 CPP_UTILITIES_EXPORT int execHelperAppInSearchPath(
     const char *appName, const char *const *args, std::string &output, std::string &errors, bool suppressLogging = false, int timeout = -1);
-#endif // PLATFORM_UNIX
+#endif
 
 /*!
  * \brief Allows printing std::optional objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
@@ -287,6 +291,16 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  *
  * \remarks Requires cppunit.
  */
+#ifdef CPP_UTILITIES_BOOST_PROCESS
+#define TESTUTILS_ASSERT_EXEC_EXIT_STATUS(args, expectedExitStatus)                                                                                  \
+    {                                                                                                                                                \
+        const auto status = execApp(args, stdout, stderr);                                                                                           \
+        if (status != expectedExitStatus) {                                                                                                          \
+            CPPUNIT_FAIL(::CppUtilities::argsToString(                                                                                               \
+                "app exited with status ", status, " (expected ", expectedExitStatus, ")\nstdout: ", stdout, "\nstderr: ", stderr));                 \
+        }                                                                                                                                            \
+    }
+#else
 #define TESTUTILS_ASSERT_EXEC_EXIT_STATUS(args, expectedExitStatus)                                                                                  \
     {                                                                                                                                                \
         const auto status = execApp(args, stdout, stderr);                                                                                           \
@@ -298,6 +312,7 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
                 "app exited with status ", exitStatus, " (expected ", expectedExitStatus, ")\nstdout: ", stdout, "\nstderr: ", stderr));             \
         }                                                                                                                                            \
     }
+#endif
 
 /*!
  * \brief Asserts whether the specified \a string matches the specified \a regex.

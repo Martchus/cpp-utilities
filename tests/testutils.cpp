@@ -27,6 +27,19 @@
 #include <unistd.h>
 #endif
 
+#ifdef CPP_UTILITIES_BOOST_PROCESS
+#include <boost/asio/buffers_iterator.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/streambuf.hpp>
+#include <boost/process/async.hpp>
+#include <boost/process/environment.hpp>
+#include <boost/process/env.hpp>
+#include <boost/process/child.hpp>
+#include <boost/process/group.hpp>
+#include <boost/process/io.hpp>
+#include <boost/process/search_path.hpp>
+#endif
+
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
 #endif
@@ -391,7 +404,16 @@ string TestApplication::workingCopyPathAs(
     return workingCopyPath;
 }
 
-#ifdef PLATFORM_UNIX
+#ifdef CPP_UTILITIES_HAS_EXEC_APP
+
+#if defined(CPP_UTILITIES_BOOST_PROCESS)
+inline static std::string streambufToString(boost::asio::streambuf &buf)
+{
+    const auto begin = boost::asio::buffers_begin(buf.data());
+    return std::string(begin, begin + static_cast<std::ptrdiff_t>(buf.size()));
+}
+#endif
+
 /*!
  * \brief Executes an application with the specified \a args.
  * \remarks Provides internal implementation of execApp() and execHelperApp().
@@ -411,6 +433,34 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         cout << endl;
     }
 
+#if defined(CPP_UTILITIES_BOOST_PROCESS)
+    auto path = enableSearchPath ? boost::process::search_path(appPath) : boost::process::filesystem::path(appPath);
+    auto ctx = boost::asio::io_context();
+    auto group = boost::process::group();
+    auto argsAsVector = std::vector<std::string>();
+    if (*args) {
+        for (const char *const *arg = args + 1; *arg; ++arg) {
+            argsAsVector.emplace_back(*arg);
+        }
+    }
+    auto outputBuffer = boost::asio::streambuf(), errorBuffer = boost::asio::streambuf();
+    auto env = boost::process::environment(boost::this_process::environment());
+    if (!newProfilingPath.empty()) {
+        env["LLVM_PROFILE_FILE"] = newProfilingPath;
+    }
+    auto child = boost::process::child(ctx, group, path, argsAsVector, env, boost::process::std_out > outputBuffer, boost::process::std_err > errorBuffer);
+    if (timeout > 0) {
+        ctx.run_for(std::chrono::milliseconds(timeout));
+    } else {
+        ctx.run();
+    }
+    output = streambufToString(outputBuffer);
+    errors = streambufToString(errorBuffer);
+    child.wait();
+    group.wait();
+    return child.exit_code();
+
+#elif defined(PLATFORM_UNIX)
     // create pipes
     int coutPipes[2], cerrPipes[2];
     pipe(coutPipes);
@@ -504,6 +554,10 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         cerr << Phrases::Error << "Unable to execute \"" << appPath << "\": execv() failed" << Phrases::EndFlush;
         exit(-101);
     }
+
+#else
+    throw std::runtime_error("lauching test applications is not supported on this platform");
+#endif
 }
 
 /*!
@@ -594,7 +648,7 @@ int execHelperAppInSearchPath(
 {
     return execAppInternal(appName, args, output, errors, suppressLogging, timeout, string(), true);
 }
-#endif // PLATFORM_UNIX
+#endif
 
 /*!
  * \brief Reads the path of the test file directory from the environment variable TEST_FILE_PATH.

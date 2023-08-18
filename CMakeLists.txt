@@ -128,6 +128,7 @@ include(3rdParty)
 use_iconv(AUTO_LINKAGE REQUIRED)
 
 # configure use of native file buffer and its backend implementation if enabled
+set(REQUIRED_BOOST_COMPONENTS "")
 set(USE_NATIVE_FILE_BUFFER_BY_DEFAULT OFF)
 if (WIN32
     OR ANDROID
@@ -157,7 +158,7 @@ if (USE_NATIVE_FILE_BUFFER)
         endforeach ()
     else ()
         message(STATUS "Using boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_sink> for NativeFileStream")
-        use_package(TARGET_NAME Boost::iostreams PACKAGE_NAME Boost PACKAGE_ARGS "REQUIRED;COMPONENTS;iostreams")
+        list(APPEND REQUIRED_BOOST_COMPONENTS iostreams)
         foreach (NATIVE_FILE_STREAM_IMPL_FILE ${NATIVE_FILE_STREAM_IMPL_FILES})
             set_property(
                 SOURCE ${NATIVE_FILE_STREAM_IMPL_FILE}
@@ -167,6 +168,26 @@ if (USE_NATIVE_FILE_BUFFER)
     endif ()
 else ()
     message(STATUS "Using std::fstream for NativeFileStream")
+endif ()
+
+# configure use of Boost.Process for launching test applications on Windows
+if (WIN32)
+    option(USE_BOOST_PROCESS "enables use of Boost.Process to launch test applications" ON)
+    if (USE_BOOST_PROCESS)
+        list(APPEND REQUIRED_BOOST_COMPONENTS filesystem)
+        list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_BOOST_PROCESS)
+        list(APPEND PRIVATE_LIBRARIES ws2_32) # needed by Boost.Asio
+        use_package(TARGET_NAME Threads::Threads PACKAGE_NAME Threads PACKAGE_ARGS REQUIRED)
+    endif ()
+endif ()
+
+# configure usage of Boost
+if (REQUIRED_BOOST_COMPONENTS)
+    set(BOOST_ARGS REQUIRED COMPONENTS ${REQUIRED_BOOST_COMPONENTS})
+    use_package(TARGET_NAME Boost::boost PACKAGE_NAME Boost PACKAGE_ARGS "${BOOST_ARGS}")
+    foreach (COMPONENT ${REQUIRED_BOOST_COMPONENTS})
+        use_package(TARGET_NAME Boost::${COMPONENT} PACKAGE_NAME Boost PACKAGE_ARGS "${BOOST_ARGS}")
+    endforeach ()
 endif ()
 
 # configure required libraries for std::filesystem
