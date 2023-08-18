@@ -46,7 +46,7 @@ int main()
     std::wcscpy(pathBuffer + filenameStart + appendixStart, L".exe");
 
     // compute startup parameters
-    auto commadLine = GetCommandLineW();
+    auto commandLine = GetCommandLineW();
     auto processInformation = PROCESS_INFORMATION();
     auto startupInfo = STARTUPINFOW();
     ZeroMemory(&startupInfo, sizeof(startupInfo));
@@ -59,7 +59,7 @@ int main()
 
     // start main executable in new group and print debug information if that's not possible
     auto res = CreateProcessW(pathBuffer, // path of main executable
-        commadLine, // command line arguments
+        commandLine, // command line arguments
         nullptr, // process handle not inheritable
         nullptr, // thread handle not inheritable
         true, // set handle inheritance to true
@@ -71,7 +71,7 @@ int main()
     if (!res) {
         std::cerr << "Unable to launch main executable: " << std::error_code(GetLastError(), std::system_category()) << '\n';
         std::wcerr << L" - assumed path: " << pathBuffer << L'\n';
-        std::wcerr << L" - assumed command-line: " << commadLine << L'\n';
+        std::wcerr << L" - assumed command-line: " << commandLine << L'\n';
         return EXIT_FAILURE;
     }
 
