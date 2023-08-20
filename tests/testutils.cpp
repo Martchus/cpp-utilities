@@ -32,9 +32,9 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/process/async.hpp>
-#include <boost/process/environment.hpp>
-#include <boost/process/env.hpp>
 #include <boost/process/child.hpp>
+#include <boost/process/env.hpp>
+#include <boost/process/environment.hpp>
 #include <boost/process/group.hpp>
 #include <boost/process/io.hpp>
 #include <boost/process/search_path.hpp>
@@ -461,7 +461,8 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     if (!newProfilingPath.empty()) {
         env["LLVM_PROFILE_FILE"] = newProfilingPath;
     }
-    auto child = boost::process::child(ctx, group, path, argsAsVector, env, boost::process::std_out > outputBuffer, boost::process::std_err > errorBuffer);
+    auto child
+        = boost::process::child(ctx, group, path, argsAsVector, env, boost::process::std_out > outputBuffer, boost::process::std_err > errorBuffer);
     if (timeout > 0) {
         ctx.run_for(std::chrono::milliseconds(timeout));
     } else {
