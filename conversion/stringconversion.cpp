@@ -414,7 +414,7 @@ string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
  * \throw Throws a ConversionException if the specified string is no valid Base64.
  * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
-pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
+std::pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
 {
     if (strSize % 4) {
         throw ConversionException("invalid size of base64");
@@ -429,7 +429,7 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
             --decodedSize;
         }
     }
-    auto buffer = make_unique<std::uint8_t[]>(decodedSize);
+    auto buffer = std::make_unique<std::uint8_t[]>(decodedSize);
     auto *iter = buffer.get() - 1;
     while (encodedStr < end) {
         std::int32_t temp = 0;
@@ -450,10 +450,10 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
                 case 1:
                     *++iter = static_cast<std::uint8_t>((temp >> 16) & 0xFF);
                     *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
-                    return make_pair(std::move(buffer), decodedSize);
+                    return std::make_pair(std::move(buffer), decodedSize);
                 case 2:
                     *++iter = static_cast<std::uint8_t>((temp >> 10) & 0xFF);
-                    return make_pair(std::move(buffer), decodedSize);
+                    return std::make_pair(std::move(buffer), decodedSize);
                 default:
                     throw ConversionException("invalid padding in base64");
                 }
@@ -465,6 +465,6 @@ pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encoded
         *++iter = static_cast<std::uint8_t>((temp >> 8) & 0xFF);
         *++iter = static_cast<std::uint8_t>(temp & 0xFF);
     }
-    return make_pair(std::move(buffer), decodedSize);
+    return std::make_pair(std::move(buffer), decodedSize);
 }
 } // namespace CppUtilities
