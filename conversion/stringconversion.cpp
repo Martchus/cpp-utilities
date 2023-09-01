@@ -416,18 +416,19 @@ string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
  */
 std::pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
 {
+    if (!strSize) {
+        return std::make_pair(std::make_unique<std::uint8_t[]>(0), 0); // early return to prevent clazy warning
+    }
     if (strSize % 4) {
         throw ConversionException("invalid size of base64");
     }
     std::uint32_t decodedSize = (strSize / 4) * 3;
     const char *const end = encodedStr + strSize;
-    if (strSize) {
-        if (*(end - 1) == base64Pad) {
-            --decodedSize;
-        }
-        if (*(end - 2) == base64Pad) {
-            --decodedSize;
-        }
+    if (*(end - 1) == base64Pad) {
+        --decodedSize;
+    }
+    if (*(end - 2) == base64Pad) {
+        --decodedSize;
     }
     auto buffer = std::make_unique<std::uint8_t[]>(decodedSize);
     auto *iter = buffer.get() - 1;
