@@ -79,7 +79,9 @@
         "QT_PACKAGE_PREFIX": {"type": "STRING", "value": "Qt6"},
         "QT_MAJOR_VERSION": {"type": "STRING", "value": "6"},
         "KF_PACKAGE_PREFIX": {"type": "STRING", "value": "KF6"},
-        "BUILD_WITH_QT6": {"type": "BOOL", "value": "ON"}
+        "BUILD_WITH_QT6": {"type": "BOOL", "value": "ON"},
+        "NO_PLASMOID": {"type": "BOOL", "value": "ON"},
+        "NO_FILE_ITEM_ACTION_PLUGIN": {"type": "BOOL", "value": "ON"}
       }
     },
     {
@@ -107,7 +109,9 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/debug-kde",
       "cacheVariables": {
         "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"},
-        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"}
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"},
+        "NO_PLASMOID": {"type": "BOOL", "value": "OFF"},
+        "NO_FILE_ITEM_ACTION_PLUGIN": {"type": "BOOL", "value": "OFF"}
       }
     },
     {
