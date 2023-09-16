@@ -8,6 +8,9 @@ if (TEST_CONFIG_DONE)
 endif ()
 
 include(TestUtilities)
+if(NOT BUILD_TESTING)
+    return()
+endif()
 
 # find and link against CppUnit if required (used by all my projects, so it is required by default)
 if (NOT META_NO_CPP_UNIT)
