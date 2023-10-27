@@ -194,6 +194,8 @@
         "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
         "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}"},
         "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}"},
+        "CMAKE_SKIP_BUILD_RPATH": {"type": "BOOL", "value": "ON"},
+        "CMAKE_SKIP_INSTALL_RPATH": {"type": "BOOL", "value": "ON"},
         "CMAKE_DISABLE_FIND_PACKAGE_harfbuzz": {"type": "BOOL", "value": "ON"},
         "Boost_USE_STATIC_RUNTIME": {"type": "BOOL", "value": "ON"},
         "GLIB2_USE_PKG_CONFIG": {"type": "BOOL", "value": "ON"},
