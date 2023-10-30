@@ -124,7 +124,7 @@
       "environment": {
         "CROSS_TOOL_PREFIX": "x86_64-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/x86_64-w64-mingw32",
-        "CPPFLAGS": "-D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS",
+        "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
         "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
         "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
         "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector",
