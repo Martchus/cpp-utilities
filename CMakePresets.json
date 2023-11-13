@@ -104,14 +104,23 @@
     {
       "name": "debug-kde",
       "inherits": "debug-qt6",
-      "displayName": "Generic debug build with development config using custom KDE build",
-      "description": "Same as devel but creates a debug build",
+      "displayName": "Generic debug build with development config with KDE integrations enabled",
+      "description": "Same as debug-qt6 but with KDE integrations enabled",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/debug-kde",
       "cacheVariables": {
-        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"},
-        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"},
         "NO_PLASMOID": {"type": "BOOL", "value": "OFF"},
         "NO_FILE_ITEM_ACTION_PLUGIN": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
+      "name": "debug-kde-custom",
+      "inherits": "debug-kde",
+      "displayName": "Generic debug build with development config using custom KDE build",
+      "description": "Same as debug-kde but with custom KDE installation from KDE_INSTALL_DIR",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/debug-kde-custom",
+      "cacheVariables": {
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"},
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{KDE_INSTALL_DIR}"}
       }
     },
     {
@@ -287,6 +296,7 @@
     {"name": "debug", "configurePreset": "debug"},
     {"name": "debug-qt6", "configurePreset": "debug-qt6"},
     {"name": "debug-kde", "configurePreset": "debug-kde"},
+    {"name": "debug-kde-custom", "configurePreset": "debug-kde-custom"},
     {"name": "arch-x86_64-w64-mingw32", "configurePreset": "arch-x86_64-w64-mingw32"},
     {"name": "arch-x86_64-w64-mingw32-static", "configurePreset": "arch-x86_64-w64-mingw32-static"},
     {"name": "arch-x86_64-w64-mingw32-qt6", "configurePreset": "arch-x86_64-w64-mingw32-qt6"},
