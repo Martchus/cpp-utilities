@@ -403,8 +403,14 @@ if (NOT META_NO_TIDY)
     if (CMAKE_FORMAT_BIN)
         set(CMAKE_FORMAT_ENABLED_DEFAULT ON)
     endif ()
+    set(TIDY_TESTS_ENABLED_DEFAULT OFF)
+    if (ENABLE_DEVEL_DEFAULTS AND CLANG_FORMAT_ENABLED_DEFAULT)
+        set(TIDY_TESTS_ENABLED_DEFAULT ON)
+    endif ()
     option(CLANG_FORMAT_ENABLED "enables creation of tidy target using clang-format" "${CLANG_FORMAT_ENABLED_DEFAULT}")
     option(CMAKE_FORMAT_ENABLED "enables creation of tidy target using cmake-format" "${CMAKE_FORMAT_ENABLED_DEFAULT}")
+    option(TIDY_TESTS_ENABLED "enables tests for checking whether code is well-formatted using clang-format"
+           "${TIDY_TESTS_ENABLED_DEFAULT}")
 endif ()
 
 # add target for tidying with clang-format
@@ -427,14 +433,16 @@ if (NOT META_NO_TIDY
     add_dependencies(tidy "${META_TARGET_NAME}_tidy")
 
     # also add a test to verify whether sources are tidy
-    add_test(
-        NAME "${META_TARGET_NAME}_tidy_test"
-        COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
-    set_tests_properties(
-        "${META_TARGET_NAME}_tidy_test" PROPERTIES FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>" REQUIRED_FILES
-                                                   "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+    if (TIDY_TESTS_ENABLED)
+        add_test(
+            NAME "${META_TARGET_NAME}_tidy_test"
+            COMMAND "${CLANG_FORMAT_BIN}" -output-replacements-xml -style=file ${FORMATABLE_FILES}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+        list(APPEND CHECK_TARGET_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+        set_tests_properties(
+            "${META_TARGET_NAME}_tidy_test" PROPERTIES FAIL_REGULAR_EXPRESSION "<replacement.*>.*</replacement>"
+                                                       REQUIRED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/.clang-format")
+    endif ()
 endif ()
 
 # add target for tidying with cmake-format
