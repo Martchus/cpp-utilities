@@ -260,9 +260,9 @@ endif ()
 option(FORCE_OLD_ABI "specifies whether usage of libstdc++'s old ABI should be forced" OFF)
 if (FORCE_OLD_ABI)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS _GLIBCXX_USE_CXX11_ABI=0)
-    message(STATUS "Forcing usage of old CXX11 ABI of libstdc++.")
+    message(STATUS "Forcing usage of old CXX11-ABI of libstdc++ (has no effect when a different standard library is used).")
 else ()
-    message(STATUS "Using default CXX11 ABI  of libstdc++ (not forcing old CX11 ABI).")
+    message(STATUS "Using default CXX11-ABI (not forcing old CXX11-ABI of libstdc++).")
 endif ()
 
 # enable debug-only code when doing a debug build
