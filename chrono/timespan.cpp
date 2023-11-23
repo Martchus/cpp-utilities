@@ -41,26 +41,26 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
         return TimeSpan();
     }
 
-    vector<double> parts;
-    size_t partsSize = 1;
-    for (const char *i = str; *i; ++i) {
-        *i == separator && ++partsSize;
-    }
-    parts.reserve(partsSize);
-
-    for (const char *i = str;;) {
+    auto parts = std::array<double, 4>();
+    auto partsPresent = std::size_t();
+    for (const char *i = str;; ++i) {
+        if (*i != separator && *i != '\0') {
+            continue;
+        }
+        if (partsPresent >= 4) {
+            throw ConversionException("the time span specifications contains too many separators");
+        }
+        const auto part = std::string_view(str, i - str);
+        parts[partsPresent++] = part.empty() ? 0.0 : stringToNumber<double>(part);
         if (*i == separator) {
-            parts.emplace_back(stringToNumber<double>(string(str, i)));
-            str = ++i;
-        } else if (*i == '\0') {
-            parts.emplace_back(stringToNumber<double>(string(str, i)));
+            str = i + 1;
+        }
+        if (*i == '\0') {
             break;
-        } else {
-            ++i;
         }
     }
 
-    switch (parts.size()) {
+    switch (partsPresent) {
     case 1:
         return TimeSpan::fromSeconds(parts.front());
     case 2:

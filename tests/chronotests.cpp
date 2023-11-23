@@ -317,13 +317,17 @@ void ChronoTests::testDateTimeExpression()
  */
 void ChronoTests::testTimeSpan()
 {
-    // test fromString(...), this should also test all other from...() methods and + operator
+    // test various usages of fromString(...), all other from...() functions and the plus operator
     CPPUNIT_ASSERT_EQUAL(TimeSpan(), TimeSpan::fromString(string()));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromSeconds(5.0), TimeSpan::fromString("5.0"));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromMinutes(5.5), TimeSpan::fromString("5:30"));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(7.0) + TimeSpan::fromMinutes(5.5), TimeSpan::fromString("7:5:30"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0), TimeSpan::fromString("14:::"));
+    CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2:34a:53:32.5"), ConversionException);
+    CPPUNIT_ASSERT_THROW(TimeSpan::fromString("1:2:3:4:5"), ConversionException);
+
+    // test fromString(...) again and days(), hours(), ...
     const auto test1 = TimeSpan::fromString("2:34:53:2.5");
-    // test days(), hours(), ...
     CPPUNIT_ASSERT_EQUAL(3, test1.days());
     CPPUNIT_ASSERT_EQUAL(10, test1.hours());
     CPPUNIT_ASSERT_EQUAL(53, test1.minutes());
@@ -332,12 +336,14 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT(test1.totalDays() > 3.0 && test1.totalDays() < 4.0);
     CPPUNIT_ASSERT(test1.totalHours() > (2 * 24 + 34) && test1.totalHours() < (2 * 24 + 35));
     CPPUNIT_ASSERT(test1.totalMinutes() > (2 * 24 * 60 + 34 * 60 + 53) && test1.totalHours() < (2 * 24 * 60 + 34 * 60 + 54));
+
     // test toString(...)
     CPPUNIT_ASSERT_EQUAL("3 d 10 h 53 min 2 s 500 ms"s, test1.toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("07:05:30"s, (TimeSpan::fromHours(7.0) + TimeSpan::fromMinutes(5.5)).toString());
     CPPUNIT_ASSERT_EQUAL("-5 s"s, TimeSpan::fromSeconds(-5.0).toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("0 s"s, TimeSpan().toString(TimeSpanOutputFormat::WithMeasures, false));
     CPPUNIT_ASSERT_EQUAL("5e+02 µs"s, TimeSpan::fromMilliseconds(0.5).toString(TimeSpanOutputFormat::WithMeasures, false));
+
     // test accuracy (of 100 nanoseconds)
     const auto test2 = TimeSpan::fromString("15.985077682");
     CPPUNIT_ASSERT_EQUAL(15.9850776, test2.totalSeconds());
@@ -348,9 +354,6 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL("00:00:15.9850776"s, test2.toString());
     CPPUNIT_ASSERT_EQUAL("15 s 985 ms 77 µs 600 ns"s, test2.toString(TimeSpanOutputFormat::WithMeasures));
     CPPUNIT_ASSERT_EQUAL("15.9850776"s, test2.toString(TimeSpanOutputFormat::TotalSeconds));
-
-    // test whether ConversionException() is thrown when invalid values are specified
-    CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2:34a:53:32.5"), ConversionException);
 }
 
 /*!
