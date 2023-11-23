@@ -323,6 +323,12 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromMinutes(5.5), TimeSpan::fromString("5:30"));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromHours(7.0) + TimeSpan::fromMinutes(5.5), TimeSpan::fromString("7:5:30"));
     CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0), TimeSpan::fromString("14:::"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0), TimeSpan::fromString("14d"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0) + TimeSpan::fromHours(5.0), TimeSpan::fromString("14d 5h"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0) + TimeSpan::fromMinutes(5.0), TimeSpan::fromString(" 14d   5m"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0) + TimeSpan::fromMinutes(5.0) + TimeSpan::fromSeconds(24.5), TimeSpan::fromString("2 w 24.5s 5m "));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0) + TimeSpan::fromSeconds(24.5), TimeSpan::fromString("2 w 24.5"));
+    CPPUNIT_ASSERT_EQUAL(TimeSpan::fromDays(14.0) + TimeSpan::fromString("1:2:3:4"), TimeSpan::fromString("2 w 1:2:3:4"));
     CPPUNIT_ASSERT_THROW(TimeSpan::fromString("2:34a:53:32.5"), ConversionException);
     CPPUNIT_ASSERT_THROW(TimeSpan::fromString("1:2:3:4:5"), ConversionException);
 
