@@ -61,11 +61,11 @@ These build instructions apply to `c++utilities` but also to my other projects u
 * C++ compiler supporting C++17, tested with
     - g++ to compile for GNU/Linux and Windows
     - clang++ to compile for GNU/Linux and Android
-* CMake (at least 3.3.0) and Ninja or GNU Make
+* CMake (at least 3.17.0) and Ninja or GNU Make
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
 * Graphviz for diagrams in the API documentation (optional)
-* clang-format for tidying (optional)
+* clang-format and cmake-format for tidying (optional)
 * llvm-profdata, llvm-cov and cppunit for source-based code coverage analysis (optional)
 * [appstreamcli](https://www.freedesktop.org/wiki/Distributions/AppStream/) for validation
   of generated AppStream files (optional)
