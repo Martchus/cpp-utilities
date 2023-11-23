@@ -76,7 +76,7 @@ These build instructions apply to `c++utilities` but also to my other projects u
         - libstdc++ under GNU/Linux and Windows
         - libc++ under GNU/Linux and Android
     * glibc with iconv support or standalone iconv library
-    * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional, use `USE_NATIVE_FILE_BUFFER` to disable)
+    * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional, use `USE_NATIVE_FILE_BUFFER=OFF` to disable)
     * Boost.Process for `execApp()` test helper under Windows (optional, use `USE_BOOST_PROCESS=OFF` to disable)
 * My other projects have further dependencies such as Qt. Checkout the README of these
   projects for further details.
