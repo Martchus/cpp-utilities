@@ -47,8 +47,6 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  *    the time zone deltas are "baked into" the DateTime instance. For instance, the expression (DateTime::now() - DateTime::gmtNow())
  *    returns one hour in Germany during winter time (and *not* zero although both instances represent the current time).
  * \todo
- * - Add method for parsing custom string formats.
- * - Add method for printing to custom string formats.
  * - Allow to determine the date part for each component at once to prevent multiple
  *   invocations of getDatePart().
  */

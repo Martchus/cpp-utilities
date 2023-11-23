@@ -24,9 +24,6 @@ namespace CppUtilities {
  * and month. For that use case, use the Period class instead.
  *
  * \remarks Time values are measured in 100-nanosecond units called ticks.
- * \todo
- * - Add method for parsing custom string formats.
- * - Add method for printing to custom string formats.
  */
 
 /*!
