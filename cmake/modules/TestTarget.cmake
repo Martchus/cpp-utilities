@@ -14,13 +14,21 @@ endif ()
 
 # find and link against CppUnit if required (used by all my projects, so it is required by default)
 if (NOT META_NO_CPP_UNIT)
-    # make cppunit library/include dir configurable
+    # allow disabling CppUnit-based tests completely
+    option(ENABLE_CPP_UNIT "whether CppUnit-based tests should be enabled" ON)
+    if (NOT ENABLE_CPP_UNIT)
+        set(META_HAVE_TESTS NO)
+        set(TEST_CONFIG_DONE YES)
+        return ()
+    endif ()
+
+    # make CppUnit library/include dir configurable
     set(CPP_UNIT_LIB
         NOTFOUND
-        CACHE FILEPATH "cppunit lib")
+        CACHE FILEPATH "CppUnit lib")
     set(CPP_UNIT_INCLUDE_DIR
         NOTFOUND
-        CACHE FILEPATH "cppunit include dir")
+        CACHE FILEPATH "CppUnit include dir")
     if (CPP_UNIT_LIB)
         set(DETECTED_CPP_UNIT_LIB "${CPP_UNIT_LIB}")
     endif ()
