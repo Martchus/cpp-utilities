@@ -66,13 +66,13 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
         }
 
         // parse value of the part
-        auto part = 0.0;
+        auto valuePart = 0.0;
         auto valueWithUnit = TimeSpan();
         if (str != i) {
             // parse value of the part as double
-            const auto res = std::from_chars(str, i, part);
+            const auto res = from_chars(str, i, valuePart);
             if (res.ec != std::errc()) {
-                const auto part = std::string_view(str, i - str);
+                const auto part = std::string_view(str, static_cast<std::string_view::size_type>(i - str));
                 if (res.ec == std::errc::result_out_of_range) {
                     throw ConversionException(argsToString("part \"", part, "\" is too large"));
                 } else {
@@ -87,19 +87,19 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
                 if (valueWithUnit.isNull()) {
                     switch (*suffix) {
                     case 'w':
-                        valueWithUnit = TimeSpan::fromDays(7.0 * part);
+                        valueWithUnit = TimeSpan::fromDays(7.0 * valuePart);
                         continue;
                     case 'd':
-                        valueWithUnit = TimeSpan::fromDays(part);
+                        valueWithUnit = TimeSpan::fromDays(valuePart);
                         continue;
                     case 'h':
-                        valueWithUnit = TimeSpan::fromHours(part);
+                        valueWithUnit = TimeSpan::fromHours(valuePart);
                         continue;
                     case 'm':
-                        valueWithUnit = TimeSpan::fromMinutes(part);
+                        valueWithUnit = TimeSpan::fromMinutes(valuePart);
                         continue;
                     case 's':
-                        valueWithUnit = TimeSpan::fromSeconds(part);
+                        valueWithUnit = TimeSpan::fromSeconds(valuePart);
                         continue;
                     default:
                         ;
@@ -115,7 +115,7 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
 
         // set part value; add value with unit
         if (valueWithUnit.isNull()) {
-            parts[partsPresent++] = part;
+            parts[partsPresent++] = valuePart;
         } else {
             specificationsWithUnits += valueWithUnit;
         }
