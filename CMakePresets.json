@@ -22,6 +22,18 @@
       }
     },
     {
+      "name": "libc++",
+      "inherits": "default",
+      "displayName": "Use clang++ and libc++",
+      "description": "Enforces use of clang++ and libc++ even when it is not the system default",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-no-webview",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": {"type": "STRING", "value": "clang"},
+        "CMAKE_CXX_COMPILER": {"type": "STRING", "value": "clang++"},
+        "CMAKE_CXX_FLAGS": {"type": "STRING", "value": "$env{CXXFLAGS} -stdlib=libc++"}
+      }
+    },
+    {
       "name": "no-kde",
       "inherits": "default",
       "displayName": "Disables KDE integrations",
@@ -70,6 +82,16 @@
       }
     },
     {
+      "name": "devel-libc++",
+      "inherits": ["devel", "libc++"],
+      "displayName": "Development config using libc++",
+      "description": "Combination of devel and libc++",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-libc++",
+      "cacheVariables": {
+        "ENABLE_CPP_UNIT": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
       "name": "devel-qt6",
       "inherits": ["qt6", "devel"],
       "displayName": "Generic development config using Qt 6",
@@ -83,6 +105,13 @@
         "NO_PLASMOID": {"type": "BOOL", "value": "ON"},
         "NO_FILE_ITEM_ACTION_PLUGIN": {"type": "BOOL", "value": "ON"}
       }
+    },
+    {
+      "name": "devel-libc++-qt6",
+      "inherits": ["qt6", "devel-libc++"],
+      "displayName": "Development config using libc++ and Qt 6",
+      "description": "Combination of qt6 and devel-libc++",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-libc++-qt6"
     },
     {
       "name": "debug",
@@ -290,9 +319,12 @@
   ],
   "buildPresets": [
     {"name": "default", "configurePreset": "default"},
+    {"name": "libc++", "configurePreset": "libc++"},
     {"name": "qt6", "configurePreset": "qt6"},
     {"name": "devel", "configurePreset": "devel"},
+    {"name": "devel-libc++", "configurePreset": "devel-libc++"},
     {"name": "devel-qt6", "configurePreset": "devel-qt6"},
+    {"name": "devel-libc++-qt6", "configurePreset": "devel-libc++-qt6"},
     {"name": "debug", "configurePreset": "debug"},
     {"name": "debug-qt6", "configurePreset": "debug-qt6"},
     {"name": "debug-kde", "configurePreset": "debug-kde"},
