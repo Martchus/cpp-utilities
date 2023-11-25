@@ -6,6 +6,7 @@
 #include "../conversion/stringconversion.h"
 
 #include <charconv>
+#include <cstdlib>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -14,6 +15,32 @@
 using namespace std;
 
 namespace CppUtilities {
+
+/// \cond
+inline std::from_chars_result from_chars(const char *first, const char *last, double &value,
+       std::chars_format fmt = std::chars_format::general) noexcept
+{
+#if _LIBCPP_VERSION
+    // workaround std::from_chars() not being implemented for floating point numbers in libc++
+    CPP_UTILITIES_UNUSED(fmt)
+    auto r = std::from_chars_result{nullptr, std::errc()};
+    auto s = std::string(first, last);
+    auto l = s.data() + s.size();
+    auto d = std::strtod(s.data(), &l);
+    if (errno == ERANGE) {
+        r.ec = std::errc::result_out_of_range;
+    } else if (s.data() == l) {
+        r.ec = std::errc::invalid_argument;
+    } else {
+        value = d;
+        r.ptr = first + (l - s.data());
+    }
+    return r;
+#else
+    return std::from_chars(first, last, value, fmt);
+#endif
+}
+/// \endcond
 
 /*!
  * \class TimeSpan
