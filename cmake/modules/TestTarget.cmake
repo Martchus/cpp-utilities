@@ -19,7 +19,7 @@ if (NOT META_NO_CPP_UNIT)
     if (NOT ENABLE_CPP_UNIT)
         set(META_HAVE_TESTS NO)
         set(TEST_CONFIG_DONE YES)
-        return ()
+        return()
     endif ()
 
     # make CppUnit library/include dir configurable
