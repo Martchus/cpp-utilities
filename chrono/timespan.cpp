@@ -6,8 +6,8 @@
 #include "../conversion/stringconversion.h"
 
 #include <charconv>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -17,13 +17,13 @@ using namespace std;
 namespace CppUtilities {
 
 /// \cond
-inline std::from_chars_result from_chars(const char *first, const char *last, double &value,
-       std::chars_format fmt = std::chars_format::general) noexcept
+inline std::from_chars_result from_chars(
+    const char *first, const char *last, double &value, std::chars_format fmt = std::chars_format::general) noexcept
 {
 #if _LIBCPP_VERSION
     // workaround std::from_chars() not being implemented for floating point numbers in libc++
     CPP_UTILITIES_UNUSED(fmt)
-    auto r = std::from_chars_result{nullptr, std::errc()};
+    auto r = std::from_chars_result{ nullptr, std::errc() };
     auto s = std::string(first, last);
     auto l = s.data() + s.size();
     auto d = std::strtod(s.data(), &l);
@@ -128,8 +128,7 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
                     case 's':
                         valueWithUnit = TimeSpan::fromSeconds(valuePart);
                         continue;
-                    default:
-                        ;
+                    default:;
                     }
                 }
                 if (*suffix >= '0' && *suffix <= '9') {
@@ -164,7 +163,8 @@ TimeSpan TimeSpan::fromString(const char *str, char separator)
     case 3:
         return specificationsWithUnits + TimeSpan::fromHours(parts.front()) + TimeSpan::fromMinutes(parts[1]) + TimeSpan::fromSeconds(parts[2]);
     default:
-        return specificationsWithUnits + TimeSpan::fromDays(parts.front()) + TimeSpan::fromHours(parts[1]) + TimeSpan::fromMinutes(parts[2]) + TimeSpan::fromSeconds(parts[3]);
+        return specificationsWithUnits + TimeSpan::fromDays(parts.front()) + TimeSpan::fromHours(parts[1]) + TimeSpan::fromMinutes(parts[2])
+            + TimeSpan::fromSeconds(parts[3]);
     }
 }
 
