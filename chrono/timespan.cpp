@@ -20,8 +20,8 @@ namespace CppUtilities {
 inline std::from_chars_result from_chars(
     const char *first, const char *last, double &value, std::chars_format fmt = std::chars_format::general) noexcept
 {
-#if _LIBCPP_VERSION
-    // workaround std::from_chars() not being implemented for floating point numbers in libc++
+#if defined(_LIBCPP_VERSION) || (defined(__GLIBCXX__) && _GLIBCXX_RELEASE < 11)
+    // workaround std::from_chars() not being implemented for floating point numbers in libc++ and older libstdc++ versions
     CPP_UTILITIES_UNUSED(fmt)
     auto r = std::from_chars_result{ nullptr, std::errc() };
     auto s = std::string(first, last);
