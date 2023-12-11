@@ -17,8 +17,14 @@ using namespace std;
 namespace CppUtilities {
 
 /// \cond
-inline std::from_chars_result from_chars(
-    const char *first, const char *last, double &value, std::chars_format fmt = std::chars_format::general) noexcept
+
+#if defined(__GLIBCXX__) && _GLIBCXX_RELEASE < 10
+enum class chars_format { scientific = 1, fixed = 2, hex = 4, general = fixed | scientific };
+#else
+using char_format = std::chars_format;
+#endif
+
+inline std::from_chars_result from_chars(const char *first, const char *last, double &value, chars_format fmt = chars_format::general) noexcept
 {
 #if defined(_LIBCPP_VERSION) || (defined(__GLIBCXX__) && _GLIBCXX_RELEASE < 11)
     // workaround std::from_chars() not being implemented for floating point numbers in libc++ and older libstdc++ versions
