@@ -261,6 +261,7 @@ various additional environment variables to be set and you need to install depen
   `C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933`
 * `WIN_KITS_ROOT`: for Windows platform headers/libraries usually installed as part of Visual Studio setup,
   e.g. `C:/Program Files (x86)/Windows Kits/10`
+* `WIN_KITS_VERSION`: the relevant subdirectory within `WIN_KITS_ROOT`, usually a version number like `10.0.22621.0`
 * `QT_ROOT`: for Qt libraries provided by the official Qt installer, e.g. `D:/programming/qt/6.5.0/msvc2019_64`
 * `QT_TOOLS`:  for additional build tools provided by the official Qt installer, e.g. `D:/programming/qt/Tools`
 * `VCPKG_ROOT`: directory of VCPKG checkout used for other dependencies; install the following packages:

@@ -256,9 +256,10 @@
       "description": "Build on Windows targeting x64-windows-static using MSVC, Qt 6 (for Qt libs and CMake/Ninja), vcpkg (for other dependencies) and MSYS2 (for Perl, Go, ffmpeg and other tools)",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static",
       "environment": {
-        "INCLUDE": "$env{MSVC_ROOT}/include;$env{MSVC_ROOT}/ATLMFC/include;$env{WIN_KITS_ROOT}/include/10.0.22000.0/ucrt;$env{WIN_KITS_ROOT}//include/10.0.22000.0//um;$env{WIN_KITS_ROOT}//include/10.0.22000.0//shared;$env{WIN_KITS_ROOT}/include/10.0.22000.0//winrt;$env{WIN_KITS_ROOT}/include/10.0.22000.0//cppwinrt",
-        "LIB": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/ucrt/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0//um/x64",
-        "LIBPATH": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/ucrt/x64;$env{WIN_KITS_ROOT}/lib/10.0.22000.0/um/x64"
+
+        "INCLUDE": "$env{MSVC_ROOT}/include;$env{MSVC_ROOT}/ATLMFC/include;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}/ucrt;$env{WIN_KITS_ROOT}//include/$env{WIN_KITS_VERSION}//um;$env{WIN_KITS_ROOT}//include/$env{WIN_KITS_VERSION}//shared;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}//winrt;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}//cppwinrt",
+        "LIB": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/ucrt/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}//um/x64",
+        "LIBPATH": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/ucrt/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/um/x64"
       },
       "cacheVariables": {
         "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
@@ -270,9 +271,9 @@
         "CMAKE_AR_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/Hostx64/x64/lib.exe"},
         "CMAKE_C_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/HostX64/x64/cl.exe"},
         "CMAKE_CXX_COMPILER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/HostX64/x64/cl.exe"},
-        "CMAKE_RC_COMPILER": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/rc.exe"},
+        "CMAKE_RC_COMPILER": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/$env{WIN_KITS_VERSION}/x64/rc.exe"},
         "CMAKE_LINKER": {"type": "FILEPATH", "value": "$env{MSVC_ROOT}/bin/Hostx64/x64/link.exe"},
-        "CMAKE_MT": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/10.0.22000.0/x64/mt.exe"},
+        "CMAKE_MT": {"type": "FILEPATH", "value": "$env{WIN_KITS_ROOT}/bin/$env{WIN_KITS_VERSION}/x64/mt.exe"},
         "CMAKE_MSVC_RUNTIME_LIBRARY": {"type": "STRING", "value": "MultiThreaded$<$<CONFIG:Debug>:Debug>"},
         "CMAKE_CXX_FLAGS_DEBUG": {"type": "STRING", "value": "/MTd /Zi /Ob0 /Od /RTC1"},
         "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "/MT /O2 /Ob2 /DNDEBUG"},
