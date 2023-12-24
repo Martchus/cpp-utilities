@@ -238,7 +238,7 @@ cmake --build "$BUILD_DIR/tagparser/devel-qt6" --target install -- -v
 ```
 
 Note that:
-* not all those dependencies are required by all my projects and some are just optional.
+* Not all those dependencies are required by all my projects and some are just optional.
     * The second example to just build `c++utilities` and `tagparser` already shows a stripped-down list
       of dependencies.
     * Especially `mingw-w64-x86_64-go` is only required when building Syncthing Tray with built-in
@@ -246,10 +246,11 @@ Note that:
     * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
       and Password Manager can be built without Qt GUI. The libraries `c++utilities` and `tagparser` don't
       require Qt at all.
-* you can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`.
-* you must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
+* You can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`.
+* You must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
   on Arch Linux.
 
+###### Building with MSVC
 To build with MSVC you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) need
 various additional environment variables to be set and you need to install dependencies from various sources:
 * `MSYS2_ROOT`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg and Go (only
@@ -270,7 +271,22 @@ various additional environment variables to be set and you need to install depen
   ```
 
 When building with MSVC, do *not* use any of the MSYS2 shells. The environment of those shells leads to
-build problems.
+build problems. You can however use CMake and Ninja from MSYS2's mingw-w64 packaging (instead of the CMake
+version from Qt's installer). Then you need to specify the Ninja executable manually so the CMake invocation
+would become something like this:
+```
+`& "$Env:MSYS2_ROOT\mingw64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\mingw64\bin\ninja.exe" .
+```
+
+To run the resulting binaries, you'll need to make sure the Qt libraries are in the search path, e.g. using
+`$Env:PATH = "$Env:QT_ROOT\bin"`.
+
+Note that you don't need to install all Visual Studio has to offer. A customized installation with just
+C++ core features, MSVC x86/x64 build tools, Windows SDK and vpkg should be enough. In Qt's online installer
+you can also uncheck everything except the MSVC build of Qt itself.
+
+If the compilation of the resource file doesn't work you can use `-DWINDOWS_RC_FILE=OFF` to continue the
+build regardless.
 
 ##### Remarks about special presets
 The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
