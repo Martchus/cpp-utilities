@@ -1324,6 +1324,25 @@ string ArgumentParser::findSuggestions(int argc, const char *const *argv, unsign
 }
 
 /*!
+ * \brief Returns a copy of \a escaped with escaping characters removed.
+ */
+static std::string unescape(std::string_view escaped)
+{
+    auto unescaped = std::string();
+    auto onEscaping = false;
+    unescaped.reserve(escaped.size());
+    for (const auto c : escaped) {
+        if (!onEscaping && c == '\\') {
+            onEscaping = true;
+        } else {
+            unescaped += c;
+            onEscaping = false;
+        }
+    }
+    return unescaped;
+}
+
+/*!
  * \brief Prints the bash completion for the specified arguments and the specified \a lastPath.
  * \remarks Arguments must have been parsed before with readSpecifiedArgs(). When calling this method, completionMode must
  *          be set to true.
@@ -1511,20 +1530,8 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     string actualDir, actualFile;
     bool haveFileOrDirCompletions = false;
     if (argc && currentWordIndex == completionInfo.lastSpecifiedArgIndex && opening) {
-        // the "opening" might contain escaped characters which need to be unescaped first (let's hope this covers all possible escapings)
-        string unescapedOpening(opening);
-        findAndReplace<string>(unescapedOpening, "\\ ", " ");
-        findAndReplace<string>(unescapedOpening, "\\,", ",");
-        findAndReplace<string>(unescapedOpening, "\\(", "(");
-        findAndReplace<string>(unescapedOpening, "\\)", ")");
-        findAndReplace<string>(unescapedOpening, "\\[", "[");
-        findAndReplace<string>(unescapedOpening, "\\]", "]");
-        findAndReplace<string>(unescapedOpening, "\\!", "!");
-        findAndReplace<string>(unescapedOpening, "\\#", "#");
-        findAndReplace<string>(unescapedOpening, "\\$", "$");
-        findAndReplace<string>(unescapedOpening, "\\'", "'");
-        findAndReplace<string>(unescapedOpening, "\\\"", "\"");
-        findAndReplace<string>(unescapedOpening, "\\\\", "\\");
+        // the "opening" might contain escaped characters which need to be unescaped first
+        const auto unescapedOpening = unescape(opening);
         // determine the "directory" part
         string dir = directory(unescapedOpening);
         if (dir.empty()) {
