@@ -1527,13 +1527,13 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
     }
     // -> completions for files and dirs
     // -> if there's already an "opening", determine the dir part and the file part
-    string actualDir, actualFile;
-    bool haveFileOrDirCompletions = false;
+    auto actualDir = std::string(), actualFile = std::string();
+    auto haveFileOrDirCompletions = false;
     if (argc && currentWordIndex == completionInfo.lastSpecifiedArgIndex && opening) {
         // the "opening" might contain escaped characters which need to be unescaped first
         const auto unescapedOpening = unescape(opening);
         // determine the "directory" part
-        string dir = directory(unescapedOpening);
+        auto dir = directory(unescapedOpening);
         if (dir.empty()) {
             actualDir = ".";
         } else {
@@ -1546,7 +1546,7 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
             actualDir = std::move(dir);
         }
         // determine the "file" part
-        string file = fileName(unescapedOpening);
+        auto file = fileName(unescapedOpening);
         if (file[0] == '\"' || file[0] == '\'') {
             file.erase(0, 1);
         }
