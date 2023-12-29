@@ -1515,6 +1515,8 @@ void ArgumentParser::printBashCompletion(int argc, const char *const *argv, unsi
         string unescapedOpening(opening);
         findAndReplace<string>(unescapedOpening, "\\ ", " ");
         findAndReplace<string>(unescapedOpening, "\\,", ",");
+        findAndReplace<string>(unescapedOpening, "\\(", "(");
+        findAndReplace<string>(unescapedOpening, "\\)", ")");
         findAndReplace<string>(unescapedOpening, "\\[", "[");
         findAndReplace<string>(unescapedOpening, "\\]", "]");
         findAndReplace<string>(unescapedOpening, "\\!", "!");
