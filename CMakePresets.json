@@ -284,6 +284,7 @@
         "DOXYGEN_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/doxygen.exe"},
         "CLANG_FORMAT_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/clang-format.exe"},
         "GO_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/go.exe"},
+        "GOROOT": {"type": "PATH", "value": "$env{MSYS2_ROOT}/mingw64/lib/go"},
         "FFMPEG_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/ffmpeg.exe"},
         "REALPATH_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/realpath.exe"},
         "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
