@@ -242,7 +242,8 @@ Note that:
     * The second example to just build `c++utilities` and `tagparser` already shows a stripped-down list
       of dependencies.
     * Especially `mingw-w64-x86_64-go` is only required when building Syncthing Tray with built-in
-      Syncthing-library enabled.
+      Syncthing-library enabled. To build in an MSYS2 shell one needs to invoke `export GOROOT=/mingw64/lib/go`
+      so Go can find its root.
     * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
       and Password Manager can be built without Qt GUI. The libraries `c++utilities` and `tagparser` don't
       require Qt at all.
