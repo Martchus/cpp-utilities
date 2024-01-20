@@ -561,12 +561,11 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         // -> execute application
         if (enableSearchPath) {
             execvp(appPath, const_cast<char *const *>(args));
-
         } else {
             execv(appPath, const_cast<char *const *>(args));
         }
-        cerr << Phrases::Error << "Unable to execute \"" << appPath << "\": execv() failed" << Phrases::EndFlush;
-        exit(-101);
+        cerr << Phrases::Error << "Unable to execute \"" << appPath << "\": " << std::strerror(errno) << Phrases::EndFlush;
+        exit(EXIT_FAILURE);
     }
 
 #else
