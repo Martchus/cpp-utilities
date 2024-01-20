@@ -580,7 +580,6 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
  * \throws Throws std::runtime_error when the application can not be executed.
  * \remarks
  *  - The specified \a args must be 0 terminated. The first argument is the application name.
- *  - Currently only supported under UNIX.
  *  - \a stdout and \a stderr are cleared before.
  */
 int TestApplication::execApp(const char *const *args, string &output, string &errors, bool suppressLogging, int timeout) const
@@ -640,7 +639,6 @@ int TestApplication::execApp(const char *const *args, string &output, string &er
  * \remarks
  * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
  *   invoke the application to be tested itself.
- * - Currently only supported under UNIX.
  */
 int execHelperApp(const char *appPath, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
 {
@@ -655,7 +653,6 @@ int execHelperApp(const char *appPath, const char *const *args, std::string &out
  * \remarks
  * - Intended to invoke helper applications (eg. to setup test files). Use execApp() and TestApplication::execApp() to
  *   invoke the application to be tested itself.
- * - Currently only supported under UNIX.
  */
 int execHelperAppInSearchPath(
     const char *appName, const char *const *args, std::string &output, std::string &errors, bool suppressLogging, int timeout)
