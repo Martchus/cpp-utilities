@@ -105,7 +105,6 @@ function (add_desktop_file)
     endif ()
 
     # compose actions
-    set(DESKTOP_FILE_ADDITIONAL_ENTRIES "")
     foreach (ACTION_VAR ${META_APP_ACTIONS})
         list(GET META_APP_ACTION_${ACTION_VAR} 0 ACTION_ID)
         list(GET META_APP_ACTION_${ACTION_VAR} 1 ACTION_NAME)
