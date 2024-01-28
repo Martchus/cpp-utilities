@@ -542,6 +542,7 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         // get return code
         int childReturnCode;
         waitpid(child, &childReturnCode, 0);
+        waitpid(-child, nullptr, 0);
         return childReturnCode;
     } else {
         // child process
@@ -552,6 +553,12 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         close(writeCoutPipe);
         close(readCerrPipe);
         close(writeCerrPipe);
+
+        // -> create process group
+        if (setpgid(0, 0)) {
+            cerr << Phrases::Error << "Unable create process group: " << std::strerror(errno) << Phrases::EndFlush;
+            exit(EXIT_FAILURE);
+        }
 
         // -> modify environment variable LLVM_PROFILE_FILE to apply new path for profiling output
         if (!newProfilingPath.empty()) {
