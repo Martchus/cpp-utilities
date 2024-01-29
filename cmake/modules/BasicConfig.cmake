@@ -613,7 +613,7 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
 endif ()
 
 # determine library directory suffix - Applications might be built as libraries under some platforms (eg. Android). Hence
-# this is part of BasicConfig and not LibraryConfig.
+# this is part of BasicConfig and not LibraryTarget.
 set(LIB_SUFFIX
     ""
     CACHE STRING "specifies the general suffix for the library directory")
