@@ -2,6 +2,7 @@
 #define TESTUTILS_H
 
 #include "../application/argumentparser.h"
+#include "../chrono/format.h"
 #include "../misc/traits.h"
 
 #include <iomanip>
