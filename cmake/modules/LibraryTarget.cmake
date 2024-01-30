@@ -220,9 +220,10 @@ else ()
     if (NOT META_PLUGIN_CATEGORY)
         add_library(${META_TARGET_NAME}-headers INTERFACE)
         target_include_directories(
-            ${META_TARGET_NAME}-headers INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
-                                                  $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
-                                                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
+            ${META_TARGET_NAME}-headers
+            INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                      $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
+                      $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
         target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                                                          "${META_PRIVATE_COMPILE_DEFINITIONS}")
         target_compile_options(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
