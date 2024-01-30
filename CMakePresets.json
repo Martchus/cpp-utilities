@@ -107,6 +107,16 @@
       }
     },
     {
+      "name": "devel-unity",
+      "inherits": ["devel-qt6"],
+      "displayName": "Development config creating a unity build using Qt 6",
+      "description": "Same as devel-qt6 but configures makes a unity build",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-unity",
+      "cacheVariables": {
+        "CMAKE_UNITY_BUILD": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
       "name": "devel-libc++-qt6",
       "inherits": ["qt6", "devel-libc++"],
       "displayName": "Development config using libc++ and Qt 6",
@@ -326,6 +336,7 @@
     {"name": "devel", "configurePreset": "devel"},
     {"name": "devel-libc++", "configurePreset": "devel-libc++"},
     {"name": "devel-qt6", "configurePreset": "devel-qt6"},
+    {"name": "devel-unity", "configurePreset": "devel-unity"},
     {"name": "devel-libc++-qt6", "configurePreset": "devel-libc++-qt6"},
     {"name": "debug", "configurePreset": "debug"},
     {"name": "debug-qt6", "configurePreset": "debug-qt6"},
