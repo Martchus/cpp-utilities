@@ -4,7 +4,8 @@
 #ifndef CPP_UTILITIES_GLOBAL
 #define CPP_UTILITIES_GLOBAL
 
-#include "./application/global.h"
+#include "c++utilities-devel-definitions.h"
+#include "application/global.h"
 
 #ifdef CPP_UTILITIES_STATIC
 #define CPP_UTILITIES_EXPORT

@@ -53,7 +53,7 @@ endif ()
 # add global library-specific header
 find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
 if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
-    set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"./application/global.h\"")
+    set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"application/global.h\"")
 else ()
     set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
 endif ()
@@ -121,14 +121,37 @@ endif ()
 # add custom libraries
 append_user_defined_additional_libraries()
 
+# allow writing public compile definitions to a header file instead of just relying on CMake/pkg-config
+option(USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS "writes public compile definitions to a header file" ON)
+set(DEFS_FOR_HEADER "")
+if (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
+    foreach (DEF ${META_PUBLIC_COMPILE_DEFINITIONS})
+        if (DEF MATCHES "([A-Za-z0-9_]+)=([A-Za-z0-9_ ]+)")
+            set(DEF_NAME "${CMAKE_MATCH_1}")
+            set(DEF_VALUE " ${CMAKE_MATCH_2}")
+        elseif (DEF MATCHES "([A-Za-z0-9_]+)")
+            set(DEF_NAME "${CMAKE_MATCH_1}")
+            set(DEF_VALUE "")
+        endif ()
+        if (DEF_NAME)
+            set(DEFS_FOR_HEADER "${DEFS_FOR_HEADER}#ifndef ${DEF_NAME}\n#define ${DEF_NAME}${DEF_VALUE}\n#endif\n")
+        endif ()
+    endforeach ()
+endif ()
+set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+set(TARGET_DEFINITIONS_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/${META_TARGET_NAME}-definitions.h")
+file(WRITE "${TARGET_DEFINITIONS_HEADER}" "${DEFS_FOR_HEADER}")
+
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)
     add_library(${META_TARGET_NAME} INTERFACE)
     target_link_libraries(${META_TARGET_NAME} INTERFACE ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                                                         "${PRIVATE_LIBRARIES}")
     target_include_directories(
-        ${META_TARGET_NAME} INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
-                                      $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
+        ${META_TARGET_NAME}
+        INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                  $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
+                  $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
     target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                                              "${META_PRIVATE_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
@@ -139,12 +162,14 @@ else ()
         PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
         PRIVATE "${PRIVATE_LIBRARIES}")
     if (META_IS_PLUGIN)
-        target_include_directories(${META_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
-                                                               "${PRIVATE_INCLUDE_DIRS}")
+        target_include_directories(
+            ${META_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                                        $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}> "${PRIVATE_INCLUDE_DIRS}")
     else ()
         target_include_directories(
             ${META_TARGET_NAME}
             PUBLIC $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                   $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
                    $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS}
             PRIVATE "${PRIVATE_INCLUDE_DIRS}")
     endif ()
@@ -196,6 +221,7 @@ else ()
         add_library(${META_TARGET_NAME}-headers INTERFACE)
         target_include_directories(
             ${META_TARGET_NAME}-headers INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
+                                                  $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
                                                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
         target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                                                          "${META_PRIVATE_COMPILE_DEFINITIONS}")
@@ -555,6 +581,10 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         endforeach ()
         install(
             FILES "${VERSION_HEADER_FILE}"
+            DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
+            COMPONENT header)
+        install(
+            FILES "${TARGET_DEFINITIONS_HEADER}"
             DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
             COMPONENT header)
         if (NOT TARGET install-header)
