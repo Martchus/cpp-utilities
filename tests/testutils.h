@@ -14,6 +14,12 @@
 #define CPP_UTILITIES_HAS_EXEC_APP
 #endif
 
+// ensure CppUnit's macros produce unique variable names when doing unity builds
+#if defined(__COUNTER__)
+#undef CPPUNIT_UNIQUE_COUNTER
+#define CPPUNIT_UNIQUE_COUNTER __COUNTER__
+#endif
+
 namespace CppUtilities {
 
 /*!
