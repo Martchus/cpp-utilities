@@ -51,6 +51,12 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 # add global library-specific header
+set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+set(TARGET_GLOBAL_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/global.h")
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/global.h")
+    # cleanup "global.h" from the source directory (which is where previous versions of c++utilities wrote this file)
+    file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/global.h")
+endif ()
 find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
 if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
     set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"application/global.h\"")
@@ -58,10 +64,8 @@ else ()
     set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
 endif ()
 configure_file(
-    "${GLOBAL_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_SOURCE_DIR}/global.h" # simply add this to source to ease inclusion
-    NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
+    "${GLOBAL_H_TEMPLATE_FILE}" "${TARGET_GLOBAL_HEADER}" NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
 )
-list(APPEND HEADER_FILES global.h)
 
 # add header to check library version
 set(VERSION_HEADER_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/version.h")
@@ -138,7 +142,6 @@ if (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
         endif ()
     endforeach ()
 endif ()
-set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 set(TARGET_DEFINITIONS_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/${META_TARGET_NAME}-definitions.h")
 file(WRITE "${TARGET_DEFINITIONS_HEADER}" "${DEFS_FOR_HEADER}")
 
@@ -580,14 +583,12 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                 DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}/${HEADER_DIR}"
                 COMPONENT header)
         endforeach ()
-        install(
-            FILES "${VERSION_HEADER_FILE}"
-            DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
-            COMPONENT header)
-        install(
-            FILES "${TARGET_DEFINITIONS_HEADER}"
-            DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
-            COMPONENT header)
+        foreach (GENERATED_HEADER ${TARGET_GLOBAL_HEADER} ${VERSION_HEADER_FILE} ${TARGET_DEFINITIONS_HEADER})
+            install(
+                FILES "${GENERATED_HEADER}"
+                DESTINATION "${INCLUDE_SUBDIR}/${META_PROJECT_NAME}"
+                COMPONENT header)
+        endforeach ()
         if (NOT TARGET install-header)
             add_custom_target(install-header COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=header -P
                                                      "${CMAKE_BINARY_DIR}/cmake_install.cmake")

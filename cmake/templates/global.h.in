@@ -1,28 +1,12 @@
 // Created via CMake from template global.h.in
 // WARNING! Any changes to this file will be overwritten by the next CMake run!
 
+// This file is only provided for compatibility.
+// Include "@META_TARGET_NAME@-global.h" directly new code.
+
 #ifndef @META_PROJECT_VARNAME_UPPER@_GLOBAL
 #define @META_PROJECT_VARNAME_UPPER@_GLOBAL
 
-#include "@META_TARGET_NAME@-definitions.h"
-#include @GENERAL_GLOBAL_H_INCLUDE_PATH@
-
-#ifdef @META_PROJECT_VARNAME_UPPER@_STATIC
-#define @META_PROJECT_VARNAME_UPPER@_EXPORT
-#define @META_PROJECT_VARNAME_UPPER@_IMPORT
-#else
-#define @META_PROJECT_VARNAME_UPPER@_EXPORT CPP_UTILITIES_GENERIC_LIB_EXPORT
-#define @META_PROJECT_VARNAME_UPPER@_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT
-#endif
-
-/*!
- * \def @META_PROJECT_VARNAME_UPPER@_EXPORT
- * \brief Marks the symbol to be exported by the @META_PROJECT_NAME@ library.
- */
-
-/*!
- * \def @META_PROJECT_VARNAME_UPPER@_IMPORT
- * \brief Marks the symbol to be imported from the @META_PROJECT_NAME@ library.
- */
+#include "@META_TARGET_NAME@-global.h"
 
 #endif // @META_PROJECT_VARNAME_UPPER@_GLOBAL
