@@ -190,7 +190,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_EQUAL("album"sv, std::string_view(fieldsArg.values().at(0)));
     CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
     CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
-    CPPUNIT_ASSERT_THROW(displayTagInfoArg.values().at(3), std::out_of_range);
+    CPPUNIT_ASSERT_EQUAL(3_st, fieldsArg.values().size());
     CPPUNIT_ASSERT_EQUAL(&displayTagInfoArg, parser.specifiedOperation());
 
     // skip empty args
@@ -208,7 +208,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
     CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
     CPPUNIT_ASSERT_EQUAL(""sv, std::string_view(fieldsArg.values().at(3)));
-    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(4), std::out_of_range);
+    CPPUNIT_ASSERT_EQUAL(4_st, fieldsArg.values().size());
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT_EQUAL("somefile"sv, std::string_view(filesArg.values().at(0)));
 
@@ -267,7 +267,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT(!filesArg.isPresent());
     CPPUNIT_ASSERT(fileArg.isPresent());
     CPPUNIT_ASSERT_EQUAL("test"sv, std::string_view(fileArg.values().at(0)));
-    CPPUNIT_ASSERT_THROW(fileArg.values().at(1), std::out_of_range);
+    CPPUNIT_ASSERT_EQUAL(1_st, fileArg.values().size());
 
     // constraint checking: no multiple occurrences (not resetting verboseArg on purpose)
     displayFileInfoArg.reset();
@@ -405,7 +405,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_EQUAL("album=test"sv, std::string_view(fieldsArg.values().at(0)));
     CPPUNIT_ASSERT_EQUAL("title"sv, std::string_view(fieldsArg.values().at(1)));
     CPPUNIT_ASSERT_EQUAL("diskpos"sv, std::string_view(fieldsArg.values().at(2)));
-    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), out_of_range);
+    CPPUNIT_ASSERT_EQUAL(3_st, fieldsArg.values().size());
     CPPUNIT_ASSERT(filesArg.isPresent());
     CPPUNIT_ASSERT_EQUAL("somefile"sv, std::string_view(filesArg.values().at(0)));
     CPPUNIT_ASSERT(!notAlbumArg.isPresent());
@@ -473,7 +473,7 @@ void ArgumentParserTests::testParsing()
     CPPUNIT_ASSERT_EQUAL("foo"sv, std::string_view(fieldsArg.values().at(0)));
     CPPUNIT_ASSERT_EQUAL("bar"sv, std::string_view(fieldsArg.values().at(1)));
     CPPUNIT_ASSERT_EQUAL("--help"sv, std::string_view(fieldsArg.values().at(2)));
-    CPPUNIT_ASSERT_THROW(fieldsArg.values().at(3), std::out_of_range);
+    CPPUNIT_ASSERT_EQUAL(3_st, fieldsArg.values().size());
 }
 
 /*!
