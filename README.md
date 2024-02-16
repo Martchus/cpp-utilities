@@ -125,7 +125,7 @@ building on Windows.
   `BUILTIN_ICON_THEMES=breeze;breeze-dark`.
     * This variable must be set when building the application (not when building any of the libraries).
     * The specified icon themes need to be installed in the usual location. Otherwise, use e.g.
-      `DBUILTIN_ICON_THEMES_SEARCH_PATH=D:/programming/misc/breeze-icons/usr/share/icons` to specify the
+      `BUILTIN_ICON_THEMES_SEARCH_PATH=D:/programming/misc/breeze-icons/usr/share/icons` to specify the
       search path.
 * For more detailed documentation, see the documentation about build variables (in
   [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
