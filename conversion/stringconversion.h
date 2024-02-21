@@ -421,13 +421,15 @@ template <typename IntegralType, class StringType = std::string, typename BaseTy
     CppUtilities::Traits::EnableIf<std::is_integral<IntegralType>, std::is_unsigned<IntegralType>> * = nullptr>
 StringType numberToString(IntegralType number, BaseType base = 10)
 {
-    std::size_t resSize = 0;
-    for (auto n = number; n; n /= static_cast<IntegralType>(base), ++resSize)
-        ;
-    StringType res;
-    res.reserve(resSize);
+    auto resSize = std::size_t();
+    auto n = number;
     do {
-        res.insert(res.begin(), digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % base)));
+        n /= static_cast<IntegralType>(base), ++resSize;
+    } while (n);
+    auto res = StringType(resSize, typename StringType::value_type());
+    auto resIter = res.end();
+    do {
+        *(--resIter) = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
         number /= static_cast<IntegralType>(base);
     } while (number);
     return res;
@@ -443,24 +445,23 @@ template <typename IntegralType, class StringType = std::string, typename BaseTy
     Traits::EnableIf<std::is_integral<IntegralType>, std::is_signed<IntegralType>> * = nullptr>
 StringType numberToString(IntegralType number, BaseType base = 10)
 {
-    const bool negative = number < 0;
-    std::size_t resSize;
+    const auto negative = number < 0;
+    auto resSize = std::size_t();
     if (negative) {
         number = -number, resSize = 1;
-    } else {
-        resSize = 0;
     }
-    for (auto n = number; n; n /= static_cast<IntegralType>(base), ++resSize)
-        ;
-    StringType res;
-    res.reserve(resSize);
+    auto n = number;
     do {
-        res.insert(res.begin(),
-            digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base))));
+        n /= static_cast<IntegralType>(base), ++resSize;
+    } while (n);
+    auto res = StringType(resSize, typename StringType::value_type());
+    auto resIter = res.end();
+    do {
+        *(--resIter) = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
         number /= static_cast<IntegralType>(base);
     } while (number);
     if (negative) {
-        res.insert(res.begin(), '-');
+        *(--resIter) = '-';
     }
     return res;
 }
