@@ -429,7 +429,8 @@ StringType numberToString(IntegralType number, BaseType base = 10)
     auto res = StringType(resSize, typename StringType::value_type());
     auto resIter = res.end();
     do {
-        *(--resIter) = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
+        *(--resIter)
+            = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
         number /= static_cast<IntegralType>(base);
     } while (number);
     return res;
@@ -457,7 +458,8 @@ StringType numberToString(IntegralType number, BaseType base = 10)
     auto res = StringType(resSize, typename StringType::value_type());
     auto resIter = res.end();
     do {
-        *(--resIter) = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
+        *(--resIter)
+            = digitToChar<typename StringType::value_type>(static_cast<typename StringType::value_type>(number % static_cast<IntegralType>(base)));
         number /= static_cast<IntegralType>(base);
     } while (number);
     if (negative) {
