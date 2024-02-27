@@ -490,7 +490,7 @@ StringType numberToString(FloatingType number, int base = 10)
  */
 template <typename CharType> CharType charToDigit(CharType character, CharType base)
 {
-    CharType res = base;
+    auto res = base;
     if (character >= '0' && character <= '9') {
         res = character - '0';
     } else if (character >= 'a' && character <= 'z') {
@@ -501,11 +501,13 @@ template <typename CharType> CharType charToDigit(CharType character, CharType b
     if (res < base) {
         return res;
     }
-    std::string errorMsg;
-    errorMsg.reserve(36);
-    errorMsg += "The character \"";
+    constexpr auto msgBegin = std::string_view("The character \"");
+    constexpr auto msgEnd = std::string_view("\" is no valid digit.");
+    auto errorMsg = std::string();
+    errorMsg.reserve(msgBegin.size() + msgEnd.size() + 2);
+    errorMsg += msgBegin;
     errorMsg += character >= ' ' && character <= '~' ? static_cast<std::string::value_type>(character) : '?';
-    errorMsg += "\" is no valid digit.";
+    errorMsg += msgEnd;
     throw ConversionException(std::move(errorMsg));
 }
 
