@@ -187,13 +187,30 @@ if (REQUIRED_BOOST_COMPONENTS)
 endif ()
 
 # configure required libraries for std::filesystem
-option(USE_STANDARD_FILESYSTEM "uses std::filesystem; if disabled Bash completion for files and directories is not working"
-       ON)
+option(USE_STANDARD_FILESYSTEM
+       "uses std::filesystem; if disabled Bash completion for files and directories and archiving utilities are disabled" ON)
 if (USE_STANDARD_FILESYSTEM)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_STANDARD_FILESYSTEM)
     use_standard_filesystem()
 else ()
-    message(WARNING "The use of std::filesystem has been disabled. Bash completion for files and directories will not work.")
+    message(
+        WARNING
+            "The use of std::filesystem has been disabled. Bash completion for files and directories will not work and archiving utilities are disabled."
+    )
+endif ()
+
+# configure usage of libarchive
+option(USE_LIBARCHIVE "uses libarchive; if disabled archiving utilities will not be available" OFF)
+if (USE_LIBARCHIVE)
+    if (NOT USE_STANDARD_FILESYSTEM)
+        message(FATAL_ERROR "Unable to use USE_LIBARCHIVE without USE_STANDARD_FILESYSTEM.")
+    endif ()
+    use_package(TARGET_NAME LibArchive::LibArchive PACKAGE_NAME LibArchive)
+    list(APPEND HEADER_FILES io/archive.h)
+    list(APPEND SRC_FILES io/archive.cpp)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_LIBARCHIVE)
+else ()
+    set(EXCLUDED_FILES io/archive.h io/archive.cpp)
 endif ()
 
 # configure whether escape codes should be enabled by default

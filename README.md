@@ -78,6 +78,7 @@ These build instructions apply to `c++utilities` but also to my other projects u
     * glibc with iconv support or standalone iconv library
     * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional, use `USE_NATIVE_FILE_BUFFER=OFF` to disable)
     * Boost.Process for `execApp()` test helper under Windows (optional, use `USE_BOOST_PROCESS=OFF` to disable)
+    * libarchive (optional, for archiving utilities only, use `USE_LIBARCHIVE=ON` to enable)
 * My other projects have further dependencies such as Qt. Checkout the README of these
   projects for further details.
 
@@ -117,8 +118,9 @@ building on Windows.
 * If thread local storage is not supported by your compiler/platform (might be the case on MacOS), you can
   disable making use of it via `ENABLE_THREAD_LOCAL=OFF`.
 * To disable use of `std::filesystem`, set `USE_STANDARD_FILESYSTEM=OFF`. Note that the Bash completion will
-  not be able to suggest files and directories with `USE_STANDARD_FILESYSTEM=OFF`. Note that this will only
-  help with `c++utilities` itself. My other projects might use `std::filesystem` unconditionally.
+  not be able to suggest files and directories and the archiving utilities cannot be enabled with
+  `USE_STANDARD_FILESYSTEM=OFF`. Note that this will only help with `c++utilities` itself. My other projects
+  might use `std::filesystem` unconditionally.
 * To disable `NativeFileStream` (and make it just a regular `std::fstream`), set `USE_NATIVE_FILE_BUFFER=OFF`.
   Note that handling paths with non-ASCII characters will then cease to work on Windows.
 * The Qt-based applications support bundeling icon themes by specifying e.g.
@@ -202,7 +204,7 @@ Run the following commands to build one of my applications and its `c++utilities
 in one go (in this example Syncthing Tray):
 ```
 # install dependencies; you may strip down this list depending on the application and features to enable
-pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
+pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go mingw-w64-x86_64-libarchive
 
 # clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
@@ -268,7 +270,7 @@ various additional environment variables to be set and you need to install depen
 * `QT_TOOLS`:  for additional build tools provided by the official Qt installer, e.g. `D:/programming/qt/Tools`
 * `VCPKG_ROOT`: directory of VCPKG checkout used for other dependencies; install the following packages:
   ```
-  vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static
+  vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static libarchive'[bzip2,crypto,zstd]':x64-windows-static
   ```
 
 When building with MSVC, do *not* use any of the MSYS2 shells. The environment of those shells leads to

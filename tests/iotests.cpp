@@ -1,5 +1,7 @@
 #include "./testutils.h"
 
+using namespace CppUtilities;
+
 #include "../conversion/stringconversion.h"
 
 /*!
@@ -32,6 +34,10 @@ std::ostream &operator<<(std::ostream &out, const std::wstring &s)
 #include "../io/nativefilestream.h"
 #include "../io/path.h"
 
+#ifdef CPP_UTILITIES_USE_LIBARCHIVE
+#include "../io/archive.h"
+#endif
+
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -51,7 +57,6 @@ std::ostream &operator<<(std::ostream &out, const std::wstring &s)
 #endif
 
 using namespace std;
-using namespace CppUtilities;
 using namespace CppUtilities::Literals;
 using namespace CPPUNIT_NS;
 
@@ -75,6 +80,9 @@ class IoTests : public TestFixture {
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
     CPPUNIT_TEST(testNativeFileStream);
 #endif
+#ifdef CPP_UTILITIES_USE_LIBARCHIVE
+    CPPUNIT_TEST(testExtractingArchive);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -95,6 +103,9 @@ public:
     void testAnsiEscapeCodes();
 #ifdef CPP_UTILITIES_USE_NATIVE_FILE_BUFFER
     void testNativeFileStream();
+#endif
+#ifdef CPP_UTILITIES_USE_LIBARCHIVE
+    void testExtractingArchive();
 #endif
 };
 
@@ -768,5 +779,33 @@ void IoTests::testNativeFileStream()
     fileStream2.close();
     CPPUNIT_ASSERT(!fileStream2.is_open());
     CPPUNIT_ASSERT_EQUAL("barfoo"s, readFile(txtFilePath, 7));
+}
+#endif
+
+#ifdef CPP_UTILITIES_USE_LIBARCHIVE
+void IoTests::testExtractingArchive()
+{
+    const auto archivePath = testFilePath("archive-test.zip");
+    const auto archiveContents = extractFiles(archivePath);
+    const auto &root = archiveContents.at(std::string());
+    const auto &subdir = archiveContents.at("subdir");
+    const auto &subsubdir = archiveContents.at("subdir/foo");
+
+    CPPUNIT_ASSERT_EQUAL(1_st, root.size());
+    CPPUNIT_ASSERT_EQUAL("test.txt"s, root.at(0).name);
+    CPPUNIT_ASSERT_EQUAL(ArchiveFileType::Regular, root.at(0).type);
+    CPPUNIT_ASSERT_EQUAL(DateTime::fromDate(1970, 1, 1), root.at(0).creationTime);
+    CPPUNIT_ASSERT_EQUAL(DateTime::fromDateAndTime(2024, 3, 3, 19, 46, 42), root.at(0).modificationTime);
+    CPPUNIT_ASSERT_EQUAL("testfile\n"s, root.at(0).content);
+
+    CPPUNIT_ASSERT_EQUAL(1_st, subdir.size());
+    CPPUNIT_ASSERT_EQUAL("nested-testfile.txt"s, subdir.at(0).name);
+    CPPUNIT_ASSERT_EQUAL(ArchiveFileType::Regular, subdir.at(0).type);
+    CPPUNIT_ASSERT_EQUAL("some file\n"s, subdir.at(0).content);
+
+    CPPUNIT_ASSERT_EQUAL(1_st, subsubdir.size());
+    CPPUNIT_ASSERT_EQUAL("bar"s, subsubdir.at(0).name);
+    CPPUNIT_ASSERT_EQUAL(ArchiveFileType::Regular, subsubdir.at(0).type);
+    CPPUNIT_ASSERT_EQUAL(std::string(), subsubdir.at(0).content);
 }
 #endif
