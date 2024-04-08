@@ -1799,7 +1799,7 @@ void ValueConversion::Helper::ArgumentValueConversionError::throwFailure(const s
     throw ParseError(argumentPath.empty()
             ? argsToString("Conversion of top-level value \"", valueToConvert, "\" to type \"", targetTypeName, "\" failed: ", errorMessage)
             : argsToString("Conversion of value \"", valueToConvert, "\" (for argument --", argumentPath.back()->name(), ") to type \"",
-                targetTypeName, "\" failed: ", errorMessage));
+                  targetTypeName, "\" failed: ", errorMessage));
 }
 
 /*!
@@ -1810,7 +1810,7 @@ void ArgumentOccurrence::throwNumberOfValuesNotSufficient(unsigned long valuesTo
     throw ParseError(path.empty()
             ? argsToString("Expected ", valuesToConvert, " top-level values to be present but only ", values.size(), " have been specified.")
             : argsToString("Expected ", valuesToConvert, " values for argument --", path.back()->name(), " to be present but only ", values.size(),
-                " have been specified."));
+                  " have been specified."));
 }
 
 } // namespace CppUtilities

@@ -168,11 +168,11 @@ CPP_UTILITIES_EXPORT inline void getBytes24(std::uint32_t value, char *outputbuf
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 16) & 0xFF);
     outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[2] = static_cast<char>((value)&0xFF);
+    outputbuffer[2] = static_cast<char>((value) & 0xFF);
 #else
     outputbuffer[2] = static_cast<char>((value >> 16) & 0xFF);
     outputbuffer[1] = static_cast<char>((value >> 8) & 0xFF);
-    outputbuffer[0] = static_cast<char>((value)&0xFF);
+    outputbuffer[0] = static_cast<char>((value) & 0xFF);
 #endif
 }
 

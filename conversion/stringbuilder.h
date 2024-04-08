@@ -16,16 +16,16 @@ template <class StringType, class ViewType> using IsStringViewType = std::is_sam
 template <class StringType, class CharType> using IsCharType = std::is_same<typename StringType::value_type, CharType>;
 namespace Detail {
 template <typename StringType, typename T>
-auto IsStringType(int)
-    -> decltype(std::declval<StringType &>().append(std::declval<const T &>()), std::declval<const T &>().size(), Traits::Bool<true>{});
+auto IsStringType(
+    int) -> decltype(std::declval<StringType &>().append(std::declval<const T &>()), std::declval<const T &>().size(), Traits::Bool<true>{});
 template <typename StringType, typename T> Traits::Bool<false> IsStringType(...);
 template <typename StringType> void functionTakingConstStringRef(const StringType &str);
 template <typename StringType, typename T>
 auto IsConvertibleToConstStringRef(int) -> decltype(functionTakingConstStringRef<StringType>(std::declval<const T &>()), Traits::Bool<true>{});
 template <typename StringType, typename T> Traits::Bool<false> IsConvertibleToConstStringRef(...);
 template <typename StringType, typename T>
-auto IsConvertibleToConstStringRefViaNative(int)
-    -> decltype(functionTakingConstStringRef<StringType>(std::declval<const T &>().native()), Traits::Bool<true>{});
+auto IsConvertibleToConstStringRefViaNative(
+    int) -> decltype(functionTakingConstStringRef<StringType>(std::declval<const T &>().native()), Traits::Bool<true>{});
 template <typename StringType, typename T> Traits::Bool<false> IsConvertibleToConstStringRefViaNative(...);
 } // namespace Detail
 template <typename StringType, typename StringType2>
