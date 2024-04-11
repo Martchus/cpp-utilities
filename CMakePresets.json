@@ -218,7 +218,10 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-static",
       "toolchainFile": "/usr/share/mingw/toolchain-i686-w64-mingw32-static.cmake",
       "cacheVariables": {
-        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"}
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_FIND_LIBRARY_SUFFIXES": {"type": "STRING", "value": ".a;.lib"},
+        "STATIC_LIBRARY_LINKAGE": {"type": "BOOL", "value": "ON"},
+        "STATIC_LINKAGE": {"type": "BOOL", "value": "ON"}
       }
     },
     {
@@ -229,7 +232,10 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-static",
       "toolchainFile": "/usr/share/mingw/toolchain-x86_64-w64-mingw32-static.cmake",
       "cacheVariables": {
-        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"}
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_FIND_LIBRARY_SUFFIXES": {"type": "STRING", "value": ".a;.lib"},
+        "STATIC_LIBRARY_LINKAGE": {"type": "BOOL", "value": "ON"},
+        "STATIC_LINKAGE": {"type": "BOOL", "value": "ON"}
       }
     },
     {
