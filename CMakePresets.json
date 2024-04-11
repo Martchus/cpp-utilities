@@ -163,6 +163,30 @@
       }
     },
     {
+      "name": "arch-i686-w64-mingw32",
+      "inherits": ["no-webview", "no-kde"],
+      "displayName": "Target i686-w64-mingw32 using Arch Linux's mingw-w64 packaging",
+      "description": "Build targeting i686-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32",
+      "toolchainFile": "/usr/share/mingw/toolchain-i686-w64-mingw32.cmake",
+      "environment": {
+        "CROSS_TOOL_PREFIX": "i686-w64-mingw32-",
+        "CROSS_INSTALL_PREFIX": "/usr/i686-w64-mingw32",
+        "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
+        "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector",
+        "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
+        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
+        "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
+        "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "PATH", "value": "/usr/bin/i686-w64-mingw32-wine"}
+      }
+    },
+    {
       "name": "arch-x86_64-w64-mingw32",
       "inherits": ["no-webview", "no-kde"],
       "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging",
@@ -187,6 +211,17 @@
       }
     },
     {
+      "name": "arch-i686-w64-mingw32-static",
+      "inherits": "arch-i686-w64-mingw32",
+      "displayName": "Target i686-w64-mingw32 using Arch Linux's mingw-w64 packaging (static)",
+      "description": "Build targeting i686-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-static",
+      "toolchainFile": "/usr/share/mingw/toolchain-i686-w64-mingw32-static.cmake",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
       "name": "arch-x86_64-w64-mingw32-static",
       "inherits": "arch-x86_64-w64-mingw32",
       "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging (static)",
@@ -198,6 +233,13 @@
       }
     },
     {
+      "name": "arch-i686-w64-mingw32-qt6",
+      "inherits": ["qt6", "arch-i686-w64-mingw32"],
+      "displayName": "Combination of qt6 and arch-i686-w64-mingw32",
+      "description": "See description of qt6 and arch-i686-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-qt6"
+    },
+    {
       "name": "arch-x86_64-w64-mingw32-qt6",
       "inherits": ["qt6", "arch-x86_64-w64-mingw32"],
       "displayName": "Combination of qt6 and arch-x86_64-w64-mingw32",
@@ -205,11 +247,25 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-qt6"
     },
     {
+      "name": "arch-i686-w64-mingw32-static-qt6",
+      "inherits": ["qt6", "arch-i686-w64-mingw32-static"],
+      "displayName": "Combination of qt6 and arch-i686-w64-mingw32-static",
+      "description": "See description of qt6 and arch-i686-w64-mingw32-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-static-qt6"
+    },
+    {
       "name": "arch-x86_64-w64-mingw32-static-qt6",
       "inherits": ["qt6", "arch-x86_64-w64-mingw32-static"],
       "displayName": "Combination of qt6 and arch-x86_64-w64-mingw32-static",
       "description": "See description of qt6 and arch-x86_64-w64-mingw32-static",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-static-qt6"
+    },
+    {
+      "name": "arch-i686-w64-mingw32-devel",
+      "inherits": ["devel", "arch-i686-w64-mingw32"],
+      "displayName": "Combination of devel and arch-i686-w64-mingw32",
+      "description": "See descriptions of devel and arch-i686-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-devel"
     },
     {
       "name": "arch-x86_64-w64-mingw32-devel",
@@ -342,10 +398,15 @@
     {"name": "debug-qt6", "configurePreset": "debug-qt6"},
     {"name": "debug-kde", "configurePreset": "debug-kde"},
     {"name": "debug-kde-custom", "configurePreset": "debug-kde-custom"},
+    {"name": "arch-i686-w64-mingw32", "configurePreset": "arch-i686-w64-mingw32"},
     {"name": "arch-x86_64-w64-mingw32", "configurePreset": "arch-x86_64-w64-mingw32"},
+    {"name": "arch-i686-w64-mingw32-static", "configurePreset": "arch-i686-w64-mingw32-static"},
     {"name": "arch-x86_64-w64-mingw32-static", "configurePreset": "arch-x86_64-w64-mingw32-static"},
+    {"name": "arch-i686-w64-mingw32-qt6", "configurePreset": "arch-i686-w64-mingw32-qt6"},
     {"name": "arch-x86_64-w64-mingw32-qt6", "configurePreset": "arch-x86_64-w64-mingw32-qt6"},
+    {"name": "arch-i686-w64-mingw32-static-qt6", "configurePreset": "arch-i686-w64-mingw32-static-qt6"},
     {"name": "arch-x86_64-w64-mingw32-static-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-qt6"},
+    {"name": "arch-i686-w64-mingw32-devel", "configurePreset": "arch-i686-w64-mingw32-devel"},
     {"name": "arch-x86_64-w64-mingw32-devel", "configurePreset": "arch-x86_64-w64-mingw32-devel"},
     {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
     {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"},
