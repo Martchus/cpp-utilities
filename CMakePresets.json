@@ -275,6 +275,34 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-devel"
     },
     {
+      "name": "arch-i686-w64-mingw32-devel-qt6",
+      "inherits": ["qt6", "devel", "arch-i686-w64-mingw32"],
+      "displayName": "Combination of qt6, devel and arch-i686-w64-mingw32",
+      "description": "See descriptions of devel and arch-i686-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-devel"
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-devel-qt6",
+      "inherits": ["qt6", "devel", "arch-x86_64-w64-mingw32"],
+      "displayName": "Combination of qt6, devel and arch-x86_64-w64-mingw32",
+      "description": "See descriptions of devel and arch-x86_64-w64-mingw32",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-devel"
+    },
+    {
+      "name": "arch-i686-w64-mingw32-static-devel-qt6",
+      "inherits": ["qt6", "devel", "arch-i686-w64-mingw32-static"],
+      "displayName": "Combination of qt6, devel and arch-i686-w64-mingw32-static",
+      "description": "See descriptions of devel and arch-i686-w64-mingw32-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-devel"
+    },
+    {
+      "name": "arch-x86_64-w64-mingw32-static-devel-qt6",
+      "inherits": ["qt6", "devel", "arch-x86_64-w64-mingw32-static"],
+      "displayName": "Combination of qt6, devel and arch-x86_64-w64-mingw32-static",
+      "description": "See descriptions of devel and arch-x86_64-w64-mingw32-static",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-devel"
+    },
+    {
       "name": "arch-static-compat",
       "inherits": ["no-webview", "no-kde", "qt6"],
       "displayName": "Target static-compat environment for Arch Linux",
@@ -408,6 +436,10 @@
     {"name": "arch-x86_64-w64-mingw32-static-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-qt6"},
     {"name": "arch-i686-w64-mingw32-devel", "configurePreset": "arch-i686-w64-mingw32-devel"},
     {"name": "arch-x86_64-w64-mingw32-devel", "configurePreset": "arch-x86_64-w64-mingw32-devel"},
+    {"name": "arch-i686-w64-mingw32-devel-qt6", "configurePreset": "arch-i686-w64-mingw32-devel-qt6"},
+    {"name": "arch-x86_64-w64-mingw32-devel-qt6", "configurePreset": "arch-x86_64-w64-mingw32-devel-qt6"},
+    {"name": "arch-i686-w64-mingw32-static-devel-qt6", "configurePreset": "arch-i686-w64-mingw32-static-devel-qt6"},
+    {"name": "arch-x86_64-w64-mingw32-static-devel-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-devel-qt6"},
     {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
     {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"},
     {"name": "win-x64-msvc-static", "configurePreset": "win-x64-msvc-static"},
