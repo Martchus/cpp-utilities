@@ -173,7 +173,8 @@
       },
       "cacheVariables": {
         "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
-        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"}
+        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
+        "ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING": {"type": "BOOL", "value": "ON"}
       }
     },
     {
