@@ -96,10 +96,6 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/global.h.in
     cmake/templates/version.h.in
     cmake/templates/template.pc.in)
-set(SCRIPT_FILES)
-if (MINGW)
-    list(APPEND SCRIPT_FILES scripts/wine.sh)
-endif ()
 if (WIN32)
     list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/windows.rc.in cmake/templates/windows-cli-wrapper.rc.in
          cmake/templates/cli-wrapper.cpp)
