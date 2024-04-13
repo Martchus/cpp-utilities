@@ -163,8 +163,22 @@
       }
     },
     {
-      "name": "arch-i686-w64-mingw32",
+      "name": "arch-*-w64-mingw32",
       "inherits": ["no-webview", "no-kde"],
+      "environment": {
+        "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
+        "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
+        "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
+        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "arch-i686-w64-mingw32",
+      "inherits": "arch-*-w64-mingw32",
       "displayName": "Target i686-w64-mingw32 using Arch Linux's mingw-w64 packaging",
       "description": "Build targeting i686-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32",
@@ -172,15 +186,9 @@
       "environment": {
         "CROSS_TOOL_PREFIX": "i686-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/i686-w64-mingw32",
-        "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
-        "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
-        "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
-        "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector",
         "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
       },
       "cacheVariables": {
-        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
-        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
         "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
         "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
         "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "PATH", "value": "/usr/bin/i686-w64-mingw32-wine"}
@@ -188,7 +196,7 @@
     },
     {
       "name": "arch-x86_64-w64-mingw32",
-      "inherits": ["no-webview", "no-kde"],
+      "inherits": "arch-*-w64-mingw32",
       "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging",
       "description": "Build targeting x86_64-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32",
@@ -197,14 +205,9 @@
         "CROSS_TOOL_PREFIX": "x86_64-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/x86_64-w64-mingw32",
         "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
-        "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
-        "CXXFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
-        "LDFLAGS": "-Wl,-O1,--sort-common,--as-needed -fstack-protector",
         "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
       },
       "cacheVariables": {
-        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
-        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
         "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
         "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{CROSS_INSTALL_PREFIX}/include"},
         "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "PATH", "value": "/usr/bin/x86_64-w64-mingw32-wine"}
