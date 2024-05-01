@@ -360,10 +360,10 @@
       "description": "Build on Windows targeting x64-windows-static using MSVC, Qt 6 (for Qt libs and CMake/Ninja), vcpkg (for other dependencies) and MSYS2 (for Perl, Go, ffmpeg and other tools)",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static",
       "environment": {
-
         "INCLUDE": "$env{MSVC_ROOT}/include;$env{MSVC_ROOT}/ATLMFC/include;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}/ucrt;$env{WIN_KITS_ROOT}//include/$env{WIN_KITS_VERSION}//um;$env{WIN_KITS_ROOT}//include/$env{WIN_KITS_VERSION}//shared;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}//winrt;$env{WIN_KITS_ROOT}/include/$env{WIN_KITS_VERSION}//cppwinrt",
         "LIB": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/ucrt/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}//um/x64",
-        "LIBPATH": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/ucrt/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/um/x64"
+        "LIBPATH": "$env{MSVC_ROOT}/ATLMFC/lib/x64;$env{MSVC_ROOT}/lib/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/ucrt/x64;$env{WIN_KITS_ROOT}/lib/$env{WIN_KITS_VERSION}/um/x64",
+        "GOROOT": "$env{MSYS2_ROOT}/mingw64/lib/go"
       },
       "cacheVariables": {
         "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
@@ -388,7 +388,6 @@
         "DOXYGEN_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/doxygen.exe"},
         "CLANG_FORMAT_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/clang-format.exe"},
         "GO_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/go.exe"},
-        "GOROOT": {"type": "PATH", "value": "$env{MSYS2_ROOT}/mingw64/lib/go"},
         "FFMPEG_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/mingw64/bin/ffmpeg.exe"},
         "REALPATH_BIN": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/realpath.exe"},
         "FORCE_EXTERNAL_ICONV": {"type": "BOOL", "value": "ON"},
