@@ -205,7 +205,6 @@
       "environment": {
         "CROSS_TOOL_PREFIX": "x86_64-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/x86_64-w64-mingw32",
-        "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
         "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
       },
       "cacheVariables": {
