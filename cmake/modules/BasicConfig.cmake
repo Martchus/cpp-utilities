@@ -191,7 +191,14 @@ if (NOT META_PROJECT_LICENSE)
     endif ()
 endif ()
 
-# determine RDNS automatically from other meta-data
+# determine RDNS automatically from other meta-data and allow override
+set(${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE
+    ""
+    CACHE STRING
+          "overrides the RDNS used in AppStream meta-data files for ${META_PROJECT_NAME}")
+if (${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE)
+    set(META_PROJECT_RDNS ${${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE})
+endif ()
 if (NOT META_PROJECT_RDNS)
     if (NOT META_PROJECT_RDNS_BASE)
         if (META_APP_URL MATCHES ".*github\\.(com|io).*")
