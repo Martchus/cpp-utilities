@@ -194,7 +194,7 @@ endif ()
 # determine RDNS automatically from other meta-data
 if (NOT META_PROJECT_RDNS)
     if (NOT META_PROJECT_RDNS_BASE)
-        if (META_APP_URL MATCHES ".*github\\.com.*")
+        if (META_APP_URL MATCHES ".*github\\.(com|io).*")
             set(META_PROJECT_RDNS_BASE "io.github") # assume GitHub pages
         else ()
             set(META_PROJECT_RDNS_BASE "org")
