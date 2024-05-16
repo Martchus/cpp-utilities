@@ -199,6 +199,16 @@ set(${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE
 if (${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE)
     set(META_PROJECT_RDNS ${${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE})
 endif ()
+set(${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE
+    ""
+    CACHE STRING
+          "overrides the developer ID used in AppStream meta-data files for ${META_PROJECT_NAME}")
+if (${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE)
+    set(META_DEVELOPER_ID ${${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE})
+endif ()
+if (NOT META_PROJECT_RDNS OR NOT META_DEVELOPER_ID)
+    string(TOLOWER "${META_APP_AUTHOR}" META_APP_AUTHOR_LOWER)
+endif ()
 if (NOT META_PROJECT_RDNS)
     if (NOT META_PROJECT_RDNS_BASE)
         if (META_APP_URL MATCHES ".*github\\.(com|io).*")
@@ -207,8 +217,10 @@ if (NOT META_PROJECT_RDNS)
             set(META_PROJECT_RDNS_BASE "org")
         endif ()
     endif ()
-    string(TOLOWER "${META_APP_AUTHOR}" META_APP_AUTHOR_LOWER)
     set(META_PROJECT_RDNS "${META_PROJECT_RDNS_BASE}.${META_APP_AUTHOR_LOWER}.${META_PROJECT_NAME}${TARGET_SUFFIX}")
+endif ()
+if (NOT META_DEVELOPER_ID)
+    set(META_DEVELOPER_ID "org.${META_APP_AUTHOR_LOWER}")
 endif ()
 
 # provide variables for other projects built as part of the same subdirs project to access files from this project
