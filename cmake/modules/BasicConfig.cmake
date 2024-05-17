@@ -208,8 +208,6 @@ if (${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE)
 endif ()
 if (NOT META_PROJECT_RDNS OR NOT META_DEVELOPER_ID)
     string(TOLOWER "${META_APP_AUTHOR}" META_APP_AUTHOR_LOWER)
-endif ()
-if (NOT META_PROJECT_RDNS)
     if (NOT META_PROJECT_RDNS_BASE)
         if (META_APP_URL MATCHES ".*github\\.(com|io).*")
             set(META_PROJECT_RDNS_BASE "io.github") # assume GitHub pages
@@ -220,7 +218,7 @@ if (NOT META_PROJECT_RDNS)
     set(META_PROJECT_RDNS "${META_PROJECT_RDNS_BASE}.${META_APP_AUTHOR_LOWER}.${META_PROJECT_NAME}${TARGET_SUFFIX}")
 endif ()
 if (NOT META_DEVELOPER_ID)
-    set(META_DEVELOPER_ID "org.${META_APP_AUTHOR_LOWER}")
+    set(META_DEVELOPER_ID "${META_PROJECT_RDNS_BASE}.${META_APP_AUTHOR_LOWER}")
 endif ()
 
 # provide variables for other projects built as part of the same subdirs project to access files from this project
