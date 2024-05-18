@@ -204,6 +204,12 @@ set(${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE
 if (${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE)
     set(META_DEVELOPER_ID ${${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE})
 endif ()
+if (${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE OR ${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE)
+    message(
+        WARNING
+            "Overriding the RDNS or developer ID is NOT recommended. This feature is only intended to ease "
+            "transitioning when a change is required and to create alternative packaging for development and private use.")
+endif ()
 if (NOT META_PROJECT_RDNS OR NOT META_DEVELOPER_ID)
     string(TOLOWER "${META_APP_AUTHOR}" META_APP_AUTHOR_LOWER)
     if (NOT META_PROJECT_RDNS_BASE)
