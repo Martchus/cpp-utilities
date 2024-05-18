@@ -194,15 +194,13 @@ endif ()
 # determine RDNS automatically from other meta-data and allow override
 set(${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE
     ""
-    CACHE STRING
-          "overrides the RDNS used in AppStream meta-data files for ${META_PROJECT_NAME}")
+    CACHE STRING "overrides the RDNS used in AppStream meta-data files for ${META_PROJECT_NAME}")
 if (${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE)
     set(META_PROJECT_RDNS ${${META_PROJECT_VARNAME_UPPER}_RDNS_OVERRIDE})
 endif ()
 set(${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE
     ""
-    CACHE STRING
-          "overrides the developer ID used in AppStream meta-data files for ${META_PROJECT_NAME}")
+    CACHE STRING "overrides the developer ID used in AppStream meta-data files for ${META_PROJECT_NAME}")
 if (${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE)
     set(META_DEVELOPER_ID ${${META_PROJECT_VARNAME_UPPER}_DEVELOPER_ID_OVERRIDE})
 endif ()
