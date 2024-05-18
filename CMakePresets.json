@@ -22,14 +22,23 @@
       }
     },
     {
-      "name": "libc++",
+      "name": "clang",
       "inherits": "default",
-      "displayName": "Use clang++ and libc++",
-      "description": "Enforces use of clang++ and libc++ even when it is not the system default",
-      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-no-webview",
+      "displayName": "Use clang/clang++",
+      "description": "Enforces use of clang/clang++ even when it is not the system default",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-clang",
       "cacheVariables": {
         "CMAKE_C_COMPILER": {"type": "STRING", "value": "clang"},
-        "CMAKE_CXX_COMPILER": {"type": "STRING", "value": "clang++"},
+        "CMAKE_CXX_COMPILER": {"type": "STRING", "value": "clang++"}
+      }
+    },
+    {
+      "name": "libc++",
+      "inherits": "clang",
+      "displayName": "Use clang/clang++ and libc++",
+      "description": "Enforces use of clang/clang++ and libc++ even when it is not the system default",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-clang-libc++",
+      "cacheVariables": {
         "CMAKE_CXX_FLAGS": {"type": "STRING", "value": "$env{CXXFLAGS} -stdlib=libc++"}
       }
     },
@@ -82,6 +91,13 @@
       }
     },
     {
+      "name": "devel-clang",
+      "inherits": ["devel", "clang"],
+      "displayName": "Development config using clang",
+      "description": "Combination of devel and libc++",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-clang"
+    },
+    {
       "name": "devel-libc++",
       "inherits": ["devel", "libc++"],
       "displayName": "Development config using libc++",
@@ -115,6 +131,13 @@
       "cacheVariables": {
         "CMAKE_UNITY_BUILD": {"type": "BOOL", "value": "ON"}
       }
+    },
+    {
+      "name": "devel-clang-qt6",
+      "inherits": ["qt6", "devel-clang"],
+      "displayName": "Development config using clang and Qt 6",
+      "description": "Combination of qt6 and devel-clang",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel-clang-qt6"
     },
     {
       "name": "devel-libc++-qt6",
@@ -426,9 +449,11 @@
     {"name": "libc++", "configurePreset": "libc++"},
     {"name": "qt6", "configurePreset": "qt6"},
     {"name": "devel", "configurePreset": "devel"},
+    {"name": "devel-clang", "configurePreset": "devel-clang"},
     {"name": "devel-libc++", "configurePreset": "devel-libc++"},
     {"name": "devel-qt6", "configurePreset": "devel-qt6"},
     {"name": "devel-unity", "configurePreset": "devel-unity"},
+    {"name": "devel-clang-qt6", "configurePreset": "devel-clang-qt6"},
     {"name": "devel-libc++-qt6", "configurePreset": "devel-libc++-qt6"},
     {"name": "debug", "configurePreset": "debug"},
     {"name": "debug-qt6", "configurePreset": "debug-qt6"},
