@@ -408,6 +408,31 @@
       }
     },
     {
+      "name": "arch-wasm",
+      "inherits": ["no-webview", "no-kde", "qt6"],
+      "displayName": "Target wasm32-unknown-emscripten using Arch Linux's packaging",
+      "description": "Build targeting WebAssembly via Emscripten, paths and flags are specific to Arch Linux's packaging",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-wasm",
+      "toolchainFile": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "environment": {
+        "PATH": "/usr/lib/emscripten:$penv{PATH}",
+        "EMSDK": "/usr/lib/emscripten"
+      },
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Release"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "/usr/lib/emscripten/system"},
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "/usr/lib/emscripten/system"},
+        "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "FILEPATH", "value": "/usr/bin/node"},
+        "QT_HOST_PATH": {"type": "STRING", "value": "/usr"},
+        "QT_INCLUDE_DIRS_NO_SYSTEM": {"type": "BOOL", "value": "ON"},
+        "DBUS_NOTIFICATIONS": {"type": "BOOL", "value": "OFF"},
+        "SYSTEMD_SUPPORT": {"type": "BOOL", "value": "OFF"},
+        "USE_NATIVE_FILE_BUFFER": {"type": "BOOL", "value": "OFF"},
+        "USE_BOOST_PROCESS": {"type": "BOOL", "value": "OFF"}
+      }
+    },
+    {
       "name": "win-x64-msvc-static",
       "inherits": ["no-webview", "no-kde", "qt6"],
       "displayName": "Target x64-windows-static on Windows",
@@ -508,6 +533,7 @@
     {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
     {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"},
     {"name": "arch-android", "configurePreset": "arch-android"},
+    {"name": "arch-wasm", "configurePreset": "arch-wasm"},
     {"name": "win-x64-msvc-static", "configurePreset": "win-x64-msvc-static"},
     {"name": "win-x64-msvc-static-devel", "configurePreset": "win-x64-msvc-static-devel"},
     {"name": "win-x64-msvc-static-debug", "configurePreset": "win-x64-msvc-static-debug"}
