@@ -428,6 +428,7 @@
         "QT_INCLUDE_DIRS_NO_SYSTEM": {"type": "BOOL", "value": "ON"},
         "DBUS_NOTIFICATIONS": {"type": "BOOL", "value": "OFF"},
         "SYSTEMD_SUPPORT": {"type": "BOOL", "value": "OFF"},
+        "NO_CLI": {"type": "BOOL", "value": "ON"},
         "USE_NATIVE_FILE_BUFFER": {"type": "BOOL", "value": "OFF"},
         "USE_BOOST_PROCESS": {"type": "BOOL", "value": "OFF"}
       }
