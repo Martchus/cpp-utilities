@@ -423,6 +423,8 @@
         "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Release"},
         "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "/usr/lib/emscripten/system"},
         "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "/usr/lib/emscripten/system"},
+        "CMAKE_C_FLAGS": {"type": "STRING", "value": "-pthread"},
+        "CMAKE_CXX_FLAGS": {"type": "STRING", "value": "-pthread"},
         "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "FILEPATH", "value": "/usr/bin/node"},
         "QT_HOST_PATH": {"type": "STRING", "value": "/usr"},
         "QT_INCLUDE_DIRS_NO_SYSTEM": {"type": "BOOL", "value": "ON"},
