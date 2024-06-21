@@ -48,7 +48,9 @@ const std::string_view::value_type *BufferSearch::process(const std::string_view
                 }
             }
             if (m_hasResult) {
-                m_callback(*this, std::move(m_result));
+                if (m_callback) {
+                    m_callback(*this, std::move(m_result));
+                }
                 return i;
             }
             m_result += currentChar;

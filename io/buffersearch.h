@@ -23,6 +23,8 @@ public:
     const std::string_view::value_type *process(std::string_view buffer);
     const std::string_view::value_type *process(const std::string_view::value_type *buffer, std::size_t bufferSize);
     void reset();
+    std::string &result();
+    const std::string &result() const;
 
 private:
     const std::string_view m_searchTerm;
@@ -77,6 +79,22 @@ inline void BufferSearch::operator()(std::shared_ptr<std::array<std::string_view
 inline const std::string_view::value_type *BufferSearch::process(std::string_view buffer)
 {
     return process(buffer.data(), buffer.size());
+}
+
+/*!
+ * \brief Returns the search result at this point.
+ */
+inline std::string &BufferSearch::result()
+{
+    return m_result;
+}
+
+/*!
+ * \brief Returns the search result at this point.
+ */
+inline const std::string &BufferSearch::result() const
+{
+    return m_result;
 }
 
 } // namespace CppUtilities
