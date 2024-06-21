@@ -19,15 +19,20 @@ namespace CppUtilities {
  *   anymore.
  * - If the callback has been invoked, operator() will exit early and the callback will not be invoked anymore (even if the
  *   search term occurs again). Call reset() after consuming the result within the callback to continue the search.
+ *
  */
 
 /*!
  * \brief Processes the specified \a buffer. Invokes the callback according to the remarks mentioned in the class documentation.
+ * \returns
+ * - Returns the offset in \a buffer after the search term and search result. This is the first character after the search term if
+ *   no termination characters have been specified; otherwiese it is the offset of the termination character.
+ * - Returns nullptr if the search term could not be found.
  */
-void BufferSearch::operator()(const std::string_view::value_type *buffer, std::size_t bufferSize)
+const std::string_view::value_type *BufferSearch::process(const std::string_view::value_type *buffer, std::size_t bufferSize)
 {
     if (m_hasResult || (!m_giveUpTerm.empty() && m_giveUpTermIterator == m_giveUpTerm.end())) {
-        return;
+        return nullptr;
     }
     for (auto i = buffer, end = buffer + bufferSize; i != end; ++i) {
         const auto currentChar = *i;
@@ -44,7 +49,7 @@ void BufferSearch::operator()(const std::string_view::value_type *buffer, std::s
             }
             if (m_hasResult) {
                 m_callback(*this, std::move(m_result));
-                return;
+                return i;
             }
             m_result += currentChar;
             continue;
@@ -63,6 +68,16 @@ void BufferSearch::operator()(const std::string_view::value_type *buffer, std::s
             m_giveUpTermIterator = m_giveUpTerm.begin();
         }
     }
+    return nullptr;
+}
+
+/*!
+ * \brief Processes the specified \a buffer. Invokes the callback according to the remarks mentioned in the class documentation.
+ * \todo Make inline in v6.
+ */
+void BufferSearch::operator()(const std::string_view::value_type *buffer, std::size_t bufferSize)
+{
+    process(buffer, bufferSize);
 }
 
 /*!

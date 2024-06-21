@@ -20,6 +20,8 @@ public:
     void operator()(const std::string_view::value_type *buffer, std::size_t bufferSize);
     template <std::size_t bufferCapacity>
     void operator()(std::shared_ptr<std::array<std::string_view::value_type, bufferCapacity>> buffer, std::size_t bufferSize);
+    const std::string_view::value_type *process(std::string_view buffer);
+    const std::string_view::value_type *process(const std::string_view::value_type *buffer, std::size_t bufferSize);
     void reset();
 
 private:
@@ -66,6 +68,15 @@ template <std::size_t bufferCapacity>
 inline void BufferSearch::operator()(std::shared_ptr<std::array<std::string_view::value_type, bufferCapacity>> buffer, std::size_t bufferSize)
 {
     (*this)(buffer->data(), bufferSize);
+}
+
+/*!
+ * \brief Processes the specified \a buffer. Invokes the callback according to the remarks mentioned in the class documentation.
+ * \returns See other overload for details.
+ */
+inline const std::string_view::value_type *BufferSearch::process(std::string_view buffer)
+{
+    return process(buffer.data(), buffer.size());
 }
 
 } // namespace CppUtilities

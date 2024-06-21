@@ -36,6 +36,7 @@ std::ostream &operator<<(std::ostream &out, const std::wstring &s)
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <fstream>
 #include <regex>
 #include <sstream>
@@ -323,14 +324,14 @@ void IoTests::testBufferSearch()
     bs(buffer, 0);
     CPPUNIT_ASSERT(!hasResult);
     std::strcpy(buffer, "Starting Updated");
-    bs(std::string_view(buffer, 16));
+    CPPUNIT_ASSERT(bs.process(std::string_view(buffer, 16)) == nullptr);
     CPPUNIT_ASSERT(!hasResult);
     std::strcpy(buffer, " version: some ");
     bs(buffer, 15);
     CPPUNIT_ASSERT(!hasResult);
     expectedResult = "some version number";
     std::strcpy(buffer, "version number\tmore chars");
-    bs(buffer, 25);
+    CPPUNIT_ASSERT_EQUAL(static_cast<std::ptrdiff_t>(14), bs.process(buffer, 25) - buffer);
     CPPUNIT_ASSERT(hasResult);
     hasResult = false;
     std::strcpy(buffer, "... Starting build ...");
