@@ -611,11 +611,6 @@ if (GCOV_COVERAGE_ENABLED)
     list(APPEND META_ADDITIONAL_LINK_FLAGS ${GCC_COVERAGE_FLAGS})
 endif ()
 
-# set export name when compiling with emscripten
-if (CMAKE_C_COMPILER MATCHES ".*emcc$")
-    list(APPEND PRIVATE_LIBRARIES "-sEXPORT_NAME='${META_PROJECT_VARNAME_LOWER}'")
-endif ()
-
 # configure creation of install targets
 if (NOT META_NO_INSTALL_TARGETS)
     # install targets have not been disabled on project level check whether install targets are disabled by the user this
