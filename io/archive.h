@@ -4,9 +4,9 @@
 #include "../chrono/datetime.h"
 #include "../global.h"
 
-#include <exception>
 #include <functional>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
