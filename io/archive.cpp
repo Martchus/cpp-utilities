@@ -66,6 +66,9 @@ void walkThroughArchiveInternal(struct archive *ar, std::string_view archiveName
 
         // add directories explicitly to get the entire tree though skipping irrelevant files
         if (entryType == AE_IFDIR) {
+            if (!directoryHandler) {
+                continue;
+            }
             // remove trailing slashes
             const char *dirEnd = filePath;
             for (const char *i = filePath; *i; ++i) {
