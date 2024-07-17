@@ -56,7 +56,7 @@ struct Half {
 };
 struct Factor {
     Factor(float factor)
-        : factor(factor){};
+        : factor(factor) {};
     size_t operator()(size_t value)
     {
         return static_cast<size_t>(static_cast<float>(value) * factor);
