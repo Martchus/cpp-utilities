@@ -7,16 +7,13 @@ namespace CppUtilities {
 
 /*!
  * \brief The IsFlagEnumClass class is used to decide whether to enable operations for flag enums for \tparam T.
- * \remarks This class is still experimental and might be changed or removed in future minior releases.
  */
 template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {};
 
 // clang-format off
 /*!
  * \brief The \def CPP_UTILITIES_MARK_FLAG_ENUM_CLASS macro enables flag enum operators for \a EnumClassType within namespace \a Namespace.
- * \remarks
- * - Must be used outside a namespace.
- * - This macro is still experimental and might be changed or removed in future minior releases.
+ * \remarks Must be used outside a namespace.
  */
 #define CPP_UTILITIES_MARK_FLAG_ENUM_CLASS(Namespace, EnumClassType)                                                                                 \
     namespace CppUtilities {                                                                                                                         \
@@ -34,7 +31,6 @@ template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {};
 
 /*!
  * \brief The FlagEnumClassOperations namespace contains operations for flag enums.
- * \remarks This namespace is still experimental and might be changed or removed in future minior releases.
  */
 namespace FlagEnumClassOperations {
 
