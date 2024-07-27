@@ -106,8 +106,8 @@ DESTDIR="/temporary/install/location" \
 ```
 
 This example is rather generic. For a development build I recommended using CMakePresets as
-documented in the "CMake presets" section below. It also contains more concrete instructions for
-building on Windows.
+documented in the "[CMake presets](#cmake-presets)" section below. It also contains more concrete
+instructions for building on Windows.
 
 #### General notes
 * By default the build system will *build* static libs. To *build* shared libraries *instead*, set
