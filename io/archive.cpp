@@ -7,6 +7,7 @@
 #include <archive_entry.h>
 
 #include <filesystem>
+#include <utility>
 
 using namespace CppUtilities;
 
@@ -39,7 +40,42 @@ struct AddFileToFileMap {
     FileMap &fileMap;
 };
 
-void walkThroughArchiveInternal(struct archive *ar, std::string_view archiveName, const FilePredicate &isFileRelevant, FileHandler &&fileHandler,
+struct ArchiveHandle {
+    explicit ArchiveHandle()
+        : handle(archive_read_new())
+    {
+    }
+
+    ~ArchiveHandle()
+    {
+        if (handle) {
+            archive_read_free(handle);
+        }
+    }
+
+    ArchiveHandle(const ArchiveHandle &) = delete;
+    ArchiveHandle(ArchiveHandle &&) = delete;
+
+    void close(std::string_view archiveName, std::string_view errorMessage)
+    {
+        if (!handle) {
+            return;
+        }
+        if (const auto returnCode = archive_read_free(std::exchange(handle, nullptr)); returnCode != ARCHIVE_OK) {
+            throw ArchiveException(errorMessage.empty() ? argsToString("Unable to free archive \"", archiveName, '\"')
+                                                        : argsToString("Unable to free archive \"", archiveName, "\" after error: ", errorMessage));
+        }
+    }
+
+    operator struct archive *()
+    {
+        return handle;
+    }
+
+    struct archive *handle;
+};
+
+void walkThroughArchiveInternal(ArchiveHandle &ar, std::string_view archiveName, const FilePredicate &isFileRelevant, FileHandler &&fileHandler,
     DirectoryHandler &&directoryHandler)
 {
     // iterate through all archive entries
@@ -142,10 +178,7 @@ free:
 
     // free resources used by libarchive
     archive_entry_free(entry);
-    if (const auto returnCode = archive_read_free(ar); returnCode != ARCHIVE_OK) {
-        throw ArchiveException(errorMessage.empty() ? argsToString("Unable to free archive \"", archiveName, '\"')
-                                                    : argsToString("Unable to free archive \"", archiveName, "\" after error: ", errorMessage));
-    }
+    ar.close(archiveName, errorMessage);
     if (archiveError) {
         throw ArchiveException(argsToString("An error occurred when reading archive \"", archiveName, "\": ", errorMessage));
     }
@@ -164,12 +197,11 @@ void walkThroughArchiveFromBuffer(std::string_view archiveData, std::string_view
         throw ArchiveException("Unable to open archive \"" % archiveName + "\": archive data is empty");
     }
     // open archive buffer using libarchive
-    struct archive *ar = archive_read_new();
+    auto ar = ArchiveHandle();
     archive_read_support_filter_all(ar);
     archive_read_support_format_all(ar);
     const auto returnCode = archive_read_open_memory(ar, archiveData.data(), archiveData.size());
     if (returnCode != ARCHIVE_OK) {
-        archive_read_free(ar);
         if (const char *const error = archive_error_string(ar)) {
             throw ArchiveException("Unable to open/read archive \"" % archiveName % "\": " + error);
         } else {
@@ -207,12 +239,11 @@ void walkThroughArchive(
     if (!size) {
         throw ArchiveException("Unable to open archive \"" % archivePath + "\": file is empty");
     }
-    struct archive *ar = archive_read_new();
+    auto ar = ArchiveHandle();
     archive_read_support_filter_all(ar);
     archive_read_support_format_all(ar);
     const auto returnCode = archive_read_open_filename(ar, archivePath.data(), 10240);
     if (returnCode != ARCHIVE_OK) {
-        archive_read_free(ar);
         if (const char *const error = archive_error_string(ar)) {
             throw ArchiveException("Unable to open/read archive \"" % archivePath % "\": " + error);
         } else {
