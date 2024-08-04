@@ -43,6 +43,7 @@ just "open failed: iostream error".
 #elif defined(PLATFORM_WINDOWS)
 #include <fcntl.h>
 #include <io.h>
+#include <limits>
 #include <sys/stat.h> // yes, this is needed under Windows (https://msdn.microsoft.com/en-US/library/5yhhz3y7.aspx)
 #include <windows.h>
 #endif
@@ -346,7 +347,8 @@ void NativeFileStream::setData(FileBuffer data, std::ios_base::openmode openMode
 std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(std::string_view path)
 {
     auto ec = std::error_code();
-    auto widePath = ::CppUtilities::convertMultiByteToWide(ec, path);
+    auto size = path.size() < static_cast<std::size_t>(std::numeric_limits<int>::max() - 1) ? static_cast<int>(path.size() + 1) : -1;
+    auto widePath = ::CppUtilities::convertMultiByteToWide(ec, path.data(), size);
     if (!widePath.first) {
         throw std::ios_base::failure("converting path to UTF-16", ec);
     }
