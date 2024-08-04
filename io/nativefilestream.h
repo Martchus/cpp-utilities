@@ -8,6 +8,7 @@
 #include <memory>
 #include <streambuf>
 #include <string>
+#include <string_view>
 #endif
 #include <fstream>
 
@@ -22,6 +23,7 @@ public:
 #endif
     struct CPP_UTILITIES_EXPORT FileBuffer {
         FileBuffer(std::basic_streambuf<char> *buffer);
+        FileBuffer(const char *path, ios_base::openmode openMode);
         FileBuffer(const std::string &path, ios_base::openmode openMode);
         FileBuffer(int fileDescriptor, ios_base::openmode openMode);
 
@@ -33,6 +35,7 @@ public:
     };
 
     NativeFileStream();
+    NativeFileStream(const char *path, std::ios_base::openmode openMode);
     NativeFileStream(const std::string &path, std::ios_base::openmode openMode);
     NativeFileStream(int fileDescriptor, std::ios_base::openmode openMode);
     NativeFileStream(NativeFileStream &&);
@@ -40,12 +43,15 @@ public:
 
     bool is_open() const;
     bool isOpen() const;
+    void open(const char *path, std::ios_base::openmode openMode);
     void open(const std::string &path, std::ios_base::openmode openMode);
     void open(int fileDescriptor, std::ios_base::openmode openMode);
     void close();
     int fileDescriptor();
 #ifdef PLATFORM_WINDOWS
     Handle fileHandle();
+    static std::unique_ptr<wchar_t[]> makeWidePath(std::string_view path);
+    static std::unique_ptr<wchar_t[]> makeWidePath(const char *path);
     static std::unique_ptr<wchar_t[]> makeWidePath(const std::string &path);
 #endif
 
@@ -59,10 +65,18 @@ private:
 /*!
  * \brief Constructs a new NativeFileStream. The specified \a path is supposed to be UTF-8 encoded.
  */
-inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::openmode openMode)
+inline NativeFileStream::NativeFileStream(const char *path, ios_base::openmode openMode)
     : NativeFileStream()
 {
     open(path, openMode);
+}
+
+/*!
+ * \brief Constructs a new NativeFileStream. The specified \a path is supposed to be UTF-8 encoded.
+ */
+inline NativeFileStream::NativeFileStream(const std::string &path, ios_base::openmode openMode)
+    : NativeFileStream(path.data(), openMode)
+{
 }
 
 /*!
@@ -91,6 +105,15 @@ inline int NativeFileStream::fileDescriptor()
 inline NativeFileStream::Handle NativeFileStream::fileHandle()
 {
     return m_data.handle;
+}
+
+/*!
+ * \brief Converts the specified UTF-8 encoded \a path to UTF-16 for passing it to WinAPI functions.
+ * \throws Throws std::ios_base::failure when an encoding error occurs.
+ */
+inline std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const char *path)
+{
+    return makeWidePath(std::string_view(path));
 }
 #endif
 

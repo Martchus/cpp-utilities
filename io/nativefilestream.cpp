@@ -162,7 +162,7 @@ NativeFileStream::FileBuffer::FileBuffer(std::basic_streambuf<char> *buffer)
  * \brief Opens a file buffer from the specified \a path.
  * \remarks See NativeFileStream::open() for remarks on how \a path must be encoded.
  */
-NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode openMode)
+NativeFileStream::FileBuffer::FileBuffer(const char *path, ios_base::openmode openMode)
 {
 #ifdef PLATFORM_WINDOWS
     // convert path to UTF-16
@@ -172,7 +172,7 @@ NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode 
     // compute native params
     const NativeFileParams nativeParams(openMode);
 
-    // open native file handle or descriptor
+// open native file handle or descriptor
 #ifdef CPP_UTILITIES_USE_GNU_CXX_STDIO_FILEBUF
 #ifdef PLATFORM_WINDOWS
     descriptor = _wopen(widePath.get(), nativeParams.openMode, nativeParams.permissions);
@@ -180,7 +180,7 @@ NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode 
         throw std::ios_base::failure("_wopen failed", std::error_code(errno, std::system_category()));
     }
 #else
-    descriptor = ::open(path.data(), nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    descriptor = ::open(path, nativeParams.openFlags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (descriptor == -1) {
         throw std::ios_base::failure("open failed", std::error_code(errno, std::system_category()));
     }
@@ -202,6 +202,15 @@ NativeFileStream::FileBuffer::FileBuffer(const string &path, ios_base::openmode 
     buffer = make_unique<StreamBuffer>(descriptor, boost::iostreams::close_handle);
 #endif
 #endif
+}
+
+/*!
+ * \brief Opens a file buffer from the specified \a path.
+ * \remarks See NativeFileStream::open() for remarks on how \a path must be encoded.
+ */
+NativeFileStream::FileBuffer::FileBuffer(const std::string &path, ios_base::openmode openMode)
+    : NativeFileStream::FileBuffer(path.data(), openMode)
+{
 }
 
 /*!
@@ -266,19 +275,25 @@ bool NativeFileStream::isOpen() const
 /*!
  * \brief Opens the file referenced by \a path with the specified \a openMode.
  * \remarks
- * Under Windows \a path is expected to be UTF-8 encoded. It is automatically converted so non-ASCII
- * characters are treated correctly under Windows (in contrast to std::fstream::open() where only the
- * current code page is supported).
- *
- * Under other platforms the \a path is just passed through so there are no assumptions made about its
- * encoding.
- * \throws Throws std::ios_base::failure in the error case.
+ * - Under Windows \a path is expected to be UTF-8 encoded. It is automatically converted so non-ASCII
+ *   characters are treated correctly under Windows (in contrast to std::fstream::open() where only the
+ *   current code page is supported).
+ * - Under other platforms the \a path is just passed through so there are no assumptions made about its
+ *   encoding.
  * \todo Maybe use setstate() instead of throwing exceptions directly for consistent error handling
  *       with std::fstream::open(). However, that makes passing specific error messages difficult.
  */
-void NativeFileStream::open(const string &path, ios_base::openmode openMode)
+void NativeFileStream::open(const char *path, ios_base::openmode openMode)
 {
     setData(FileBuffer(path, openMode), openMode);
+}
+
+/*!
+ * \brief Opens the file referenced by \a path with the specified \a openMode.
+ */
+void NativeFileStream::open(const std::string &path, ios_base::openmode openMode)
+{
+    open(path.data(), openMode);
 }
 
 /*!
@@ -328,7 +343,7 @@ void NativeFileStream::setData(FileBuffer data, std::ios_base::openmode openMode
  * \brief Converts the specified UTF-8 encoded \a path to UTF-16 for passing it to WinAPI functions.
  * \throws Throws std::ios_base::failure when an encoding error occurs.
  */
-std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
+std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(std::string_view path)
 {
     auto ec = std::error_code();
     auto widePath = ::CppUtilities::convertMultiByteToWide(ec, path);
@@ -338,6 +353,14 @@ std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &pat
     return std::move(widePath.first);
 }
 
+/*!
+ * \brief Converts the specified UTF-8 encoded \a path to UTF-16 for passing it to WinAPI functions.
+ * \throws Throws std::ios_base::failure when an encoding error occurs.
+ */
+std::unique_ptr<wchar_t[]> NativeFileStream::makeWidePath(const std::string &path)
+{
+    return makeWidePath(std::string_view(path));
+}
 #endif
 
 #else
