@@ -16,19 +16,9 @@ namespace CppUtilities {
  */
 std::string readFile(const std::string &path, std::string::size_type maxSize)
 {
-    return readFile(std::string_view(path), maxSize);
-}
-
-/*!
- * \brief Reads all contents of the specified file in a single call.
- * \throws Throws std::ios_base::failure when an error occurs or the specified \a maxSize
- *         would be exceeded.
- */
-std::string readFile(std::string_view path, std::string_view::size_type maxSize)
-{
-    NativeFileStream file;
+    auto file = NativeFileStream();
     file.exceptions(ios_base::failbit | ios_base::badbit);
-    file.open(path.data(), ios_base::in | ios_base::binary);
+    file.open(path, ios_base::in | ios_base::binary);
     file.seekg(0, ios_base::end);
     string res;
     const auto size = static_cast<string::size_type>(file.tellg());
@@ -50,6 +40,16 @@ std::string readFile(std::string_view path, std::string_view::size_type maxSize)
 }
 
 /*!
+ * \brief Reads all contents of the specified file in a single call.
+ * \throws Throws std::ios_base::failure when an error occurs or the specified \a maxSize
+ *         would be exceeded.
+ */
+std::string readFile(std::string_view path, std::string_view::size_type maxSize)
+{
+    return readFile(std::string(path), maxSize);
+}
+
+/*!
  * \brief Writes all \a contents to the specified file in a single call.
  * \throws Throws std::ios_base::failure when an error occurs.
  * \remarks Closing the file manually to prevent flushing the file within the d'tor which
@@ -57,9 +57,9 @@ std::string readFile(std::string_view path, std::string_view::size_type maxSize)
  */
 void writeFile(std::string_view path, std::string_view contents)
 {
-    NativeFileStream file;
+    auto file = NativeFileStream();
     file.exceptions(ios_base::failbit | ios_base::badbit);
-    file.open(path.data(), ios_base::out | ios_base::trunc | ios_base::binary);
+    file.open(std::string(path), ios_base::out | ios_base::trunc | ios_base::binary);
     file.write(contents.data(), static_cast<std::streamoff>(contents.size()));
     file.close();
 }
