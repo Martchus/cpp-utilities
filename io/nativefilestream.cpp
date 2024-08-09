@@ -46,6 +46,9 @@ just "open failed: iostream error".
 #include <limits>
 #include <sys/stat.h> // yes, this is needed under Windows (https://msdn.microsoft.com/en-US/library/5yhhz3y7.aspx)
 #include <windows.h>
+#ifdef max
+#undef max // see explanation in stringconversion.cpp
+#endif
 #endif
 
 #endif
