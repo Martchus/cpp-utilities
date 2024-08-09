@@ -288,8 +288,8 @@ Note that you don't need to install all Visual Studio has to offer. A customized
 C++ core features, MSVC x86/x64 build tools, Windows SDK and vpkg should be enough. In Qt's online installer
 you can also uncheck everything except the MSVC build of Qt itself.
 
-If the compilation of the resource file doesn't work you can use `-DWINDOWS_RC_FILE=OFF` to continue the
-build regardless.
+If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
+the build regardless.
 
 ##### Remarks about special presets
 The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
