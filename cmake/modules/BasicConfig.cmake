@@ -323,7 +323,7 @@ if (WIDGETS_HEADER_FILES
     OR WIDGETS_SRC_FILES
     OR WIDGETS_UI_FILES
     OR META_HAS_WIDGETS_GUI)
-    if (META_GUI_OPTIONAL)
+    if (META_GUI_OPTIONAL OR META_WIDGETS_GUI_OPTIONAL)
         option(WIDGETS_GUI "enables/disables building the Qt Widgets GUI: yes (default) or no" ON)
     else ()
         set(WIDGETS_GUI ON)
@@ -334,7 +334,7 @@ endif ()
 if (QML_HEADER_FILES
     OR QML_SRC_FILES
     OR META_HAS_QUICK_GUI)
-    if (META_GUI_OPTIONAL)
+    if (META_GUI_OPTIONAL OR META_QUICK_GUI_OPTIONAL)
         option(QUICK_GUI "enables/disables building the Qt Quick GUI: yes (default) or no" ON)
     else ()
         set(QUICK_GUI ON)
