@@ -123,8 +123,13 @@ append_user_defined_additional_libraries()
 
 # allow writing public compile definitions to a header file instead of just relying on CMake/pkg-config
 option(USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS "writes public compile definitions to a header file" ON)
-set(DEFS_FOR_HEADER "")
-if (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
+set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+set(TARGET_DEFINITIONS_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/${META_PROJECT_NAME}-definitions.h")
+if (EXISTS "${TARGET_DEFINITIONS_HEADER}")
+    message(STATUS "Using existing \"${TARGET_DEFINITIONS_HEADER}\" for ${META_PROJECT_NAME}. "
+                   "Remove this file to force re-generation of the resource file.")
+elseif (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
+    set(DEFS_FOR_HEADER "")
     foreach (DEF ${META_PUBLIC_COMPILE_DEFINITIONS})
         if (DEF MATCHES "([A-Za-z0-9_]+)=([A-Za-z0-9_ ]+)")
             set(DEF_NAME "${CMAKE_MATCH_1}")
@@ -137,10 +142,8 @@ if (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
             set(DEFS_FOR_HEADER "${DEFS_FOR_HEADER}#ifndef ${DEF_NAME}\n#define ${DEF_NAME}${DEF_VALUE}\n#endif\n")
         endif ()
     endforeach ()
+    file(WRITE "${TARGET_DEFINITIONS_HEADER}" "${DEFS_FOR_HEADER}")
 endif ()
-set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-set(TARGET_DEFINITIONS_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/${META_PROJECT_NAME}-definitions.h")
-file(WRITE "${TARGET_DEFINITIONS_HEADER}" "${DEFS_FOR_HEADER}")
 
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)

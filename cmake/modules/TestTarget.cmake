@@ -89,7 +89,9 @@ if (META_ADD_DEFAULT_CPP_UNIT_TEST_APPLICATION)
     endif ()
 
     set(DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC "${CMAKE_CURRENT_BINARY_DIR}/cppunit.cpp")
-    file(WRITE "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}" "#include <c++utilities/tests/cppunit.h>")
+    if (NOT EXISTS "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}")
+        file(WRITE "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}" "#include <c++utilities/tests/cppunit.h>")
+    endif ()
     list(APPEND TEST_SRC_FILES "${DEFAULT_CPP_UNIT_TEST_APPLICATION_SRC}")
 endif ()
 
