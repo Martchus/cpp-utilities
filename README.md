@@ -197,8 +197,8 @@ it as an existing build (instead of adding a new build configuration).
 
 ##### Remarks for building on Windows
 To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset in a
-MSYS2 mingw64 shell. Set the `BUILD_DIR` environment variable to specify the directory to store build
-artefacts.
+MSYS2 mingw64 shell. To create a debug build (e.g. to debug with GDB) use the `debug-qt6` preset. Set the
+`BUILD_DIR` environment variable to specify the directory to store build artefacts.
 
 Run the following commands to build one of my applications and its `c++utilities`/`qtutilities` dependencies
 in one go (in this example Syncthing Tray):
@@ -249,7 +249,12 @@ Note that:
     * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
       and Password Manager can be built without Qt GUI. The libraries `c++utilities` and `tagparser` don't
       require Qt at all.
-* You can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`.
+* To run the binaries from the Windows terminal, you need to add the mingw-w64 libraries from the MSYS2
+  installation to the path, e.g. `$Env:PATH = "$Env:MSYS2_ROOT\mingw64\bin"`.
+* You can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`. In Qt
+  Creator you can import the build configured via presets on the command-line as existing build. This also
+  works for the MSVC build mentioned below. This way not much tinkering in the Qt Creator settings is
+  required. I had to set the debugger path to use GDB, though.
 * You must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
   on Arch Linux.
 
