@@ -123,7 +123,7 @@ instructions for building on Windows.
   might use `std::filesystem` unconditionally.
 * To disable `NativeFileStream` (and make it just a regular `std::fstream`), set `USE_NATIVE_FILE_BUFFER=OFF`.
   Note that handling paths with non-ASCII characters will then cease to work on Windows.
-* The Qt-based applications support bundeling icon themes by specifying e.g.
+* The Qt-based applications support bundling icon themes by specifying e.g.
   `BUILTIN_ICON_THEMES=breeze;breeze-dark`.
     * This variable must be set when building the application (not when building any of the libraries).
     * The specified icon themes need to be installed in the usual location. Otherwise, use e.g.
