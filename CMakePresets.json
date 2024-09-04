@@ -383,7 +383,7 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-android-$env{ANDROID_ABI}",
       "toolchainFile": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
       "environment": {
-        "PATH": "$env{ANDROID_PREFIX}/bin:$penv{PATH}"
+        "PATH": "$env{ANDROID_PREFIX}/bin:/usr/lib/jvm/java-17-openjdk/bin:$penv{PATH}"
       },
       "cacheVariables": {
         "ANDROID_ABI": {"type": "STRING", "value": "$env{ANDROID_ABI}"},
