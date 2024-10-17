@@ -196,15 +196,28 @@ After invoking the configuration via the command-line, you can also open the pro
 it as an existing build (instead of adding a new build configuration).
 
 ##### Remarks for building on Windows
-To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset in a
-MSYS2 mingw64 shell. To create a debug build (e.g. to debug with GDB) use the `debug-qt6` preset. Set the
-`BUILD_DIR` environment variable to specify the directory to store build artefacts.
+To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset. To create
+a debug build (e.g. to debug with GDB) use the `debug-qt6` preset. Set the `BUILD_DIR` environment variable to
+specify the directory to store build artefacts.
+
+I recommended to conduct the build in an MSYS2 mingw64/ucrt64/… shell. There are different
+[environments](https://www.msys2.org/docs/environments) to choose from. I recommended UCRT64 for my projects
+but MINGW64 will work as well. In theory CLANG64 and CLANGARM64 will work as well but `libc++` is not tested as
+much (especilly on Windows) so expect some tough edges. The 32-bit environments will not work for anything
+requiring Qt 6 or later.
 
 Run the following commands to build one of my applications and its `c++utilities`/`qtutilities` dependencies
 in one go (in this example Syncthing Tray):
 ```
+# set prefix of package names depending on what env you want to use, see https://www.msys2.org/docs/environments
+prefix=mingw-w64-ucrt-x86_64      # in UCRT64 shell, recommended and used in all further examples
+prefix=mingw-w64-x86_64           # in MINGW64 shell
+prefix=mingw-w64-i686             # in MINGW32 shell
+prefix=mingw-w64-clang-x86_64     # in CLANG64 shell
+prefix=mingw-w64-clang-aarch64    # in CLANGARM64 shell
+
 # install dependencies; you may strip down this list depending on the application and features to enable
-pacman -Syu git perl-YAML mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-tools mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go mingw-w64-x86_64-libarchive
+pacman -Syu git perl-YAML $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive
 
 # clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
@@ -223,7 +236,8 @@ installing them in some directory (in this example `$BUILD_DIR/install`) for use
 project:
 ```
 # install dependencies
-pacman -Syu git mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-cppunit
+prefix=mingw-w64-ucrt-x86_64
+pacman -Syu git $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit
 
 # clone relevant repositories, e.g. here just tagparser and its dependency c++utilities
 cd /path/to/store/sources
@@ -243,29 +257,36 @@ Note that:
 * Not all those dependencies are required by all my projects and some are just optional.
     * The second example to just build `c++utilities` and `tagparser` already shows a stripped-down list
       of dependencies.
-    * Especially `mingw-w64-x86_64-go` is only required when building Syncthing Tray with built-in
-      Syncthing-library enabled. To build in an MSYS2 shell one needs to invoke `export GOROOT=/mingw64/lib/go`
-      so Go can find its root.
+    * Especially `…-go` is only required when building Syncthing Tray with built-in Syncthing-library enabled.
+      To build in an MSYS2 shell one needs to invoke e.g. `export GOROOT=/ucrt64/lib/go` or
+      `export GOROOT=/mingw64/lib/go` so Go can find its root.
     * All Qt-related dependencies are generally only required for building with Qt GUI, e.g. Tag Editor
       and Password Manager can be built without Qt GUI. The libraries `c++utilities` and `tagparser` don't
       require Qt at all.
 * To run the binaries from the Windows terminal, you need to add the mingw-w64 libraries from the MSYS2
-  installation to the path, e.g. `$Env:PATH = "$Env:MSYS2_ROOT\mingw64\bin"`.
-* You can also easily install Qt Creator via MSYS2 using `pacman -S mingw-w64-x86_64-qt-creator`. In Qt
+  installation to the path, e.g. `$Env:PATH = "$Env:MSYS2_ROOT\ucrt64\bin"` or
+  `$Env:PATH = "$Env:MSYS2_ROOT\mingw64\bin"`.
+* You can also easily install Qt Creator via MSYS2 using `pacman -S $prefix-qt-creator`. In Qt
   Creator you can import the build configured via presets on the command-line as existing build. This also
   works for the MSVC build mentioned below. This way not much tinkering in the Qt Creator settings is
   required. I had to set the debugger path to use GDB, though.
-* You must *not* use the presets containing `mingw-w64` in their name as those are only intended for cross-compilation
-  on Arch Linux.
+* You must *not* use the presets containing `mingw-w64` in their name as those are only intended for
+  cross-compilation on Arch Linux.
 
 ###### Building with MSVC
 To build with MSVC you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) need
 various additional environment variables to be set and you need to install dependencies from various sources:
-* `MSYS2_ROOT`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg and Go (only
-  used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
+* `MSYS2_ROOT` and `MSYS2_PREFIX`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg and
+  Go (only used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
   ```
-  pacman -Syu perl-YAML mingw-w64-x86_64-clang-tools-extra mingw-w64-x86_64-doxygen mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-go
+  prefix=mingw-w64-ucrt-x86_64 # see "Remarks for building on Windows" for details and other options
+  pacman -Syu perl-YAML $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go
   ```
+    * `MSYS2_ROOT` must be set to the main install directory of MSYS2 (that also contains all the executables for the
+      different shells/environments).
+    * `MSYS2_PREFIX` must be set to the prefix of the environment you want to use. That is one of the values mentioned
+      in the "Prefix" column on the [table of MSYS2 environments](https://www.msys2.org/docs/environments), e.g.
+      `MSYS2_PREFIX=/ucrt64` for the UCRT64 environment.
 * `MSVC_ROOT`: for compiler and stdlib usually installed as part of Visual Studio setup, e.g.
   `C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933`
 * `WIN_KITS_ROOT`: for Windows platform headers/libraries usually installed as part of Visual Studio setup,
@@ -281,7 +302,11 @@ various additional environment variables to be set and you need to install depen
 When building with MSVC, do *not* use any of the MSYS2 shells. The environment of those shells leads to
 build problems. You can however use CMake and Ninja from MSYS2's mingw-w64 packaging (instead of the CMake
 version from Qt's installer). Then you need to specify the Ninja executable manually so the CMake invocation
-would become something like this:
+would become something like this for UCRT64:
+```
+`& "$Env:MSYS2_ROOT\ucrt64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\ucrt64\bin\ninja.exe" .
+```
+or for MINGW64:
 ```
 `& "$Env:MSYS2_ROOT\mingw64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\mingw64\bin\ninja.exe" .
 ```
