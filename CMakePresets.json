@@ -22,6 +22,16 @@
       }
     },
     {
+      "name": "builtin-translations",
+      "inherits": "default",
+      "displayName": "Enables built-in translations",
+      "description": "Same as default but enables built-in translations",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/built-in-translations",
+      "cacheVariables": {
+        "BUILTIN_TRANSLATIONS": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
       "name": "clang",
       "inherits": "default",
       "displayName": "Use clang/clang++",
@@ -238,7 +248,7 @@
     },
     {
       "name": "arch-i686-w64-mingw32-static",
-      "inherits": "arch-i686-w64-mingw32",
+      "inherits": ["arch-i686-w64-mingw32", "builtin-translations"],
       "displayName": "Target i686-w64-mingw32 using Arch Linux's mingw-w64 packaging (static)",
       "description": "Build targeting i686-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-static",
@@ -252,7 +262,7 @@
     },
     {
       "name": "arch-x86_64-w64-mingw32-static",
-      "inherits": "arch-x86_64-w64-mingw32",
+      "inherits": ["arch-x86_64-w64-mingw32", "builtin-translations"],
       "displayName": "Target x86_64-w64-mingw32 using Arch Linux's mingw-w64 packaging (static)",
       "description": "Build targeting x86_64-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-static",
@@ -336,7 +346,7 @@
     },
     {
       "name": "arch-static-compat",
-      "inherits": ["no-webview", "no-kde", "qt6"],
+      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
       "displayName": "Target static-compat environment for Arch Linux",
       "description": "Build using static-compat packages for Arch Linux found in my PKGBUILDs repo",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-static-compat",
@@ -377,7 +387,7 @@
     },
     {
       "name": "arch-android",
-      "inherits": ["no-webview", "no-kde", "qt6"],
+      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
       "displayName": "Target *-linux-android using Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
       "description": "Build targeting Android, paths and flags are specific to Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-android-$env{ANDROID_ABI}",
@@ -437,7 +447,7 @@
     },
     {
       "name": "win-x64-msvc-static",
-      "inherits": ["no-webview", "no-kde", "qt6"],
+      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
       "displayName": "Target x64-windows-static on Windows",
       "description": "Build on Windows targeting x64-windows-static using MSVC, Qt 6 (for Qt libs and CMake/Ninja), vcpkg (for other dependencies) and MSYS2 (for Perl, Go, ffmpeg and other tools)",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-x64-msvc-static",
