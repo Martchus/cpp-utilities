@@ -217,7 +217,7 @@ prefix=mingw-w64-clang-x86_64     # in CLANG64 shell
 prefix=mingw-w64-clang-aarch64    # in CLANGARM64 shell
 
 # install dependencies; you may strip down this list depending on the application and features to enable
-pacman -Syu git perl-YAML $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive
+pacman -Syu git perl-YAML-Tiny $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive
 
 # clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
