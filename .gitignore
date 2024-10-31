@@ -45,3 +45,7 @@ testfiles/workingdir/
 
 # clang-format
 /.clang-format
+
+# clangd
+compile_commands.json
+/.cache
