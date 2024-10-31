@@ -733,4 +733,22 @@ if (MSVC)
     list(APPEND META_PRIVATE_COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS=1)
 endif ()
 
+# add target to symlink compile_commands.json into source directory
+if (ENABLE_EXPORT_COMPILE_COMMANDS)
+    set(COMPILE_COMMANDS_SOURCE "${CMAKE_BINARY_DIR}/compile_commands.json")
+    set(COMPILE_COMMANDS_DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json")
+    add_custom_command(
+        OUTPUT "${COMPILE_COMMANDS_DESTINATION}"
+        COMMAND "${CMAKE_COMMAND}" -E create_symlink "${COMPILE_COMMANDS_SOURCE}" "${COMPILE_COMMANDS_DESTINATION}"
+        COMMENT "Linking compile_commands.json ${COMPILE_COMMANDS_DESTINATION}")
+    add_custom_target(
+        "${META_TARGET_NAME}_link_compile_commands"
+        COMMENT "Linking compile_commands.json for ${META_PROJECT_NAME}"
+        DEPENDS "${COMPILE_COMMANDS_DESTINATION}")
+    if (NOT TARGET link_compile_commands)
+        add_custom_target(link_compile_commands)
+    endif ()
+    add_dependencies(link_compile_commands "${META_TARGET_NAME}_link_compile_commands")
+endif ()
+
 set(BASIC_PROJECT_CONFIG_DONE YES)
