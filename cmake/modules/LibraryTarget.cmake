@@ -158,6 +158,9 @@ if (META_HEADER_ONLY_LIB)
     target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                                              "${META_PRIVATE_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
+    set_target_properties(
+        ${META_TARGET_NAME}
+        PROPERTIES EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
 else ()
     add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
     target_link_libraries(
@@ -193,7 +196,8 @@ else ()
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                    AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
-                   QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
+                   QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}"
+                   EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
     if (NOT META_CXX_STANDARD STREQUAL "any")
         set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()

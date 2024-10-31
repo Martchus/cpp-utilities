@@ -68,7 +68,8 @@ set_target_properties(
     PROPERTIES LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
                AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
-               QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}")
+               QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}"
+               EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
 if (NOT ANDROID)
     set_target_properties(${META_TARGET_NAME} PROPERTIES C_VISIBILITY_PRESET hidden CXX_VISIBILITY_PRESET hidden)
     # note: Android *.so files need CXX visibility set to default (see qtbase commit

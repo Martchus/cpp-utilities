@@ -9,6 +9,13 @@ set(DEVEL_UTILITIES_LOADED YES)
 # add option to enable defaults useful for development
 option(ENABLE_DEVEL_DEFAULTS "enable build system options useful during development by default" OFF)
 
+# enable EXPORT_COMPILE_COMMANDS target property when ENABLE_DEVEL_DEFAULTS is enabled
+if (CMAKE_EXPORT_COMPILE_COMMANDS OR ENABLE_DEVEL_DEFAULTS)
+    set(ENABLE_EXPORT_COMPILE_COMMANDS ON)
+else ()
+    set(ENABLE_EXPORT_COMPILE_COMMANDS OFF)
+endif ()
+
 function (configure_development_warnings)
     # parse arguments
     set(OPTIONAL_ARGS)
