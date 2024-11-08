@@ -204,6 +204,50 @@ Use the presets starting with `arch-static-compat-devel` to create a self-contai
 usable under older GNU/Linux distributions using `static-compat` packages (see
 [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
 
+##### Remarks about building for Android
+I recommended doing this under Arch Linux (or an Arch Linux container) using `android-*` packages found on
+the AUR. The commands in this section assume this kind of build environment.
+
+First, create a key for signing the APK (always required; otherwise the APK file won't install):
+```
+# set variables for creating keystore and androiddeployqt to find it
+export QT_ANDROID_KEYSTORE_PATH=/path/to/keystore-dir QT_ANDROID_KEYSTORE_ALIAS=$USER-devel QT_ANDROID_KEYSTORE_STORE_PASS=$USER-devel QT_ANDROID_KEYSTORE_KEY_PASS=$USER-devel
+
+# create keystore (do only once)
+mkdir -p "${QT_ANDROID_KEYSTORE_PATH%/*}"
+pushd "${QT_ANDROID_KEYSTORE_PATH%/*}"
+keytool -genkey -v -keystore "$QT_ANDROID_KEYSTORE_ALIAS" -alias "$QT_ANDROID_KEYSTORE_ALIAS" -keyalg RSA -keysize 2048 -validity 10000
+popd
+```
+
+Example for building c++utilities, passwordfile, qtutilities and passwordmanager in one step to create an
+Android APK for aarch64:
+
+```
+# use Java 17 (the latest Java doesn't work at this point, see QTBUG-119223) and avoid unwanted Java options
+export PATH=/usr/lib/jvm/java-17-openjdk/bin:$PATH
+export _JAVA_OPTIONS=
+
+# configure and build using CMake presets and helpers from android-cmake package
+source /usr/bin/android-env aarch64
+export BUILD_DIR=…
+cd "$SOURCES/subdirs/passwordmanager"
+cmake --preset arch-android -DBUILTIN_ICON_THEMES='breeze;breeze-dark'
+cmake --build --preset arch-android
+
+# install the app
+adb install "$BUILD_DIR/passwordmanager/arch-android-arm64-v8a/android-build//build/outputs/apk/release/android-build-release-signed.apk"
+```
+
+###### Further details
+* The Android packages for the dependencies Boost, Qt, iconv, OpenSSL and Kirigami are provided on the AUR and
+  by my [PKGBUILDs](http://github.com/Martchus/PKGBUILDs) repo.
+* The latest Java version that is currently supported is version 17, see QTBUG-119223.
+* Use `QT_QUICK_CONTROLS_STYLE=Material` and `QT_QUICK_CONTROLS_MOBILE=1` to test the Qt Quick GUI like it would
+  be shown under Android via a normal desktop build.
+* One can open the Gradle project that is created within the build directory in Android Studio and run the app in
+  the emulator.
+
 ##### Remarks for building on Windows
 To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset. To create
 a debug build (e.g. to debug with GDB) use the `debug-qt6` preset. Set the `BUILD_DIR` environment variable to
@@ -329,8 +373,6 @@ you can also uncheck everything except the MSVC build of Qt itself.
 
 If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
 the build regardless.
-
-
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
