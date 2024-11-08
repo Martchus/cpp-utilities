@@ -195,6 +195,15 @@ projects mentioned in the previous section.
 After invoking the configuration via the command-line, you can also open the project in Qt Creator and import
 it as an existing build (instead of adding a new build configuration).
 
+##### Remarks about special presets
+The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
+are doing. When creating a normal build under Arch Linux it is recommended to still use e.g. `devel-qt6`.
+
+Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows using `mingw-w64` packages.
+Use the presets starting with `arch-static-compat-devel` to create a self-contained executable that is also
+usable under older GNU/Linux distributions using `static-compat` packages (see
+[PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
+
 ##### Remarks for building on Windows
 To create a development build on Windows, it is most straight forward to use the `devel-qt6` preset. To create
 a debug build (e.g. to debug with GDB) use the `debug-qt6` preset. Set the `BUILD_DIR` environment variable to
@@ -321,14 +330,7 @@ you can also uncheck everything except the MSVC build of Qt itself.
 If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
 the build regardless.
 
-##### Remarks about special presets
-The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
-are doing. When creating a normal build under Arch Linux it is recommended to still use e.g. `devel-qt6`.
 
-Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows using `mingw-w64` packages.
-Use the presets starting with `arch-static-compat-devel` to create a self-contained executable that is also
-usable under older GNU/Linux distributions using `static-compat` packages (see
-[PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
