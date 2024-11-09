@@ -121,7 +121,12 @@ set(META_VERSION_PATCH 2)
 
 # find required 3rd party libraries
 include(3rdParty)
-use_iconv(AUTO_LINKAGE REQUIRED)
+option(USE_ICONV "uses iconv/libiconv; if disabled character set conversions and features depending on it are not available" ON)
+if (USE_ICONV)
+    use_iconv(AUTO_LINKAGE REQUIRED)
+else ()
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_ICONV)
+endif ()
 
 # configure use of native file buffer and its backend implementation if enabled
 set(REQUIRED_BOOST_COMPONENTS "")

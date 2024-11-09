@@ -47,6 +47,7 @@ struct CPP_UTILITIES_EXPORT StringDataDeleter {
 using StringData = std::pair<std::unique_ptr<char[], StringDataDeleter>, std::size_t>;
 //using StringData = std::pair<std::unique_ptr<char>, std::size_t>; // might work too
 
+#ifndef CPP_UTILITIES_NO_ICONV
 CPP_UTILITIES_EXPORT StringData convertString(
     const char *fromCharset, const char *toCharset, const char *inputBuffer, std::size_t inputBufferSize, float outputBufferSizeFactor = 1.0f);
 CPP_UTILITIES_EXPORT StringData convertUtf8ToUtf16LE(const char *inputBuffer, std::size_t inputBufferSize);
@@ -55,6 +56,7 @@ CPP_UTILITIES_EXPORT StringData convertUtf8ToUtf16BE(const char *inputBuffer, st
 CPP_UTILITIES_EXPORT StringData convertUtf16BEToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
 CPP_UTILITIES_EXPORT StringData convertLatin1ToUtf8(const char *inputBuffer, std::size_t inputBufferSize);
 CPP_UTILITIES_EXPORT StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferSize);
+#endif
 
 #ifdef PLATFORM_WINDOWS
 using WideStringData = std::pair<std::unique_ptr<wchar_t[]>, int>;

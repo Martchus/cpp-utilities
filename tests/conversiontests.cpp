@@ -212,6 +212,7 @@ void assertEqual(const char *message, const std::uint8_t *expectedValues, size_t
  */
 void ConversionTests::testStringEncodingConversions()
 {
+#ifndef CPP_UTILITIES_NO_ICONV
     // define test string "ABCD" for the different encodings
     const std::uint8_t simpleString[] = { 'A', 'B', 'C', 'D' };
     const std::uint16_t simpleUtf16LEString[] = { 0x0041, 0x0042, 0x0043, 0x0044 };
@@ -242,6 +243,7 @@ void ConversionTests::testStringEncodingConversions()
     assertEqual("UTF-8 to UFT-16BE", reinterpret_cast<const std::uint8_t *>(BE_STR_FOR_ENDIANNESS(utf16)), 10,
         convertUtf8ToUtf16BE(reinterpret_cast<const char *>(utf8String), 6));
     CPPUNIT_ASSERT_THROW(convertString("invalid charset", "UTF-8", "foo", 3, 1.0f), ConversionException);
+#endif
 }
 
 /*!

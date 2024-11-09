@@ -4,6 +4,7 @@ using namespace CppUtilities;
 
 #include "../conversion/stringconversion.h"
 
+#ifndef CPP_UTILITIES_NO_ICONV
 /*!
  * \brief Allows printing std::wstring using CPPUNIT_ASSERT_EQUAL.
  */
@@ -19,6 +20,7 @@ std::ostream &operator<<(std::ostream &out, const std::wstring &s)
     out.write(utf8.first.get(), static_cast<std::streamsize>(utf8.second));
     return out;
 }
+#endif
 
 #include "../conversion/conversionexception.h"
 #include "../conversion/stringbuilder.h"
@@ -371,9 +373,14 @@ void IoTests::testPathUtilities()
     const auto expected = input;
     const auto output = makeNativePath(input);
 #ifdef PLATFORM_WINDOWS
+#ifndef CPP_UTILITIES_NO_ICONV
     const auto outputAsUtf8 = convertUtf16LEToUtf8(reinterpret_cast<const char *>(output.data()), output.size() * 2);
     const auto outputView = std::string_view(outputAsUtf8.first.get(), outputAsUtf8.second);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("makeNativePath()", expected, outputView);
+#else
+    CPP_UTILITIES_UNUSED(expected)
+    CPP_UTILITIES_UNUSED(output)
+#endif
 #else
     CPPUNIT_ASSERT_EQUAL_MESSAGE("makeNativePath()", expected, output);
 #endif

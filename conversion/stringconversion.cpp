@@ -17,7 +17,10 @@
 #include <sstream>
 
 #include <errno.h>
+
+#ifndef CPP_UTILITIES_NO_ICONV
 #include <iconv.h>
+#endif
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -33,6 +36,8 @@
 using namespace std;
 
 namespace CppUtilities {
+
+#ifndef CPP_UTILITIES_NO_ICONV
 
 /// \cond
 
@@ -200,6 +205,8 @@ StringData convertUtf8ToLatin1(const char *inputBuffer, std::size_t inputBufferS
     CPP_UTILITIES_THREAD_LOCAL ConversionDescriptor<Keep> descriptor("UTF-8", "ISO-8859-1");
     return descriptor.convertString(inputBuffer, inputBufferSize);
 }
+
+#endif
 
 #ifdef PLATFORM_WINDOWS
 /*!
