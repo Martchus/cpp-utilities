@@ -206,7 +206,8 @@ usable under older GNU/Linux distributions using `static-compat` packages (see
 
 ##### Remarks about building for Android
 I recommended doing this under Arch Linux (or an Arch Linux container) using `android-*` packages found on
-the AUR. The commands in this section assume this kind of build environment.
+the AUR. The commands in this section assume this kind of build environment. For building on Windows,
+checkout the section "Building under Windows for Android" below.
 
 First, create a key for signing the APK (always required; otherwise the APK file won't install):
 ```
@@ -373,6 +374,61 @@ you can also uncheck everything except the MSVC build of Qt itself.
 
 If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
 the build regardless.
+
+###### Building under Windows for Android
+To build for Android under Windows one needs to install the Android NDK. To build anything that depends on
+Qt one also needs the Android SDK and Qt for Android (which you can install via the official Qt installer).
+
+The easiest way to install the SDK is to install [Android Studio](https://developer.android.com/studio).
+Its setup wizard allows to install the SDK and other useful tools. The Gradle project files created by Qt can
+also be opened with it. The NDK needs to be [downloaded separately](https://developer.android.com/ndk/downloads).
+
+Additional libraries can be installed via MSYS2 using my Arch Linux packaging. Add my Arch Linux repository
+to `/etc/pacman.conf`:
+
+```
+[ownstuff]
+SigLevel = Required DatabaseOptional
+Server = https://ftp.f3l.de/~martchus/$repo/os/$arch
+Server = https://martchus.dyn.f3l.de/repo/arch/$repo/os/$arch
+```
+
+After following [instructions for importing my GPG key](https://martchus.dyn.f3l.de/repo/arch/ownstuff) you
+can install Android packages, e.g.:
+
+```
+pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit} \
+  --assume-installed android-ndk --assume-installed android-sdk
+````
+
+The libraries will end up under `/opt/android-libs` within your MSYS2 installation. Do not install any non
+`android-*-` packages, though. They will have file conflicts with packages provided by MSYS2 and are not usable
+under Windows anyway. The Qt packages for Android cannot be used as well because it relies on the Qt packaging
+provided by Arch Linux for tooling.
+
+To search for available Android packages per architecture one can use e.g. `pacman -Ss android-aarch64-`.
+
+Set the following environment variables:
+
+* `ANDROID_HOME`: path to the Android SDK
+* `ANDROID_NDK_HOME`: path to the Android NDK
+* `ANDROID_STUDIO_HOME`: Android studio install directory (for Java, otherwise add Java to `PATH` as usual)
+* `QT_PLATFORMS_ROOT`: directory containing Qt platform directories installed via the official Qt installer,
+  e.g. `D:/programming/qt/6.8.0`
+* `QT_ANDROID_ARCH`: `x86_64`/`arm64_v8a`/`armv7`/`x86`
+* `QT_ANDROID_KEYSTORE_PATH`: path of directory containing Android keystores
+* `QT_ANDROID_KEYSTORE_ALIAS`: name of Android keystore to use
+* `QT_ANDROID_KEYSTORE_STORE_PASS`: keystore store password
+* `QT_ANDROID_KEYSTORE_KEY_PASS`: keystore key password
+* `MSYS2_ROOT`: install directory of MSYS2
+
+Then the build can be conducted in a MSYS2 shell, e.g.:
+
+```
+source android-env x86-64
+cmake --preset win-android
+cmake --build --preset win-android
+```
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
