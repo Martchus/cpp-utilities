@@ -187,9 +187,12 @@ constexpr bool testFlagEnumClass()
 {
     // test const operations
     const auto testFlags = TestFlags::Foo | TestFlags::Baz;
-    static_assert(testFlags & TestFlags::Foo);
-    static_assert(!(testFlags & TestFlags::Bar));
-    static_assert(testFlags & TestFlags::Baz);
+    static_assert((testFlags & TestFlags::Foo) == TestFlags::Foo);
+    static_assert(testFlags && TestFlags::Foo);
+    static_assert(!(testFlags && TestFlags::Bar));
+    static_assert((testFlags & TestFlags::Bar) == TestFlags::None);
+    static_assert(testFlags && TestFlags::Baz);
+    static_assert((testFlags & TestFlags::Baz) == TestFlags::Baz);
     static_assert(checkFlagEnum(testFlags, TestFlags::Foo | TestFlags::Baz));
     static_assert(checkFlagEnum(testFlags, TestFlags::Foo));
     static_assert(!checkFlagEnum(testFlags, TestFlags::Foo | TestFlags::Bar));

@@ -23,6 +23,7 @@ template <typename T> struct IsFlagEnumClass : public Traits::Bool<false> {};
     namespace Namespace {                                                                                                                            \
     using CppUtilities::FlagEnumClassOperations::operator|;                                                                                          \
     using CppUtilities::FlagEnumClassOperations::operator&;                                                                                          \
+    using CppUtilities::FlagEnumClassOperations::operator&&;                                                                                         \
     using CppUtilities::FlagEnumClassOperations::operator|=;                                                                                         \
     using CppUtilities::FlagEnumClassOperations::operator+=;                                                                                         \
     using CppUtilities::FlagEnumClassOperations::operator-=;                                                                                         \
@@ -41,8 +42,24 @@ constexpr FlagEnumClass operator|(FlagEnumClass lhs, FlagEnumClass rhs)
         static_cast<typename std::underlying_type<FlagEnumClass>::type>(lhs) | static_cast<typename std::underlying_type<FlagEnumClass>::type>(rhs));
 }
 
+#ifdef CPP_UTILITIES_FLAG_ENUM_CLASS_NO_LEGACY_AND
+template <typename FlagEnumClass, Traits::EnableIf<IsFlagEnumClass<FlagEnumClass>> * = nullptr>
+constexpr FlagEnumClass operator&(FlagEnumClass lhs, FlagEnumClass rhs)
+{
+    return static_cast<FlagEnumClass>(
+        static_cast<typename std::underlying_type<FlagEnumClass>::type>(lhs) & static_cast<typename std::underlying_type<FlagEnumClass>::type>(rhs));
+}
+#else
 template <typename FlagEnumClass, Traits::EnableIf<IsFlagEnumClass<FlagEnumClass>> * = nullptr>
 constexpr bool operator&(FlagEnumClass lhs, FlagEnumClass rhs)
+{
+    return static_cast<typename std::underlying_type<FlagEnumClass>::type>(lhs)
+        & static_cast<typename std::underlying_type<FlagEnumClass>::type>(rhs);
+}
+#endif
+
+template <typename FlagEnumClass, Traits::EnableIf<IsFlagEnumClass<FlagEnumClass>> * = nullptr>
+constexpr bool operator&&(FlagEnumClass lhs, FlagEnumClass rhs)
 {
     return static_cast<typename std::underlying_type<FlagEnumClass>::type>(lhs)
         & static_cast<typename std::underlying_type<FlagEnumClass>::type>(rhs);

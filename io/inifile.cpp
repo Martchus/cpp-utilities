@@ -416,7 +416,7 @@ void AdvancedIniFile::make(ostream &outputStream, IniFileMakeOptions)
         if (!section.precedingCommentBlock.empty()) {
             outputStream << section.precedingCommentBlock;
         }
-        if (!(section.flags & IniFileSectionFlags::Implicit)) {
+        if (!(section.flags && IniFileSectionFlags::Implicit)) {
             outputStream << '[' << section.name << ']';
             if (!section.followingInlineComment.empty()) {
                 outputStream << ' ' << section.followingInlineComment;
@@ -431,11 +431,11 @@ void AdvancedIniFile::make(ostream &outputStream, IniFileMakeOptions)
             for (auto charsWritten = field.key.size(); charsWritten < field.paddedKeyLength; ++charsWritten) {
                 outputStream << ' ';
             }
-            if (field.flags & IniFileFieldFlags::HasValue) {
+            if (field.flags && IniFileFieldFlags::HasValue) {
                 outputStream << '=' << ' ' << field.value;
             }
             if (!field.followingInlineComment.empty()) {
-                if (field.flags & IniFileFieldFlags::HasValue) {
+                if (field.flags && IniFileFieldFlags::HasValue) {
                     outputStream << ' ';
                 }
                 outputStream << field.followingInlineComment;

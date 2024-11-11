@@ -453,7 +453,7 @@ void IoTests::testAdvancedIniFile()
     CPPUNIT_ASSERT_EQUAL(7_st, options->fields.size());
     CPPUNIT_ASSERT_EQUAL("HoldPkg"s, options->fields[0].key);
     CPPUNIT_ASSERT_EQUAL("pacman glibc"s, options->fields[0].value);
-    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[0].flags & IniFileFieldFlags::HasValue);
+    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[0].flags && IniFileFieldFlags::HasValue);
 #ifdef STD_REGEX_WORKS
     TESTUTILS_ASSERT_LIKE_FLAGS("comment block between section header and first field",
         "# The following paths are.*\n.*#HookDir     = /etc/pacman\\.d/hooks/\n"s, std::regex::extended, options->fields[0].precedingCommentBlock);
@@ -461,7 +461,7 @@ void IoTests::testAdvancedIniFile()
     CPPUNIT_ASSERT_EQUAL(""s, options->fields[0].followingInlineComment);
     CPPUNIT_ASSERT_EQUAL("Foo"s, options->fields[1].key);
     CPPUNIT_ASSERT_EQUAL("bar"s, options->fields[1].value);
-    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[1].flags & IniFileFieldFlags::HasValue);
+    CPPUNIT_ASSERT_MESSAGE("value present", options->fields[1].flags && IniFileFieldFlags::HasValue);
 #ifdef STD_REGEX_WORKS
     TESTUTILS_ASSERT_LIKE_FLAGS("comment block between fields", "#XferCommand.*\n.*#CleanMethod = KeepInstalled\n"s, std::regex::extended,
         options->fields[1].precedingCommentBlock);
@@ -469,7 +469,7 @@ void IoTests::testAdvancedIniFile()
     CPPUNIT_ASSERT_EQUAL("# inline comment"s, options->fields[1].followingInlineComment);
     CPPUNIT_ASSERT_EQUAL("CheckSpace"s, options->fields[3].key);
     CPPUNIT_ASSERT_EQUAL(""s, options->fields[3].value);
-    CPPUNIT_ASSERT_MESSAGE("no value present", !(options->fields[3].flags & IniFileFieldFlags::HasValue));
+    CPPUNIT_ASSERT_MESSAGE("no value present", !(options->fields[3].flags && IniFileFieldFlags::HasValue));
 #ifdef STD_REGEX_WORKS
     TESTUTILS_ASSERT_LIKE_FLAGS("empty lines in comments preserved", "\n# Pacman.*\n.*\n\n#NoUpgrade   =\n.*#TotalDownload\n"s, std::regex::extended,
         options->fields[3].precedingCommentBlock);
@@ -480,7 +480,7 @@ void IoTests::testAdvancedIniFile()
     CPPUNIT_ASSERT_EQUAL_MESSAGE("comment block which is only an empty line", "\n"s, extraScope->precedingCommentBlock);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("inline comment after scope", "# an inline comment after a scope name"s, extraScope->followingInlineComment);
     CPPUNIT_ASSERT_EQUAL(1_st, extraScope->fields.size());
-    CPPUNIT_ASSERT(ini.sections.back().flags & IniFileSectionFlags::Implicit);
+    CPPUNIT_ASSERT(ini.sections.back().flags && IniFileSectionFlags::Implicit);
 #ifdef STD_REGEX_WORKS
     TESTUTILS_ASSERT_LIKE_FLAGS("comment block after last field present in implicitly added last scope", "\n# If you.*\n.*custompkgs\n"s,
         std::regex::extended, ini.sections.back().precedingCommentBlock);
