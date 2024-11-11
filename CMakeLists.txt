@@ -121,7 +121,8 @@ set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
 include(3rdParty)
-option(USE_ICONV "uses iconv/libiconv; if disabled character set conversions and features depending on it are not available" ON)
+option(USE_ICONV "uses iconv/libiconv; if disabled character set conversions and features depending on it are not available"
+       ON)
 if (USE_ICONV)
     use_iconv(AUTO_LINKAGE REQUIRED)
 else ()
