@@ -155,8 +155,7 @@ if (META_HEADER_ONLY_LIB)
         INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                   $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
-    target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
-                                                             "${META_PRIVATE_COMPILE_DEFINITIONS}")
+    target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(${META_TARGET_NAME} PROPERTIES EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
 else ()
@@ -229,10 +228,8 @@ else ()
             INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                       $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
                       $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
-        target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
-                                                                         "${META_PRIVATE_COMPILE_DEFINITIONS}")
-        target_compile_options(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
-                                                                     "${META_PRIVATE_COMPILE_OPTIONS}")
+        target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}")
+        target_compile_options(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}")
     endif ()
 endif ()
 
@@ -262,9 +259,8 @@ if (META_HEADER_ONLY_LIB)
         INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
                   $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
     target_compile_definitions(${META_TARGET_NAME}_interface_sources_for_qtcreator
-                               INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}" "${META_PRIVATE_COMPILE_DEFINITIONS}")
-    target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}"
-                                                                                         "${META_PRIVATE_COMPILE_OPTIONS}")
+                               INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}")
+    target_compile_options(${META_TARGET_NAME}_interface_sources_for_qtcreator INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}")
     set_target_properties(
         ${META_TARGET_NAME}_interface_sources_for_qtcreator
         PROPERTIES VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
