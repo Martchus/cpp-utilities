@@ -116,8 +116,8 @@ set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 5)
-set(META_VERSION_MINOR 26)
-set(META_VERSION_PATCH 2)
+set(META_VERSION_MINOR 27)
+set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
 include(3rdParty)
@@ -127,6 +127,9 @@ if (USE_ICONV)
 else ()
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_NO_ICONV)
 endif ()
+
+# do not rely on legacy behavior of FlagEnumClass (TODO v6: remove macro, make new behavior the default)
+list(APPEND META_PRIVATE_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_FLAG_ENUM_CLASS_NO_LEGACY_AND)
 
 # configure use of native file buffer and its backend implementation if enabled
 set(REQUIRED_BOOST_COMPONENTS "")
