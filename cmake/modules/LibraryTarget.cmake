@@ -158,9 +158,7 @@ if (META_HEADER_ONLY_LIB)
     target_compile_definitions(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}"
                                                              "${META_PRIVATE_COMPILE_DEFINITIONS}")
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
-    set_target_properties(
-        ${META_TARGET_NAME}
-        PROPERTIES EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
+    set_target_properties(${META_TARGET_NAME} PROPERTIES EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
 else ()
     add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
     target_link_libraries(
