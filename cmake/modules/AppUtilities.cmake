@@ -63,7 +63,7 @@ function (add_appstream_file)
     endif ()
 
     # create appstream desktop file from template
-    set(APPSTREAM_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_ID}.metainfo.xml")
+    set(APPSTREAM_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/${META_PROJECT_RDNS}.metainfo.xml")
     configure_file("${APP_APPSTREAM_TEMPLATE_FILE}" "${APPSTREAM_FILE}" @ONLY)
 
     # add install for the appstream file
