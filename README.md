@@ -205,31 +205,42 @@ usable under older GNU/Linux distributions using `static-compat` packages (see
 [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
 
 ##### Remarks about building for Android
-I recommended doing this under Arch Linux (or an Arch Linux container) using `android-*` packages found on
-the AUR. The commands in this section assume this kind of build environment.
+Note that this might not be necassary; one can usually develop and test most parts of the mobile UI of e.g.
+Syncthing Tray natively on the development host thanks to the cross-platform nature of Qt.
+
+I recommended building for Android under Arch Linux (or an Arch Linux container, see last paragraphs of this
+section) using `android-*` packages found on the AUR and my
+[binary repository](https://martchus.dyn.f3l.de/repo/arch/ownstuff). The commands in this section assume this
+kind of build environment.
+
+---
 
 First, create a key for signing the APK (always required; otherwise the APK file won't install):
 ```
-# set variables for creating keystore and androiddeployqt to find it
-export QT_ANDROID_KEYSTORE_PATH=/path/to/keystore-dir QT_ANDROID_KEYSTORE_ALIAS=$USER-devel QT_ANDROID_KEYSTORE_STORE_PASS=$USER-devel QT_ANDROID_KEYSTORE_KEY_PASS=$USER-devel
+# set variables for creating a keystore and allowing androiddeployqt to find it
+export QT_ANDROID_KEYSTORE_PATH=/path/to/keystore-dir/$USER-devel QT_ANDROID_KEYSTORE_ALIAS=$USER-devel QT_ANDROID_KEYSTORE_STORE_PASS=$USER-devel QT_ANDROID_KEYSTORE_KEY_PASS=$USER-devel
 
-# create keystore (do only once)
+# create keystore (do this only once)
 mkdir -p "${QT_ANDROID_KEYSTORE_PATH%/*}"
 pushd "${QT_ANDROID_KEYSTORE_PATH%/*}"
 keytool -genkey -v -keystore "$QT_ANDROID_KEYSTORE_ALIAS" -alias "$QT_ANDROID_KEYSTORE_ALIAS" -keyalg RSA -keysize 2048 -validity 10000
 popd
 ```
 
-Example for building c++utilities, passwordfile, qtutilities and passwordmanager in one step to create an
-Android APK for aarch64:
+Note that `QT_ANDROID_KEYSTORE_PATH` needs to point to a particular keystore *file* (and *not* the containing
+directory).
+
+---
+
+Example for building `c++utilities`, `passwordfile`, `qtutilities` and `passwordmanager` in one step to create
+an Android APK for aarch64 assuming required `android-*` packages are already installed:
 
 ```
-# use Java 17 (the latest Java doesn't work at this point, see QTBUG-119223) and avoid unwanted Java options
-export PATH=/usr/lib/jvm/java-17-openjdk/bin:$PATH
+# unset any potentially problematic Java options
 export _JAVA_OPTIONS=
 
 # configure and build using CMake presets and helpers from android-cmake package
-source /usr/bin/android-env aarch64
+source android-env aarch64
 export BUILD_DIR=…
 cd "$SOURCES/subdirs/passwordmanager"
 cmake --preset arch-android -DBUILTIN_ICON_THEMES='breeze;breeze-dark'
@@ -238,6 +249,46 @@ cmake --build --preset arch-android
 # install the app
 adb install "$BUILD_DIR/passwordmanager/arch-android-arm64-v8a/android-build//build/outputs/apk/release/android-build-release-signed.apk"
 ```
+
+---
+
+To use a container you can create a suitable image using the `imgbuild` script from the PKGBUILDs repo, see
+its [README](https://github.com/Martchus/PKGBUILDs/blob/master/README.md#container-image-building-packages-within-a-container).
+
+After creating a container from that image like it is done in
+[the example script from the PKGBUILDs repo](https://github.com/Martchus/PKGBUILDs/blob/master/devel/container/create-devel-container-example)
+you can install required dependencies via `pacman`, e.g. for Syncthing Tray one would install:
+
+```
+podman container exec -it archlinux-devel-container \
+  pacman -Syu clang ninja git extra-cmake-modules qt6-{base,tools,declarative,shadertools} android-cmake android-aarch64-qt6-{base,declarative,tools,translations,svg} go perl-yaml-libyaml
+```
+
+You use `keytool` from within the container in the same way as shown above:
+```
+podman container exec -it -e QT_ANDROID_KEYSTORE_PATH -e QT_ANDROID_KEYSTORE_ALIAS -e QT_ANDROID_KEYSTORE_STORE_PASS -e QT_ANDROID_KEYSTORE_KEY_PASS \
+  archlinux-devel-container keytool …
+```
+
+When setting the environment variables, make sure `QT_ANDROID_KEYSTORE_PATH` points to the path of the kestore
+file *within* the container.
+
+
+Then the build can be invoked like this:
+
+```
+podman container exec -it -e QT_ANDROID_KEYSTORE_PATH -e QT_ANDROID_KEYSTORE_ALIAS -e QT_ANDROID_KEYSTORE_STORE_PASS -e QT_ANDROID_KEYSTORE_KEY_PASS \
+ archlinux-devel-container \
+ bash -c '
+  cd /src/c++/cmake/subdirs/syncthingtray
+  source android-env aarch64
+  export BUILD_DIR=/build/presets
+  cmake --preset arch-android
+  cmake --build --preset arch-android'
+```
+
+You can also use `adb` from the container, see the
+[examples in the PKGBUILDs repo](https://github.com/Martchus/PKGBUILDs/blob/master/README.md#deploydebug-android-package-using-tooling-from-android-sdk-package).
 
 ###### Further details
 * The Android packages for the dependencies Boost, Qt, iconv, OpenSSL and Kirigami are provided on the AUR and
