@@ -345,6 +345,59 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-x86_64-w64-mingw32-devel"
     },
     {
+      "name": "arch-mingw-w64-clang",
+      "inherits": ["no-webview", "no-kde", "qt6"],
+      "displayName": "Target *-w64-mingw32 using LLVM/Clang provided by Arch Linux and additional mingw-w64-clang-* packaging (invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" before invoking CMake)",
+      "description": "Build targeting Windows, paths and flags are specific to Arch Linux packaging, invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-mingw-w64-clang-$env{MINGW_W64_CLANG_TARGET}",
+      "toolchainFile": "/usr/share/mingw/toolchain-$env{MINGW_W64_CLANG_TARGET}.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Release"},
+        "CMAKE_C_FLAGS_RELEASE": {"type": "STRING", "value": "$env{CFLAGS}"},
+        "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}/include"},
+        "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "$env{CXXFLAGS}"},
+        "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}/include"},
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_LDFLAGS}"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}"},
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}"},
+        "CMAKE_INSTALL_LIBDIR": {"type": "PATH", "value": "lib"},
+        "CMAKE_CROSSCOMPILING_EMULATOR": {"type": "PATH", "value": "/usr/bin/$env{MINGW_W64_CLANG_TARGET}-wine"},
+        "INCLUDE_INSTALL_DIR": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}/include"},
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "ON"},
+        "VERSIONED_MINGW_LIBRARIES": {"type": "BOOL", "value": "ON"},
+        "ENABLE_TARGETS_FOR_MINGW_CROSS_PACKAGING": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "arch-mingw-w64-clang-devel",
+      "inherits": ["arch-mingw-w64-clang", "devel"],
+      "displayName": "Target *-w64-mingw32 using LLVM/Clang provided by Arch Linux and additional mingw-w64-clang-* packaging (invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" before invoking CMake)",
+      "description": "Build targeting Windows, paths and flags are specific to Arch Linux packaging, invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-mingw-w64-clang-devel-$env{MINGW_W64_CLANG_TARGET}"
+    },
+    {
+      "name": "arch-mingw-w64-clang-static",
+      "inherits": ["arch-mingw-w64-clang"],
+      "displayName": "Target *-w64-mingw32 using LLVM/Clang provided by Arch Linux and additional mingw-w64-clang-* packaging (invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" before invoking CMake)",
+      "description": "Build targeting Windows preferring static libraries, paths and flags are specific to Arch Linux packaging, invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-mingw-w64-clang-static-$env{MINGW_W64_CLANG_TARGET}",
+      "toolchainFile": "/usr/share/mingw/toolchain-$env{MINGW_W64_CLANG_TARGET}-static.cmake",
+      "cacheVariables": {
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "/usr/$env{MINGW_W64_CLANG_TARGET}/static;/usr/$env{MINGW_W64_CLANG_TARGET}"},
+        "CMAKE_FIND_LIBRARY_SUFFIXES": {"type": "STRING", "value": ".a;.lib"},
+        "BUILD_SHARED_LIBS": {"type": "BOOL", "value": "OFF"},
+        "STATIC_LIBRARY_LINKAGE": {"type": "BOOL", "value": "ON"},
+        "STATIC_LINKAGE": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
+      "name": "arch-mingw-w64-clang-devel-static",
+      "inherits": ["arch-mingw-w64-clang-static", "devel"],
+      "displayName": "Target *-w64-mingw32 using LLVM/Clang provided by Arch Linux and additional mingw-w64-clang-* packaging (invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" before invoking CMake)",
+      "description": "Build targeting Windows preferring static libraries, paths and flags are specific to Arch Linux packaging, invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-mingw-w64-clang-devel-static-$env{MINGW_W64_CLANG_TARGET}"
+    },
+    {
       "name": "arch-static-compat",
       "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
       "displayName": "Target static-compat environment for Arch Linux",
@@ -544,6 +597,10 @@
     {"name": "arch-x86_64-w64-mingw32-devel-qt6", "configurePreset": "arch-x86_64-w64-mingw32-devel-qt6"},
     {"name": "arch-i686-w64-mingw32-static-devel-qt6", "configurePreset": "arch-i686-w64-mingw32-static-devel-qt6"},
     {"name": "arch-x86_64-w64-mingw32-static-devel-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-devel-qt6"},
+    {"name": "arch-mingw-w64-clang", "configurePreset": "arch-mingw-w64-clang"},
+    {"name": "arch-mingw-w64-clang-devel", "configurePreset": "arch-mingw-w64-clang-devel"},
+    {"name": "arch-mingw-w64-clang-static", "configurePreset": "arch-mingw-w64-clang-static"},
+    {"name": "arch-mingw-w64-clang-devel-static", "configurePreset": "arch-mingw-w64-clang-devel-static"},
     {"name": "arch-static-compat", "configurePreset": "arch-static-compat"},
     {"name": "arch-static-compat-devel", "configurePreset": "arch-static-compat-devel"},
     {"name": "arch-android", "configurePreset": "arch-android"},
