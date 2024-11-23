@@ -198,6 +198,8 @@
     {
       "name": "arch-*-w64-mingw32",
       "inherits": ["no-webview", "no-kde"],
+      "displayName": "Target *-w64-mingw32 using Arch Linux's mingw-w64 packaging",
+      "description": "Build targeting *-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "environment": {
         "CPPFLAGS": "-D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS",
         "CFLAGS": "$env{CPPFLAGS} -O2 -pipe -fno-plt -fexceptions --param=ssp-buffer-size=4 -Wformat -Werror=format-security -fcf-protection",
