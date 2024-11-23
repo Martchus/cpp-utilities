@@ -196,10 +196,17 @@ After invoking the configuration via the command-line, you can also open the pro
 it as an existing build (instead of adding a new build configuration).
 
 ##### Remarks about special presets
-The presets starting with `arch-` are for use under Arch Linux. Do *not* use them unless you know what you
-are doing. When creating a normal build under Arch Linux it is recommended to still use e.g. `devel-qt6`.
+The presets starting with `arch-` are for use under Arch Linux (or an Arch Linux container). Do *not* use them
+unless you know what you are doing. When creating a normal build under Arch Linux it is recommended to still
+use e.g. `devel-qt6`.
 
-Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows using `mingw-w64` packages.
+Use the preset `arch-android` to cross-compile for Android using `android-*` packages (see next section for
+details).
+
+Use the presets starting with `arch-*-w64-mingw32` to cross-compile for Windows (i686/x86_64) using
+`mingw-w64` packages. Use the presets starting with `arch-mingw-w64-clang` to cross compile for Windows
+(aarch64) using `mingw-w64-clang-aarch64` packages.
+
 Use the presets starting with `arch-static-compat-devel` to create a self-contained executable that is also
 usable under older GNU/Linux distributions using `static-compat` packages (see
 [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
