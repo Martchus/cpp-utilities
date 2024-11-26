@@ -194,7 +194,7 @@ NativeFileStream::FileBuffer::FileBuffer(const char *path, ios_base::openmode op
 #ifdef PLATFORM_WINDOWS
     handle = CreateFileW(widePath.get(), nativeParams.access, nativeParams.shareMode, nullptr, nativeParams.creation, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (handle == INVALID_HANDLE_VALUE) {
-        throw std::ios_base::failure("CreateFileW failed", std::error_code(GetLastError(), std::system_category()));
+        throw std::ios_base::failure("CreateFileW failed", std::error_code(static_cast<int>(GetLastError()), std::system_category()));
     }
     buffer = make_unique<StreamBuffer>(handle, boost::iostreams::close_handle);
     // if we wanted to open assign the descriptor as well: descriptor = _open_osfhandle(reinterpret_cast<intptr_t>(handle), nativeParams.flags);
