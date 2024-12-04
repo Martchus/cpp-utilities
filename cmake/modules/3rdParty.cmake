@@ -6,6 +6,9 @@ if (DEFINED THIRD_PARTY_MODULE_LOADED)
 endif ()
 set(THIRD_PARTY_MODULE_LOADED YES)
 
+# prefer upstream find module of Boost
+cmake_policy(SET CMP0167 NEW)
+
 cmake_policy(SET CMP0067 NEW) # make check_cxx_source_compiles() pick up the variables for the C++ version
 include(CheckCXXSourceCompiles)
 
