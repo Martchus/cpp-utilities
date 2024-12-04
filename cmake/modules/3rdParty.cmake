@@ -493,7 +493,7 @@ if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE 
 
     # prefer static libraries
     set(OPENSSL_USE_STATIC_LIBS ON)
-    set(BOOST_USE_STATIC_LIBS ON)
+    set(Boost_USE_STATIC_LIBS ON)
     set(PKG_CONFIG_USE_STATIC_LIBS ON)
     configure_static_library_suffixes()
 
