@@ -21,6 +21,23 @@ macro (restore_default_library_suffixes)
     unset(DEFAULT_CMAKE_FIND_LIBRARY_SUFFIXES)
 endmacro ()
 
+macro (save_library_preference)
+    save_default_library_suffixes()
+    set(DEFAULT_OPENSSL_USE_STATIC_LIBS ${OPENSSL_USE_STATIC_LIBS})
+    set(DEFAULT_Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
+    set(DEFAULT_PKG_CONFIG_USE_STATIC_LIBS ${PKG_CONFIG_USE_STATIC_LIBS})
+endmacro ()
+
+macro (restore_library_preference)
+    restore_default_library_suffixes()
+    set(OPENSSL_USE_STATIC_LIBS ${DEFAULT_OPENSSL_USE_STATIC_LIBS})
+    unset(DEFAULT_OPENSSL_USE_STATIC_LIBS)
+    set(Boost_USE_STATIC_LIBS ${DEFAULT_Boost_USE_STATIC_LIBS})
+    unset(DEFAULT_Boost_USE_STATIC_LIBS)
+    set(PKG_CONFIG_USE_STATIC_LIBS ${DEFAULT_PKG_CONFIG_USE_STATIC_LIBS})
+    unset(DEFAULT_PKG_CONFIG_USE_STATIC_LIBS)
+endmacro ()
+
 macro (configure_static_library_suffixes)
     # allows to look for static libraries in particular NOTE: code duplicated in Config.cmake.in
     if (WIN32)
@@ -39,6 +56,13 @@ macro (configure_dynamic_library_suffixes)
     else ()
         set(CMAKE_FIND_LIBRARY_SUFFIXES .so)
     endif ()
+endmacro ()
+
+macro (prefer_static_libraries)
+    set(OPENSSL_USE_STATIC_LIBS ON)
+    set(Boost_USE_STATIC_LIBS ON)
+    set(PKG_CONFIG_USE_STATIC_LIBS ON)
+    configure_static_library_suffixes()
 endmacro ()
 
 function (validate_visibility VISIBILITY)
@@ -494,12 +518,7 @@ if ((STATIC_LINKAGE AND META_PROJECT_IS_APPLICATION) OR (STATIC_LIBRARY_LINKAGE 
     endif ()
     list(APPEND META_ADDITIONAL_LINK_FLAGS_TEST_TARGET ${STATIC_LINKAGE_LINKER_FLAGS})
 
-    # prefer static libraries
-    set(OPENSSL_USE_STATIC_LIBS ON)
-    set(Boost_USE_STATIC_LIBS ON)
-    set(PKG_CONFIG_USE_STATIC_LIBS ON)
-    configure_static_library_suffixes()
-
+    prefer_static_libraries()
 else ()
     set(STATIC_LINKAGE_CONFIGURED OFF)
 endif ()

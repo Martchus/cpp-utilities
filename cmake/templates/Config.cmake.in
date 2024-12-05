@@ -51,15 +51,12 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
     #         separately when using the function use_@META_PROJECT_VARNAME@.
 
     # prefer static libraries if @META_PROJECT_NAME@ was configured this way during its build
+    set(@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}")
+    list(APPEND CMAKE_MODULE_PATH "${@META_PROJECT_VARNAME_UPPER@_MODULE_DIRS}")
+    include(3rdParty)
     if (@META_PROJECT_VARNAME_UPPER@_STATIC_LINKAGE)
-        set(@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
-        if (WIN32)
-            set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib)
-        else ()
-            set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
-        endif ()
-        set(@META_PROJECT_VARNAME_UPPER@_DEFAULT_PKG_CONFIG_USE_STATIC_LIBS ${PKG_CONFIG_USE_STATIC_LIBS})
-        set(PKG_CONFIG_USE_STATIC_LIBS ON)
+        save_library_preference()
+        prefer_static_libraries()
     endif ()
 
     # find all required packages
@@ -86,7 +83,6 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
 
     # find all required pkg-config modules
     if (@META_PROJECT_VARNAME_UPPER@_REQUIRED_PKG_CONFIG_MODULES)
-        include(3rdParty)
         foreach (@META_PROJECT_VARNAME_UPPER@_REQUIRED_PKG_CONFIG_MODULE ${@META_PROJECT_VARNAME_UPPER@_REQUIRED_PKG_CONFIG_MODULES})
             string(REPLACE "::" "_" @META_PROJECT_VARNAME_UPPER@_REQUIRED_PKG_CONFIG_MODULE_VARNAME "${@META_PROJECT_VARNAME_UPPER@_REQUIRED_PKG_CONFIG_MODULE}")
             use_pkg_config_module(
@@ -100,14 +96,14 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
 
     # restore preference of static libraries
     if (@META_PROJECT_VARNAME_UPPER@_STATIC_LINKAGE)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES ${@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_FIND_LIBRARY_SUFFIXES})
-        unset(@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_FIND_LIBRARY_SUFFIXES)
-        set(PKG_CONFIG_USE_STATIC_LIBS ${@META_PROJECT_VARNAME_UPPER@_DEFAULT_PKG_CONFIG_USE_STATIC_LIBS})
-        unset(@META_PROJECT_VARNAME_UPPER@_DEFAULT_PKG_CONFIG_USE_STATIC_LIBS)
+        restore_library_preference()
     endif ()
 
     # add target for the library itself
     include("${CMAKE_CURRENT_LIST_DIR}/@NAMESPACE_PREFIX@@META_PROJECT_NAME@@META_CONFIG_SUFFIX@Targets.cmake")
+
+    # restore module path
+    set(CMAKE_MODULE_PATH "${@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_MODULE_PATH}")
 endif()
 
 # define function to ease use of library in projects following conventions of c++utilities' build script
