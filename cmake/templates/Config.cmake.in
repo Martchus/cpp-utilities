@@ -35,6 +35,9 @@ set(@META_PROJECT_VARNAME_UPPER@_QT_RESOURCES @QT_RESOURCES@)
 # define mapping from CMake targets to pkg-config module names
 @TARGET_TO_PKG_CONFIG_MODULE_NAME_MAPPING@
 
+# save policies before modifying them e.g. though the inclusion of 3rdParty
+cmake_policy(PUSH)
+
 # define additional find_package arguments for required CMake-packages
 @ADDITIONAL_ARGUMENTS_FOR_REQUIRED_CMAKE_PACKAGES@
 # define library config, add imported target
@@ -155,3 +158,6 @@ function(use_@META_PROJECT_VARNAME@)
         set(STATIC_LIBRARIES_QT_RESOURCES "${STATIC_LIBRARIES_QT_RESOURCES};${@META_PROJECT_VARNAME_UPPER@_QT_RESOURCES}" PARENT_SCOPE)
     endif()
 endfunction()
+
+# restore policies
+cmake_policy(POP)
