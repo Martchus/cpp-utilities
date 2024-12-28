@@ -50,9 +50,15 @@ if(NOT TARGET "${@META_PROJECT_VARNAME_UPPER@_LIB}")
     # caveat: This currently does *not* cover Qt and KF modules which are so far only handled
     #         separately when using the function use_@META_PROJECT_VARNAME@.
 
+    # find @CPP_UTILITIES_PACKAGE@ to use its CMake modules
+    if (NOT @META_PROJECT_VARNAME_UPPER@_LIB STREQUAL "@CPP_UTILITIES_PACKAGE@")
+        find_package("@CPP_UTILITIES_PACKAGE@" ${@META_PROJECT_VARNAME_UPPER@_FIND_PACKAGE_ARGS_@CPP_UTILITIES_PACKAGE@} REQUIRED)
+    endif ()
+
     # prefer static libraries if @META_PROJECT_NAME@ was configured this way during its build
     set(@META_PROJECT_VARNAME_UPPER@_DEFAULT_CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}")
     list(APPEND CMAKE_MODULE_PATH "${@META_PROJECT_VARNAME_UPPER@_MODULE_DIRS}")
+    list(APPEND CMAKE_MODULE_PATH "${CPP_UTILITIES_MODULE_DIRS}")
     include(3rdParty)
     if (@META_PROJECT_VARNAME_UPPER@_STATIC_LINKAGE)
         save_library_preference()
@@ -113,6 +119,7 @@ function(use_@META_PROJECT_VARNAME@)
     set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 
     # parse arguments
+    list(APPEND CMAKE_MODULE_PATH "${CPP_UTILITIES_MODULE_DIRS}")
     include(3rdParty)
     parse_arguments_for_use_functions(${ARGN})
 

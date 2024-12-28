@@ -249,8 +249,13 @@ if (USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
 endif ()
 
-# include modules to apply configuration
+# apply basic configuration
 include(BasicConfig)
+
+# set the package name of c++utilities itself as it is used in the config module template
+set(CPP_UTILITIES_PACKAGE "${NAMESPACE_PREFIX}${META_PROJECT_NAME}${META_CONFIG_SUFFIX}")
+
+# include further modules to apply configuration
 include(WindowsResources)
 include(LibraryTarget)
 include(TestTarget)
