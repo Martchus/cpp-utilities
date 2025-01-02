@@ -168,12 +168,16 @@ For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`. To tweak various settings (e.
 use `-DENABLE_DEVEL_DEFAULTS=ON`.
 
 #### CMake presets
-There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available
-but also some specific to certain Arch Linux packaging found in the AUR and my PKGBUILDs repository.
+There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available.
 
-Use `cmake --list-presets` to list all presets. All `cmake` commands need to be executed within the source
-directory. Builds will be created within a sub-directory of the path specified via the environment variable
-`BUILD_DIR`.
+Use `cmake --list-presets` to list all presets. Note that some presets
+
+* are specific to certain Arch Linux packaging found in the AUR and my PKGBUILDs repository. Those presets
+  start with `arch-`.
+* are specific to certain build setups/toolchains under Windows. Those presets start with `win-`.
+
+All `cmake` commands need to be executed within the source directory. Builds will be created within a
+sub-directory of the path specified via the environment variable `BUILD_DIR`.
 
 The most useful presets for development are likely `devel`, `devel-qt6` and `debug`. Note that the `devel`
 preset (and all presets inheriting from it) use `ccache` which therefore needs to be installed.
@@ -218,7 +222,8 @@ Syncthing Tray natively on the development host thanks to the cross-platform nat
 I recommended building for Android under Arch Linux (or an Arch Linux container, see last paragraphs of this
 section) using `android-*` packages found on the AUR and my
 [binary repository](https://martchus.dyn.f3l.de/repo/arch/ownstuff). The commands in this section assume this
-kind of build environment.
+kind of build environment. For building on Windows, checkout the section
+"[Building under Windows for Android](#building-under-windows-for-android)" below.
 
 ---
 
@@ -431,6 +436,103 @@ you can also uncheck everything except the MSVC build of Qt itself.
 
 If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
 the build regardless.
+
+###### Building under Windows for Android
+Building for Android under Windows is still experimental and not regularly tested. It is generally supported
+by CMake, Android tooling andQt, though. So as long as all dependencies are installed correctly by *some*
+means it is supposed to work. The following instructions describe how one could approach the installation of
+the required dependencies.
+
+---
+
+To build for Android under Windows one needs to install the Android NDK and additional libraries depending
+on the concrete library/app and wanted features. To build anything that depends on Qt one also needs the
+Android SDK and Qt for Android.
+
+<details>
+<summary>Install Android SDK and NDK</summary>
+The easiest way to install the SDK is to install [Android Studio](https://developer.android.com/studio).
+Its setup wizard allows to install the SDK and other useful tools. The Gradle project files created by Qt can
+also be opened with it. This setup will also use the version of Java that comes with Android Studio.
+
+The NDK needs to be [downloaded separately](https://developer.android.com/ndk/downloads).
+</details>
+
+<details>
+<summary>Install Qt</summary>
+The easiest way to install Qt is via the official [Qt installer](https://www.qt.io/download-qt-installer-oss).
+The open source version is sufficient but a Qt account is required.
+</details>
+
+<details>
+<summary>Install additional native libraries for Android</summary>
+Additional libraries can be installed via MSYS2 using my Arch Linux packaging. Note that this is not generally
+required to build Syncthing Tray as use of libiconv, Boost, OpenSSL and CppUnit is optional (so only Qt is
+required besides the C/C++ standard libraries). However, the following instructions and the CMake preset make
+use of MSYS2 and the `android-cmake` package. The OpenSSL package is also very likely wanted for TLS support.
+
+To install additional libraries via MSYS2, add my Arch Linux repository to
+`/etc/pacman.conf`:
+
+```
+[ownstuff]
+SigLevel = Required DatabaseOptional
+Server = https://ftp.f3l.de/~martchus/$repo/os/$arch
+Server = https://martchus.dyn.f3l.de/repo/arch/$repo/os/$arch
+```
+
+After following [instructions for importing my GPG key](https://martchus.dyn.f3l.de/repo/arch/ownstuff) you
+can install Android packages, e.g.:
+
+```
+pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit} \
+  --assume-installed android-ndk --assume-installed android-sdk
+````
+
+You may even install a few KDE libraries like Kirigami:
+```
+pacman -S android-{aarch64,x86-64}-kirigami --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat}
+```
+
+Whether this will actually work at runtime hasn't been tested yet. One definitely has to make sure that the
+used version of Qt is at least as new as the version the KDE libraries from my repo have been linked against.
+
+The libraries will end up under `/opt/android-libs` within your MSYS2 installation. Do not install any non
+`android-*-` packages, though. They will have file conflicts with packages provided by MSYS2 and are not usable
+under Windows anyway.
+
+The Qt packages for Android cannot be used as well because they rely on the Qt packaging provided by Arch Linux
+for tooling. (Maybe the Qt packages provided by MSYS2 mingw-w64 packages could be used for tooling. This hasn't
+been tested yet, though.)
+
+To search for available Android packages on my repo per architecture one can use e.g.
+`pacman -Ss android-aarch64-`.
+</details>
+
+<details>
+<summary>Conduct build</summary>
+Set the following environment variables:
+
+* `ANDROID_HOME`: path to the Android SDK
+* `ANDROID_NDK_HOME`: path to the Android NDK
+* `ANDROID_STUDIO_HOME`: Android studio install directory (for adding Java to `PATH` and setting `JAVA_HOME`)
+* `QT_PLATFORMS_ROOT`: directory containing Qt platform directories installed via the official Qt installer,
+  e.g. `D:/programming/qt/6.8.0`
+* `QT_ANDROID_ARCH`: `x86_64`/`arm64_v8a`/`armv7`/`x86`
+* `QT_ANDROID_KEYSTORE_PATH`: path of directory containing Android keystores
+* `QT_ANDROID_KEYSTORE_ALIAS`: name of Android keystore to use
+* `QT_ANDROID_KEYSTORE_STORE_PASS`: keystore store password
+* `QT_ANDROID_KEYSTORE_KEY_PASS`: keystore key password
+* `MSYS2_ROOT`: install directory of MSYS2
+
+Then the build can be conducted in a MSYS2 shell, e.g.:
+
+```
+source android-env x86-64 # or aarch64
+cmake --preset win-android
+cmake --build --preset win-android
+```
+</details>
 
 ### Packaging
 The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.

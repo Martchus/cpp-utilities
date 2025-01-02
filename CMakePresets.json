@@ -580,6 +580,43 @@
         "CMAKE_CXX_COMPILER_LAUNCHER": {"type": "STRING", "value": ""},
         "CPP_UNIT_LIB": {"type": "FILEPATH", "value": "$env{VCPKG_ROOT}/installed/x64-windows-static/debug/lib/cppunitd.lib"}
       }
+    },
+    {
+      "name": "win-android",
+      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
+      "displayName": "Target *-linux-android using MSYS2 and Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
+      "description": "Build targeting Android, paths and flags are specific to MSYS2 and Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-android-$env{ANDROID_ABI}",
+      "toolchainFile": "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake",
+      "environment": {
+        "ANDROID_EXTERNAL_LIBS": "/opt/android-libs",
+        "PATH": "$env{MSYS2_ROOT}/$env{ANDROID_PREFIX}/bin:$env{ANDROID_STUDIO_HOME}/jbr/bin:$penv{PATH}",
+        "JAVA_HOME": "$env{ANDROID_STUDIO_HOME}/jbr"
+      },
+      "cacheVariables": {
+        "ANDROID_ABI": {"type": "STRING", "value": "$env{ANDROID_ABI}"},
+        "ANDROID_SDK_ROOT": {"type": "STRING", "value": "$env{ANDROID_HOME}"},
+        "ANDROID_NDK": {"type": "STRING", "value": "$env{ANDROID_NDK_HOME}"},
+        "ANDROID_NATIVE_API_LEVEL": {"type": "STRING", "value": "$env{ANDROID_MINIMUM_PLATFORM}"},
+        "ANDROID_TOOLCHAIN": {"type": "STRING", "value": "clang"},
+        "CMAKE_BUILD_TYPE": {"type": "STRING", "value": "Release"},
+        "CMAKE_C_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_CFLAGS}"},
+        "CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
+        "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_CXXFLAGS}"},
+        "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_LDFLAGS}"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{QT_PLATFORMS_ROOT}/android_$env{QT_ANDROID_ARCH};$env{ANDROID_PREFIX}"},
+        "CMAKE_PREFIX_PATH": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
+        "CMAKE_INSTALL_LIBDIR": {"type": "PATH", "value": "lib"},
+        "Iconv_INCLUDE_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
+        "Iconv_LIBRARY": {"type": "PATH", "value": "$env{ANDROID_PREFIX_LIB}/lib/libiconv.a"},
+        "INCLUDE_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
+        "LIB_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_LIB}"},
+        "SYSCONF_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_ETC}"},
+        "SHARE_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_SHARE}"},
+        "PKG_CONFIG_EXECUTABLE": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/$env{ANDROID_PKGCONFIG}"}
+      }
     }
   ],
   "buildPresets": [
@@ -621,7 +658,8 @@
     {"name": "arch-wasm", "configurePreset": "arch-wasm"},
     {"name": "win-x64-msvc-static", "configurePreset": "win-x64-msvc-static"},
     {"name": "win-x64-msvc-static-devel", "configurePreset": "win-x64-msvc-static-devel"},
-    {"name": "win-x64-msvc-static-debug", "configurePreset": "win-x64-msvc-static-debug"}
+    {"name": "win-x64-msvc-static-debug", "configurePreset": "win-x64-msvc-static-debug"},
+    {"name": "win-android", "configurePreset": "win-android"}
   ],
   "testPresets": [
     {
