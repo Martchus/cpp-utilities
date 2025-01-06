@@ -105,7 +105,7 @@ if (META_PROJECT_IS_LIBRARY)
     message(STATUS "Linking test target against ${META_TARGET_NAME}")
 endif ()
 
-# create a 'testlib' and link tests against it when testing an application an the tests need to call internal functions of
+# create a 'testlib' and link tests against it when testing an application and the tests need to call internal functions of
 # the application
 if (META_PROJECT_IS_APPLICATION AND LINK_TESTS_AGAINST_APP_TARGET)
     # create target for the 'testlib'
