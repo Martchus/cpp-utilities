@@ -85,7 +85,8 @@ set(CMAKE_MODULE_FILES
     cmake/modules/ListToString.cmake
     cmake/modules/ShellCompletion.cmake
     cmake/modules/DevelUtilities.cmake
-    cmake/modules/3rdParty.cmake)
+    cmake/modules/3rdParty.cmake
+    cmake/modules/3rdPartyFunctions.cmake)
 set(CMAKE_TEMPLATE_FILES
     cmake/templates/bash-completion.sh.in
     cmake/templates/Config.cmake.in
