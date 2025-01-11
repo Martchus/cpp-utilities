@@ -473,6 +473,7 @@
         "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_CXXFLAGS}"},
         "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_LDFLAGS}"},
+        "CMAKE_MODULE_LINKER_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_LDFLAGS}"},
         "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
         "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
         "CMAKE_INSTALL_LIBDIR": {"type": "PATH", "value": "lib"},
