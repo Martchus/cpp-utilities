@@ -535,8 +535,9 @@ cmake --build --preset win-android
 </details>
 
 ### Packaging
-The mentioned repositories contain packages for `c++utilities` itself but also for my other projects.
-However, the README files of my other projects contain a more exhaustive list.
+The repositories mentioned below contain packages for `c++utilities` itself but also for my other projects.
+For a more comprehensive list of repositories providing my other projects such as Syncthing Tray, checkout
+the README of those projects instead.
 
 #### Arch Linux package
 The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains files for building Arch Linux
