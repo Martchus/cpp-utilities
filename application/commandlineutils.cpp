@@ -152,7 +152,7 @@ void stopConsole()
     fclose(stdout);
     fclose(stdin);
     fclose(stderr);
-    if (auto *const consoleWindow = GetConsoleWindow()) {
+    if (GetConsoleWindow()) {
         FreeConsole();
     }
 }
