@@ -1167,7 +1167,7 @@ ArgumentCompletionInfo ArgumentParser::determineCompletionInfo(
         completion.lastSpecifiedArgIndex = static_cast<unsigned int>(argc) - 1;
         completion.lastSpecifiedArg = argv + completion.lastSpecifiedArgIndex;
         for (; completion.lastSpecifiedArg >= argv && **completion.lastSpecifiedArg == '\0';
-             --completion.lastSpecifiedArg, --completion.lastSpecifiedArgIndex)
+            --completion.lastSpecifiedArg, --completion.lastSpecifiedArgIndex)
             ;
     }
 

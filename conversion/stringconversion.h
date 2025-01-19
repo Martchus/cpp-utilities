@@ -27,19 +27,17 @@
 
 namespace CppUtilities {
 
+// clang-format off
 /*!
  * \brief The StringDataDeleter struct deletes the data of a StringData instance.
  */
-struct CPP_UTILITIES_EXPORT StringDataDeleter {
-    /*!
+struct CPP_UTILITIES_EXPORT StringDataDeleter{ /*!
      * \brief Deletes the specified \a stringData with std::free(), because the memory has been
      *        allocated using std::malloc()/std::realloc().
      */
-    void operator()(char *stringData)
-    {
-        std::free(stringData);
-    }
+    void operator()(char *stringData){ std::free(stringData); }
 };
+// clang-format on
 
 /*!
  * \brief Type used to return string encoding conversion result.
@@ -304,7 +302,7 @@ template <typename StringType> bool endsWith(const StringType &str, const String
         return false;
     }
     for (auto stri = str.cend() - static_cast<typename StringType::difference_type>(phrase.size()), strend = str.cend(), phrasei = phrase.cbegin();
-         stri != strend; ++stri, ++phrasei) {
+        stri != strend; ++stri, ++phrasei) {
         if (*stri != *phrasei) {
             return false;
         }
@@ -322,7 +320,7 @@ template <typename StringType> bool endsWith(const StringType &str, const typena
         return false;
     }
     for (auto stri = str.cend() - static_cast<typename StringType::difference_type>(phraseSize), strend = str.cend(); stri != strend;
-         ++stri, ++phrase) {
+        ++stri, ++phrase) {
         if (*stri != *phrase) {
             return false;
         }
