@@ -167,6 +167,13 @@ up-to-date later on.
 For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`. To tweak various settings (e.g. warnings) for development,
 use `-DENABLE_DEVEL_DEFAULTS=ON`.
 
+To use `clangd` via Visual Studio Code, specify `-DCMAKE_EXPORT_COMPILE_COMMANDS=1`. Then link the
+`compile_commands.json` file from the build directory into the source directory. When using the `subdirs`
+project you can create a symlink to the subdirs project in the individual projects (e.g.
+`compile_commands.json -> ../subdirs/syncthingtray/compile_commands.json`) and a symlink to the actual build
+directory in the subdirs project (e.g.
+`compile_commands.json -> /…/build/presets/syncthingtray/arch-android-x86_64/compile_commands.json`).
+
 #### CMake presets
 There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available.
 
