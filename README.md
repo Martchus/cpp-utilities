@@ -167,12 +167,23 @@ up-to-date later on.
 For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`. To tweak various settings (e.g. warnings) for development,
 use `-DENABLE_DEVEL_DEFAULTS=ON`.
 
-To use `clangd` via Visual Studio Code, specify `-DCMAKE_EXPORT_COMPILE_COMMANDS=1`. Then link the
-`compile_commands.json` file from the build directory into the source directory. When using the `subdirs`
-project you can create a symlink to the subdirs project in the individual projects (e.g.
+#### Using Visual Studio Code
+
+##### clangd
+To use `clangd` via Visual Studio Code install the
+[extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) and
+add `-DCMAKE_EXPORT_COMPILE_COMMANDS=1` to the CMake arguments. Then link the `compile_commands.json` file
+from the build directory into the source directory. When using the `subdirs` project you can create a symlink
+to the subdirs project in the individual projects (e.g.
 `compile_commands.json -> ../subdirs/syncthingtray/compile_commands.json`) and a symlink to the actual build
 directory in the subdirs project (e.g.
 `compile_commands.json -> /…/build/presets/syncthingtray/arch-android-x86_64/compile_commands.json`).
+
+##### Qt
+To work on my C++ projects that use Qt it might be useful to install their
+[extension pack](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.qt). This requires the
+"vscode marketplace" which might not be available in all distributions of Visual Studio Code (e.g. when
+using the Arch Linux `code` package one needs to install the `code-marketplace` package in addition).
 
 #### CMake presets
 There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available.
