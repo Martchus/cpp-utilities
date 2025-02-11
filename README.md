@@ -449,15 +449,15 @@ To run the resulting binaries, you'll need to make sure the Qt libraries are in 
 `$Env:PATH = "$Env:QT_ROOT\bin"`.
 
 Note that you don't need to install all Visual Studio has to offer. A customized installation with just
-C++ core features, MSVC x86/x64 build tools, Windows SDK and vpkg should be enough. In Qt's online installer
-you can also uncheck everything except the MSVC build of Qt itself.
+C++ core features, MSVC x86/x64 build tools, Windows SDK and vcpkg should be enough. In Qt's online installer
+you can also uncheck everything except the MSVC build of Qt.
 
 If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
 the build regardless.
 
 ###### Building under Windows for Android
 Building for Android under Windows is still experimental and not regularly tested. It is generally supported
-by CMake, Android tooling andQt, though. So as long as all dependencies are installed correctly by *some*
+by CMake, Android tooling and Qt, though. So as long as all dependencies are installed correctly by *some*
 means it is supposed to work. The following instructions describe how one could approach the installation of
 the required dependencies.
 
@@ -469,6 +469,7 @@ Android SDK and Qt for Android.
 
 <details>
 <summary>Install Android SDK and NDK</summary>
+
 The easiest way to install the SDK is to install [Android Studio](https://developer.android.com/studio).
 Its setup wizard allows to install the SDK and other useful tools. The Gradle project files created by Qt can
 also be opened with it. This setup will also use the version of Java that comes with Android Studio.
@@ -478,12 +479,14 @@ The NDK needs to be [downloaded separately](https://developer.android.com/ndk/do
 
 <details>
 <summary>Install Qt</summary>
+
 The easiest way to install Qt is via the official [Qt installer](https://www.qt.io/download-qt-installer-oss).
 The open source version is sufficient but a Qt account is required.
 </details>
 
 <details>
 <summary>Install additional native libraries for Android</summary>
+
 Additional libraries can be installed via MSYS2 using my Arch Linux packaging. Note that this is not generally
 required to build Syncthing Tray as use of libiconv, Boost, OpenSSL and CppUnit is optional (so only Qt is
 required besides the C/C++ standard libraries). However, the following instructions and the CMake preset make
@@ -529,6 +532,7 @@ To search for available Android packages on my repo per architecture one can use
 
 <details>
 <summary>Conduct build</summary>
+
 Set the following environment variables:
 
 * `ANDROID_HOME`: path to the Android SDK
