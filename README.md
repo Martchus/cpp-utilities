@@ -179,6 +179,15 @@ to the subdirs project in the individual projects (e.g.
 directory in the subdirs project (e.g.
 `compile_commands.json -> /…/build/presets/syncthingtray/arch-android-x86_64/compile_commands.json`).
 
+##### Debugging
+Install the extension [C/C++](https://github.com/microsoft/vscode-cpptools) from Microsoft. The repository
+[subdirs](https://github.com/Martchus/subdirs) contains example configuration for Syncthing Tray.
+
+The extension [Native Debug](https://github.com/WebFreak001/code-debug) works as well.
+
+Presumably [CodeLLDB](https://github.com/vadimcn/codelldb) (which also supports Rust) would work as well
+but I haven't tested that yet.
+
 ##### Qt
 To work on my C++ projects that use Qt it might be useful to install their
 [extension pack](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.qt). This requires the
