@@ -184,6 +184,7 @@ To work on my C++ projects that use Qt it might be useful to install their
 [extension pack](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.qt). This requires the
 "vscode marketplace" which might not be available in all distributions of Visual Studio Code (e.g. when
 using the Arch Linux `code` package one needs to install the `code-marketplace` package in addition).
+Compile the code with `-DQT_QML_GENERATE_QMLLS_INI=ON` for the QML language server to work.
 
 #### CMake presets
 There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available.
