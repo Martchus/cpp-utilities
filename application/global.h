@@ -85,6 +85,22 @@
 #endif
 
 /*!
+ * \def CPP_UTILITIES_MAIN_EXPORT
+ * \brief Exports the main() functions on platforms where this is needed.
+ * \remarks Needed on Android with Qt where applications are shared libraries.
+ *          Otherwise loading the app will fail with the error "dlsym failed: undefined
+ *          symbol: main".
+ * \sa See qtbase commit 29b17fa335388c9b93f70c29b2398cf2fee65785 (where this is solved
+       with the sledgehammer method of setting the default visibility).
+ */
+
+#ifdef PLATFORM_ANDROID
+#define CPP_UTILITIES_MAIN_EXPORT CPP_UTILITIES_GENERIC_LIB_EXPORT
+#else
+#define CPP_UTILITIES_MAIN_EXPORT
+#endif
+
+/*!
  * \def CPP_UTILITIES_UNUSED
  * \brief Prevents warnings about unused variables.
  */
