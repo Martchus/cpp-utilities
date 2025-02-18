@@ -8,7 +8,9 @@
       "description": "Keeps defaults, uses Ninja, base for any of the other presets",
       "generator": "Ninja",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default",
-      "cacheVariables": {},
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{BUILD_DIR}/install-prefix"}
+      },
       "environment": {"TEST_FILE_PATH": "${sourceDir}/testfiles"}
     },
     {
