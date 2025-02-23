@@ -168,6 +168,11 @@ For a debug build, use `-DCMAKE_BUILD_TYPE=Debug`. To tweak various settings (e.
 use `-DENABLE_DEVEL_DEFAULTS=ON`.
 
 #### Using Visual Studio Code
+The following sections document useful extensions. Most of them require the "vscode marketplace" which might
+not be available in all distributions of Visual Studio Code (e.g. when using the Arch Linux `code` package one
+needs to install the `code-marketplace` package in addition).
+
+Note that most of this has only been tested under GNU/Linux so far.
 
 ##### clangd
 To use `clangd` via Visual Studio Code install the
@@ -179,21 +184,30 @@ to the subdirs project in the individual projects (e.g.
 directory in the subdirs project (e.g.
 `compile_commands.json -> /…/build/presets/syncthingtray/arch-android-x86_64/compile_commands.json`).
 
-##### Debugging
-Install the extension [C/C++](https://github.com/microsoft/vscode-cpptools) from Microsoft. The repository
-[subdirs](https://github.com/Martchus/subdirs) contains example configuration for Syncthing Tray.
+##### Building and debugging
+Install the extension [C/C++](https://github.com/microsoft/vscode-cpptools) from Microsoft. To avoid having
+to create manual build tasks and launch configurations, install the
+[CMake extension](https://github.com/microsoft/vscode-cmake-tools) from Microsoft.
 
 The extension [Native Debug](https://github.com/WebFreak001/code-debug) works as well.
 
 Presumably [CodeLLDB](https://github.com/vadimcn/codelldb) (which also supports Rust) would work as well
 but I haven't tested that yet.
 
+The repository [subdirs](https://github.com/Martchus/subdirs) contains example configuration covering
+Syncthing Tray and a few other projects. It configures many tasks and launcher configurations for building and
+more manually. Not all projects and targets are covered, though. So it makes most sense to rely on the CMake
+extension to configure and build the various projects (using presets, see section below). A launcher config to 
+launch the active/selected CMake target exists.
+
 ##### Qt
 To work on my C++ projects that use Qt it might be useful to install their
-[extension pack](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.qt). This requires the
-"vscode marketplace" which might not be available in all distributions of Visual Studio Code (e.g. when
-using the Arch Linux `code` package one needs to install the `code-marketplace` package in addition).
+[extension pack](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.qt).
 Compile the code with `-DQT_QML_GENERATE_QMLLS_INI=ON` for the QML language server to work.
+
+The repository [subdirs](https://github.com/Martchus/subdirs) also contains a GDB init script and
+configuration for the extension [C/C++](https://github.com/microsoft/vscode-cpptools) to make pretty printing
+of Qt data types work in GDB using the printers from KDevelop.
 
 #### CMake presets
 There are some generic [presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) available.
