@@ -122,24 +122,30 @@ instructions for building on Windows.
   `USE_STANDARD_FILESYSTEM=OFF`. Note that this will only help with `c++utilities` itself. My other projects
   might use `std::filesystem` unconditionally.
 * To disable `NativeFileStream` (and make it just a regular `std::fstream`), set `USE_NATIVE_FILE_BUFFER=OFF`.
-  Note that handling paths with non-ASCII characters will then cease to work on Windows.
+  This can be safely done when building `c++utilities` *only* for applications that don't use `std::fstream`
+  anyway such as Syncthing Tray. Then disabling makes sense to avoid depending on a `libstdc++` vendor
+  extension or Boost.Iostreams. Otherwise disabling is not recommended as it will lead to the following
+  limitations:
+    * Error messages when opening files will not contain the cause of the error.
+    * Opening files under paths with non-ASCII characters will not work on Windows.
+    * Password Manager will not compile for Android.
 * The Qt-based applications support bundling icon themes by specifying e.g.
   `BUILTIN_ICON_THEMES=breeze;breeze-dark`.
     * This variable must be set when building the application (not when building any of the libraries).
     * The specified icon themes need to be installed in the usual location. Otherwise, use e.g.
       `BUILTIN_ICON_THEMES_SEARCH_PATH=D:/programming/misc/breeze-icons/usr/share/icons` to specify the
       search path.
-* For more detailed documentation, see the documentation about build variables (in
-  [directory doc](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
-  in Doxygen version accessible via "Related Pages").
+* For more details, checkout the documentation about build variables (in the
+  [directory `doc`](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
+  in the Doxygen version accessible under "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux,
   Android, Windows and MacOS X in form of Arch Linux packages using `ninja`. These scripts can be used as an
   example also when building under/for other platforms.
 
 #### Windows-specific notes
 * To create application icons the tool `ffmpeg`/`avconv` is required.
-* Windows builds are mainly conducted using mingw-w64/GCC so using them is recommended. Building with MSVC
-  should be possible as well but it is not as well tested.
+* Windows builds are mainly conducted using mingw-w64/GCC/LLVM so using them is recommended. Building with
+  MSVC should be possible as well but it is not as well tested.
 * When using `BUILTIN_ICON_THEMES`, the icon theme still needs to be installed as if it was installed on a
   GNU/Linux system. So simply grab e.g. the Arch Linux package `breeze-icons` and extract it somewhere. Do
   *not* use the package from MSYS2 or what comes with builds from KDE's binary factory.
