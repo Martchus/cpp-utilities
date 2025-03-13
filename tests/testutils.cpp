@@ -487,8 +487,9 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
 #elif defined(PLATFORM_UNIX)
     // create pipes
     int coutPipes[2], cerrPipes[2];
-    pipe(coutPipes);
-    pipe(cerrPipes);
+    if (pipe(coutPipes) != 0 || pipe(cerrPipes) != 0) {
+        throw std::runtime_error(argsToString("Unable to create pipe: ", std::strerror(errno)));
+    }
     const auto readCoutPipe = coutPipes[0], writeCoutPipe = coutPipes[1];
     const auto readCerrPipe = cerrPipes[0], writeCerrPipe = cerrPipes[1];
 
@@ -500,7 +501,7 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
 
         try {
             if (child == -1) {
-                throw runtime_error("Unable to create fork");
+                throw std::runtime_error(argsToString("Unable to create fork: ", std::strerror(errno)));
             }
 
             // init file descriptor set for poll
@@ -518,10 +519,10 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
             do {
                 const auto retpoll = poll(fileDescriptorSet, 2, timeout);
                 if (retpoll == 0) {
-                    throw runtime_error("Poll time-out");
+                    throw std::runtime_error("Poll timed out");
                 }
                 if (retpoll < 0) {
-                    throw runtime_error("Poll failed");
+                    throw std::runtime_error(argsToString("Poll failed: ", std::strerror(errno)));
                 }
                 if (fileDescriptorSet[0].revents & POLLIN) {
                     const auto count = read(readCoutPipe, buffer, sizeof(buffer));
@@ -557,8 +558,10 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     } else {
         // child process
         // -> set pipes to be used for stdout/stderr
-        dup2(writeCoutPipe, STDOUT_FILENO);
-        dup2(writeCerrPipe, STDERR_FILENO);
+        if (dup2(writeCoutPipe, STDOUT_FILENO) == -1 || dup2(writeCerrPipe, STDERR_FILENO) == -1) {
+            std::cerr << Phrases::Error << "Unable to duplicate file descriptor: " << std::strerror(errno) << Phrases::EndFlush;
+            std::exit(EXIT_FAILURE);
+        }
         close(readCoutPipe);
         close(writeCoutPipe);
         close(readCerrPipe);
