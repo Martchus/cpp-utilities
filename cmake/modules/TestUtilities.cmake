@@ -70,6 +70,8 @@ function (configure_test_target)
                    CXX_VISIBILITY_PRESET hidden
                    LINK_SEARCH_START_STATIC ${STATIC_LINKAGE}
                    LINK_SEARCH_END_STATIC ${STATIC_LINKAGE}
+                   AUTOGEN_TARGET_DEPENDS "${AUTOGEN_DEPS}"
+                   QT_DEFAULT_PLUGINS "${META_QT_DEFAULT_PLUGINS}"
                    EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
     if (NOT META_CXX_STANDARD STREQUAL "any")
         set_target_properties("${TEST_TARGET_NAME}" PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
