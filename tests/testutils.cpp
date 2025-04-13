@@ -444,9 +444,9 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     }
 
 #if defined(CPP_UTILITIES_BOOST_PROCESS)
-    auto path = enableSearchPath ? boost::process::search_path(appPath) : boost::process::filesystem::path(appPath);
+    auto path = enableSearchPath ? boost::process::v1::search_path(appPath) : boost::process::v1::filesystem::path(appPath);
     auto ctx = boost::asio::io_context();
-    auto group = boost::process::group();
+    auto group = boost::process::v1::group();
     auto argsAsVector =
 #if defined(PLATFORM_WINDOWS)
         std::vector<std::wstring>();
@@ -467,12 +467,12 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
         }
     }
     auto outputBuffer = boost::asio::streambuf(), errorBuffer = boost::asio::streambuf();
-    auto env = boost::process::environment(boost::this_process::environment());
+    auto env = boost::process::v1::environment(boost::this_process::environment());
     if (!newProfilingPath.empty()) {
         env["LLVM_PROFILE_FILE"] = newProfilingPath;
     }
     auto child
-        = boost::process::child(ctx, group, path, argsAsVector, env, boost::process::std_out > outputBuffer, boost::process::std_err > errorBuffer);
+        = boost::process::v1::child(ctx, group, path, argsAsVector, env, boost::process::v1::std_out > outputBuffer, boost::process::v1::std_err > errorBuffer);
     if (timeout > 0) {
         ctx.run_for(std::chrono::milliseconds(timeout));
     } else {
