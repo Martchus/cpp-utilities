@@ -47,6 +47,9 @@
 #include <boost/process/group.hpp>
 #include <boost/process/io.hpp>
 #include <boost/process/search_path.hpp>
+namespace boost::process {
+namespace v1 = boost::process;
+}
 #endif
 #endif
 
