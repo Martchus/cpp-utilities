@@ -474,8 +474,8 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     if (!newProfilingPath.empty()) {
         env["LLVM_PROFILE_FILE"] = newProfilingPath;
     }
-    auto child
-        = boost::process::v1::child(ctx, group, path, argsAsVector, env, boost::process::v1::std_out > outputBuffer, boost::process::v1::std_err > errorBuffer);
+    auto child = boost::process::v1::child(
+        ctx, group, path, argsAsVector, env, boost::process::v1::std_out > outputBuffer, boost::process::v1::std_err > errorBuffer);
     if (timeout > 0) {
         ctx.run_for(std::chrono::milliseconds(timeout));
     } else {
