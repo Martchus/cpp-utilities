@@ -436,6 +436,8 @@ Note that:
   required. I had to set the debugger path to use GDB, though.
 * You must *not* use the presets containing `mingw-w64` in their name as those are only intended for
   cross-compilation on Arch Linux.
+* To run integration tests of Syncthing Tray you need to have `syncthing.exe` in the `PATH` or set
+  the environment variable `SYNCTHING_PATH` accordingly.
 
 ###### Building with MSVC
 To build with MSVC you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) need
