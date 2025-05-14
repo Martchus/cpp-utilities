@@ -370,7 +370,7 @@ namespace Literals {
  * \brief Literal for std::size_t to ease asserting std::size_t with CPPUNIT_ASSERT_EQUAL.
  * \remarks Just using "ul"-suffix does not compile under 32-bit architecture!
  */
-constexpr std::size_t operator"" _st(unsigned long long size)
+constexpr std::size_t operator""_st(unsigned long long size)
 {
     return static_cast<std::size_t>(size);
 }
@@ -379,7 +379,7 @@ constexpr std::size_t operator"" _st(unsigned long long size)
  * \brief Literal for uint64 to ease asserting uint64 with CPPUNIT_ASSERT_EQUAL.
  * \remarks Just using "ul"-suffix does not compile under 32-bit architecture!
  */
-constexpr std::uint64_t operator"" _uint64(unsigned long long size)
+constexpr std::uint64_t operator""_uint64(unsigned long long size)
 {
     return static_cast<std::uint64_t>(size);
 }
@@ -388,7 +388,7 @@ constexpr std::uint64_t operator"" _uint64(unsigned long long size)
  * \brief Literal for int64 to ease asserting int64 with CPPUNIT_ASSERT_EQUAL.
  * \remarks Just using "l"-suffix does not compile under 32-bit architecture!
  */
-constexpr std::int64_t operator"" _int64(unsigned long long size)
+constexpr std::int64_t operator""_int64(unsigned long long size)
 {
     return static_cast<std::int64_t>(size);
 }
