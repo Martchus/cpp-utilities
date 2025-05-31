@@ -95,6 +95,7 @@
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/devel",
       "cacheVariables": {
         "ENABLE_DEVEL_DEFAULTS": {"type": "BOOL", "value": "ON"},
+        "USE_LIBARCHIVE": {"type": "BOOL", "value": "ON"},
         "CONFIGURATION_NAME": {"type": "STRING", "value": "devel"},
         "CONFIGURATION_PACKAGE_SUFFIX": {"type": "STRING", "value": "-devel"},
         "CONFIGURATION_PACKAGE_SUFFIX_QTUTILITIES": {"type": "STRING", "value": "-devel"},
