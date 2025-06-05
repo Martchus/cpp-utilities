@@ -487,7 +487,9 @@
         "SYSCONF_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_ETC}"},
         "SHARE_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_SHARE}"},
         "PKG_CONFIG_EXECUTABLE": {"type": "FILEPATH", "value": "/usr/bin/$env{ANDROID_PKGCONFIG}"},
-        "BACKGROUND_RUNNING_AFTER_ANDROID_ACTIVITY_DESTRUCTION": {"type": "BOOLEAN", "value": "ON"}
+        "BACKGROUND_RUNNING_AFTER_ANDROID_ACTIVITY_DESTRUCTION": {"type": "BOOLEAN", "value": "ON"},
+        "USE_LIBARCHIVE": {"type": "BOOLEAN", "value": "OFF"},
+        "SETUP_TOOLS": {"type": "BOOLEAN", "value": "OFF"}
       }
     },
     {
