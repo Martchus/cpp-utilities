@@ -235,6 +235,7 @@
       "environment": {
         "CROSS_TOOL_PREFIX": "i686-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/i686-w64-mingw32",
+        "PKG_CONFIG_SYSROOT_DIR": "$env{CROSS_INSTALL_PREFIX}",
         "PKG_CONFIG_LIBDIR": "$env{CROSS_INSTALL_PREFIX}/lib/pkgconfig:$env{CROSS_INSTALL_PREFIX}/share/pkgconfig",
         "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
       },
@@ -254,6 +255,7 @@
       "environment": {
         "CROSS_TOOL_PREFIX": "x86_64-w64-mingw32-",
         "CROSS_INSTALL_PREFIX": "/usr/x86_64-w64-mingw32",
+        "PKG_CONFIG_SYSROOT_DIR": "$env{CROSS_INSTALL_PREFIX}",
         "PKG_CONFIG_LIBDIR": "$env{CROSS_INSTALL_PREFIX}/lib/pkgconfig:$env{CROSS_INSTALL_PREFIX}/share/pkgconfig",
         "PATH": "$env{CROSS_INSTALL_PREFIX}/bin:$penv{PATH}"
       },
