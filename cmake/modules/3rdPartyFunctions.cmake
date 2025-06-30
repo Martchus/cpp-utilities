@@ -344,16 +344,10 @@ function (use_pkg_config_module)
         else ()
             set(PKG_CONFIG_CHECK_SUFFIX "")
         endif ()
-        set_property(
-            TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_LINK_LIBRARIES
-                                                "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LINK_LIBRARIES}")
-        set_property(
-            TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                                                "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_INCLUDE_DIRS}")
-        set_property(TARGET ${ARGS_TARGET_NAME}
-                     PROPERTY INTERFACE_COMPILE_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_CFLAGS_OTHER}")
-        set_property(TARGET ${ARGS_TARGET_NAME}
-                     PROPERTY INTERFACE_LINK_OPTIONS "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LDFLAGS_OTHER}")
+        set_property(TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_COMPILE_OPTIONS
+                                                         "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_CFLAGS}")
+        set_property(TARGET ${ARGS_TARGET_NAME} PROPERTY INTERFACE_LINK_LIBRARIES
+                                                         "${PKG_CHECK_MODULES_RESULT${PKG_CONFIG_CHECK_SUFFIX}_LDFLAGS}")
     endif ()
 
     set("${ARGS_PKG_CONFIG_MODULES_VARIABLE}"
