@@ -421,7 +421,7 @@ string encodeBase64(const std::uint8_t *data, std::uint32_t dataSize)
  * \throw Throws a ConversionException if the specified string is no valid Base64.
  * \sa [RFC 4648](http://www.ietf.org/rfc/rfc4648.txt)
  */
-std::pair<unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
+std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t> decodeBase64(const char *encodedStr, const std::uint32_t strSize)
 {
     if (!strSize) {
         return std::make_pair(std::make_unique<std::uint8_t[]>(0), 0); // early return to prevent clazy warning

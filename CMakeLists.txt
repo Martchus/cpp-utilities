@@ -33,6 +33,7 @@ set(HEADER_FILES
     misc/parseerror.h
     misc/traits.h
     misc/levenshtein.h
+    misc/verification.h
     tests/testutils.h
     tests/cppunit.h
     tests/outputcheck.h)
@@ -117,8 +118,8 @@ set(META_APP_AUTHOR "Martchus")
 set(META_APP_URL "https://github.com/${META_APP_AUTHOR}/${META_PROJECT_NAME}")
 set(META_APP_DESCRIPTION "Useful C++ classes and routines such as argument parser, IO and conversion utilities")
 set(META_VERSION_MAJOR 5)
-set(META_VERSION_MINOR 28)
-set(META_VERSION_PATCH 2)
+set(META_VERSION_MINOR 29)
+set(META_VERSION_PATCH 0)
 
 # find required 3rd party libraries
 include(3rdParty)
@@ -255,6 +256,17 @@ option(USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER
        "enables use of platform-specific APIs for optimizing CopyHelper" OFF)
 if (USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
+endif ()
+
+# configure tests for verification helpers which require OpenSSL
+use_crypto(LIBRARIES_VARIABLE "TEST_LIBRARIES" PACKAGES_VARIABLE "TEST_PACKAGES" OPTIONAL)
+if ("OpenSSL::Crypto" IN_LIST "TEST_LIBRARIES")
+    set_property(
+        SOURCE tests/misctests.cpp
+        APPEND
+        PROPERTY COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_HAS_OPENSSL_CRYPTO)
+else ()
+    message(WARNING "Unable to test verification helper of setup tools because OpenSSL crypto library is not available.")
 endif ()
 
 # apply basic configuration

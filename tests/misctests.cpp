@@ -2,6 +2,10 @@
 #include "../misc/levenshtein.h"
 #include "../misc/multiarray.h"
 
+#ifdef CPP_UTILITIES_HAS_OPENSSL_CRYPTO
+#include "../misc/verification.h"
+#endif
+
 #include "../conversion/stringbuilder.h"
 #include "../conversion/stringconversion.h"
 
@@ -43,6 +47,9 @@ class MiscTests : public TestFixture {
     CPPUNIT_TEST(testMultiArray);
     CPPUNIT_TEST(testLevenshtein);
     CPPUNIT_TEST(testTestUtilities);
+#ifdef CPP_UTILITIES_HAS_OPENSSL_CRYPTO
+    CPPUNIT_TEST(testVerification);
+#endif
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -56,6 +63,9 @@ public:
     void testMultiArray();
     void testLevenshtein();
     void testTestUtilities();
+#ifdef CPP_UTILITIES_HAS_OPENSSL_CRYPTO
+    void testVerification();
+#endif
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MiscTests);
@@ -172,6 +182,31 @@ void MiscTests::testTestUtilities()
 
     TESTUTILS_ASSERT_LIKE("assert like works", ".*foo.*", "   foo   ");
 }
+
+#ifdef CPP_UTILITIES_HAS_OPENSSL_CRYPTO
+void MiscTests::testVerification()
+{
+    const auto key = std::string_view(
+        R"(-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAWJAn1E7ZE5Q6H69oaV5sqCIppJdg
+4bXDan9dJv6GOg70/t7q2CvwcwUXhV4FvCZxCHo25+rWYINfqKU2Utul8koAx8tK
+59ohfOzI63I+CC76GfX41uRGU0P5i6hS7o/hgBLiVXqT0FgS2BMfmnLMUvUjqnI2
+YQM7C55/5BM5Vrblkow=
+-----END PUBLIC KEY-----)");
+    const auto signature = std::string_view(
+        R"(-----BEGIN SIGNATURE-----
+MIGIAkIB+LB01DduBFMVs7Ea2McD7/kXpP0XktDNR7WpVgkOn4+/ilR8b8lpO9dd
+FGmxKj5UVr2GpcWX6I216PjaVL9tr5oCQgFMpvNjSgFQ/KFaE+0d+QCegr3V7Uz6
+sWB0iGdPa+oXbRish7HoNCU/k0lD3ffXaf8ueC78Zme9NFO18Ol+NWXJDA==
+-----END SIGNATURE-----)");
+
+    auto message = std::string("test message");
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("valid message", std::string(), verifySignature(key, signature, message));
+
+    message[5] = '?';
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("manipulate message", "incorrect signature"s, verifySignature(key, signature, message));
+}
+#endif
 
 // test flagenumclass.h
 
