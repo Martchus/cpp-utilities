@@ -477,6 +477,7 @@ public:
     void ensureDefaultOperation();
     void checkConstraints();
     void invokeCallbacks();
+    std::size_t invokeCallbacksCounting();
 
     // declare getter for parsing results
     unsigned int actualArgumentCount() const;
@@ -502,6 +503,7 @@ private:
     void printBashCompletion(int argc, const char *const *argv, unsigned int cursorPos, const ArgumentReader &reader) const;
     void checkConstraints(const ArgumentVector &args);
     static void invokeCallbacks(const ArgumentVector &args);
+    static void invokeCallbacks(const ArgumentVector &args, std::size_t &count);
     void invokeExit(int code);
 
     ArgumentVector m_mainArgs;
@@ -1170,6 +1172,17 @@ inline void ArgumentParser::checkConstraints()
 inline void ArgumentParser::invokeCallbacks()
 {
     invokeCallbacks(m_mainArgs);
+}
+
+/*!
+ * \brief Invokes all assigned callbacks.
+ * \returns Returns the number of called callbacks.
+ */
+inline std::size_t ArgumentParser::invokeCallbacksCounting()
+{
+    auto count = std::size_t();
+    invokeCallbacks(m_mainArgs, count);
+    return count;
 }
 
 /*!

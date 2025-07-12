@@ -1714,18 +1714,32 @@ void ArgumentParser::checkConstraints(const ArgumentVector &args)
  *  - Invokes the assigned callback methods for each occurrence of
  *    the argument.
  */
-void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
+void ArgumentParser::invokeCallbacks(const ArgumentVector &args, std::size_t &count)
 {
     for (const Argument *arg : args) {
         // invoke the callback for each occurrence of the argument
         if (arg->m_callbackFunction) {
             for (const auto &occurrence : arg->m_occurrences) {
                 arg->m_callbackFunction(occurrence);
+                ++count;
             }
         }
         // invoke the callbacks for sub arguments recursively
         invokeCallbacks(arg->m_subArgs);
     }
+}
+
+/*!
+ * \brief Invokes the callbacks for the specified \a args.
+ * \remarks
+ *  - Checks the callbacks for sub arguments, too.
+ *  - Invokes the assigned callback methods for each occurrence of
+ *    the argument.
+ */
+void ArgumentParser::invokeCallbacks(const ArgumentVector &args)
+{
+    auto count = std::size_t();
+    invokeCallbacks(args, count);
 }
 
 /*!
