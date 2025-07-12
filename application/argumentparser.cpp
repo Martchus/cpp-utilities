@@ -984,9 +984,7 @@ void ArgumentParser::readArgs(int argc, const char *const *argv)
     // check for further arguments
     if (!--argc) {
         // no arguments specified -> flag default argument as present if one is assigned
-        if (m_defaultArg) {
-            m_defaultArg->m_occurrences.emplace_back(0);
-        }
+        assumeDefaultArgument();
         return;
     }
 
@@ -1039,6 +1037,42 @@ void ArgumentParser::resetArgs()
         arg->resetRecursively();
     }
     m_actualArgc = 0;
+}
+
+/*!
+ * \brief Assumes the default argument is present (if not already present).
+ * \remarks
+ * - Adds an occurrence of the default argument previously specified via setDefaultArgument() so this
+ *   argument is assumed to be present (even though it is not actually present).
+ * - This function is automatically called if there are no arguments present at all.
+ * - This function may be called manually if no actually relevant argument is present, e.g. if there
+ *   is no operation argument present (and only global flags). For this concrete example, see also
+ *   ensureDefaultOperation().
+ */
+void ArgumentParser::assumeDefaultArgument()
+{
+    if (m_defaultArg && m_defaultArg->m_occurrences.empty()) {
+        m_defaultArg->m_occurrences.emplace_back(0);
+    }
+}
+
+/*!
+ * \brief Ensures a main operation argument is present.
+ * \remarks
+ * - Assumes the default argument is present if no other main operation argument is present.
+ * - Requires the default argument to be an operation argument.
+ */
+void ArgumentParser::ensureDefaultOperation()
+{
+    if (!m_defaultArg || m_defaultArg->isPresent() || !m_defaultArg->denotesOperation()) {
+        return;
+    }
+    for (auto *const arg : m_mainArgs) {
+        if (arg->isPresent() && arg->denotesOperation()) {
+            return;
+        }
+    }
+    assumeDefaultArgument();
 }
 
 /*!

@@ -473,6 +473,8 @@ public:
         = ParseArgumentBehavior::CheckConstraints | ParseArgumentBehavior::InvokeCallbacks | ParseArgumentBehavior::ExitOnFailure);
     void readArgs(int argc, const char *const *argv);
     void resetArgs();
+    void assumeDefaultArgument();
+    void ensureDefaultOperation();
     void checkConstraints();
     void invokeCallbacks();
 
