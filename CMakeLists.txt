@@ -31,6 +31,7 @@ set(HEADER_FILES
     misc/math.h
     misc/multiarray.h
     misc/parseerror.h
+    misc/signingkeys.h
     misc/traits.h
     misc/levenshtein.h
     misc/verification.h
