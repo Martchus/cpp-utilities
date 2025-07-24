@@ -93,7 +93,7 @@ inline std::string parsePemSignature(std::string_view pemSignature, std::pair<st
  * openssl ec -in release-signing-private-openssl-secp521r1.pem -pubout > release-signing-public-openssl-secp521r1.pem
  * ```
  *
- * A signature can be created an verified using the following commands:
+ * A signature can be created and verified using the following commands:
  * ```
  * openssl dgst -sha256 -sign release-signing-private-openssl-secp521r1.pem test_msg.txt > test_msg-secp521r1.txt.sig
  * openssl dgst -sha256 -verify release-signing-public-openssl-secp521r1.pem -signature test_msg-secp521r1.txt.sig test_msg.txt
