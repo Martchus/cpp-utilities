@@ -465,16 +465,21 @@ various additional environment variables to be set and you need to install depen
   vcpkg install boost-system:x64-windows-static boost-iostreams:x64-windows-static boost-filesystem:x64-windows-static boost-hana:x64-windows-static boost-process:x64-windows-static boost-asio:x64-windows-static libiconv:x64-windows-static zlib:x64-windows-static openssl:x64-windows-static cppunit:x64-windows-static libarchive'[bzip2,crypto,zstd]':x64-windows-static
   ```
 
+If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to
+continue the build regardless like in the examples below.
+
 When building with MSVC, do *not* use any of the MSYS2 shells. The environment of those shells leads to
 build problems. You can however use CMake and Ninja from MSYS2's mingw-w64 packaging (instead of the CMake
 version from Qt's installer). Then you need to specify the Ninja executable manually so the CMake invocation
 would become something like this for UCRT64:
 ```
-`& "$Env:MSYS2_ROOT\ucrt64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\ucrt64\bin\ninja.exe" .
+& "$Env:MSYS2_ROOT\ucrt64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\ucrt64\bin\ninja.exe" -DWINDOWS_RESOURCES_ENABLED=OFF -DQUICK_GUI=ON .
+& "$Env:MSYS2_ROOT\ucrt64\bin\cmake.exe" --build --preset win-x64-msvc-static
 ```
 or for MINGW64:
 ```
-`& "$Env:MSYS2_ROOT\mingw64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\mingw64\bin\ninja.exe" .
+& "$Env:MSYS2_ROOT\mingw64\bin\cmake.exe" --preset win-x64-msvc-static -DCMAKE_MAKE_PROGRAM="$Env:MSYS2_ROOT\mingw64\bin\ninja.exe" -DWINDOWS_RESOURCES_ENABLED=OFF -DQUICK_GUI=ON .
+& "$Env:MSYS2_ROOT\mingw64\bin\cmake.exe" --build --preset win-x64-msvc-static
 ```
 
 To run the resulting binaries, you'll need to make sure the Qt libraries are in the search path, e.g. using
@@ -483,9 +488,6 @@ To run the resulting binaries, you'll need to make sure the Qt libraries are in 
 Note that you don't need to install all Visual Studio has to offer. A customized installation with just
 C++ core features, MSVC x86/x64 build tools, Windows SDK and vcpkg should be enough. In Qt's online installer
 you can also uncheck everything except the MSVC build of Qt.
-
-If the compilation of the resource file doesn't work you can use `-DWINDOWS_RESOURCES_ENABLED=OFF` to continue
-the build regardless.
 
 ###### Building under Windows for Android
 Building for Android under Windows is still experimental and not regularly tested. It is generally supported
