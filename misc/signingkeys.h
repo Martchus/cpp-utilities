@@ -30,12 +30,12 @@ FdsjpzKV6nrX6EsK++o=
 
 constexpr auto openssl = std::array<std::string_view, 1>{
 std::string_view(
-R"(-----BEGIN EC PUBLIC KEY-----
+R"(-----BEGIN PUBLIC KEY-----
 MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAWJAn1E7ZE5Q6H69oaV5sqCIppJdg
 4bXDan9dJv6GOg70/t7q2CvwcwUXhV4FvCZxCHo25+rWYINfqKU2Utul8koAx8tK
 59ohfOzI63I+CC76GfX41uRGU0P5i6hS7o/hgBLiVXqT0FgS2BMfmnLMUvUjqnI2
 YQM7C55/5BM5Vrblkow=
------END EC PUBLIC KEY-----
+-----END PUBLIC KEY-----
 )")
 };
 // clang-format on
