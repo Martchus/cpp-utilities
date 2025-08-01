@@ -9,8 +9,14 @@ namespace CppUtilities {
 /*!
  * \brief Contains signing keys for verifying releases via OpenSSL or stsigtool.
  * \remarks
- * - Checkout the header file `verification.h` for verification with OpenSSL.
+ * - Checkout the header file `verification.h` which contains the function verifySignature() for
+ *   verification with OpenSSL.
  * - Checkout the Syncthing library contained in Syncthing Tray for verification with stsigtool.
+ * - The arrays may contain more than one key, e.g. when rotatiung keys and an old key is in progress
+ *   of being phased out.
+ * - The concrete type of the contained key variables will change when the number of keys changes.
+ *   So do *not* use it in e.g. a function signature or member variable that will become part of
+ *   some public API/ABI. The variable is mereley supposed to be passed to verifySignature().
  * - This function is experimental and might be changed in incompatible ways (API and ABI wise) or be completely removed
  *   in further minor/patch releases.
  */

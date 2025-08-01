@@ -69,6 +69,9 @@ inline std::string parsePemSignature(std::string_view pemSignature, std::pair<st
 
 } // namespace Detail
 
+/// \brief The signature of the main verifySignature() function.
+using MainVerifyFunctionType = std::string (*)(std::string_view, std::string_view, std::string_view);
+
 /*!
  * \brief Verifies \a data with the specified public key \a publicKeyPem and signature \a signaturePem.
  * \returns Returns an empty string if \a data and \a signature are correct and an error message otherwise.
@@ -104,7 +107,6 @@ inline std::string parsePemSignature(std::string_view pemSignature, std::pair<st
 inline std::string verifySignature(std::string_view publicKeyPem, std::string_view signaturePem, std::string_view data)
 {
     auto error = std::string();
-
     auto derSignature = std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t>();
     if (error = Detail::parsePemSignature(signaturePem, derSignature); !error.empty()) {
         return error;
@@ -146,6 +148,27 @@ inline std::string verifySignature(std::string_view publicKeyPem, std::string_vi
 
     EVP_MD_CTX_free(mdCtx);
     EVP_PKEY_free(publicKey);
+    return error;
+}
+
+/*!
+ * \brief Verifies \a data with the specified public keys \a publicKeysPem and signature \a signaturePem.
+ * \returns Returns an empty string if \a data and \a signature are correct and an error message otherwise.
+ * \remarks
+ * - This is a version of verifySignature() that takes more than one public key trying out different keys.
+ *   This allows rotating keys once in a while without breaking verification by temporarily allowing the
+ *   old and new key at the same time.
+ */
+template <class Keys, class VerifyFunction = MainVerifyFunctionType>
+inline std::string verifySignature(Keys &&publicKeysPem, std::string_view signaturePem, std::string_view data,
+    VerifyFunction &&verifyFunction = static_cast<MainVerifyFunctionType>(&verifySignature))
+{
+    auto error = std::string("no keys provided");
+    for (const auto publicKeyPem : publicKeysPem) {
+        if ((error = verifyFunction(publicKeyPem, signaturePem, data)).empty()) {
+            return error;
+        }
+    }
     return error;
 }
 

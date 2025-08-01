@@ -3,6 +3,7 @@
 #include "../misc/multiarray.h"
 
 #ifdef CPP_UTILITIES_HAS_OPENSSL_CRYPTO
+#include "../misc/signingkeys.h"
 #include "../misc/verification.h"
 #endif
 
@@ -205,6 +206,12 @@ sWB0iGdPa+oXbRish7HoNCU/k0lD3ffXaf8ueC78Zme9NFO18Ol+NWXJDA==
 
     message[5] = '?';
     CPPUNIT_ASSERT_EQUAL_MESSAGE("manipulate message", "incorrect signature"s, verifySignature(key, signature, message));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("manipulate message", "incorrect signature"s, verifySignature(key, signature, message));
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "verifySignature can be called with array of signatures", "incorrect signature"s, verifySignature(SigningKeys::openssl, signature, message));
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "verifySignature can be called with empty vector", "no keys provided"s, verifySignature(std::vector<std::string_view>(), signature, message));
 }
 #endif
 
