@@ -260,7 +260,14 @@ if (USE_PLATFORM_SPECIFIC_API_FOR_OPTIMIZING_COPY_HELPER)
 endif ()
 
 # configure tests for verification helpers which require OpenSSL
-use_crypto(LIBRARIES_VARIABLE "TEST_LIBRARIES" PACKAGES_VARIABLE "TEST_PACKAGES" OPTIONAL)
+use_crypto(
+    LIBRARIES_VARIABLE
+    "TEST_LIBRARIES"
+    PACKAGES_VARIABLE
+    "TEST_PACKAGES"
+    PACKAGE_ARGS
+    1.1.0
+    OPTIONAL)
 if ("OpenSSL::Crypto" IN_LIST "TEST_LIBRARIES")
     message(STATUS "Testing verification using OpenSSL crypto library")
     set_property(

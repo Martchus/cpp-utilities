@@ -17,14 +17,6 @@
 namespace CppUtilities {
 
 namespace Detail {
-/// \brief Initializes OpenSSL.
-/// \remarks This function is an implementation detail and must not be called by users this library.
-inline void initOpenSsl()
-{
-    ERR_load_crypto_strings();
-    OpenSSL_add_all_algorithms();
-}
-
 /// \brief Returns the current OpenSSL error.
 /// \remarks This function is an implementation detail and must not be called by users this library.
 inline std::string getOpenSslError()
@@ -83,7 +75,10 @@ inline std::string parsePemSignature(std::string_view pemSignature, std::pair<st
  * \remarks
  * - The digest algorithm is assumed to be SHA256.
  * - The key and signature must both be provided in PEM format.
- * - This function requires linking with the OpenSSL crypto library and will initialize OpenSSL.
+ * - This function requires linking with the OpenSSL crypto library. It will *not* initialize the OpenSSL crypto library
+ *   explicitly assuming OpenSSL version 1.1.0 or higher is used (which no longer requires explicit initialization). If
+ *   you are using an older version of OpenSSL you may need to call ERR_load_crypto_strings() and OpenSSL_add_all_algorithms()
+ *   before invoking this function.
  * - This function is experimental and might be changed in incompatible ways (API and ABI wise) or be completely removed
  *   in further minor/patch releases.
  *
@@ -109,7 +104,6 @@ inline std::string parsePemSignature(std::string_view pemSignature, std::pair<st
 inline std::string verifySignature(std::string_view publicKeyPem, std::string_view signaturePem, std::string_view data)
 {
     auto error = std::string();
-    Detail::initOpenSsl();
 
     auto derSignature = std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t>();
     if (error = Detail::parsePemSignature(signaturePem, derSignature); !error.empty()) {
