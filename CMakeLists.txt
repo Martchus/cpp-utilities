@@ -84,6 +84,7 @@ set(CMAKE_MODULE_FILES
     cmake/modules/WindowsResources.cmake
     cmake/modules/TemplateFinder.cmake
     cmake/modules/Doxygen.cmake
+    cmake/modules/Sphinx.cmake
     cmake/modules/ListToString.cmake
     cmake/modules/ShellCompletion.cmake
     cmake/modules/DevelUtilities.cmake
@@ -96,6 +97,7 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/desktop.in
     cmake/templates/appdata.xml.in
     cmake/templates/doxygen.in
+    cmake/templates/sphinx-conf.py.in
     cmake/templates/global.h.in
     cmake/templates/version.h.in
     cmake/templates/template.pc.in)

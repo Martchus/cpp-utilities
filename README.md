@@ -64,6 +64,8 @@ These build instructions apply to `c++utilities` but also to my other projects u
 * CMake (at least 3.17.0) and Ninja or GNU Make
 * cppunit for unit tests (optional)
 * Doxygen for API documentation (optional)
+* Sphinx with MyST-Parser for general documentation (optional, under Arch Linux install
+  `python-myst-parser`)
 * Graphviz for diagrams in the API documentation (optional)
 * clang-format and cmake-format for tidying (optional)
 * llvm-profdata, llvm-cov and cppunit for source-based code coverage analysis (optional)

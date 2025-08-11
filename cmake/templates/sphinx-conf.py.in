@@ -1,0 +1,32 @@
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+project = '@META_APP_NAME@'
+copyright = '@META_APP_COPYRIGHT@'
+author = '@META_APP_AUTHOR@'
+version = '@META_VERSION_MAJOR@.@META_VERSION_MINOR@.@META_VERSION_PATCH@'
+release = '@META_RELEASE_DATE@'
+
+# -- General configuration ------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+exclude_patterns = [
+    '.github', # exclude GitHub issue templates
+    'syncthing/go/**', # exclude files from Syncthing itself
+    'CMakeLists*', # avoid CMakeLists.txt from being considered normal txt files
+    '**/CMakeLists*', # avoid CMakeLists.txt from being considered normal txt files
+    'LICENSES-*', # exclude license compilations
+]
+extensions = [
+    'myst_parser', # enable Markdown support
+]
+language = 'en'
+master_doc = 'index'
+pygments_style = 'sphinx'
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+templates_path = ['_templates']
+
+# -- Options for HTML output ----------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+html_theme = 'alabaster'
