@@ -83,4 +83,4 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
     endif ()
 endif ()
 
-message(STATUS "Generating target for generating API documentation for ${META_TARGET_NAME} with Doxygen")
+message(STATUS "Added target for building API documentation for ${META_TARGET_NAME} with Doxygen")
