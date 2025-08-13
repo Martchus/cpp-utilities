@@ -32,10 +32,18 @@ endif ()
 append_user_defined_additional_libraries()
 
 # add target for building the application
+set(AS_LIBRARY FALSE)
 if (ANDROID)
     # create a shared library which can be loaded from the Java-side, needs to be a module target to avoid
     # "QT_ANDROID_GENERATE_DEPLOYMENT_SETTINGS only works on Module targets" when using
     # `qt_android_generate_deployment_settings`.
+    if ("GUI_QTQUICK" IN_LIST META_PRIVATE_COMPILE_DEFINITIONS)
+        set(AS_LIBRARY TRUE)
+    elseif ("GUI_QTWIDGETS" IN_LIST META_PRIVATE_COMPILE_DEFINITIONS)
+        set(AS_LIBRARY TRUE)
+    endif ()
+endif ()
+if (AS_LIBRARY)
     add_library(${META_TARGET_NAME} MODULE ${ALL_FILES})
     # set suffix to avoid "Cannot find application binary in build dir …/lib…_arm64-v8a.so." when using
     # `qt_android_add_apk_target`.
