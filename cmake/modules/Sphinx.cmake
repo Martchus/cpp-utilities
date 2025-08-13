@@ -30,7 +30,8 @@ set(SPHINX_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
 configure_file("${SPHINX_TEMPLATE_FILE}" "${SPHINX_CONFIG_DIR}/conf.py")
 
 # add target for generating documentation
-add_custom_target("${META_TARGET_NAME}_sphinxdoc" COMMAND "${SPHINX_BIN}" -c "${SPHINX_CONFIG_DIR}" "${SPHINX_SOURCE_DIR}" "${SPHINX_OUTPUT_DIR}")
+add_custom_target("${META_TARGET_NAME}_sphinxdoc" COMMAND "${SPHINX_BIN}" -c "${SPHINX_CONFIG_DIR}" "${SPHINX_SOURCE_DIR}"
+                                                          "${SPHINX_OUTPUT_DIR}")
 if (NOT TARGET sphinxdoc)
     add_custom_target(sphinxdoc)
 endif ()
