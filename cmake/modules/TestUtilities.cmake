@@ -18,7 +18,7 @@ option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the 'all'
 
 function (configure_test_target)
     # parse arguments
-    set(OPTIONAL_ARGS MANUAL)
+    set(OPTIONAL_ARGS MANUAL REQUIRES_MAIN_TARGET)
     set(ONE_VALUE_ARGS TARGET_NAME TEST_NAME FULL_TEST_NAME_OUT_VAR)
     set(MULTI_VALUE_ARGS HEADER_FILES SRC_FILES LIBRARIES RUN_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
@@ -89,5 +89,8 @@ function (configure_test_target)
     # add the test executable to the dependencies of the check target
     if (NOT ARGS_MANUAL AND TARGET check)
         add_dependencies(check ${TEST_TARGET_NAME})
+        if (ARGS_REQUIRES_MAIN_TARGET)
+            add_dependencies(check "${META_TARGET_NAME}")
+        endif ()
     endif ()
 endfunction ()
