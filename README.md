@@ -155,7 +155,7 @@ instructions for building on Windows.
 #### MacOS-specific notes
 * To create application icons the tool `png2icns` is required.
 * Building for MacOS X under GNU/Linux is possible using [osxcross](https://github.com/tpoechtrager/osxcross).
-* MacOS X builds are not tested regularly but should generally work (maybe with minor tweaks necassary).
+* MacOS X builds are not tested regularly but should generally work (maybe with minor tweaks necessary).
 * There is a [Homebrew formula](https://gist.github.com/rakkesh/0b13b8fca5dd1d57d98537ef1dd2e0dd) to
   build Tag Editor (without GUI).
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel)
@@ -266,7 +266,7 @@ usable under older GNU/Linux distributions using `static-compat` packages (see
 [PKGBUILDs](https://github.com/Martchus/PKGBUILDs#static-gnulinux-libraries) for details about it).
 
 ##### Remarks about building for Android
-Note that this might not be necassary; one can usually develop and test most parts of the mobile UI of e.g.
+Note that this might not be necessary; one can usually develop and test most parts of the mobile UI of e.g.
 Syncthing Tray natively on the development host thanks to the cross-platform nature of Qt.
 
 I recommended building for Android under Arch Linux (or an Arch Linux container, see last paragraphs of this

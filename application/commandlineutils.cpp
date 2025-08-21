@@ -164,7 +164,7 @@ void stopConsole()
  *   when using Mintty).
  * - Attaching a console breaks redirections/pipes so this needs to be opted-in by setting the environment variable
  *   `ENABLE_CONSOLE=1`.
- * - Note that this is only useful to start a console from a GUI application. It is not necassary to call this function
+ * - Note that this is only useful to start a console from a GUI application. It is not necessary to call this function
  *   from a console application.
  * - The console is automatically closed when the application exits.
  * - This function alone does not provide good results. It still breaks redirections in PowerShell and other shells and
