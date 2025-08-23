@@ -407,7 +407,7 @@ pacman -Syu git $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-c
 
 # clone relevant repositories, e.g. here just tagparser and its dependency c++utilities
 cd /path/to/store/sources
-git config core.symlinks true
+git config --global core.symlinks true
 git clone https://github.com/Martchus/cpp-utilities.git c++utilities
 git clone https://github.com/Martchus/tagparser.git
 
