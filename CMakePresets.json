@@ -9,7 +9,8 @@
       "generator": "Ninja",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default",
       "cacheVariables": {
-        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{BUILD_DIR}/install-prefix"}
+        "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{BUILD_DIR}/install-prefix"},
+        "GO_DEVELOPMENT_PATH": {"type": "PATH", "value": "$env{BUILD_DIR}/go-path"}
       },
       "environment": {"TEST_FILE_PATH": "${sourceDir}/testfiles"}
     },
