@@ -152,7 +152,14 @@ endif ()
 
 # add library to be created, set libs to link against, set version and C++ standard
 if (META_HEADER_ONLY_LIB)
-    add_library(${META_TARGET_NAME} INTERFACE)
+    if (TARGET "${META_TARGET_NAME}")
+        get_target_property(SET_TARGET_NAME ${META_TARGET_NAME} TYPE)
+        if (NOT SET_TARGET_NAME STREQUAL "INTERFACE_LIBRARY")
+            message(FATAL_ERROR "Library ${META_TARGET_NAME} has mismatching type ${SET_TARGET_NAME}.")
+        endif ()
+    else ()
+        add_library(${META_TARGET_NAME} INTERFACE)
+    endif ()
     target_link_libraries(${META_TARGET_NAME} INTERFACE ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
                                                         "${PRIVATE_LIBRARIES}")
     target_include_directories(
@@ -164,7 +171,15 @@ if (META_HEADER_ONLY_LIB)
     target_compile_options(${META_TARGET_NAME} INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}" "${META_PRIVATE_COMPILE_OPTIONS}")
     set_target_properties(${META_TARGET_NAME} PROPERTIES EXPORT_COMPILE_COMMANDS "${ENABLE_EXPORT_COMPILE_COMMANDS}")
 else ()
-    add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
+    if (TARGET "${META_TARGET_NAME}")
+        get_target_property(SET_TARGET_NAME ${META_TARGET_NAME} TYPE)
+        if (NOT SET_TARGET_NAME STREQUAL "${META_LIBRARY_TYPE}_LIBRARY")
+            message(FATAL_ERROR "Library ${META_TARGET_NAME} has mismatching type ${SET_TARGET_NAME}.")
+        endif ()
+        target_sources(${META_TARGET_NAME} PRIVATE ${ALL_FILES})
+    else ()
+        add_library(${META_TARGET_NAME} ${META_LIBRARY_TYPE} ${ALL_FILES})
+    endif ()
     target_link_libraries(
         ${META_TARGET_NAME}
         PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
@@ -230,7 +245,14 @@ else ()
 
     # add target for pulling only headers because some libraries contain header-only parts which are useful on their own
     if (NOT META_PLUGIN_CATEGORY)
-        add_library(${META_TARGET_NAME}-headers INTERFACE)
+        if (TARGET "${META_TARGET_NAME}-headers")
+            get_target_property(SET_TARGET_NAME "${META_TARGET_NAME}-headers" TYPE)
+            if (NOT SET_TARGET_NAME STREQUAL "INTERFACE_LIBRARY")
+                message(FATAL_ERROR "Library ${META_TARGET_NAME}-headers has mismatching type ${SET_TARGET_NAME}.")
+            endif ()
+        else ()
+            add_library(${META_TARGET_NAME}-headers INTERFACE)
+        endif ()
         target_include_directories(
             ${META_TARGET_NAME}-headers
             INTERFACE $<BUILD_INTERFACE:${TARGET_INCLUDE_DIRECTORY_BUILD_INTERFACE}>
