@@ -1,6 +1,6 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-project = '@META_APP_NAME@'
+project = '@META_APP_BASE_NAME@'
 copyright = '@META_APP_COPYRIGHT@'
 author = '@META_APP_AUTHOR@'
 version = '@META_VERSION_MAJOR@.@META_VERSION_MINOR@.@META_VERSION_PATCH@'
