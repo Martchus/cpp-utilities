@@ -17,15 +17,17 @@
 #include <string_view>
 #include <system_error>
 #include <vector>
-#include <version>
 
+// configure use of ranges and concepts
+#if __cplusplus >= 201709
+#include <version>
+#endif
 #if __cplusplus >= 201709 && defined(__cpp_lib_ranges) && !defined(REFLECTIVE_RAPIDJSON_GENERATOR)
 #ifndef CPP_UTILITIES_USE_RANGES
 #define CPP_UTILITIES_USE_RANGES
 #endif
 #include <ranges>
 #endif
-
 #if __cplusplus >= 201709 && defined(__cpp_concepts)
 #ifndef CPP_UTILITIES_USE_REQUIRES
 #define CPP_UTILITIES_USE_REQUIRES
