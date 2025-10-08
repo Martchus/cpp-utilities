@@ -26,6 +26,12 @@
 #include <ranges>
 #endif
 
+#if __cplusplus >= 201709 && defined(__cpp_concepts)
+#ifndef CPP_UTILITIES_USE_REQUIRES
+#define CPP_UTILITIES_USE_REQUIRES
+#endif
+#endif
+
 namespace CppUtilities {
 
 // clang-format off
@@ -225,22 +231,22 @@ Container splitStringSimple(
         if (delimPos == Container::value_type::npos) {
             delimPos = string.size();
         }
-#if __cplusplus >= 201709
+#ifdef CPP_UTILITIES_USE_REQUIRES
         if constexpr (requires { res.emplace_back(string); }) {
 #endif
             res.emplace_back(string.data() + i, delimPos - i);
-#if __cplusplus >= 201709
+#ifdef CPP_UTILITIES_USE_REQUIRES
         } else {
             res.emplace(string.data() + i, delimPos - i);
         }
 #endif
     }
     if (i == end) {
-#if __cplusplus >= 201709
+#ifdef CPP_UTILITIES_USE_REQUIRES
         if constexpr (requires { res.emplace_back(); }) {
 #endif
             res.emplace_back();
-#if __cplusplus >= 201709
+#ifdef CPP_UTILITIES_USE_REQUIRES
         } else {
             res.emplace();
         }
