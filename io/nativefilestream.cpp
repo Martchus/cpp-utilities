@@ -36,7 +36,6 @@ just "open failed: iostream error".
 
 // include platform specific header
 #if defined(PLATFORM_UNIX)
-#include <cstdio>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>

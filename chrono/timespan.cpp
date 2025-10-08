@@ -3,7 +3,6 @@
 #include "./timespan.h"
 
 #include "../conversion/stringbuilder.h"
-#include "../conversion/stringconversion.h"
 
 #include <array>
 #include <charconv>

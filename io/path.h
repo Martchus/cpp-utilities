@@ -7,7 +7,6 @@
 #include "../conversion/stringconversion.h"
 #endif
 
-#include <list>
 #include <string>
 #include <string_view>
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM

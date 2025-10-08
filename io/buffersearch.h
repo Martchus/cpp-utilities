@@ -2,7 +2,6 @@
 #define IOUTILITIES_BUFFER_SEARCH_H
 
 #include "../global.h"
-#include "../misc/traits.h"
 
 #include <array>
 #include <functional>

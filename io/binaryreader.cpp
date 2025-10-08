@@ -3,7 +3,6 @@
 #include "../conversion/conversionexception.h"
 
 #include <cstring>
-#include <memory>
 #include <sstream>
 
 using namespace std;

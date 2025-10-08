@@ -2,10 +2,10 @@
 #define CONVERSION_UTILITIES_BINARY_CONVERSION_H
 
 #include "../global.h"
-#include "../misc/traits.h"
+#include "../misc/traits.h" // used in binaryconversionprivate.h
 
 #include <cstdint>
-#include <cstring>
+#include <cstring> // used in binaryconversionprivate.h
 
 // use helpers from bits header if available instead of custom code using bit operations
 #if __cplusplus >= 202002L

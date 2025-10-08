@@ -1,11 +1,7 @@
 #ifndef MATHUTILITIES_H
 #define MATHUTILITIES_H
 
-#include "../global.h"
 #include "./traits.h"
-
-#include <cstdint>
-#include <limits>
 
 namespace CppUtilities {
 

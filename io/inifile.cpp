@@ -1,7 +1,5 @@
 #include "./inifile.h"
 
-#include "../conversion/stringconversion.h"
-
 #include <iostream>
 
 using namespace std;

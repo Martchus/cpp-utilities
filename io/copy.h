@@ -13,6 +13,7 @@
 #include <sys/sendfile.h>
 #endif
 
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #ifdef CPP_UTILITIES_USE_SEND_FILE

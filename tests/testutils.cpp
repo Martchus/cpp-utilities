@@ -5,7 +5,6 @@
 #include "../io/ansiescapecodes.h"
 #include "../io/misc.h"
 #include "../io/nativefilestream.h"
-#include "../io/path.h"
 #include "../misc/parseerror.h"
 
 #include <cerrno>
@@ -15,7 +14,6 @@
 #include <fstream>
 #include <initializer_list>
 #include <iostream>
-#include <limits>
 
 #ifdef PLATFORM_UNIX
 #ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM

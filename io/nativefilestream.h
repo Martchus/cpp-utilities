@@ -8,9 +8,12 @@
 #include <memory>
 #include <streambuf>
 #include <string>
+#ifdef PLATFORM_WINDOWS
 #include <string_view>
 #endif
+#else
 #include <fstream>
+#endif
 
 namespace CppUtilities {
 

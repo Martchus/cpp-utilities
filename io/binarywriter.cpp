@@ -2,9 +2,6 @@
 
 #include "../conversion/conversionexception.h"
 
-#include <cstring>
-#include <memory>
-
 using namespace std;
 
 namespace CppUtilities {

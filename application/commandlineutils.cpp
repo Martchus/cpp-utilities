@@ -1,7 +1,8 @@
 #include "./commandlineutils.h"
-#include "./argumentparserprivate.h"
 
+#ifdef PLATFORM_WINDOWS
 #include "../io/ansiescapecodes.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -9,6 +10,7 @@
 #include <fcntl.h>
 #ifdef PLATFORM_WINDOWS
 #include <cstring>
+#include <cstdint>
 #include <io.h>
 #include <tchar.h>
 #include <windows.h>

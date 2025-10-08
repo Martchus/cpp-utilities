@@ -3,9 +3,7 @@
 #include "./math.h"
 #include "./multiarray.h"
 
-#include <iostream>
 #include <limits>
-#include <memory>
 
 using namespace std;
 

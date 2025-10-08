@@ -8,13 +8,16 @@
 #define CPP_UTILITIES_THREAD_LOCAL
 #endif
 
-#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
-#include <limits>
 #include <memory>
 #include <sstream>
+
+#ifdef PLATFORM_WINDOWS
+#include <algorithm> // for std::clamp
+#include <limits>
+#endif
 
 #include <errno.h>
 

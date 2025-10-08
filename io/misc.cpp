@@ -3,7 +3,7 @@
 #include "./misc.h"
 #include "./nativefilestream.h"
 
-#include <streambuf>
+#include <iterator>
 
 using namespace std;
 
