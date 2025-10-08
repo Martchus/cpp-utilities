@@ -17,8 +17,9 @@
 #include <string_view>
 #include <system_error>
 #include <vector>
+#include <version>
 
-#if __cplusplus >= 201709 && !defined(REFLECTIVE_RAPIDJSON_GENERATOR)
+#if __cplusplus >= 201709 && defined(__cpp_lib_ranges) && !defined(REFLECTIVE_RAPIDJSON_GENERATOR)
 #ifndef CPP_UTILITIES_USE_RANGES
 #define CPP_UTILITIES_USE_RANGES
 #endif
