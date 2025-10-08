@@ -9,8 +9,8 @@
 
 #include <fcntl.h>
 #ifdef PLATFORM_WINDOWS
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 #include <io.h>
 #include <tchar.h>
 #include <windows.h>
