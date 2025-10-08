@@ -15,8 +15,11 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <vector>
+
+#ifdef PLATFORM_WINDOWS
+#include <system_error>
+#endif
 
 // configure use of ranges and concepts
 #if __cplusplus >= 201709
