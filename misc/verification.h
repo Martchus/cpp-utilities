@@ -51,7 +51,7 @@ inline std::string extractPemBody(std::string_view pem, std::string_view header)
     return body;
 }
 
-/// \brief Converts PEM-encoded signature into DER-encoded signature.
+/// \brief Converts a PEM-encoded signature into a DER-encoded signature.
 /// \remarks This function is an implementation detail and must not be called by users of this library.
 inline std::string parsePemSignature(std::string_view pemSignature, std::pair<std::unique_ptr<std::uint8_t[]>, std::uint32_t> &decodedSignature)
 {
