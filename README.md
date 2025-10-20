@@ -544,19 +544,21 @@ After following [instructions for importing my GPG key](https://martchus.dyn.f3l
 can install Android packages, e.g.:
 
 ```
-pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite} \
-  --assume-installed android-ndk --assume-installed android-sdk
+pacman -Syu --assume-installed=android-{sdk,ndk} \
+  android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
 ````
 
 You may even install a few KDE libraries like Kirigami:
 ```
-pacman -S android-{aarch64,x86-64}-kirigami --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat}
+pacman -S --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
+  android-{aarch64,x86-64}-kirigami
 ```
 
 You may also install Qt itself from my repo instead of relying on official Qt builds:
 ```
- pacman -S --assume-installed={ant,java-runtime-headless-openjdk=17} --assume-installed=android-{ndk,sdk,sdk-build-tools,sdk-platform-tools,platform-35} android-x86-64-qt6-declarative android-x86-64-qt6-tools android-x86-64-qt6-svg android-x86-64-qt6-translations
- ```
+pacman -S --assume-installed={ant,java-runtime-headless-openjdk=17} --assume-installed=android-{ndk,sdk,sdk-build-tools,sdk-platform-tools,platform-35} \
+  android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
+```
 
 Note that when using Qt for Android from my repo you also need to install a matching version of Qt for
 Windows from MSYS2 mingw-w64 repos for host tooling.
