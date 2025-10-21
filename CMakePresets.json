@@ -593,7 +593,7 @@
       }
     },
     {
-      "name": "win-android",
+      "name": "win-android-base",
       "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
       "displayName": "Target *-linux-android using MSYS2 and Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
       "description": "Build targeting Android, paths and flags are specific to MSYS2 and Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
@@ -616,7 +616,7 @@
         "CMAKE_CXX_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_CXXFLAGS}"},
         "CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES": {"type": "PATH", "value": "$env{ANDROID_PREFIX_INCLUDE}"},
         "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {"type": "STRING", "value": "$env{ANDROID_LDFLAGS}"},
-        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{QT_PLATFORMS_ROOT}/android_$env{QT_ANDROID_ARCH};$env{ANDROID_PREFIX}"},
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
         "CMAKE_PREFIX_PATH": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
         "CMAKE_INSTALL_PREFIX": {"type": "PATH", "value": "$env{ANDROID_PREFIX}"},
         "CMAKE_INSTALL_LIBDIR": {"type": "PATH", "value": "lib"},
@@ -626,7 +626,28 @@
         "LIB_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_LIB}"},
         "SYSCONF_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_ETC}"},
         "SHARE_INSTALL_DIR": {"type": "PATH", "value": "$env{ANDROID_PREFIX_SHARE}"},
-        "PKG_CONFIG_EXECUTABLE": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/$env{ANDROID_PKGCONFIG}"}
+        "PKG_CONFIG_EXECUTABLE": {"type": "FILEPATH", "value": "$env{MSYS2_ROOT}/usr/bin/$env{ANDROID_PKGCONFIG}"},
+        "CGO_CFLAGS_APPEND": {"type": "STRING", "value": "-I$env{ANDROID_PREFIX_INCLUDE}"},
+        "CGO_LDFLAGS_APPEND": {"type": "STRING", "value": "-L$env{ANDROID_PREFIX_LIB}"}
+      }
+    },
+    {
+      "name": "win-android",
+      "inherits": ["win-android-base"],
+      "displayName": "Target *-linux-android using MSYS2 and Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
+      "description": "Build targeting Android, paths and flags are specific to MSYS2 and Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
+      "cacheVariables": {
+        "QT_HOST_PATH": {"type": "PATH", "value": "$env{MSYS2_ROOT}/ucrt64"}
+      }
+    },
+    {
+      "name": "win-android-official-qt",
+      "inherits": ["win-android-base"],
+      "displayName": "Target *-linux-android using official Qt builds and additionally MSYS2 and Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
+      "description": "Build targeting Android, paths and flags are specific to MSYS2 and Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-android-official-qt-$env{ANDROID_ABI}",
+      "cacheVariables": {
+        "CMAKE_FIND_ROOT_PATH": {"type": "PATH", "value": "$env{QT_PLATFORMS_ROOT}/android_$env{QT_ANDROID_ARCH};$env{ANDROID_PREFIX}"}
       }
     }
   ],
@@ -670,7 +691,8 @@
     {"name": "win-x64-msvc-static", "configurePreset": "win-x64-msvc-static"},
     {"name": "win-x64-msvc-static-devel", "configurePreset": "win-x64-msvc-static-devel"},
     {"name": "win-x64-msvc-static-debug", "configurePreset": "win-x64-msvc-static-debug"},
-    {"name": "win-android", "configurePreset": "win-android"}
+    {"name": "win-android", "configurePreset": "win-android"},
+    {"name": "win-android-official-qt", "configurePreset": "win-android-official-qt"}
   ],
   "testPresets": [
     {

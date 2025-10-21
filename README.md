@@ -517,16 +517,18 @@ The NDK needs to be [downloaded separately](https://developer.android.com/ndk/do
 <summary>Install Qt</summary>
 
 The easiest way to install Qt is via the official [Qt installer](https://www.qt.io/download-qt-installer-oss).
-The open source version is sufficient but a Qt account is required.
+The open source version is sufficient but a Qt account is required. Alternatively, you can also skip the this
+step and install Qt like the other additional libraries as mentioned in the next section.
 </details>
 
 <details>
 <summary>Install additional native libraries for Android</summary>
 
 Additional libraries can be installed via MSYS2 using my Arch Linux packaging. Note that this is not generally
-required to build Syncthing Tray as use of libiconv, Boost, OpenSSL and CppUnit is optional (so only Qt is
-required besides the C/C++ standard libraries). However, the following instructions and the CMake preset make
-use of MSYS2 and the `android-cmake` package. The OpenSSL package is also very likely wanted for TLS support.
+required to build Syncthing Tray as use of libiconv, Boost, OpenSSL, CppUnit and system SQLite3 is optional (so
+only Qt is required besides the C/C++ standard libraries). However, the following instructions and the CMake
+preset make use of MSYS2 and the `android-cmake` package. The OpenSSL package is also very likely wanted for TLS
+support.
 
 To install additional libraries via MSYS2, add my Arch Linux repository to
 `/etc/pacman.conf`:
@@ -542,28 +544,37 @@ After following [instructions for importing my GPG key](https://martchus.dyn.f3l
 can install Android packages, e.g.:
 
 ```
-pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit} \
-  --assume-installed android-ndk --assume-installed android-sdk
+pacman -Syu --assume-installed=android-{sdk,ndk} \
+  android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
 ````
 
 You may even install a few KDE libraries like Kirigami:
 ```
-pacman -S android-{aarch64,x86-64}-kirigami --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat}
+pacman -S --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
+  android-{aarch64,x86-64}-kirigami
 ```
 
-Whether this will actually work at runtime hasn't been tested yet. One definitely has to make sure that the
-used version of Qt is at least as new as the version the KDE libraries from my repo have been linked against.
+You may also install Qt itself from my repo instead of relying on official Qt builds:
+```
+pacman -S --assume-installed={ant,java-runtime-headless-openjdk=17} --assume-installed=android-{ndk,sdk,sdk-build-tools,sdk-platform-tools,platform-35} \
+  android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
+```
+
+Note that when using Qt for Android from my repo you also need to install a matching version of Qt for
+Windows from MSYS2 mingw-w64 repos for host tooling.
+
+When just using KDE libraries from my repo but Qt from the official installer you need to make sure that
+the installed version of Qt is at least as new as the version the KDE libraries from my repo have been
+linked against.
 
 The libraries will end up under `/opt/android-libs` within your MSYS2 installation. Do not install any non
 `android-*-` packages, though. They will have file conflicts with packages provided by MSYS2 and are not usable
 under Windows anyway.
 
-The Qt packages for Android cannot be used as well because they rely on the Qt packaging provided by Arch Linux
-for tooling. (Maybe the Qt packages provided by MSYS2 mingw-w64 packages could be used for tooling. This hasn't
-been tested yet, though.)
-
 To search for available Android packages on my repo per architecture one can use e.g.
 `pacman -Ss android-aarch64-`.
+
+Whether builds using any of these libraries will actually work at runtime hasn't been tested yet.
 </details>
 
 <details>
@@ -573,9 +584,11 @@ Set the following environment variables:
 
 * `ANDROID_HOME`: path to the Android SDK
 * `ANDROID_NDK_HOME`: path to the Android NDK
+* `ANDROID_TOOLCHAIN`: path to the Android toolchain (part of the Android NDK)
+* `ANDROID_MINIMUM_PLATFORM=24`: set minimum platform to Android 7.0 in-line with packages from my Arch repo
 * `ANDROID_STUDIO_HOME`: Android studio install directory (for adding Java to `PATH` and setting `JAVA_HOME`)
 * `QT_PLATFORMS_ROOT`: directory containing Qt platform directories installed via the official Qt installer,
-  e.g. `D:/programming/qt/6.8.0`
+  e.g. `D:/programming/qt/6.10.0` (not required when installing Qt for Android via my Arch repo)
 * `QT_ANDROID_ARCH`: `x86_64`/`arm64_v8a`/`armv7`/`x86`
 * `QT_ANDROID_KEYSTORE_PATH`: path of directory containing Android keystores
 * `QT_ANDROID_KEYSTORE_ALIAS`: name of Android keystore to use
@@ -587,8 +600,9 @@ Then the build can be conducted in a MSYS2 shell, e.g.:
 
 ```
 source android-env x86-64 # or aarch64
-cmake --preset win-android
-cmake --build --preset win-android
+cmake --preset win-android # to use everything from MSYS2
+cmake --preset win-android-official-qt # to use Qt from QT_PLATFORMS_ROOT
+cmake --build --preset win-android # or win-android-official-qt
 ```
 </details>
 
