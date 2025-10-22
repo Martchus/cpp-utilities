@@ -72,6 +72,13 @@ inline OutputCheck::OutputCheck(std::function<void(const std::string &)> &&custo
  */
 inline OutputCheck::~OutputCheck() noexcept(false)
 {
+#   ifdef CppUnit2Gtest
+#       define ExpectEqual(a, b) EXPECT_EQ(a,b); if (!(a == b) ) throw std::logic_error("bad assert")
+#       define Fail(msg)         ADD_FAILURE() << msg; throw std::logic_error("bad assert")
+#   else
+#       define ExpectEqual(a, b) CPPUNIT_ASSERT_EQUAL(a,b)
+#       define Fail(msg)         CPPUNIT_FAIL(msg)
+#endif
     m_os.rdbuf(m_regularOutputBuffer);
     const std::string actualOutput(m_buffer.str());
     if (m_customCheck) {
@@ -79,13 +86,15 @@ inline OutputCheck::~OutputCheck() noexcept(false)
         return;
     }
     if (m_alternativeOutput.empty()) {
-        CPPUNIT_ASSERT_EQUAL(m_expectedOutput, actualOutput);
+        ExpectEqual(m_expectedOutput, actualOutput);
         return;
     }
     if (m_expectedOutput != actualOutput && m_alternativeOutput != actualOutput) {
         using namespace CppUtilities;
-        CPPUNIT_FAIL("Output is not either \"" % m_expectedOutput % "\" or \"" % m_alternativeOutput % "\". Got instead:\n" + actualOutput);
+        Fail("Output is not either \"" % m_expectedOutput % "\" or \"" % m_alternativeOutput % "\". Got instead:\n" + actualOutput);
     }
+#undef Fail
+#undef ExpectEqual
 }
 
 } // namespace CppUtilities
