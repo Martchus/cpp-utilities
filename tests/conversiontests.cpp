@@ -418,16 +418,8 @@ struct StringThatDoesNotLikeToBeCopiedOrMoved : public std::string {
         : std::string(value)
     {
     }
-    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(const StringThatDoesNotLikeToBeCopiedOrMoved &other)
-        : std::string(other)
-    {
-        CPPUNIT_FAIL("attempt to copy string: " + other);
-    }
-    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(StringThatDoesNotLikeToBeCopiedOrMoved &&other)
-        : std::string(std::move(other))
-    {
-        CPPUNIT_FAIL("attempt to move string: " + other);
-    }
+    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(const StringThatDoesNotLikeToBeCopiedOrMoved &other) = delete;
+    [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(StringThatDoesNotLikeToBeCopiedOrMoved &&other) = delete;
 };
 
 /// \endcond
@@ -478,6 +470,7 @@ void ConversionTests::testStringBuilder()
     // check that for the internal tuple construction no copies are made
     StringThatDoesNotLikeToBeCopiedOrMoved str(" happen ");
     const StringThatDoesNotLikeToBeCopiedOrMoved str2("for this");
+    // Both deleted so becomes a compilation test rather than a runtime one
     CPPUNIT_ASSERT_EQUAL("no copy/move should happen for this!"s,
         argsToString(StringThatDoesNotLikeToBeCopiedOrMoved("no copy/move should"), str, str2, StringThatDoesNotLikeToBeCopiedOrMoved("!")));
 }
