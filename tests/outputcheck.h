@@ -72,12 +72,17 @@ inline OutputCheck::OutputCheck(std::function<void(const std::string &)> &&custo
  */
 inline OutputCheck::~OutputCheck() noexcept(false)
 {
-#   ifdef CppUnit2Gtest
-#       define ExpectEqual(a, b) EXPECT_EQ(a,b); if (!(a == b) ) throw std::logic_error("bad assert")
-#       define Fail(msg)         ADD_FAILURE() << msg; throw std::logic_error("bad assert")
-#   else
-#       define ExpectEqual(a, b) CPPUNIT_ASSERT_EQUAL(a,b)
-#       define Fail(msg)         CPPUNIT_FAIL(msg)
+#ifdef CppUnit2Gtest
+#define ExpectEqual(a, b)                                                                                                                            \
+    EXPECT_EQ(a, b);                                                                                                                                 \
+    if (!(a == b))                                                                                                                                   \
+    throw std::logic_error("bad assert")
+#define Fail(msg)                                                                                                                                    \
+    ADD_FAILURE() << msg;                                                                                                                            \
+    throw std::logic_error("bad assert")
+#else
+#define ExpectEqual(a, b) CPPUNIT_ASSERT_EQUAL(a, b)
+#define Fail(msg) CPPUNIT_FAIL(msg)
 #endif
     m_os.rdbuf(m_regularOutputBuffer);
     const std::string actualOutput(m_buffer.str());

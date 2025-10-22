@@ -17,10 +17,10 @@ if (NOT META_NO_CPP_UNIT)
     # allow disabling CppUnit-based tests completely
     option(ENABLE_CPP_UNIT "whether CppUnit-based tests should be enabled" ON)
     option(ENABLE_CPPUNIT2GTEST "whether to allow CppUnit2Gtest to be used instead of cppunit" ON)
-    
+
     # if user has Ray's adapter layer use it instead
     find_package(CppUnit2Gtest QUIET)
-    if(ENABLE_CPPUNIT2GTEST AND CppUnit2Gtest_FOUND)
+    if (ENABLE_CPPUNIT2GTEST AND CppUnit2Gtest_FOUND)
         find_package(GTest REQUIRED)
         set(DETECTED_CPP_UNIT_LIB CppUnit2Gtest::CppUnit2Gtest)
         message(STATUS "Using CppUnit2Gtest instead of cppunit")

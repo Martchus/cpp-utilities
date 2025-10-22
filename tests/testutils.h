@@ -325,11 +325,10 @@ template <typename T, Traits::DisableIf<std::is_integral<T>> * = nullptr> const 
  * \brief Asserts whether the specified \a string matches the specified \a regex.
  * \remarks Requires cppunit.
  */
-#define TESTUTILS_ASSERT_LIKE_FLAGS(message, expectedRegex, regexFlags, actualString)                                                               \
-CPPUNIT_ASSERT_MESSAGE(                                                                                                                             \
-        CppUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"', "\n\nExpression: " #actualString, message),     \
-        (std::regex_match(actualString, std::regex(expectedRegex, regexFlags)) )                                                                    \
-    )
+#define TESTUTILS_ASSERT_LIKE_FLAGS(message, expectedRegex, regexFlags, actualString)                                                                \
+    CPPUNIT_ASSERT_MESSAGE(                                                                                                                          \
+        CppUtilities::argsToString('\"', actualString, "\"\n    not like\n\"", expectedRegex, '\"', "\n\nExpression: " #actualString, message),      \
+        (std::regex_match(actualString, std::regex(expectedRegex, regexFlags))))
 /*!
  * \brief Asserts whether the specified \a string matches the specified \a regex.
  * \remarks Requires cppunit.
