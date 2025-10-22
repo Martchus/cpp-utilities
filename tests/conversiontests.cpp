@@ -418,6 +418,8 @@ struct StringThatDoesNotLikeToBeCopiedOrMoved : public std::string {
         : std::string(value)
     {
     }
+    // delete copy and move c'tor so if argsToString() would invoke one it would be a compile time error
+    // caveat: argsToString() might still construct an std::string() unnoticed.
     [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(const StringThatDoesNotLikeToBeCopiedOrMoved &other) = delete;
     [[noreturn]] StringThatDoesNotLikeToBeCopiedOrMoved(StringThatDoesNotLikeToBeCopiedOrMoved &&other) = delete;
 };
@@ -468,9 +470,8 @@ void ConversionTests::testStringBuilder()
     CPPUNIT_ASSERT_EQUAL_MESSAGE("using string_view", "foobar123"s, "foo"sv % "bar"sv + 123);
 
     // check that for the internal tuple construction no copies are made
-    StringThatDoesNotLikeToBeCopiedOrMoved str(" happen ");
-    const StringThatDoesNotLikeToBeCopiedOrMoved str2("for this");
-    // Both deleted so becomes a compilation test rather than a runtime one
+    auto str = StringThatDoesNotLikeToBeCopiedOrMoved(" happen ");
+    const auto str2 = StringThatDoesNotLikeToBeCopiedOrMoved("for this");
     CPPUNIT_ASSERT_EQUAL("no copy/move should happen for this!"s,
         argsToString(StringThatDoesNotLikeToBeCopiedOrMoved("no copy/move should"), str, str2, StringThatDoesNotLikeToBeCopiedOrMoved("!")));
 }
