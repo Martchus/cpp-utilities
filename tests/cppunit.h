@@ -73,7 +73,7 @@ int main(int argc, char **argv)
         }
     }
     std::cerr << EscapeCodes::TextAttribute::Bold << "Executing test cases ..." << EscapeCodes::Phrases::EndFlush;
-    const auto ok = runner.run(string(), false);
+    const auto ok = runner.run(std::string(), false);
     std::cerr << (ok ? "Tests successful\n" : "Tests failed\n");
     return !ok;
 }
