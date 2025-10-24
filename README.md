@@ -81,7 +81,7 @@ These build instructions apply to `c++utilities` but also to my other projects u
     * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional, use `USE_NATIVE_FILE_BUFFER=OFF` to disable)
     * Boost.Process for `execApp()` test helper under Windows (optional, use `USE_BOOST_PROCESS=OFF` to disable)
     * libarchive (optional, for archiving utilities only, use `USE_LIBARCHIVE=ON` to enable)
-* My other projects have further dependencies such as Qt. Checkout the README of these
+* My other projects have further dependencies such as Qt. Check out the README of these
   projects for further details.
 
 ### How to build
@@ -137,7 +137,7 @@ instructions for building on Windows.
     * The specified icon themes need to be installed in the usual location. Otherwise, use e.g.
       `BUILTIN_ICON_THEMES_SEARCH_PATH=D:/programming/misc/breeze-icons/usr/share/icons` to specify the
       search path.
-* For more details, checkout the documentation about build variables (in the
+* For more details, check out the documentation about build variables (in the
   [directory `doc`](https://github.com/Martchus/cpp-utilities/blob/master/doc/buildvariables.md) and
   in the Doxygen version accessible under "Related Pages").
 * The repository [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) contains build scripts for GNU/Linux,
@@ -272,7 +272,7 @@ Syncthing Tray natively on the development host thanks to the cross-platform nat
 I recommended building for Android under Arch Linux (or an Arch Linux container, see last paragraphs of this
 section) using `android-*` packages found on the AUR and my
 [binary repository](https://martchus.dyn.f3l.de/repo/arch/ownstuff). The commands in this section assume this
-kind of build environment. For building on Windows, checkout the section
+kind of build environment. For building on Windows, check out the section
 "[Building under Windows for Android](#building-under-windows-for-android)" below.
 
 ---
@@ -608,7 +608,7 @@ cmake --build --preset win-android # or win-android-official-qt
 
 ### Packaging
 The repositories mentioned below contain packages for `c++utilities` itself but also for my other projects.
-For a more comprehensive list of repositories providing my other projects such as Syncthing Tray, checkout
+For a more comprehensive list of repositories providing my other projects such as Syncthing Tray, check out
 the README of those projects instead.
 
 #### Arch Linux package
@@ -626,7 +626,7 @@ There is also a [sub project](https://build.opensuse.org/project/show/home:mkitt
 from the Git master branch.
 
 #### Gentoo
-Checkout [Case_Of's overlay](https://codeberg.org/Case_Of/gentoo-overlay)
+Check out [Case_Of's overlay](https://codeberg.org/Case_Of/gentoo-overlay)
 or [perfect7gentleman's overlay](https://gitlab.com/Perfect_Gentleman/PG_Overlay).
 
 ## Copyright notice and license

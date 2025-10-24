@@ -142,7 +142,7 @@ using the CMake functions
 and
 [`find_package`](https://cmake.org/cmake/help/latest/command/find_package.html).
 The behaviour of those functions can be controlled by setting some variables, eg.
-using a toolchain file. Checkout the CMake documentation for this.
+using a toolchain file. Check out the CMake documentation for this.
 
 If the detection does not work as expected or a library from a non-standard
 location should be used one can also just pass the library path directly by specifying
@@ -337,7 +337,7 @@ Since those modules make use of the variables explained above, the modules must
 be included *after* setting those variables. The inclusion order of the modules
 matters as well.
 
-For an example, checkout the project file of c++utilities itself. The project
+For an example, check out the project file of c++utilities itself. The project
 files of [Syncthing Tray](https://github.com/Martchus/syncthingtray) should
 cover everything (library, plugin, application, tests, desktop file, Qt
 resources and translations, ...).

@@ -274,7 +274,7 @@ std::string TestApplication::testFilePath(const std::string &relativeTestFilePat
 /*!
  * \brief Returns the full path of the test directory with the specified \a relativeTestDirPath.
  *
- * This is the same as TestApplication::testFilePath() but for directories. Checkout the documentation of
+ * This is the same as TestApplication::testFilePath() but for directories. Check out the documentation of
  * TestApplication::testFilePath() for details about the lookup.
  */
 std::string TestApplication::testDirPath(const std::string &relativeTestDirPath) const

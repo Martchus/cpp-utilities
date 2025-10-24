@@ -91,7 +91,7 @@ inline
 #if !defined(CPP_UTILITIES_NO_ICONV) || !defined(PLATFORM_WINDOWS)
 /*!
  * \brief Returns \a path as UTF-8 string or string view.
- * \sa This is the opposite of makeNativePath() so checkout remarks of that function for details.
+ * \sa This is the opposite of makeNativePath() so check out remarks of that function for details.
  */
 inline
 #ifdef PLATFORM_WINDOWS
