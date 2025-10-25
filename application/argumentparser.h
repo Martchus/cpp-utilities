@@ -414,7 +414,7 @@ template <typename... TargetType> std::tuple<TargetType...> Argument::valuesAs(s
 }
 
 /*!
- * \brief Converts the present values for all occurrence to the specified target types. For each occurrence, there must be as many values present as types are specified.
+ * \brief Converts the present values for all occurrences to the specified target types. For each occurrence, there must be as many values present as types are specified.
  * \throws Throws ArgumentUtilities::Failure when the number of present values is not sufficient or a conversion error occurs.
  * \remarks Still experimental. Might be removed/adjusted in next minor release.
  */

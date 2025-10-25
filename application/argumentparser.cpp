@@ -28,7 +28,7 @@ using namespace CppUtilities::EscapeCodes;
 
 /*!
  *  \namespace CppUtilities
- *  \brief Contains all utilities provides by the c++utilities library.
+ *  \brief Contains all utilities provided by the c++utilities library.
  */
 namespace CppUtilities {
 

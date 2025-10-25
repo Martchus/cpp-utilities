@@ -12,7 +12,7 @@ namespace CppUtilities {
  * Note the absence of the TimeSpan::totalYears() and TimeSpan::totalMonth() methods.
  * The reason for this limitation of the TimeSpan class is that the TimeSpan is meant to express
  * a duration independently of the concrete starting DateTime and end DateTime.
- * However, the concrete calendar interval is neccassary for expressing a duration in terms of years
+ * However, the concrete calendar interval is necessary for expressing a duration in terms of years
  * and months because not all years and months have the same length.
  *
  * The Period class, on the other hand, expresses the duration between a *concrete* starting DateTime

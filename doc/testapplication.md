@@ -1,6 +1,6 @@
 # Test applications
 
-\brief Arguments supported by test applications created with `TestTarget` CMake
+\brief Arguments supported by test applications created with the `TestTarget` CMake
        module and the `TestUtilities::TestApplication` class
 
 ```
