@@ -39,10 +39,10 @@ function (configure_development_warnings)
         -Wsign-conversion # warn on sign conversions
         -Wnull-dereference # warn if a null dereference is detected
         -Wdouble-promotion # warn if float is implicit promoted to double
-        -Wformat=2 # warn on security issues around functions that format output (ie printf)
+        -Wformat=2 # warn on security issues around functions that format output (e.g. printf)
         -Wno-pedantic # warn NOT if non-standard C++ is used (some vendor extensions are very useful)
         -Wno-missing-field-initializers # warn NOT about missing field initializers
-        -Wno-useless-cast # warn NOT about useless cases (this is sometimes very useful in templates)
+        -Wno-useless-cast # warn NOT about useless casts (those are sometimes very useful in templates)
         -Wno-unused-const-variable # warn NOT about unused constants (usually used in other compile unit)
         -Wno-unknown-warning-option # warn NOT about unknown warning options (depending on compiler/version not all are
                                     # available)
