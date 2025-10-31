@@ -534,6 +534,11 @@ To install additional libraries via MSYS2, add my Arch Linux repository to
 `/etc/pacman.conf`:
 
 ```
+[ownstuff-msys2]
+SigLevel = Required DatabaseOptional
+Server = https://ftp.f3l.de/~martchus/$repo/os/$arch
+Server = https://martchus.dyn.f3l.de/repo/arch/$repo/os/$arch
+
 [ownstuff]
 SigLevel = Required DatabaseOptional
 Server = https://ftp.f3l.de/~martchus/$repo/os/$arch
@@ -544,28 +549,27 @@ After following the [instructions for importing my GPG key](https://martchus.dyn
 can install Android packages, e.g.:
 
 ```
-pacman -Syu --assume-installed=android-{sdk,ndk} \
-  android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
+pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
 ````
 
-You may even install a few KDE libraries, like Kirigami:
+You may also install Qt from my repo instead of relying on official Qt builds:
 ```
-pacman -S --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
-  android-{aarch64,x86-64}-kirigami
-```
-
-You may also install Qt itself from my repo instead of relying on official Qt builds:
-```
-pacman -S --assume-installed={ant,java-runtime-headless-openjdk=17} --assume-installed=android-{ndk,sdk,sdk-build-tools,sdk-platform-tools,platform-35} \
-  android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
+pacman -S android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
 ```
 
 Note that when using Qt for Android from my repo, you also need to install a matching version of Qt for
 Windows from the MSYS2 mingw-w64 repos for host tooling.
 
-When just using KDE libraries from my repo but Qt from the official installer, you need to make sure that
-the installed version of Qt is at least as new as the version the KDE libraries from my repo have been
-linked against.
+You may also install a few KDE libraries, like Kirigami:
+```
+pacman -S --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
+  android-{aarch64,x86-64}-kirigami
+```
+
+You can leave out `--assme-installed=…` when you have installed Qt via `pacman` (instead of relying on
+official Qt builds). When just using KDE libraries from my repo but Qt from the official installer, you
+need to make sure that the installed version of Qt is at least as new as the version the KDE libraries
+from my repo have been linked against.
 
 The libraries will end up under `/opt/android-libs` within your MSYS2 installation. Do not install any non
 `android-*-` packages, though. They will have file conflicts with packages provided by MSYS2 and are not usable
