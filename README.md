@@ -314,6 +314,16 @@ adb install "$BUILD_DIR/passwordmanager/arch-android-arm64-v8a/android-build//bu
 
 ---
 
+If you run into an error because licenses are not accepted, you can accept them as described on
+[the official documentation](https://developer.android.com/studio/intro/update.html#download-with-gradle)
+via `sdkmanager --licenses`. To make the accepted licenses available in builds via `makechrootpkg`, do
+the copying as mentioned in step three of the documentation, e.g. a call like this:
+```
+sudo rsync -aHP --mkpath /opt/android-sdk/licenses/ "$PATH_CHROOT"/arch-x86_64/root/opt/android-sdk/licenses/
+```
+
+---
+
 To use a container, you can create a suitable image using the `imgbuild` script from the PKGBUILDs repo, see
 its [README](https://github.com/Martchus/PKGBUILDs/blob/master/README.md#container-image-building-packages-within-a-container).
 
