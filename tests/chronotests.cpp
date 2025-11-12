@@ -218,11 +218,9 @@ void ChronoTests::testDateTime()
     CPPUNIT_ASSERT_EQUAL("1234"s, DateTime::fromDateAndTime(1234).toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
     CPPUNIT_ASSERT_EQUAL("0001"s, DateTime().toString(DateTimeOutputFormat::IsoOmittingDefaultComponents));
 
-// test now() and exactNow() (or at least whether both behave the same)
-#if defined(PLATFORM_UNIX)
+    // test now() and exactNow() (or at least whether both behave the same)
     const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
     CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2.0) && delta > TimeSpan::fromSeconds(-2.0));
-#endif
 }
 
 /*!

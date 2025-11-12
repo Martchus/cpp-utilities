@@ -6,6 +6,13 @@
 #include <iomanip>
 #include <sstream>
 
+#if !defined(CPP_UTILITIES_CHRONO_BASED_EXACT_TIME) && (defined(PLATFORM_MAC) || !defined(PLATFORM_UNIX))
+#define CPP_UTILITIES_CHRONO_BASED_EXACT_TIME
+#endif
+#ifdef CPP_UTILITIES_CHRONO_BASED_EXACT_TIME
+#include <chrono>
+#endif
+
 using namespace std;
 
 namespace CppUtilities {
@@ -270,19 +277,23 @@ const char *DateTime::printDayOfWeek(DayOfWeek dayOfWeek, bool abbreviation)
     return "";
 }
 
-#if defined(PLATFORM_UNIX) && !defined(PLATFORM_MAC)
 /*!
  * \brief Returns a DateTime object that is set to the current date and time on this computer, expressed as the GMT time.
- * \remarks Only available under UNIX-like systems supporting clock_gettime().
  */
 DateTime DateTime::exactGmtNow()
 {
+#ifdef CPP_UTILITIES_CHRONO_BASED_EXACT_TIME
+    return DateTime(DateTime::unixEpochStart().totalTicks()
+        + static_cast<std::uint64_t>(
+              std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count())
+            / 100);
+#else
     struct timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
     return DateTime(DateTime::unixEpochStart().totalTicks() + static_cast<std::uint64_t>(t.tv_sec) * TimeSpan::ticksPerSecond
         + static_cast<std::uint64_t>(t.tv_nsec) / 100);
-}
 #endif
+}
 
 /*!
  * \brief Converts the given date expressed in \a year, \a month and \a day to ticks.
