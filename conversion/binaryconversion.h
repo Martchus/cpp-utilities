@@ -44,8 +44,9 @@
 #if !defined(__BYTE_ORDER__) || !defined(__FLOAT_WORD_ORDER__)
 
 // assume little endian from the presence of several macros
-#if defined(__i386) || defined(__i386__) || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64) || defined(_M_ARM64)      \
-    || defined(__LITTLE_ENDIAN__) || defined(_little_endian__) || defined(_LITTLE_ENDIAN) || defined(_WIN32_WCE) || defined(WINAPI_FAMILY)
+#if defined(__i386) || defined(__i386__) || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)      \
+    || defined(_M_ARM64) || defined(__LITTLE_ENDIAN__) || defined(_little_endian__) || defined(_LITTLE_ENDIAN) || defined(_WIN32_WCE)                \
+    || defined(WINAPI_FAMILY)
 #if !defined(__BYTE_ORDER__)
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_LITTLE_ENDIAN true
 #define CONVERSION_UTILITIES_IS_BYTE_ORDER_BIG_ENDIAN false
