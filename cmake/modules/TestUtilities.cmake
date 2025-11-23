@@ -19,7 +19,7 @@ option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the 'all'
 function (configure_test_target)
     # parse arguments
     set(OPTIONAL_ARGS MANUAL REQUIRES_MAIN_TARGET)
-    set(ONE_VALUE_ARGS TARGET_NAME TEST_NAME FULL_TEST_NAME_OUT_VAR)
+    set(ONE_VALUE_ARGS TARGET_NAME TEST_NAME FULL_TEST_NAME_OUT_VAR FULL_TEST_TARGET_OUT_VAR)
     set(MULTI_VALUE_ARGS HEADER_FILES SRC_FILES LIBRARIES RUN_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
     if (NOT ARGS_TARGET_NAME)
@@ -37,6 +37,9 @@ function (configure_test_target)
         unset(TESTS_EXCLUSION)
     endif ()
     add_executable("${TEST_TARGET_NAME}" ${TESTS_EXCLUSION} ${ARGS_HEADER_FILES} ${ARGS_SRC_FILES})
+    if (ARGS_FULL_TEST_TARGET_OUT_VAR)
+        set("${ARGS_FULL_TEST_TARGET_OUT_VAR}" "${TEST_TARGET_NAME}" PARENT_SCOPE)
+    endif ()
 
     # add top-level target to build all test targets conveniently, also when excluded from "all" target
     if (NOT TARGET tests)
