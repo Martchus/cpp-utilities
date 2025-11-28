@@ -38,7 +38,9 @@ function (configure_test_target)
     endif ()
     add_executable("${TEST_TARGET_NAME}" ${TESTS_EXCLUSION} ${ARGS_HEADER_FILES} ${ARGS_SRC_FILES})
     if (ARGS_FULL_TEST_TARGET_OUT_VAR)
-        set("${ARGS_FULL_TEST_TARGET_OUT_VAR}" "${TEST_TARGET_NAME}" PARENT_SCOPE)
+        set("${ARGS_FULL_TEST_TARGET_OUT_VAR}"
+            "${TEST_TARGET_NAME}"
+            PARENT_SCOPE)
     endif ()
 
     # add top-level target to build all test targets conveniently, also when excluded from "all" target
