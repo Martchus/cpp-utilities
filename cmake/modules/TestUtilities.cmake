@@ -10,15 +10,20 @@ set(TESTING_UTILITIES_LOADED YES)
 include(CTest)
 
 set(EXCLUDE_TEST_TARGET_BY_DEFAULT ON)
+set(DISABLE_UNSTABLE_TESTS_BY_DEFAULT ON)
 if (ENABLE_DEVEL_DEFAULTS)
     set(EXCLUDE_TEST_TARGET_BY_DEFAULT OFF)
+    set(DISABLE_UNSTABLE_TESTS_BY_DEFAULT OFF)
 endif ()
 option(EXCLUDE_TESTS_FROM_ALL "specifies whether to exclude tests from the 'all' target (enabled by default)"
        "${EXCLUDE_TEST_TARGET_BY_DEFAULT}")
+option(DISABLE_UNSTABLE_TESTS
+       "specifies whether unstable tests should be disabled (they are enabled by default for devel builds)"
+       "${DISABLE_UNSTABLE_TESTS_BY_DEFAULT}")
 
 function (configure_test_target)
     # parse arguments
-    set(OPTIONAL_ARGS MANUAL REQUIRES_MAIN_TARGET)
+    set(OPTIONAL_ARGS MANUAL UNSTABLE REQUIRES_MAIN_TARGET)
     set(ONE_VALUE_ARGS TARGET_NAME TEST_NAME FULL_TEST_NAME_OUT_VAR FULL_TEST_TARGET_OUT_VAR)
     set(MULTI_VALUE_ARGS HEADER_FILES SRC_FILES LIBRARIES RUN_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
@@ -89,6 +94,14 @@ function (configure_test_target)
             "${FULL_TEST_NAME}"
             PARENT_SCOPE)
         add_test(NAME "${FULL_TEST_NAME}" COMMAND "${TEST_TARGET_NAME}" ${ARGS_RUN_ARGS})
+        set(TEST_${ARGS_TEST_NAME}_DISABLED
+            ""
+            CACHE STRING "value for the DISABLED property of test ${ARGS_TEST_NAME}")
+        if (NOT "${TEST_${ARGS_TEST_NAME}_DISABLED}" STREQUAL "")
+            set_property(TEST "${FULL_TEST_NAME}" PROPERTY DISABLED "${TEST_${ARGS_TEST_NAME}_DISABLED}")
+        elseif (ARGS_UNSTABLE AND DISABLE_UNSTABLE_TESTS)
+            set_property(TEST "${FULL_TEST_NAME}" PROPERTY DISABLED True)
+        endif ()
     endif ()
 
     # add the test executable to the dependencies of the check target
