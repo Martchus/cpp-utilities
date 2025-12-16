@@ -6,14 +6,13 @@ namespace CppUtilities {
  * \class Period
  * \brief Represents a period of time.
  *
- * In contrast to the TimeSpan class, a Period represents a duration between a concrete
- * starting DateTime and end DateTime. Without that context, a Period instance is useless.
+ * In contrast to the TimeSpan class, a Period represents a duration expressed in years, months
+ * and days between a concrete starting DateTime and end DateTime. Without that context, the exact
+ * duration represented by a Period is not clearly defined as years and month have different lengths.
  *
- * Note the absence of the TimeSpan::totalYears() and TimeSpan::totalMonth() methods.
- * The reason for this limitation of the TimeSpan class is that the TimeSpan is meant to express
- * a duration independently of the concrete starting DateTime and end DateTime.
- * However, the concrete calendar interval is necessary for expressing a duration in terms of years
- * and months because not all years and months have the same length.
+ * This is also the reason for the absence of the TimeSpan::totalYears() and TimeSpan::totalMonth()
+ * methods as the TimeSpan class is meant to express a duration independently of the concrete starting
+ * DateTime and end DateTime.
  *
  * The Period class, on the other hand, expresses the duration between a *concrete* starting DateTime
  * and end DateTime as the number of years, month and days which have been passed **in that particular

@@ -46,15 +46,16 @@ template <typename num1, typename num2, typename num3> constexpr bool inRangeExc
  *  - Time values are measured in 100-nanosecond units called ticks,
  *    and a particular date is the number of ticks since 12:00 midnight, January 1,
  *    0001 A.D. (C.E.) in the Gregorian Calendar (excluding ticks that would be added by leap seconds).
- *  - There is no time zone information associated. You need to keep track of the used time zone separately. That can
- *    be done by keeping an additional TimeSpan around which represents the delta to GMT or by simply using GMT everywhere
- *    in the program.
+ *  - There is no time zone information associated. You need to keep track of the used time zone separately. That can be done by
+ *    keeping an additional TimeSpan around which represents the delta to UTC. For this one can also use DateTimeExpression.
+ *    Alternatively, one can simply use UTC everywhere in the program.
+ *  - Many functions/descriptions refer to GMT instead of UTC. Both terms are used interchangeably here as the difference is not
+ *    relevant here. Note that GMT does *not* mean "time in Greenwich".
  *  - When constructing an instance via DateTime::fromTimeStamp(), DateTime::fromChronoTimePoint() or DateTime::fromIsoStringLocal()
  *    the time zone deltas are "baked into" the DateTime instance. For instance, the expression (DateTime::now() - DateTime::gmtNow())
  *    returns one hour in Germany during winter time (and *not* zero although both instances represent the current time).
  * \todo
- * - Allow to determine the date part for each component at once to prevent multiple
- *   invocations of getDatePart().
+ * - Allow to determine the date part for each component at once to prevent multiple invocations of getDatePart().
  */
 
 /*!
