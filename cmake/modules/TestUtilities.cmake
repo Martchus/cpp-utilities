@@ -92,6 +92,17 @@ function (configure_test_target)
         set_target_properties("${TEST_TARGET_NAME}" PROPERTIES AUTOGEN_USE_SYSTEM_INCLUDE ON)
     endif ()
 
+    # avoid treating certain warnings as errors when compiling generated files
+    if (TREAT_WARNINGS_AS_ERRORS
+        AND (${QT_PACKAGE_PREFIX}Core_VERSION VERSION_GREATER_EQUAL 6.11.0)
+        AND (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+        set(AUTOGEN_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TEST_TARGET_NAME}_autogen/mocs_compilation.cpp")
+        set_source_files_properties(
+            "${AUTOGEN_FILE}" ${GENERATED_DBUS_FILES} PROPERTIES COMPILE_OPTIONS "-Wno-error=sign-conversion" # present in Qt
+                                                                                                              # 6.11.0
+        )
+    endif ()
+
     # make the test recognized by ctest
     if (NOT ARGS_MANUAL)
         set(FULL_TEST_NAME "${ARGS_TARGET_NAME}_run_${ARGS_TEST_NAME}")
