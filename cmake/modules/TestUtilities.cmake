@@ -87,6 +87,11 @@ function (configure_test_target)
         set_target_properties("${TEST_TARGET_NAME}" PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
 
+    # avoid warnings when including autogen files
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
+        set_target_properties("${TEST_TARGET_NAME}" PROPERTIES AUTOGEN_USE_SYSTEM_INCLUDE ON)
+    endif ()
+
     # make the test recognized by ctest
     if (NOT ARGS_MANUAL)
         set(FULL_TEST_NAME "${ARGS_TARGET_NAME}_run_${ARGS_TEST_NAME}")

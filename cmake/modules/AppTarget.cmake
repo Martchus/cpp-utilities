@@ -114,6 +114,11 @@ if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
     endif ()
 endif ()
 
+# avoid warnings when including autogen files
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
+    set_target_properties(${META_TARGET_NAME} PROPERTIES AUTOGEN_USE_SYSTEM_INCLUDE ON)
+endif ()
+
 # create CLI-wrapper to be able to use CLI in Windows-termial without hacks
 if (BUILD_CLI_WRAPPER)
     # find source file

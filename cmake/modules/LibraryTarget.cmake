@@ -263,6 +263,11 @@ else ()
     endif ()
 endif ()
 
+# avoid warnings when including autogen files
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
+    set_target_properties(${META_TARGET_NAME} PROPERTIES AUTOGEN_USE_SYSTEM_INCLUDE ON)
+endif ()
+
 # populate META_PUBLIC_LIB_DEPENDS
 foreach (DEPENDENCY ${PUBLIC_LIBRARIES})
     if (NOT "${DEPENDENCY}" IN_LIST META_PUBLIC_LIB_DEPENDS)
