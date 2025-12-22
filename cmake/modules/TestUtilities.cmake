@@ -93,14 +93,8 @@ function (configure_test_target)
     endif ()
 
     # avoid treating certain warnings as errors when compiling generated files
-    if (TREAT_WARNINGS_AS_ERRORS
-        AND (${QT_PACKAGE_PREFIX}Core_VERSION VERSION_GREATER_EQUAL 6.11.0)
-        AND (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
-        set(AUTOGEN_FILE "${CMAKE_CURRENT_BINARY_DIR}/${TEST_TARGET_NAME}_autogen/mocs_compilation.cpp")
-        set_source_files_properties(
-            "${AUTOGEN_FILE}" ${GENERATED_DBUS_FILES} PROPERTIES COMPILE_OPTIONS "-Wno-error=sign-conversion" # present in Qt
-                                                                                                              # 6.11.0
-        )
+    if (COMMAND configure_development_warnings_for_qt)
+        configure_development_warnings_for_qt(TARGET "${TEST_TARGET_NAME}")
     endif ()
 
     # make the test recognized by ctest
