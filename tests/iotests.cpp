@@ -802,7 +802,10 @@ void IoTests::testExtractingArchive()
     CPPUNIT_ASSERT_EQUAL("test.txt"s, root.at(0).name);
     CPPUNIT_ASSERT_EQUAL(ArchiveFileType::Regular, root.at(0).type);
     CPPUNIT_ASSERT_EQUAL(DateTime::fromDate(1970, 1, 1), root.at(0).creationTime);
-    CPPUNIT_ASSERT_EQUAL(DateTime::fromDateAndTime(2024, 3, 3, 19, 46, 42), root.at(0).modificationTime);
+    // check only year and month of modification time as timezone is ambiguous, see remark in `archive.h` for details
+    // not guaranteed: CPPUNIT_ASSERT_EQUAL(DateTime::fromDateAndTime(2024, 3, 3, 20, 46, 42), DateTime::fromTimeStamp(root.at(0).modificationTime.toTimeStamp()));
+    CPPUNIT_ASSERT_EQUAL(2024, root.at(0).modificationTime.year());
+    CPPUNIT_ASSERT_EQUAL(3, root.at(0).modificationTime.month());
     CPPUNIT_ASSERT_EQUAL("testfile\n"s, root.at(0).content);
 
     CPPUNIT_ASSERT_EQUAL(1_st, subdir.size());

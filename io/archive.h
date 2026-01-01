@@ -48,6 +48,14 @@ enum class ArchiveFileType { Regular, Link };
 
 /*!
  * \brief The ArchiveFile class holds data about a file within an archive.
+ * \remarks
+ * The timezone of the timestamps is unfortunately unspecified at this point because libarchive
+ * does not provide timezone information (as functions like `archive_entry_mtime` are ambiguous
+ * about the timezone, see https://github.com/libarchive/libarchive/issues/945). Note that for
+ * Zip files the local timezone seems to be incorporated by libarchive (at least with version
+ * 3.8.4). So one can get the UTC time via e.g.
+ * `DateTime::fromTimeStamp(modificationTime.toTimeStamp())`. There is no guarantee that future
+ * versions of libarchive behave the same way.
  */
 struct CPP_UTILITIES_EXPORT ArchiveFile {
     explicit ArchiveFile(
