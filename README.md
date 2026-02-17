@@ -644,6 +644,6 @@ Check out [Case_Of's overlay](https://codeberg.org/Case_Of/gentoo-overlay)
 or [perfect7gentleman's overlay](https://gitlab.com/Perfect_Gentleman/PG_Overlay).
 
 ## Copyright notice and license
-Copyright © 2015-2025 Marius Kittler
+Copyright © 2015-2026 Marius Kittler
 
 All code is licensed under [GPL-2-or-later](LICENSE).
