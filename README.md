@@ -167,7 +167,7 @@ During development, I find it useful to build all required projects (for instanc
 
 This can be easily achieved by using CMake's `add_subdirectory()` function. For project files, see the
 [subdirs](https://github.com/Martchus/subdirs) repository. For an example, see
-[build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray#building-this-straight) or
+[build instructions for Syncthing Tray](https://github.com/Martchus/syncthingtray/blob/master/docs/devel.md#building-this-straight) or
 [build instructions for Tag Editor](https://github.com/Martchus/tageditor#building-this-straight). The `subdirs`
 repository also contains the script `sync-all.sh` to clone all possibly relevant repositories and keep them
 up-to-date later on.
