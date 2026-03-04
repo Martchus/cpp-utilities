@@ -144,12 +144,15 @@ if (NOT META_ID)
     set(META_ID "${META_TARGET_NAME}")
 endif ()
 
-# set bugtracker URL
+# set VCS browser URL and bugtracker URL
+if (NOT META_APP_VCS_BROWSER_URL)
+    set(META_APP_VCS_BROWSER_URL "${META_APP_URL}")
+endif ()
 if (NOT META_APP_BUGTRACKER_URL)
-    if (META_APP_URL MATCHES "https://(github.com|gitlab.com|.*/(gogs|gitea)|(gogs|gitea).*)/.*")
-        set(META_APP_BUGTRACKER_URL "${META_APP_URL}/issues")
+    if (META_APP_VCS_BROWSER_URL MATCHES "https://(github.com|gitlab.com|.*/(gogs|gitea)|(gogs|gitea).*)/.*")
+        set(META_APP_BUGTRACKER_URL "${META_APP_VCS_BROWSER_URL}/issues")
     else ()
-        set(META_APP_BUGTRACKER_URL "${META_APP_URL}")
+        set(META_APP_BUGTRACKER_URL "${META_APP_VCS_BROWSER_URL}")
     endif ()
 endif ()
 
