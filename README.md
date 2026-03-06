@@ -450,6 +450,11 @@ Note that:
   cross-compilation on Arch Linux.
 * To run integration tests of Syncthing Tray, you need to have `syncthing.exe` in the `PATH` or set
   the `SYNCTHING_PATH` environment variable accordingly.
+* Crash dumps can be found under `%LOCALAPPDATA%\CrashDumps` unless
+  [configured otherwise](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps).
+  For applications that use the Go runtime (e.g. Syncthing Tray with the built-in Syncthing library enabled)
+  one needs to set `GOTRACEBACK=wer` as WER is otherwise disabled, check out the
+  [Go documentation](https://pkg.go.dev/runtime) for details.
 
 ###### Building with MSVC
 To build with MSVC, you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) needs
