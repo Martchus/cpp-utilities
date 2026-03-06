@@ -151,6 +151,17 @@ instructions for building on Windows.
 * When using `BUILTIN_ICON_THEMES`, the icon theme still needs to be installed as if it were installed on a
   GNU/Linux system. So simply grab, e.g., the Arch Linux package `breeze-icons` and extract it somewhere. Do
   *not* use the package from MSYS2 or what comes with builds from KDE's binary factory.
+* Crash dumps can be found under `%LOCALAPPDATA%\CrashDumps` unless
+  [configured otherwise](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps).
+  For applications that use the Go runtime (e.g. Syncthing Tray with the built-in Syncthing library enabled)
+  one needs to set the environment variable `GOTRACEBACK=wer` as WER is otherwise disabled, check out the
+  [Go documentation](https://pkg.go.dev/runtime) for details.
+* One can also
+  [configure the debugger for automatic debugging](https://learn.microsoft.com/en-us/windows/win32/debug/configuring-automatic-debugging#configuring-automatic-debugging-for-application-crashes).
+
+#### GNU/Linux-specific notes
+* Under systemd-based systems crash dumps can be accessed via `coredumpctl` (if the `systemd-coredump` service
+  is installed and running).
 
 #### MacOS-specific notes
 * To create application icons, the tool `png2icns` is required.
@@ -450,11 +461,6 @@ Note that:
   cross-compilation on Arch Linux.
 * To run integration tests of Syncthing Tray, you need to have `syncthing.exe` in the `PATH` or set
   the `SYNCTHING_PATH` environment variable accordingly.
-* Crash dumps can be found under `%LOCALAPPDATA%\CrashDumps` unless
-  [configured otherwise](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps).
-  For applications that use the Go runtime (e.g. Syncthing Tray with the built-in Syncthing library enabled)
-  one needs to set `GOTRACEBACK=wer` as WER is otherwise disabled, check out the
-  [Go documentation](https://pkg.go.dev/runtime) for details.
 
 ###### Building with MSVC
 To build with MSVC, you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) needs
