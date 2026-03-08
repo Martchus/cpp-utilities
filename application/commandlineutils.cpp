@@ -164,17 +164,22 @@ void stopConsole()
  * \remarks
  * - Only available (and required) under Windows where otherwise standard I/O is not possible via the console (unless
  *   when using Mintty).
- * - Attaching a console breaks redirections/pipes so this needs to be opted-in by setting the environment variable
- *   `ENABLE_CONSOLE=1`.
- * - Note that this is only useful to start a console from a GUI application. It is not necessary to call this function
+ * - This function is only useful to start a console from a GUI application. It is not necessary to call this function
  *   from a console application.
- * - The console is automatically closed when the application exits.
  * - This function alone does not provide good results. It still breaks redirections in PowerShell and other shells and
  *   after the application exists the command prompt is not displayed. A CLI-wrapper is required for proper behavior. The
  *   build system automatically generates one when the CMake variable BUILD_CLI_WRAPPER is set. Note that this CLI-wrapper
- *   still relies on this function (and thus sets `ENABLE_CONSOLE=1`). Without this standard I/O would still not be
+ *   still relies on this function (and thus sets `ENABLE_CONSOLE=1`). Without this, standard I/O would still not be
  *   possible via the console. The part for skipping in case there's a redirection is still required. Otherwise
  *   redirections/pipes are broken when using the CLI-wrapper as well.
+ * - This function does nothing unless the environment variable `ENABLE_CONSOLE=1` is set. This is because:
+ *     - Attaching a console breaks redirections/pipes so it has to be avoided by default.
+ *     - That makes it possible to call this function unconditionally when initializing a mixed CLI/GUI application (and
+ *       not just in the CLI code paths). That simplifies code and also allows viewing stdout/stderr on the console during
+ *       GUI operations if the application was started from a console via the CLI-wrapper.
+ * - The console is automatically closed when the application exits.
+ * - This function does nothing if a console window has already been created (i.a. if  `GetConsoleWindow()` does not return
+ *   a null pointer). It is therefore ok to call this function more than one time.
  * \sa
  * - https://docs.microsoft.com/en-us/windows/console/AttachConsole
  * - https://docs.microsoft.com/en-us/windows/console/AllocConsole
@@ -183,6 +188,11 @@ void stopConsole()
  */
 void startConsole()
 {
+    // skip if console has already been started
+    if (GetConsoleWindow()) {
+        return;
+    }
+
     // skip if ENABLE_CONSOLE is set to 0 or not set at all
     if (const auto e = isEnvVariableSet("ENABLE_CONSOLE"); !e.has_value() || !e.value()) {
         return;
