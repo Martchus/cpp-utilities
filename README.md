@@ -53,6 +53,41 @@ The following applies to `c++utilities` and my other libraries unless stated oth
 * Some functions or classes are experimental. They might be modified in an incompatible way or even
   be removed in the next minor or patch release.
 
+## Gathering logs and crash dumps
+This section contains application- and platform-specific notes for gathering logs and crash dumps. It
+applies to `c++utilities` and other libraries and applications using it.
+
+### Application-specific notes
+* To view relevant logs of Syncthing Tray, increase the log level as needed by setting the environment
+  variables mentioned in
+  [its documentation](https://github.com/Martchus/syncthingtray/blob/master/docs/devel.md#logging).
+
+### Windows-specific notes
+* Logs of GUI applications can be followed using the CLI-wrapper (the additional executable that ends with
+  `-cli.exe`, e.g. `syncthingtray-cli.exe`).
+* Crash dumps can be found under `%LOCALAPPDATA%\CrashDumps` unless
+  [configured otherwise](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps).
+  For applications that use the Go runtime (e.g. Syncthing Tray with the built-in Syncthing library enabled)
+  one needs to set the environment variable `GOTRACEBACK=wer` as WER is otherwise disabled, check out the
+  [Go documentation](https://pkg.go.dev/runtime) for details.
+* One can also
+  [configure the debugger for automatic debugging](https://learn.microsoft.com/en-us/windows/win32/debug/configuring-automatic-debugging#configuring-automatic-debugging-for-application-crashes).
+
+### GNU/Linux-specific notes
+* Logs can be followed by starting an application from the terminal.
+* Under systemd-based systems crash dumps can be accessed via `coredumpctl` (if the `systemd-coredump` service
+  is installed and running).
+* It is also possible to create a core dump of a running process using `gcore`.
+* Install debug packages for producing better crash dumps if available.
+    * The Arch Linux repository I provide contains debug packages via `ownstuff-debug`.
+    * Some of the openSUSE and Fedora repositories I provide via OBS contain debug info packages.
+
+### Android-specific notes
+* Logs can be followed via `adb logcat`, Android Studio or viewed on the device itself via apps like
+  [Logcat Reader Professional](https://play.google.com/store/apps/details?id=com.conena.logcat.reader).
+* Crash dumps can be retrieved on a device via apps like
+  [Crash Log Viewer](https://play.google.com/store/apps/details?id=com.arumcomm.crashlogviewer).
+
 ## Build instructions
 These build instructions apply to `c++utilities` and my other projects that use it.
 
@@ -151,17 +186,6 @@ instructions for building on Windows.
 * When using `BUILTIN_ICON_THEMES`, the icon theme still needs to be installed as if it were installed on a
   GNU/Linux system. So simply grab, e.g., the Arch Linux package `breeze-icons` and extract it somewhere. Do
   *not* use the package from MSYS2 or what comes with builds from KDE's binary factory.
-* Crash dumps can be found under `%LOCALAPPDATA%\CrashDumps` unless
-  [configured otherwise](https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps).
-  For applications that use the Go runtime (e.g. Syncthing Tray with the built-in Syncthing library enabled)
-  one needs to set the environment variable `GOTRACEBACK=wer` as WER is otherwise disabled, check out the
-  [Go documentation](https://pkg.go.dev/runtime) for details.
-* One can also
-  [configure the debugger for automatic debugging](https://learn.microsoft.com/en-us/windows/win32/debug/configuring-automatic-debugging#configuring-automatic-debugging-for-application-crashes).
-
-#### GNU/Linux-specific notes
-* Under systemd-based systems crash dumps can be accessed via `coredumpctl` (if the `systemd-coredump` service
-  is installed and running).
 
 #### MacOS-specific notes
 * To create application icons, the tool `png2icns` is required.
@@ -172,7 +196,7 @@ instructions for building on Windows.
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel)
   to build Syncthing Tray.
 
-#### Development builds
+##### Development builds
 During development, I find it useful to build all required projects (for instance, c++utilities, qtutilities,
  tagparser, and tageditor) as one big project.
 
@@ -631,26 +655,26 @@ cmake --build --preset win-android # or win-android-official-qt
 ```
 </details>
 
-### Packaging
+## Packaging
 The repositories mentioned below contain packages for `c++utilities` itself but also for my other projects.
 For a more comprehensive list of repositories providing my other projects, such as Syncthing Tray, check out
 the README of those projects instead.
 
-#### Arch Linux package
+### Arch Linux package
 The [PKGBUILDs](https://github.com/Martchus/PKGBUILDs) repository contains files for building Arch Linux
 packages of the latest release and the Git master.
 
 PKGBUILDs to cross-compile for Android, Windows (using mingw-w64), and for macOS X (using osxcross) are
 included as well.
 
-#### RPM packages for openSUSE and Fedora
+### RPM packages for openSUSE and Fedora
 RPM \*.spec files can be found at the [openSUSE Build Service](https://build.opensuse.org/project/show/home:mkittler).
 Packages are available for several architectures.
 
 There is also a [subproject](https://build.opensuse.org/project/show/home:mkittler:vcs) containing the builds
 from the Git master branch.
 
-#### Gentoo
+### Gentoo
 Check out [Case_Of's overlay](https://codeberg.org/Case_Of/gentoo-overlay)
 or [perfect7gentleman's overlay](https://gitlab.com/Perfect_Gentleman/PG_Overlay).
 
