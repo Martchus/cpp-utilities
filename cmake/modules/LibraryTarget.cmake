@@ -659,6 +659,17 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
                                                           "${CMAKE_BINARY_DIR}/cmake_install.cmake")
     endif ()
 
+    # add install target for SBOM
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "4.3" AND CMAKE_EXPERIMENTAL_GENERATE_SBOM)
+        install(SBOM "${PACKAGE_NAME}" EXPORT "${EXPORT_NAME}"
+            PROJECT "${META_PROJECT_NAME}"
+            VERSION "${META_VERSION_MAJOR}.${META_VERSION_MINOR}.${META_VERSION_PATCH}"
+            LICENSE "${META_PROJECT_LICENSE}"
+            DESCRIPTION "${META_APP_DESCRIPTION}"
+            HOMEPAGE_URL "${META_APP_URL}"
+            PACKAGE_URL "${META_APP_URL}")
+    endif ()
+
     # add install target for all the cmake stuff
     if (NOT TARGET install-cmake-stuff)
         add_custom_target(install-cmake-stuff)
