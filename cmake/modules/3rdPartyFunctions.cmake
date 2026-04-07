@@ -76,8 +76,8 @@ endfunction ()
 function (parse_arguments_for_use_functions)
     # parse arguments
     set(OPTIONAL_ARGS OPTIONAL ONLY_HEADERS)
-    set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE PACKAGES_VARIABLE PKG_CONFIG_MODULES_VARIABLE TARGET_NAME PACKAGE_NAME)
-    set(MULTI_VALUE_ARGS PKG_CONFIG_MODULES PACKAGE_ARGS)
+    set(ONE_VALUE_ARGS VISIBILITY LIBRARIES_VARIABLE PACKAGES_VARIABLE PKG_CONFIG_MODULES_VARIABLE PACKAGE_NAME)
+    set(MULTI_VALUE_ARGS TARGET_NAME PKG_CONFIG_MODULES PACKAGE_ARGS)
     cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
     # validate values
@@ -297,14 +297,25 @@ function (use_package)
     endif ()
 
     find_package("${ARGS_PACKAGE_NAME}" ${ARGS_PACKAGE_ARGS})
-    if (NOT TARGET "${ARGS_TARGET_NAME}")
-        if (ARGS_OPTIONAL)
-            return()
+
+    # use the first specified target that exists
+    list(GET ARGS_PACKAGE_ARGS 0 PICKED_TARGET_NAME)
+    set(EXISTING_TARGET_NAME "")
+    foreach (TARGET_NAME ${ARGS_TARGET_NAME})
+        if (TARGET "${TARGET_NAME}")
+            set(EXISTING_TARGET_NAME "${TARGET_NAME}")
+            set(PICKED_TARGET_NAME "${TARGET_NAME}")
+            break()
         endif ()
-        message(FATAL_ERROR "Found package \"${ARGS_PACKAGE_NAME}\" but target \"${ARGS_TARGET_NAME}\" does not exist.")
+    endforeach ()
+    if (EXISTING_TARGET_NAME)
+        message(STATUS "Found package \"${ARGS_PACKAGE_NAME}\" and target \"${EXISTING_TARGET_NAME}\".")
+    elseif (NOT EXISTING_TARGET_NAME AND NOT ARGS_OPTIONAL)
+        message(FATAL_ERROR "Found package \"${ARGS_PACKAGE_NAME}\" but none of the targets \"${ARGS_TARGET_NAME}\" exist.")
     endif ()
+
     set("${ARGS_LIBRARIES_VARIABLE}"
-        "${${ARGS_LIBRARIES_VARIABLE}};${ARGS_TARGET_NAME}"
+        "${${ARGS_LIBRARIES_VARIABLE}};${PICKED_TARGET_NAME}"
         PARENT_SCOPE)
     set("${ARGS_PACKAGES_VARIABLE}"
         "${${ARGS_PACKAGES_VARIABLE}};${ARGS_PACKAGE_NAME}"
