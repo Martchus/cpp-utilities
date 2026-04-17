@@ -16,6 +16,23 @@ else ()
     set(ENABLE_EXPORT_COMPILE_COMMANDS OFF)
 endif ()
 
+# add option to add flags for getting better stack traces; this might be useful when supplying full debug information (e.g.
+# via a separate debug package) is not possible
+option(ENABLE_STACK_TRACE_FLAGS "add flags for better stack traces" OFF)
+if (ENABLE_STACK_TRACE_FLAGS)
+    # add "-fno-omit-frame-pointer -g1" unless already present anyway
+    if (CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_CONFIG)
+        set(DEFAULT_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${BUILD_CONFIG}})
+        if (NOT "-fno-omit-frame-pointer" IN_LIST DEFAULT_CXX_FLAGS)
+            list(APPEND META_PRIVATE_COMPILE_OPTIONS "-fno-omit-frame-pointer")
+        endif ()
+        if (NOT "-g" IN_LIST DEFAULT_CXX_FLAGS AND NOT "-g1" IN_LIST DEFAULT_CXX_FLAGS)
+            list(APPEND META_PRIVATE_COMPILE_OPTIONS "-g1") # aka "-gline-tables-only"
+        endif ()
+    endif ()
+endif ()
+
 function (configure_development_warnings)
     # parse arguments
     set(OPTIONAL_ARGS)
