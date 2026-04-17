@@ -185,8 +185,8 @@ else ()
         PUBLIC ${META_ADDITIONAL_LINK_FLAGS} "${PUBLIC_LIBRARIES}"
         PRIVATE "${PRIVATE_LIBRARIES}")
     if (META_IS_PLUGIN)
-        target_include_directories(
-            ${META_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}> "${PRIVATE_INCLUDE_DIRS}")
+        target_include_directories(${META_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:${TARGET_GENERATED_INCLUDE_DIRECTORY}>
+                                                               "${PRIVATE_INCLUDE_DIRS}")
     else ()
         target_include_directories(
             ${META_TARGET_NAME}
