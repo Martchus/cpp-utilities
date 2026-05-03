@@ -271,7 +271,7 @@ use_crypto(
     1.1.0
     OPTIONAL)
 if ("OpenSSL::Crypto" IN_LIST "TEST_LIBRARIES")
-    message(STATUS "Testing verification using OpenSSL crypto library")
+    message(STATUS "Testing verification using OpenSSL crypto library v${OpenSSL_VERSION}")
     set_property(
         SOURCE tests/misctests.cpp
         APPEND

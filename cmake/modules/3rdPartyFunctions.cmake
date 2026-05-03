@@ -225,6 +225,9 @@ macro (_cpp_utilities_use_openssl OPENSSL_TARGETS)
     set("PKG_CONFIG_OpenSSL_Crypto"
         "libcrypto"
         PARENT_SCOPE)
+    set("OpenSSL_VERSION"
+        "${OpenSSL_VERSION}"
+        PARENT_SCOPE)
 endmacro ()
 
 function (use_openssl)
