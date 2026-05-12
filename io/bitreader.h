@@ -119,7 +119,7 @@ template <typename intType> intType BitReader::readUnsignedExpGolombCodedBits()
 template <typename intType> intType BitReader::readSignedExpGolombCodedBits()
 {
     auto value = readUnsignedExpGolombCodedBits<typename std::make_unsigned<intType>::type>();
-    return (value % 2) ? static_cast<intType>((value + 1) / 2) : (-static_cast<intType>(value / 2));
+    return (value % 2) ? static_cast<intType>((value + 1) / 2) : static_cast<intType>(-static_cast<intType>(value / 2));
 }
 
 /*!
