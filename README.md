@@ -81,6 +81,9 @@ applies to `c++utilities` and other libraries and applications using it.
 * Install debug packages for producing better crash dumps if available.
     * The Arch Linux repository I provide contains debug packages via `ownstuff-debug`.
     * Some of the openSUSE and Fedora repositories I provide via OBS contain debug info packages.
+* Under systemd-based systems, logs of Plasma Applets/Plasmoids can be accessed via e.g.
+  `journalctl --user --since '2 hours ago' -fu plasma-plasmashell.service`. Altneratively, one can also restart
+  `plasmashell` in a terminal, e.g. `killall plasmashell; plasmashell &`.
 
 ### Android-specific notes
 * Logs can be followed via `adb logcat`, Android Studio or viewed on the device itself via apps like
