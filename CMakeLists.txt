@@ -102,8 +102,8 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/version.h.in
     cmake/templates/template.pc.in)
 if (WIN32)
-    list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/windows.rc.in cmake/templates/windows-cli-wrapper.rc.in
-         cmake/templates/cli-wrapper.cpp)
+    list(APPEND CMAKE_TEMPLATE_FILES cmake/templates/windows.rc.in cmake/templates/windows.manifest.in
+         cmake/templates/windows-cli-wrapper.rc.in cmake/templates/cli-wrapper.cpp)
 endif ()
 set(EXCLUDED_FILES cmake/templates/cli-wrapper.cpp)
 

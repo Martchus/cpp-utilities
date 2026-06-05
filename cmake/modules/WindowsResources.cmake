@@ -12,16 +12,39 @@ endif ()
 option(WINDOWS_RESOURCES_ENABLED "controls whether Windows resources are enabled" ON)
 option(WINDOWS_ICON_ENABLED "controls whether Windows icon is enabled" ON)
 
+# allow configuring console allocation policy (see
+# https://learn.microsoft.com/en-us/windows/console/console-allocation-policy)
+set(WINDOWS_CONSOLE_ALLOCATION_POLICY
+    ""
+    CACHE STRING "sets the default console allocation policy for all projects")
+set(${META_PROJECT_VARNAME_UPPER}_WINDOWS_CONSOLE_ALLOCATION_POLICY
+    "${WINDOWS_CONSOLE_ALLOCATION_POLICY}"
+    CACHE STRING "sets the console allocation policy for ${META_PROJECT_NAME}")
+
 if (NOT WIN32 OR NOT WINDOWS_RESOURCES_ENABLED)
     return()
 endif ()
 
 # find rc template, define path of output rc file
 include(TemplateFinder)
+find_template_file("windows.manifest" CPP_UTILITIES MANIFEST_TEMPLATE_FILE)
 find_template_file("windows.rc" CPP_UTILITIES RC_TEMPLATE_FILE)
 find_template_file("windows-cli-wrapper.rc" CPP_UTILITIES RC_CLI_TEMPLATE_FILE)
 set(WINDOWS_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows")
 set(WINDOWS_CLI_RC_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/windows-cli-wrapper")
+set(WINDOWS_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.manifest")
+
+# make manifest settings
+set(WINDOWS_SETTINGS "")
+if (${META_PROJECT_VARNAME_UPPER}_WINDOWS_CONSOLE_ALLOCATION_POLICY)
+    set(WINDOWS_SETTINGS
+        "      <consoleAllocationPolicy xmlns="http://schemas.microsoft.com/SMI/2024/WindowsSettings">${WINDOWS_CONSOLE_ALLOCATION_POLICY}</consoleAllocationPolicy>"
+    )
+endif ()
+if (WINDOWS_SETTINGS)
+    configure_file("${MANIFEST_TEMPLATE_FILE}" "${WINDOWS_MANIFEST}")
+    set(WINDOWS_MANIFEST_ENTRY "CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST \"${WINDOWS_MANIFEST}\"")
+endif ()
 
 # create Windows icon from png with ffmpeg if available
 unset(WINDOWS_ICON_RC_ENTRY)
