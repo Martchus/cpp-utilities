@@ -38,7 +38,7 @@ set(WINDOWS_MANIFEST "${CMAKE_CURRENT_BINARY_DIR}/resources/windows.manifest")
 set(WINDOWS_SETTINGS "")
 if (${META_PROJECT_VARNAME_UPPER}_WINDOWS_CONSOLE_ALLOCATION_POLICY)
     set(WINDOWS_SETTINGS
-        "      <consoleAllocationPolicy xmlns="http://schemas.microsoft.com/SMI/2024/WindowsSettings">${WINDOWS_CONSOLE_ALLOCATION_POLICY}</consoleAllocationPolicy>"
+        "      <consoleAllocationPolicy xmlns=\"http://schemas.microsoft.com/SMI/2024/WindowsSettings\">${${META_PROJECT_VARNAME_UPPER}_WINDOWS_CONSOLE_ALLOCATION_POLICY}</consoleAllocationPolicy>"
     )
 endif ()
 if (WINDOWS_SETTINGS)
