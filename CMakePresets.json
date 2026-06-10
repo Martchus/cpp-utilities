@@ -67,6 +67,16 @@
       }
     },
     {
+      "name": "qt-cross",
+      "inherits": "default",
+      "displayName": "Additional settings for cross-compilation with Qt",
+      "description": "Same as default but sets additional settings for cross-compilation with Qt",
+      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/default-qt-cross",
+      "cacheVariables": {
+        "QT_NO_PACKAGE_VERSION_CHECK": {"type": "BOOL", "value": "ON"}
+      }
+    },
+    {
       "name": "qt6",
       "inherits": "default",
       "displayName": "Use Qt 6 (instead of Qt 5)",
@@ -211,7 +221,7 @@
     },
     {
       "name": "arch-*-w64-mingw32",
-      "inherits": ["no-webview", "no-kde"],
+      "inherits": ["no-webview", "no-kde", "qt-cross"],
       "displayName": "Target *-w64-mingw32 using Arch Linux's mingw-w64 packaging",
       "description": "Build targeting *-w64-mingw32, paths and flags are specific to Arch Linux's mingw-w64 packaging",
       "environment": {
@@ -366,7 +376,7 @@
     },
     {
       "name": "arch-mingw-w64-clang",
-      "inherits": ["no-webview", "no-kde", "qt6"],
+      "inherits": ["no-webview", "no-kde", "qt-cross", "qt6"],
       "displayName": "Target *-w64-mingw32 using LLVM/Clang provided by Arch Linux and additional mingw-w64-clang-* packaging (invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" before invoking CMake)",
       "description": "Build targeting Windows, paths and flags are specific to Arch Linux packaging, invoke e.g. \"source mingw-clang-env aarch64-w64-mingw32\" for required environment variables",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-mingw-w64-clang-$env{MINGW_W64_CLANG_TARGET}",
@@ -461,7 +471,7 @@
     },
     {
       "name": "arch-android",
-      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
+      "inherits": ["no-webview", "no-kde", "qt-cross", "qt6", "builtin-translations"],
       "displayName": "Target *-linux-android using Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
       "description": "Build targeting Android, paths and flags are specific to Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-android-$env{ANDROID_ABI}",
@@ -497,7 +507,7 @@
     },
     {
       "name": "arch-wasm",
-      "inherits": ["no-webview", "no-kde", "qt6"],
+      "inherits": ["no-webview", "no-kde", "qt-cross", "qt6"],
       "displayName": "Target wasm32-unknown-emscripten using Arch Linux's packaging",
       "description": "Build targeting WebAssembly via Emscripten, paths and flags are specific to Arch Linux's packaging",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-wasm",
@@ -594,7 +604,7 @@
     },
     {
       "name": "win-android-base",
-      "inherits": ["no-webview", "no-kde", "qt6", "builtin-translations"],
+      "inherits": ["no-webview", "no-kde", "qt-cross", "qt6", "builtin-translations"],
       "displayName": "Target *-linux-android using MSYS2 and Arch Linux's Android packaging (invoke e.g. \"source android-env aarch64\" before invoking CMake)",
       "description": "Build targeting Android, paths and flags are specific to MSYS2 and Arch Linux's Android packaging, invoke e.g. \"source android-env aarch64\" for required environment variables",
       "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/win-android-$env{ANDROID_ABI}",
