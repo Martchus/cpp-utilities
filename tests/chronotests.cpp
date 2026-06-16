@@ -221,6 +221,11 @@ void ChronoTests::testDateTime()
     // test now() and exactNow() (or at least whether both behave the same)
     const auto delta = DateTime::gmtNow() - DateTime::exactGmtNow();
     CPPUNIT_ASSERT(delta < TimeSpan::fromSeconds(2.0) && delta > TimeSpan::fromSeconds(-2.0));
+
+    // test modifying ticks directly
+    auto dt = DateTime(100);
+    dt.ticks() += 5;
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("modifying reference via ticks() possible despite constexpr", static_cast<DateTime::TickType>(105), dt.totalTicks());
 }
 
 /*!
@@ -358,6 +363,11 @@ void ChronoTests::testTimeSpan()
     CPPUNIT_ASSERT_EQUAL("00:00:15.9850776"s, test2.toString());
     CPPUNIT_ASSERT_EQUAL("15 s 985 ms 77 µs 600 ns"s, test2.toString(TimeSpanOutputFormat::WithMeasures));
     CPPUNIT_ASSERT_EQUAL("15.9850776"s, test2.toString(TimeSpanOutputFormat::TotalSeconds));
+
+    // test modifying ticks directly
+    auto ts = TimeSpan(100);
+    ts.ticks() += 5;
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("modifying reference via ticks()", static_cast<TimeSpan::TickType>(105), ts.totalTicks());
 }
 
 /*!
