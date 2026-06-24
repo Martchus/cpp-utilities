@@ -211,7 +211,7 @@ void startConsole()
     // attach to the parent process' console or allocate a new console if that's not possible
     if (!skip && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
         FILE *fp;
-#ifdef _MSC_VER
+#if defined(_UCRT) || defined(_MSC_VER)
         // take care of normal streams
         if (!skipstdout) {
             freopen_s(&fp, "CONOUT$", "w", stdout);
