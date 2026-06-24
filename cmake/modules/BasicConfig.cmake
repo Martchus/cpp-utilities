@@ -581,15 +581,17 @@ if (NOT META_NO_STATIC_ANALYSIS AND FORMATABLE_FILES)
 endif ()
 
 # add autotools-style check target
+set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
+add_custom_target(
+    "${META_TARGET_NAME}_check"
+    COMMAND ${CMAKE_CTEST_COMMAND}
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS "${CHECK_TARGET_DEPENDS}"
+    USES_TERMINAL)
 if (NOT TARGET check)
-    set(CMAKE_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -V)
-    add_custom_target(
-        check
-        COMMAND ${CMAKE_CTEST_COMMAND}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS "${CHECK_TARGET_DEPENDS}"
-        USES_TERMINAL)
+    add_custom_target(check)
 endif ()
+add_dependencies(check "${META_TARGET_NAME}_check")
 
 # enable source code based coverage analysis using clang
 option(CLANG_SOURCE_BASED_COVERAGE_ENABLED "enables creation of coverage targets for source-based coverage with clang" OFF)

@@ -115,10 +115,10 @@ function (configure_test_target)
     endif ()
 
     # add the test executable to the dependencies of the check target
-    if (NOT ARGS_MANUAL AND TARGET check)
-        add_dependencies(check ${TEST_TARGET_NAME})
+    if (NOT ARGS_MANUAL AND TARGET "${META_TARGET_NAME}_check")
+        add_dependencies("${META_TARGET_NAME}_check" ${TEST_TARGET_NAME})
         if (ARGS_REQUIRES_MAIN_TARGET)
-            add_dependencies(check "${META_TARGET_NAME}")
+            add_dependencies("${META_TARGET_NAME}_check" "${META_TARGET_NAME}")
         endif ()
     endif ()
 endfunction ()
