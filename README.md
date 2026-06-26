@@ -189,6 +189,13 @@ instructions for building on Windows.
 * When using `BUILTIN_ICON_THEMES`, the icon theme still needs to be installed as if it were installed on a
   GNU/Linux system. So simply grab, e.g., the Arch Linux package `breeze-icons` and extract it somewhere. Do
   *not* use the package from MSYS2 or what comes with builds from KDE's binary factory.
+* Windows did not allow creating hybrid console/GUI versions until version Windows 11 24H2 (build 26100).
+  Hence the build system creates a CLI wrapper for GUI applications so they can also be used from the console,
+  e.g. to view logs and to access additional CLI features. Add `-DUSE_DETACHED_CONSOLE=ON` to build GUI apps
+  instead as console applications with "detached"
+  [Console Allocation Policy](https://learn.microsoft.com/en-us/windows/console/console-allocation-policy).
+  With this, the CLI wrapper is no longer needed but suppressing the console windows this way onlay works as
+  of Windows 11 24H2 (build 26100).
 
 #### MacOS-specific notes
 * To create application icons, the tool `png2icns` is required.
