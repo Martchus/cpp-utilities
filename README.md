@@ -378,7 +378,11 @@ you can install the required dependencies via `pacman`, e.g., for Syncthing Tray
 
 ```
 podman container exec -it archlinux-devel-container \
-  pacman -Syu clang ninja git extra-cmake-modules qt6-{base,tools,declarative,shadertools} android-cmake android-aarch64-qt6-{base,declarative,tools,translations,svg} go perl-yaml-libyaml
+  pacman -Syu --needed clang ninja git extra-cmake-modules android-cmake \
+  go perl-yaml-libyaml \
+  qt6-{base,tools,declarative,shadertools} \
+  android-aarch64-qt6-{base,declarative,tools,translations,svg} \
+  android-x86-64-qt6-{base,declarative,tools,translations,svg}
 ```
 
 You use `keytool` from within the container in the same way as shown above:
@@ -438,7 +442,7 @@ prefix=mingw-w64-clang-x86_64     # in CLANG64 shell
 prefix=mingw-w64-clang-aarch64    # in CLANGARM64 shell
 
 # install dependencies; you may strip down this list depending on the application and features to enable
-pacman -Syu git perl-YAML-Tiny $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive
+pacman -Syu --needed git perl-YAML-Tiny $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive $prefix-openssl
 
 # clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
@@ -458,7 +462,7 @@ project:
 ```
 # install dependencies
 prefix=mingw-w64-ucrt-x86_64
-pacman -Syu git $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit
+pacman -Syu --needed git $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit
 
 # clone relevant repositories, e.g. here just tagparser and its dependency c++utilities
 cd /path/to/store/sources
@@ -503,7 +507,7 @@ various additional environment variables to be set, and you need to install depe
   Go (only used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
   ```
   prefix=mingw-w64-ucrt-x86_64 # see "Remarks for building on Windows" for details and other options
-  pacman -Syu perl-YAML $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go
+  pacman -Syu --needed perl-YAML $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go
   ```
     * `MSYS2_ROOT` must be set to the main install directory of MSYS2 (that also contains all the executables for the
       different shells/environments).
@@ -604,12 +608,12 @@ After following the [instructions for importing my GPG key](https://martchus.dyn
 can install Android packages, e.g.:
 
 ```
-pacman -Syu android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
+pacman -Syu --needed android-cmake android-{x86-64,aarch64}-{boost,libiconv,openssl,cppunit,sqlite}
 ````
 
 You may also install Qt from my repo instead of relying on official Qt builds:
 ```
-pacman -S android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
+pacman -Syu --needed android-{x86-64,aarch64}-qt6-{base,declarative,tools,svg,translations}
 ```
 
 Note that when using Qt for Android from my repo, you also need to install a matching version of Qt for
@@ -617,7 +621,7 @@ Windows from the MSYS2 mingw-w64 repos for host tooling.
 
 You may also install a few KDE libraries, like Kirigami:
 ```
-pacman -S --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
+pacman -Syu --needed --assume-installed=android-{aarch64,x86-64}-qt6-{base,declarative,shadertools,svg,5compat} \
   android-{aarch64,x86-64}-kirigami
 ```
 
