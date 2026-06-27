@@ -210,9 +210,8 @@ void startConsole()
 
     // attach to the parent process' console or allocate a new console if that's not possible
     if (!skip && (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())) {
-        FILE *fp;
-#if defined(_UCRT) || defined(_MSC_VER)
         // take care of normal streams
+        FILE *fp;
         if (!skipstdout) {
             freopen_s(&fp, "CONOUT$", "w", stdout);
             std::cout.clear();
@@ -244,36 +243,6 @@ void startConsole()
             SetStdHandle(STD_INPUT_HANDLE, hConIn);
             std::wcin.clear();
         }
-#else
-        // redirect stdout
-        auto stdHandle = std::intptr_t();
-        auto conHandle = int();
-        if (!skipstdout) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "w");
-            *stdout = *fp;
-            setvbuf(stdout, nullptr, _IONBF, 0);
-        }
-        // redirect stdin
-        if (!skipstdin) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_INPUT_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "r");
-            *stdin = *fp;
-            setvbuf(stdin, nullptr, _IONBF, 0);
-        }
-        // redirect stderr
-        if (!skipstderr) {
-            stdHandle = reinterpret_cast<intptr_t>(GetStdHandle(STD_ERROR_HANDLE));
-            conHandle = _open_osfhandle(stdHandle, _O_TEXT);
-            fp = _fdopen(conHandle, "w");
-            *stderr = *fp;
-            setvbuf(stderr, nullptr, _IONBF, 0);
-        }
-        // sync
-        ios::sync_with_stdio(true);
-#endif
         // ensure the console prompt is shown again when app terminates
         std::atexit(stopConsole);
     }
