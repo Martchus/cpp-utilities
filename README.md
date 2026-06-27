@@ -449,7 +449,7 @@ git clone ...
 # configure and invoke the build
 cd subdirs/syncthingtray
 cmake --preset devel-qt6
-cmake --build "$BUILD_DIR/syncthingtray/devel-qt6" devel-qt6 -- -v
+cmake --build --preset devel-qt6
 ```
 
 Run the following commands to build libraries individually (in this example, `tagparser`) and
