@@ -490,7 +490,8 @@ Note that:
       require Qt at all.
 * To run the binaries from the Windows terminal, you need to add the mingw-w64 libraries from the MSYS2
   installation to the path, e.g., `$Env:PATH = "$Env:MSYS2_ROOT\ucrt64\bin"` or
-  `$Env:PATH = "$Env:MSYS2_ROOT\mingw64\bin"`.
+  `$Env:PATH = "$Env:MSYS2_ROOT\mingw64\bin"` (or e.g. `set PATH=%MSYS2_ROOT%\ucrt64\bin` or
+  `set PATH=%MSYS2_ROOT%\mingw64\bin` for `cmd.exe`).
 * You can also easily install Qt Creator via MSYS2 using `pacman -S $prefix-qt-creator`. In Qt
   Creator, you can import the build configured via presets on the command line as an existing build. This also
   works for the MSVC build mentioned below. This way, not much tinkering in the Qt Creator settings is
