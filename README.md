@@ -206,7 +206,7 @@ instructions for building on Windows.
 * There are [MacPorts packages](https://www.macports.org/ports.php?by=name&substr=syncthingtray-devel)
   to build Syncthing Tray.
 
-##### Development builds
+#### Development builds
 During development, I find it useful to build all required projects (for instance, c++utilities, qtutilities,
  tagparser, and tageditor) as one big project.
 
