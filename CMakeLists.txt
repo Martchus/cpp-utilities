@@ -95,6 +95,7 @@ set(CMAKE_TEMPLATE_FILES
     cmake/templates/Config.cmake.in
     cmake/templates/config.h.in
     cmake/templates/desktop.in
+    cmake/templates/env_init.cpp.in
     cmake/templates/appdata.xml.in
     cmake/templates/doxygen.in
     cmake/templates/sphinx-conf.py.in

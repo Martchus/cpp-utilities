@@ -1,0 +1,21 @@
+// Created via CMake from template env_init.cpp.in
+// WARNING! Any changes to this file will be overwritten by the next CMake run!
+
+#include <array>
+#include <cstdlib>
+
+struct EnvVar {
+    const char *name = nullptr;
+    const char *value = nullptr;
+    int overwrite = 0;
+};
+
+// List of environment variables to set
+extern const auto envVars = [] {
+    static constexpr auto vars = std::array{
+@ENV_VAR_LIST@    };
+    for (const auto &envVar : vars) {
+        setenv(envVar.name, envVar.value, envVar.overwrite);
+    }
+    return vars;
+}();

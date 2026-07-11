@@ -15,6 +15,21 @@ if (NOT "${META_PROJECT_TYPE}" STREQUAL "application")
     )
 endif ()
 
+include(AppUtilities)
+
+# allow injecting runtime env vars at build time by setting CMake cache variable
+set("INJECT_ENV_LIST_DOC"
+    "Inject env vars to be available at runtime (KEY=VALUE:OVERWRITE, e.g. MY_VAR=hello:1;ANOTHER_VAR=test:0)")
+set("INJECT_ENV_LIST"
+    ""
+    CACHE STRING "${INJECT_ENV_LIST_DOC}")
+set("${META_PROJECT_VARNAME_UPPER}_INJECT_ENV_LIST"
+    ""
+    CACHE STRING "${INJECT_ENV_LIST_DOC} for ${META_PROJECT_NAME}")
+if (INJECT_ENV_LIST)
+    generate_env_config(ENV_LIST "${INJECT_ENV_LIST};${${META_PROJECT_VARNAME_UPPER}_INJECT_ENV_LIST}" OUT_VAR SRC_FILES)
+endif ()
+
 # define relevant files
 set(ALL_FILES
     ${HEADER_FILES}
@@ -222,7 +237,5 @@ if (NOT META_NO_INSTALL_TARGETS AND ENABLE_INSTALL_TARGETS)
         endif ()
     endif ()
 endif ()
-
-include(AppUtilities)
 
 set(TARGET_CONFIG_DONE YES)

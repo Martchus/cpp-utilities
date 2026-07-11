@@ -128,3 +128,51 @@ function (add_desktop_file)
 
     add_appstream_file()
 endfunction ()
+
+function (generate_env_config)
+    # parse arguments
+    set(ONE_VALUE_ARGS OUT_VAR)
+    set(MULTI_VALUE_ARGS ENV_LIST)
+    set(OPTIONAL_ARGS)
+    cmake_parse_arguments(ARGS "${OPTIONAL_ARGS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
+
+    # make @ENV_VAR_LIST@
+    set(ENV_VAR_LIST "")
+    foreach (PAIR ${ARGS_ENV_LIST})
+        # extract key, VALUE, and overwrite flag format: KEY=VALUE:OVERWRITE
+        string(FIND "${PAIR}" "=" EQ_POS)
+        if (EQ_POS EQUAL -1)
+            message(FATAL_ERROR "Invalid env PAIR '${PAIR}': must be KEY=VALUE[:OVERWRITE]")
+        endif ()
+        string(SUBSTRING "${PAIR}" 0 ${EQ_POS} KEY)
+        string(SUBSTRING "${PAIR}" ${EQ_POS} -1 REST)
+        string(SUBSTRING "${REST}" 1 -1 KEY_VALUE_REST) # skip '='
+        string(FIND "${KEY_VALUE_REST}" ":" COL_POS)
+        if (COL_POS EQUAL -1)
+            set(VALUE "${KEY_VALUE_REST}")
+            set(OVERWRITE 0) # no overwrite specified, default to 0
+        else ()
+            string(SUBSTRING "${KEY_VALUE_REST}" 0 ${COL_POS} VALUE)
+            string(SUBSTRING "${KEY_VALUE_REST}" ${COL_POS} -1 REST2)
+            string(SUBSTRING "${REST2}" 1 -1 OVERWRITE) # skip ':'
+        endif ()
+
+        # escape backslashes and quotes in KEY and VALUE
+        string(REPLACE "\\" "\\\\" ESCAPED_VALUE "${VALUE}")
+        string(REPLACE "\"" "\\\"" ESCAPED_VALUE "${ESCAPED_VALUE}")
+        string(REPLACE "\\" "\\\\" ESCAPED_KEY "${KEY}")
+        string(REPLACE "\"" "\\\"" ESCAPED_KEY "${ESCAPED_KEY}")
+
+        # append to @ENV_VAR_LIST@
+        set(ENV_VAR_LIST "${ENV_VAR_LIST}        EnvVar{\"${ESCAPED_KEY}\", \"${ESCAPED_VALUE}\", ${OVERWRITE}},\n")
+    endforeach ()
+
+    # generate env_init.cpp
+    find_template_file("env_init.cpp" CPP_UTILITIES ENV_INIT_TEMPLATE_FILE)
+    set(INIT_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/env_init.cpp")
+    configure_file("${ENV_INIT_TEMPLATE_FILE}" "${INIT_FILE}")
+    list(APPEND "${ARGS_OUT_VAR}" "${INIT_FILE}")
+    set("${ARGS_OUT_VAR}"
+        "${${ARGS_OUT_VAR}}"
+        PARENT_SCOPE)
+endfunction ()
