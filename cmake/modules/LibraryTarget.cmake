@@ -217,9 +217,6 @@ else ()
     if (NOT META_CXX_STANDARD STREQUAL "any")
         set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
-    if (META_PLUGIN_CATEGORY)
-        set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
-    endif ()
 
     # incorporate the SOVERSION into the library name for mingw-w64 targets
     set(TARGET_SUFFIX_FOR_PC "")
@@ -259,6 +256,17 @@ else ()
                       $<INSTALL_INTERFACE:${HEADER_INSTALL_DESTINATION}> ${PUBLIC_INCLUDE_DIRS})
         target_compile_definitions(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_DEFINITIONS}")
         target_compile_options(${META_TARGET_NAME}-headers INTERFACE "${META_PUBLIC_COMPILE_OPTIONS}")
+    endif ()
+
+    # set output directory
+    if (WIN32)
+        # output all libs and executables in one "bin" directory under Windows for easier execution as there is no RPATH
+        set_target_properties(${META_TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+        if (META_PLUGIN_CATEGORY)
+            set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${META_PLUGIN_CATEGORY}")
+        endif ()
+    elseif (META_PLUGIN_CATEGORY)
+        set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
     endif ()
 endif ()
 

@@ -98,6 +98,11 @@ if (NOT META_CXX_STANDARD STREQUAL "any")
     set_target_properties(${META_TARGET_NAME} PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
 endif ()
 
+# output all libs and executables in one "bin" directory under Windows for easier execution as there is no RPATH
+if (WIN32)
+    set_target_properties(${META_TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif ()
+
 # set properties for macOS bundle and generate icon for macOS bundle
 if (GUI_TYPE STREQUAL "MACOSX_BUNDLE")
     set_target_properties(
