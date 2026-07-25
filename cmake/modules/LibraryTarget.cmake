@@ -263,7 +263,8 @@ else ()
         # output all libs and executables in one "bin" directory under Windows for easier execution as there is no RPATH
         set_target_properties(${META_TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
         if (META_PLUGIN_CATEGORY)
-            set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${META_PLUGIN_CATEGORY}")
+            set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+                                                                 "${CMAKE_BINARY_DIR}/bin/${META_PLUGIN_CATEGORY}")
         endif ()
     elseif (META_PLUGIN_CATEGORY)
         set_target_properties(${META_TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${META_PLUGIN_CATEGORY}")
