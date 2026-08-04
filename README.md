@@ -415,8 +415,11 @@ You can also use `adb` from the container; see the
 * The Android packages for the dependencies Boost, Qt, iconv, OpenSSL, and Kirigami are provided on the AUR and
   by my [PKGBUILDs](http://github.com/Martchus/PKGBUILDs) repo.
 * The latest Java version that is currently supported is version 17; see QTBUG-119223.
-* Use `QT_QUICK_CONTROLS_STYLE=Material` and `QT_QUICK_CONTROLS_MOBILE=1` to test the Qt Quick GUI as it would
-  be shown under Android via a normal desktop build.
+* Set `QT_QUICK_CONTROLS_STYLE=Material` if dynamic selection of the
+  [Qt Quick Controls style](https://doc.qt.io/qt-6/qtquickcontrols-styles.html) is enabled to test the Qt Quick GUI
+  as it would be shown under Android via a normal desktop build.
+* Set `QT_QUICK_CONTROLS_MOBILE=1` for Kirigami apps to test the Qt Quick GUI as it would be shown under Android
+  via a normal desktop build.
 * One can open the Gradle project that is created within the build directory in Android Studio and run the app in
   the emulator.
 
