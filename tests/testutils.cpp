@@ -25,6 +25,12 @@
 #include <unistd.h>
 #endif
 
+#ifdef PLATFORM_WINDOWS
+#ifdef CPP_UTILITIES_USE_STANDARD_FILESYSTEM
+#include <filesystem>
+#endif
+#endif
+
 #ifdef CPP_UTILITIES_BOOST_PROCESS
 #include <boost/asio/buffers_iterator.hpp>
 #include <boost/asio/io_context.hpp>
@@ -707,15 +713,24 @@ std::vector<std::string> TestApplication::readTestfilePathFromSrcRef()
 #if defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_UNIX)
     try {
         binaryPath = std::filesystem::read_symlink("/proc/self/exe").parent_path();
-        binaryPath += '/';
     } catch (const std::filesystem::filesystem_error &e) {
         cerr << Phrases::Warning << "Unable to detect binary path for finding \"srcdirref\": " << e.what() << Phrases::EndFlush;
     }
+#elif defined(CPP_UTILITIES_USE_STANDARD_FILESYSTEM) && defined(PLATFORM_WINDOWS)
+    auto binaryPathBuffer = std::vector<wchar_t>();
+    auto copied = DWORD();
+    do {
+        binaryPathBuffer.resize(binaryPathBuffer.size() + MAX_PATH);
+        copied = GetModuleFileNameW(0, binaryPathBuffer.data(), static_cast<DWORD>(binaryPathBuffer.size()));
+    } while (copied >= binaryPathBuffer.size());
+    binaryPath = std::filesystem::path(binaryPathBuffer.begin(), binaryPathBuffer.begin() + copied, std::filesystem::path::native_format)
+                     .parent_path()
+                     .generic_string();
 #endif
-    const auto srcdirrefPath = binaryPath + "srcdirref";
+    const auto srcdirrefPath = binaryPath.empty() ? "srcdirref" : binaryPath + "/srcdirref";
     try {
         // read "srcdirref" file which should contain the path of the source directory
-        const auto srcDirContent = readFile(srcdirrefPath, 2 * 1024);
+        const auto srcDirContent = readFile(srcdirrefPath, 1024 * 1024);
         if (srcDirContent.empty()) {
             cerr << Phrases::Warning << "The file \"srcdirref\" is empty." << Phrases::EndFlush;
             return res;
