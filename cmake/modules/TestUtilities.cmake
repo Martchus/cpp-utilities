@@ -87,6 +87,11 @@ function (configure_test_target)
         set_target_properties("${TEST_TARGET_NAME}" PROPERTIES CXX_STANDARD "${META_CXX_STANDARD}")
     endif ()
 
+    # output all libs and executables in one "bin" directory under Windows for easier execution as there is no RPATH
+    if (WIN32)
+        set_target_properties(${TEST_TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    endif ()
+
     # avoid warnings when including autogen files
     if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
         set_target_properties("${TEST_TARGET_NAME}" PROPERTIES AUTOGEN_USE_SYSTEM_INCLUDE ON)
