@@ -303,13 +303,6 @@
       }
     },
     {
-      "name": "arch-i686-w64-mingw32-qt6",
-      "inherits": ["qt6", "arch-i686-w64-mingw32"],
-      "displayName": "Combination of qt6 and arch-i686-w64-mingw32",
-      "description": "See description of qt6 and arch-i686-w64-mingw32",
-      "binaryDir": "$env{BUILD_DIR}/${sourceDirName}/arch-i686-w64-mingw32-qt6"
-    },
-    {
       "name": "arch-x86_64-w64-mingw32-qt6",
       "inherits": ["qt6", "arch-x86_64-w64-mingw32"],
       "displayName": "Combination of qt6 and arch-x86_64-w64-mingw32",
@@ -678,7 +671,6 @@
     {"name": "arch-x86_64-w64-mingw32", "configurePreset": "arch-x86_64-w64-mingw32"},
     {"name": "arch-i686-w64-mingw32-static", "configurePreset": "arch-i686-w64-mingw32-static"},
     {"name": "arch-x86_64-w64-mingw32-static", "configurePreset": "arch-x86_64-w64-mingw32-static"},
-    {"name": "arch-i686-w64-mingw32-qt6", "configurePreset": "arch-i686-w64-mingw32-qt6"},
     {"name": "arch-x86_64-w64-mingw32-qt6", "configurePreset": "arch-x86_64-w64-mingw32-qt6"},
     {"name": "arch-i686-w64-mingw32-static-qt6", "configurePreset": "arch-i686-w64-mingw32-static-qt6"},
     {"name": "arch-x86_64-w64-mingw32-static-qt6", "configurePreset": "arch-x86_64-w64-mingw32-static-qt6"},
