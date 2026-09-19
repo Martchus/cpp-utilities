@@ -235,7 +235,7 @@ and qtutilities.
   version; the default is 0
 * `META_PROJECT_TYPE=application/library/plugin/qtplugin`: specifies whether
   to build an application, a library, or a plugin
-* `META_CXX_STANDARD=11/14/..`: specifies the C++ version; the default is 14
+* `META_CXX_STANDARD=11/14/…`: specifies the C++ version; the default is 20
 * `META_NO_TIDY`: disables the availability of enabling formatting via
   `CLANG_FORMAT_ENABLED` for this project
 * `META_NO_INSTALL_TARGETS`: the project is not meant to be installed, e.g., a
