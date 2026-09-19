@@ -124,7 +124,6 @@ function(use_@META_PROJECT_VARNAME@)
     parse_arguments_for_use_functions(${ARGN})
 
     # link against library (also "link" against header-only libs to get compile defs and interface link libs)
-    link_directories(${@META_PROJECT_VARNAME_UPPER@_LIB_DIR})
     if (ARGS_ONLY_HEADERS)
         set(TARGET_NAME "${@META_PROJECT_VARNAME_UPPER@_LIB}-headers")
     else ()
