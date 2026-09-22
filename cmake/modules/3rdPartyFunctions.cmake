@@ -150,8 +150,12 @@ function (use_iconv)
     parse_arguments_for_use_functions(${ARGN})
 
     # check whether iconv from the standard library can be used
+    set(FORCE_EXTERNAL_ICONV_DEFAULT OFF)
+    if (WIN32)
+        set(FORCE_EXTERNAL_ICONV_DEFAULT ON)
+    endif ()
     set(FORCE_EXTERNAL_ICONV
-        OFF
+        "${FORCE_EXTERNAL_ICONV_DEFAULT}"
         CACHE PATH "whether to force usage of external iconv (rather than the using the one bundled with glibc)")
     if (NOT FORCE_EXTERNAL_ICONV)
         # check whether iconv exists in standard lib
