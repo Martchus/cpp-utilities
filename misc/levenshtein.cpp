@@ -30,14 +30,10 @@ void initDistanceArray(DistanceArray &distanceArray, const size_t size1, const s
 {
     const auto maxDistance(size1 + size2);
     // ignore warning about null pointer dereference for now (which is *likely* not correct)
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnull-dereference"
-#endif
+    CPP_UTILITIES_WARNING_PUSH
+    CPP_UTILITIES_WARNING_DISABLE("-Wnull-dereference")
     distanceArray.at(0, 0) = maxDistance;
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+    CPP_UTILITIES_WARNING_POP
     for (size_t i = 0; i <= size1; ++i) {
         distanceArray.at(i + 1, 1) = i;
         distanceArray.at(i + 1, 0) = maxDistance;

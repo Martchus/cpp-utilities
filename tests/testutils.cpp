@@ -33,7 +33,10 @@
 
 #ifdef CPP_UTILITIES_BOOST_PROCESS
 #include <boost/asio/buffers_iterator.hpp>
+CPP_UTILITIES_WARNING_PUSH
+CPP_UTILITIES_WARNING_DISARM("-Wnull-dereference")
 #include <boost/asio/io_context.hpp>
+CPP_UTILITIES_WARNING_POP
 #include <boost/asio/streambuf.hpp>
 #if BOOST_VERSION >= 108600
 #include <boost/process/v1/async.hpp>

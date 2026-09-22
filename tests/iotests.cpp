@@ -503,14 +503,10 @@ void IoTests::testAdvancedIniFile()
     inputFile.clear();
     inputFile.seekg(std::ios_base::beg);
     // ignore warning about null pointer dereference from GCC 12 for now (which is *likely* not correct)
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnull-dereference"
-#endif
+    CPP_UTILITIES_WARNING_PUSH
+    CPP_UTILITIES_WARNING_DISABLE("-Wnull-dereference")
     originalContents.assign((istreambuf_iterator<char>(inputFile)), istreambuf_iterator<char>());
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+    CPP_UTILITIES_WARNING_POP
     CPPUNIT_ASSERT_EQUAL(originalContents, newFile.str());
 }
 

@@ -12,10 +12,8 @@
 #endif
 
 // disable warnings about sign conversions when using GCC or Clang
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
+CPP_UTILITIES_WARNING_PUSH
+CPP_UTILITIES_WARNING_DISABLE("-Wsign-conversion")
 
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.
@@ -211,9 +209,7 @@ CPP_UTILITIES_EXPORT inline void getBytes(double value, char *outputbuffer)
     getBytes(i, outputbuffer);
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+CPP_UTILITIES_WARNING_POP
 
 #undef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
 
