@@ -118,4 +118,43 @@
 #define CPP_UTILITIES_IF_DEBUG_BUILD(x)
 #endif
 
+/*!
+ * \def CPP_UTILITIES_DO_PRAGMA
+ * \brief Allows using a pragma in a macro.
+ */
+
+/*!
+ * \def CPP_UTILITIES_WARNING_PUSH
+ * \brief Causes GCC/Clang to remember the state of the diagnostics.
+ */
+
+/*!
+ * \def CPP_UTILITIES_WARNING_POP
+ * \brief Causes GCC/Clang to restore the previous state of the diagnostics.
+ */
+
+/*!
+ * \def CPP_UTILITIES_WARNING_DISABLE
+ * \brief Causes GCC/Clang to suppress the specified diagnostic.
+ */
+
+/*!
+ * \def CPP_UTILITIES_WARNING_DISARM
+ * \brief Causes GCC/Clang to treat the specified diagnostic as warning (even though otherwise
+ *        treated as error, e.g. via `-Werror`).
+ */
+
+#ifdef __GNUC__
+#define CPP_UTILITIES_DO_PRAGMA(text) _Pragma(#text)
+#define CPP_UTILITIES_WARNING_PUSH CPP_UTILITIES_DO_PRAGMA(GCC diagnostic push)
+#define CPP_UTILITIES_WARNING_POP CPP_UTILITIES_DO_PRAGMA(GCC diagnostic pop)
+#define CPP_UTILITIES_WARNING_DISABLE(text) CPP_UTILITIES_DO_PRAGMA(GCC diagnostic ignored text)
+#define CPP_UTILITIES_WARNING_DISARM(text) CPP_UTILITIES_DO_PRAGMA(GCC diagnostic warning text)
+#else
+#define CPP_UTILITIES_WARNING_PUSH
+#define CPP_UTILITIES_WARNING_POP
+#define CPP_UTILITIES_WARNING_DISABLE(text)
+#define CPP_UTILITIES_WARNING_DISARM(text)
+#endif
+
 #endif // CPP_UTILITIES_APPLICATION_UTILITIES_GLOBAL_H
