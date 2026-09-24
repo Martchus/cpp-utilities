@@ -123,7 +123,7 @@ append_user_defined_additional_libraries()
 
 # allow writing public compile definitions to a header file instead of just relying on CMake/pkg-config
 option(USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS "writes public compile definitions to a header file" ON)
-set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+set(TARGET_GENERATED_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/geninclude")
 set(TARGET_DEFINITIONS_HEADER "${TARGET_GENERATED_INCLUDE_DIRECTORY}/${META_PROJECT_NAME}-definitions.h")
 if (USE_HEADER_FOR_PUBLIC_COMPILE_DEFINITIONS)
     set(EXISTING_DEFS_FOR_HEADER "none")
