@@ -232,7 +232,25 @@ if (USE_LIBARCHIVE)
     list(APPEND SRC_FILES io/archive.cpp)
     list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_LIBARCHIVE)
 else ()
-    set(EXCLUDED_FILES io/archive.h io/archive.cpp)
+    list(APPEND EXCLUDED_FILES io/archive.h io/archive.cpp)
+endif ()
+
+# configure usage of PCRE2
+option(USE_PCRE2 "uses PCRE2; if disabled regular expression utilities will not be available" OFF)
+if (USE_PCRE2)
+    # use either the CMake find module or the pkg-config file to find PCRE2
+    option(USE_PCRE2_VIA_FIND_MODULE "uses the CMake find module to find PCRE2" OFF)
+    if (USE_PCRE2_VIA_FIND_MODULE)
+        use_package(TARGET_NAME PCRE2::8BIT pcre2-8 PCRE2::pcre2-8 PACKAGE_NAME PCRE2)
+    else ()
+        use_pkg_config_module(PKG_CONFIG_MODULES "libpcre2-8" TARGET_NAME PCRE2::8BIT VISIBILITY PRIVATE)
+    endif ()
+    list(APPEND HEADER_FILES misc/regex.h)
+    list(APPEND SRC_FILES misc/regex.cpp)
+    list(APPEND META_PUBLIC_COMPILE_DEFINITIONS ${META_PROJECT_VARNAME}_USE_PCRE2)
+    list(APPEND TEST_SRC_FILES tests/regextests.cpp)
+else ()
+    list(APPEND EXCLUDED_FILES misc/regex.h misc/regex.cpp tests/regextests.cpp)
 endif ()
 
 # configure whether escape codes should be enabled by default

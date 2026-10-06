@@ -119,6 +119,7 @@ These build instructions apply to `c++utilities` and my other projects that use 
     * libstdc++ or Boost.Iostreams for `NativeFileStream` (optional, use `USE_NATIVE_FILE_BUFFER=OFF` to disable).
     * Boost.Process for the `execApp()` test helper under Windows (optional, use `USE_BOOST_PROCESS=OFF` to disable).
     * libarchive (optional, for archiving utilities only, use `USE_LIBARCHIVE=ON` to enable).
+    * PCRE2 (optional, for regular expression utilities only, use `USE_PCRE2=ON` to enable).
 * My other projects have further dependencies, such as Qt. Check out the README of these
   projects for further details.
 
