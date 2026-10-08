@@ -89,8 +89,7 @@ enum class ParseArgumentBehavior {
     ReadArguments = 0x0, /**< reads the specified CLI arguments, equivalent to simply calling readArgs() */
     CheckConstraints = 0x1, /**< whether the constraints should be checked after reading the arguments */
     InvokeCallbacks = 0x2, /**< whether the callbacks should be invoked after reading the arguments and (maybe) checking the constraints */
-    ExitOnFailure
-    = 0x4, /**< whether the parser should print an error message and terminate the application on failure (rather than throwing an exception) */
+    ExitOnFailure = 0x4, /**< whether the parser should print an error message and terminate the application on failure (rather than throwing an exception) */
 };
 
 /// \cond
@@ -271,13 +270,11 @@ public:
     /// \brief The Flags enum specifies options for treating the argument in a special way.
     enum class Flags : std::uint64_t {
         None = 0x0, /**< No flags are present. The default for Argument(). */
-        Combinable
-        = 0x1, /**< It is no error if this argument occurs besides other arguments on the same level. The default for ConfigValueArgument. */
+        Combinable = 0x1, /**< It is no error if this argument occurs besides other arguments on the same level. The default for ConfigValueArgument. */
         Implicit = 0x2, /**< The argument is assumed to be present if its values are present. Only one argument can be implicit at the same level. */
         Operation = 0x4, /**< The argument is an operation, so no `--` prefix is required when specifying it. The default for OperationArgument(). */
         Deprecated = 0x8, /**< The argument is considered deprecated and therefore excluded from the help. */
-        Greedy
-        = 0x10, /**< The argument is "greedy" so when Argument::varValueCount is used all subsequent arguments will be considered values of that argument. This is useful to pass remaining arguments down to another argument parser as-is. */
+        Greedy = 0x10, /**< The argument is "greedy" so when Argument::varValueCount is used all subsequent arguments will be considered values of that argument. This is useful to pass remaining arguments down to another argument parser as-is. */
     };
 
     Argument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
