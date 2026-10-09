@@ -109,60 +109,12 @@ RegexException::~RegexException()
 }
 
 /*!
- * \brief Returns the byte offset in the pattern where the error occurred.
- */
-std::size_t RegexException::offset() const noexcept
-{
-    return m_offset;
-}
-
-/*!
  * \brief Constructs a new RegexMatch from the specified \a subject and \a captureOffsets.
  */
 RegexMatch::RegexMatch(std::string_view subject, std::vector<std::pair<std::size_t, std::size_t>> &&captureOffsets) noexcept
     : m_subject(subject)
     , m_captureOffsets(std::move(captureOffsets))
 {
-}
-
-/*!
- * \brief Returns whether a match was found.
- */
-bool RegexMatch::hasMatch() const noexcept
-{
-    return !m_captureOffsets.empty() && m_captureOffsets[0].first != std::string_view::npos;
-}
-
-/*!
- * \brief Returns whether a match was found.
- */
-RegexMatch::operator bool() const noexcept
-{
-    return hasMatch();
-}
-
-/*!
- * \brief Returns the number of captures, including the overall match at index 0.
- */
-std::size_t RegexMatch::captureCount() const noexcept
-{
-    return m_captureOffsets.size();
-}
-
-/*!
- * \brief Returns the subject string that was matched against.
- */
-std::string_view RegexMatch::subject() const noexcept
-{
-    return m_subject;
-}
-
-/*!
- * \brief Returns whether the capture group at the specified \a index was captured.
- */
-bool RegexMatch::hasCaptured(std::size_t index) const noexcept
-{
-    return index < m_captureOffsets.size() && m_captureOffsets[index].first != std::string_view::npos;
 }
 
 /*!
@@ -175,55 +127,6 @@ std::string_view RegexMatch::captured(std::size_t index) const
     }
     const auto &offsets = m_captureOffsets[index];
     return m_subject.substr(offsets.first, offsets.second - offsets.first);
-}
-
-/*!
- * \brief Returns the captured substring at the specified \a index.
- */
-std::string_view RegexMatch::operator[](std::size_t index) const
-{
-    return captured(index);
-}
-
-/*!
- * \brief Returns the captured substring at the specified \a index as a std::string.
- */
-std::string RegexMatch::capturedString(std::size_t index) const
-{
-    return std::string(captured(index));
-}
-
-/*!
- * \brief Returns the start offset of the captured substring at the specified \a index.
- */
-std::size_t RegexMatch::capturedStart(std::size_t index) const noexcept
-{
-    if (!hasCaptured(index)) {
-        return std::string_view::npos;
-    }
-    return m_captureOffsets[index].first;
-}
-
-/*!
- * \brief Returns the end offset of the captured substring at the specified \a index.
- */
-std::size_t RegexMatch::capturedEnd(std::size_t index) const noexcept
-{
-    if (!hasCaptured(index)) {
-        return std::string_view::npos;
-    }
-    return m_captureOffsets[index].second;
-}
-
-/*!
- * \brief Returns the length of the captured substring at the specified \a index.
- */
-std::size_t RegexMatch::capturedLength(std::size_t index) const noexcept
-{
-    if (!hasCaptured(index)) {
-        return 0;
-    }
-    return m_captureOffsets[index].second - m_captureOffsets[index].first;
 }
 
 struct Regex::Impl {

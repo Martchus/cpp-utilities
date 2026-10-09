@@ -34,6 +34,14 @@ private:
 };
 
 /*!
+ * \brief Returns the byte offset in the pattern where the error occurred.
+ */
+inline std::size_t RegexException::offset() const noexcept
+{
+    return m_offset;
+}
+
+/*!
  * \brief The RegexCompileOptions enum specifies options for compiling regular expressions.
  * \remarks Still experimental. Might be removed/adjusted in next minor release.
  */
@@ -98,6 +106,86 @@ private:
     std::string_view m_subject;
     std::vector<std::pair<std::size_t, std::size_t>> m_captureOffsets;
 };
+
+/*!
+ * \brief Returns whether a match was found.
+ */
+inline bool RegexMatch::hasMatch() const noexcept
+{
+    return !m_captureOffsets.empty() && m_captureOffsets[0].first != std::string_view::npos;
+}
+
+/*!
+ * \brief Returns whether a match was found.
+ */
+inline RegexMatch::operator bool() const noexcept
+{
+    return hasMatch();
+}
+
+/*!
+ * \brief Returns the number of captures, including the overall match at index 0.
+ */
+inline std::size_t RegexMatch::captureCount() const noexcept
+{
+    return m_captureOffsets.size();
+}
+
+/*!
+ * \brief Returns the subject string that was matched against.
+ */
+inline std::string_view RegexMatch::subject() const noexcept
+{
+    return m_subject;
+}
+
+/*!
+ * \brief Returns whether the capture group at the specified \a index was captured.
+ */
+inline bool RegexMatch::hasCaptured(std::size_t index) const noexcept
+{
+    return index < m_captureOffsets.size() && m_captureOffsets[index].first != std::string_view::npos;
+}
+
+/*!
+ * \brief Returns the captured substring at the specified \a index.
+ */
+inline std::string_view RegexMatch::operator[](std::size_t index) const
+{
+    return captured(index);
+}
+
+/*!
+ * \brief Returns the captured substring at the specified \a index as a std::string.
+ */
+inline std::string RegexMatch::capturedString(std::size_t index) const
+{
+    return std::string(captured(index));
+}
+
+/*!
+ * \brief Returns the start offset of the captured substring at the specified \a index.
+ */
+inline std::size_t RegexMatch::capturedStart(std::size_t index) const noexcept
+{
+    return hasCaptured(index) ? m_captureOffsets[index].first : std::string_view::npos;
+}
+
+/*!
+ * \brief Returns the end offset of the captured substring at the specified \a index.
+ */
+inline std::size_t RegexMatch::capturedEnd(std::size_t index) const noexcept
+{
+    return hasCaptured(index) ? m_captureOffsets[index].second : std::string_view::npos;
+}
+
+/*!
+ * \brief Returns the length of the captured substring at the specified \a index.
+ */
+inline std::size_t RegexMatch::capturedLength(std::size_t index) const noexcept
+{
+    return hasCaptured(index) ? (m_captureOffsets[index].second - m_captureOffsets[index].first) : 0;
+}
 
 /*!
  * \class Regex
