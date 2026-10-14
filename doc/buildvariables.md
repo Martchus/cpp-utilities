@@ -182,6 +182,8 @@ the relevant CMake cache variable on the CMake invocation.
   be built-in
 * `BUILTIN_ICON_THEMES_IN_LIBRARIES=breeze;breeze-dark;...`: same as above but
   also affects libraries
+* `BUILTIN_ICON_THEMES_SEARCH_PATH`: additional search paths for
+  `BUILTIN_ICON_THEMES`
 * `SVG_SUPPORT=ON/OFF`: enables linking against the static SVG image format
   plugin
     * enabled by default
