@@ -106,6 +106,9 @@ set(LIB_INSTALL_DIR
 set(CMAKE_INSTALL_LIBDIR
     "${LIB_INSTALL_DIR}"
     CACHE STRING "sets the directory to install libraries to (within the prefix)")
+set(CMAKE_INSTALL_LIBEXECDIR
+    "${LIB_INSTALL_DIR}"
+    CACHE STRING "sets the directory to install non-user facing executables to (within the prefix)")
 include(GNUInstallDirs)
 
 # define a few variables
@@ -674,6 +677,7 @@ endif ()
 
 set(BIN_INSTALL_DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}")
 set(LIB_INSTALL_DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}${SELECTED_LIB_SUFFIX}")
+set(LIBEXEC_INSTALL_DESTINATION "${CMAKE_INSTALL_FULL_LIBEXECDIR}/${META_TARGET_NAME}")
 
 # allow user to specify additional libraries to link against (see buildvariables.md for details)
 set(USER_DEFINED_ADDITIONAL_LIBRARIES
