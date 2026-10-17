@@ -180,8 +180,8 @@ the relevant CMake cache variable on the CMake invocation.
     * has no effect when `BUILTIN_TRANSLATIONS` is disabled
 * `BUILTIN_ICON_THEMES=breeze;breeze-dark;...`: specifies icon themes to
   be built-in
-* `BUILTIN_ICON_THEMES_IN_LIBRARIES=breeze;breeze-dark;...`: same as above but
-  also affects libraries
+* `BUILTIN_ICON_THEMES_IN_LIBRARIES=ON/OFF`: whether `BUILTIN_ICON_THEMES` applies
+  to building libraries as well (it is ignored by default when building libraries)
 * `BUILTIN_ICON_THEMES_SEARCH_PATH`: additional search paths for
   `BUILTIN_ICON_THEMES`
 * `SVG_SUPPORT=ON/OFF`: enables linking against the static SVG image format
