@@ -380,7 +380,7 @@ you can install the required dependencies via `pacman`, e.g., for Syncthing Tray
 ```
 podman container exec -it archlinux-devel-container \
   pacman -Syu --needed clang ninja git extra-cmake-modules android-cmake \
-  go perl-yaml-libyaml \
+  go corrosion perl-yaml-libyaml \
   qt6-{base,tools,declarative,shadertools} \
   android-aarch64-qt6-{base,declarative,tools,translations,svg} \
   android-x86-64-qt6-{base,declarative,tools,translations,svg}
@@ -446,7 +446,7 @@ prefix=mingw-w64-clang-x86_64     # in CLANG64 shell
 prefix=mingw-w64-clang-aarch64    # in CLANGARM64 shell
 
 # install dependencies; you may strip down this list depending on the application and features to enable
-pacman -Syu --needed git perl-YAML-Tiny $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-libarchive $prefix-openssl
+pacman -Syu --needed git perl-YAML-Tiny $prefix-gcc $prefix-ccache $prefix-cmake $prefix-boost $prefix-cppunit $prefix-qt6-base $prefix-qt6-declarative $prefix-qt6-tools $prefix-qt6-svg $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go $prefix-corrosion $prefix-libarchive $prefix-openssl
 
 # clone repositories as mentioned under "Building this straight" in the application's README file
 cd /path/to/store/sources
@@ -489,6 +489,7 @@ Note that:
     * Especially `…-go` is only required when building Syncthing Tray with the built-in Syncthing library enabled.
       To build in an MSYS2 shell, one needs to invoke, e.g., `export GOROOT=/ucrt64/lib/go` or
       `export GOROOT=/mingw64/lib/go` so Go can find its root.
+    * `corrosion` (and `rust`) are only needed for additional tooling which is so far optional.
     * All Qt-related dependencies are generally only required for building with a Qt GUI, e.g., Tag Editor
       and Password Manager can be built without a Qt GUI. The `c++utilities` and `tagparser` libraries don't
       require Qt at all.
@@ -508,12 +509,17 @@ Note that:
 ###### Building with MSVC
 To build with MSVC, you can use the `win-x64-msvc-static` preset. This preset (and all presets inheriting from it) needs
 various additional environment variables to be set, and you need to install dependencies from various sources:
-* `MSYS2_ROOT` and `MSYS2_PREFIX`: for Perl (only used by `qtforkawesome` so far), `clang-format`, Doxygen, FFmpeg, and
-  Go (only used by `libsyncthing`) provided via MSYS2 packages; install the following packages:
+* `MSYS2_ROOT` and `MSYS2_PREFIX` for the following tools provided via MSYS2 packages:
+    * Perl (only used by `qtforkawesome` and the Qt Quick GUI of Syncthing Tray)
+    * Corrosion/Rust (only used to build additional tooling)
+    * Go (only used by `libsyncthing`)
+    * additional tools: `clang-format`, Doxygen, FFmpeg
+  Install the following MSYS2 packages:
   ```
   prefix=mingw-w64-ucrt-x86_64 # see "Remarks for building on Windows" for details and other options
-  pacman -Syu --needed perl-YAML $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-go
+  pacman -Syu --needed perl-YAML $prefix-clang-tools-extra $prefix-doxygen $prefix-ffmpeg $prefix-corrosion $prefix-go
   ```
+  Remarks:
     * `MSYS2_ROOT` must be set to the main install directory of MSYS2 (that also contains all the executables for the
       different shells/environments).
     * `MSYS2_PREFIX` must be set to the prefix of the environment you want to use. That is one of the values mentioned
