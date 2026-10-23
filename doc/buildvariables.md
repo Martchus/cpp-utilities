@@ -273,8 +273,15 @@ and qtutilities.
 * `DOC_FILES`: additional markdown files to be included in the documentation
   created via Doxygen; the first file is used as the main page
 * `REQUIRED_ICONS`: names of the icons required by the application and the
-  used libraries (can be generated with
-  [findicons](https://github.com/Martchus/findicons))
+  used libraries (can be found with `icontool find` provided by qtutilities);
+  each entry can be:
+    * a plain icon name (e.g. `document-open-symbolic`)
+    * a prioritized list of candidate options using the syntax
+      `bundled-icon-name:option1,option2,...` (e.g.
+      `sidebar-show-symbolic:sidebar-show-symbolic,view-sidebar-symbolic`), which
+      searches for the specified options in the icon theme in order of preference
+      (exact matches first, followed by suffix fallbacks) and bundles the first
+      matching candidate as `bundled-icon-name` using a Qt resource alias
 * `CMAKE_MODULE_FILES`/`CMAKE_TEMPLATE_FILES`: specifies CMake modules/templates
   provided by the project; those files are installed so they can be used by
   other projects
