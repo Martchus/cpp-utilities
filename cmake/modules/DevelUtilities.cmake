@@ -42,7 +42,7 @@ function (configure_development_warnings)
 
     # enable useful warnings and explicitly disable not useful ones and treat warnings as errors
     option(ENABLE_WARNINGS "adds additional compiler flags to enable useful warnings" "${ENABLE_DEVEL_DEFAULTS}")
-    set(CLANG_WARNINGS
+    set(GENERAL_WARNINGS
         -Wall
         -Wextra # reasonable and standard
         -Wshadow=local # warn the user if a variable declaration shadows one from a parent context
@@ -61,11 +61,14 @@ function (configure_development_warnings)
         -Wno-missing-field-initializers # warn NOT about missing field initializers
         -Wno-useless-cast # warn NOT about useless casts (those are sometimes very useful in templates)
         -Wno-unused-const-variable # warn NOT about unused constants (usually used in other compile unit)
+    )
+    set(CLANG_WARNINGS
+        ${GENERAL_WARNINGS}
         -Wno-unknown-warning-option # warn NOT about unknown warning options (depending on compiler/version not all are
                                     # available)
     )
     set(GCC_WARNINGS
-        ${CLANG_WARNINGS}
+        ${GENERAL_WARNINGS}
         -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
         -Wduplicated-cond # warn if if / else chain has duplicated conditions
         -Wduplicated-branches # warn if if / else branches have duplicated code
