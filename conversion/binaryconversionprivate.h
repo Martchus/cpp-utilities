@@ -18,7 +18,7 @@ CPP_UTILITIES_WARNING_DISABLE("-Wsign-conversion")
 /*!
  * \brief Returns a 16-bit signed integer converted from two bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::int16_t toInt16(const char *value)
+constexpr std::int16_t toInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return static_cast<std::int16_t>((static_cast<std::int16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::int16_t>(value[1]) & 0x00FF));
@@ -30,7 +30,7 @@ CPP_UTILITIES_EXPORT constexpr std::int16_t toInt16(const char *value)
 /*!
  * \brief Returns a 16-bit unsigned integer converted from two bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint16_t toUInt16(const char *value)
+constexpr std::uint16_t toUInt16(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return static_cast<std::uint16_t>((static_cast<std::uint16_t>(value[0]) << 8 & 0xFF00) | (static_cast<std::uint16_t>(value[1]) & 0x00FF));
@@ -42,7 +42,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint16_t toUInt16(const char *value)
 /*!
  * \brief Returns a 32-bit signed integer converted from four bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::int32_t toInt32(const char *value)
+constexpr std::int32_t toInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return static_cast<std::int32_t>((static_cast<std::int32_t>(value[0]) << 24 & 0xFF000000)
@@ -58,7 +58,7 @@ CPP_UTILITIES_EXPORT constexpr std::int32_t toInt32(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from three bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t toUInt24(const char *value)
+constexpr std::uint32_t toUInt24(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<std::uint32_t>(value[0]) << 16 & 0x00FF0000) | (static_cast<std::uint32_t>(value[1]) << 8 & 0x0000FF00)
@@ -72,7 +72,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toUInt24(const char *value)
 /*!
  * \brief Returns a 32-bit unsigned integer converted from four bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t toUInt32(const char *value)
+constexpr std::uint32_t toUInt32(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<std::uint32_t>(value[0]) << 24 & 0xFF000000) | (static_cast<std::uint32_t>(value[1]) << 16 & 0x00FF0000)
@@ -86,7 +86,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toUInt32(const char *value)
 /*!
  * \brief Returns a 64-bit signed integer converted from eight bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::int64_t toInt64(const char *value)
+constexpr std::int64_t toInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<std::int64_t>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<std::int64_t>(value[1]) << 48 & 0x00FF000000000000)
@@ -104,7 +104,7 @@ CPP_UTILITIES_EXPORT constexpr std::int64_t toInt64(const char *value)
 /*!
  * \brief Returns a 64-bit unsigned integer converted from eight bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint64_t toUInt64(const char *value)
+constexpr std::uint64_t toUInt64(const char *value)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     return (static_cast<std::uint64_t>(value[0]) << 56 & 0xFF00000000000000) | (static_cast<std::uint64_t>(value[1]) << 48 & 0x00FF000000000000)
@@ -122,7 +122,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t toUInt64(const char *value)
 /*!
  * \brief Returns a 32-bit floating point number converted from four bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline float toFloat32(const char *value)
+inline float toFloat32(const char *value)
 {
     const auto val = toInt32(value);
     const auto *const c = reinterpret_cast<const char *>(&val);
@@ -132,7 +132,7 @@ CPP_UTILITIES_EXPORT inline float toFloat32(const char *value)
 /*!
  * \brief Returns a 64-bit floating point number converted from eight bytes at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline double toFloat64(const char *value)
+inline double toFloat64(const char *value)
 {
     const auto val = toInt64(value);
     const auto *const c = reinterpret_cast<const char *>(&val);
@@ -147,7 +147,7 @@ CPP_UTILITIES_EXPORT inline double toFloat64(const char *value)
  *   custom code that may not be optimized by the compiler. (Only GCC optimized it but not Clang and MSVC.) Note
  *   that the width-specific functions cannot be changed as they are constexpr and thus cannot use memcpy().
  */
-template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT inline T toInt(const char *value)
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> inline T toInt(const char *value)
 {
     auto dst = T();
     std::memcpy(&dst, value, sizeof(T));
@@ -161,7 +161,7 @@ template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILIT
  * \brief Stores the specified 24-bit unsigned integer value at a specified position in a char array.
  * \remarks Ignores the most significant byte.
  */
-CPP_UTILITIES_EXPORT inline void getBytes24(std::uint32_t value, char *outputbuffer)
+inline void getBytes24(std::uint32_t value, char *outputbuffer)
 {
 #if CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL == 0
     outputbuffer[0] = static_cast<char>((value >> 16) & 0xFF);
@@ -181,7 +181,7 @@ CPP_UTILITIES_EXPORT inline void getBytes24(std::uint32_t value, char *outputbuf
  * - This function is potentially faster than the width-specific toInt…() because the width-specific functions use
  *   custom code that may not be optimized by the compiler. (Only GCC optimized it but not Clang and MSVC.)
  */
-template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT inline void getBytes(T value, char *outputbuffer)
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> inline void getBytes(T value, char *outputbuffer)
 {
 #ifdef CONVERSION_UTILITIES_BINARY_CONVERSION_INTERNAL_NEEDS_SWAP
     value = swapOrder(value);
@@ -192,7 +192,7 @@ template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILIT
 /*!
  * \brief Stores the specified 32-bit floating point value at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline void getBytes(float value, char *outputbuffer)
+inline void getBytes(float value, char *outputbuffer)
 {
     auto *c = reinterpret_cast<char *>(&value);
     auto i = *reinterpret_cast<std::int32_t *>(c);
@@ -202,7 +202,7 @@ CPP_UTILITIES_EXPORT inline void getBytes(float value, char *outputbuffer)
 /*!
  * \brief Stores the specified 64-bit floating point value at a specified position in a char array.
  */
-CPP_UTILITIES_EXPORT inline void getBytes(double value, char *outputbuffer)
+inline void getBytes(double value, char *outputbuffer)
 {
     auto *c = reinterpret_cast<char *>(&value);
     auto i = *reinterpret_cast<std::int64_t *>(c);

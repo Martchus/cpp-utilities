@@ -158,7 +158,7 @@ inline bool TestApplication::onlyListUnits() const
  * \brief Convenience function to invoke TestApplication::testFilePath().
  * \remarks A TestApplication must be present.
  */
-inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relativeTestFilePath)
+inline std::string testFilePath(const std::string &relativeTestFilePath)
 {
     return TestApplication::instance()->testFilePath(relativeTestFilePath);
 }
@@ -167,7 +167,7 @@ inline CPP_UTILITIES_EXPORT std::string testFilePath(const std::string &relative
  * \brief Convenience function to invoke TestApplication::testDirPath().
  * \remarks A TestApplication must be present.
  */
-inline CPP_UTILITIES_EXPORT std::string testDirPath(const std::string &relativeTestDirPath)
+inline std::string testDirPath(const std::string &relativeTestDirPath)
 {
     return TestApplication::instance()->testDirPath(relativeTestDirPath);
 }
@@ -176,7 +176,7 @@ inline CPP_UTILITIES_EXPORT std::string testDirPath(const std::string &relativeT
  * \brief Convenience function to invoke TestApplication::workingCopyPath().
  * \remarks A TestApplication must be present.
  */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy)
+inline std::string workingCopyPath(const std::string &relativeTestFilePath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy)
 {
     return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeTestFilePath, mode);
 }
@@ -185,7 +185,7 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPath(const std::string &relat
  * \brief Convenience function to invoke TestApplication::workingCopyPathAs().
  * \remarks A TestApplication must be present.
  */
-inline CPP_UTILITIES_EXPORT std::string workingCopyPathAs(
+inline std::string workingCopyPathAs(
     const std::string &relativeTestFilePath, const std::string &relativeWorkingCopyPath, WorkingCopyMode mode = WorkingCopyMode::CreateCopy)
 {
     return TestApplication::instance()->workingCopyPathAs(relativeTestFilePath, relativeWorkingCopyPath, mode);
@@ -197,7 +197,7 @@ inline CPP_UTILITIES_EXPORT std::string workingCopyPathAs(
  * \remarks A TestApplication must be present.
  * \sa TestApplication::execApp()
  */
-inline CPP_UTILITIES_EXPORT int execApp(const char *const *args, std::string &output, std::string &errors)
+inline int execApp(const char *const *args, std::string &output, std::string &errors)
 {
     return TestApplication::instance()->execApp(args, output, errors);
 }
