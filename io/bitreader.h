@@ -12,8 +12,8 @@ namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT BitReader {
 public:
-    BitReader(const char *buffer, std::size_t bufferSize);
-    BitReader(const char *buffer, const char *end);
+    inline BitReader(const char *buffer, std::size_t bufferSize);
+    inline BitReader(const char *buffer, const char *end);
 
     template <typename intType> intType readBits(std::uint8_t bitCount);
     std::uint8_t readBit();

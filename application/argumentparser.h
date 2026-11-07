@@ -308,8 +308,8 @@ public:
     bool isRequired() const;
     void setRequired(bool required);
     Argument::Flags flags() const;
-    void setFlags(Argument::Flags flags);
-    void setFlags(Argument::Flags flags, bool add);
+    inline void setFlags(Argument::Flags flags);
+    inline void setFlags(Argument::Flags flags, bool add);
     bool isCombinable() const;
     void setCombinable(bool combinable);
     bool isImplicit() const;

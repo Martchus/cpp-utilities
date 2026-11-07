@@ -84,7 +84,7 @@ namespace CppUtilities {
 /*!
  * \brief Returns the 8.8 fixed point representation converted from the specified 32-bit floating point number.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint16_t toFixed8(float float32value)
+constexpr std::uint16_t toFixed8(float float32value)
 {
     return static_cast<std::uint16_t>(float32value * 256.0f);
 }
@@ -92,7 +92,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint16_t toFixed8(float float32value)
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 8.8 fixed point representation.
  */
-CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint16_t fixed8value)
+constexpr float toFloat32(std::uint16_t fixed8value)
 {
     return static_cast<float>(fixed8value) / 256.0f;
 }
@@ -100,7 +100,7 @@ CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint16_t fixed8value)
 /*!
  * \brief Returns the 16.16 fixed point representation converted from the specified 32-bit floating point number.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t toFixed16(float float32value)
+constexpr std::uint32_t toFixed16(float float32value)
 {
     return static_cast<std::uint32_t>(float32value * 65536.0f);
 }
@@ -108,7 +108,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toFixed16(float float32value)
 /*!
  * \brief Returns a 32-bit floating point number converted from the specified 16.16 fixed point representation.
  */
-CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint32_t fixed16value)
+constexpr float toFloat32(std::uint32_t fixed16value)
 {
     return static_cast<float>(fixed16value) / 65536.0f;
 }
@@ -118,7 +118,7 @@ CPP_UTILITIES_EXPORT constexpr float toFloat32(std::uint32_t fixed16value)
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t toSynchsafeInt(std::uint32_t normalInt)
+constexpr std::uint32_t toSynchsafeInt(std::uint32_t normalInt)
 {
     return ((normalInt & 0x0000007fu)) | ((normalInt & 0x00003f80u) << 1) | ((normalInt & 0x001fc000u) << 2) | ((normalInt & 0x0fe00000u) << 3);
 }
@@ -128,7 +128,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toSynchsafeInt(std::uint32_t normal
  * \remarks Synchsafe integers appear in ID3 tags that are attached to an MP3 file.
  * \sa <a href="http://id3.org/id3v2.4.0-structure">ID3 tag version 2.4.0 - Main Structure</a>
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t toNormalInt(std::uint32_t synchsafeInt)
+constexpr std::uint32_t toNormalInt(std::uint32_t synchsafeInt)
 {
     return ((synchsafeInt & 0x0000007fu)) | ((synchsafeInt & 0x00007f00u) >> 1) | ((synchsafeInt & 0x007f0000u) >> 2)
         | ((synchsafeInt & 0x7f000000u) >> 3);
@@ -136,7 +136,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t toNormalInt(std::uint32_t synchsafe
 
 // define helpers for byte swapping
 #ifdef __cpp_lib_byteswap // in C++ 23 we can just use the stdlib
-template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILITIES_EXPORT constexpr T swapOrder(T value)
+template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> constexpr T swapOrder(T value)
 {
     return std::byteswap(value);
 }
@@ -146,7 +146,7 @@ template <class T, Traits::EnableIf<std::is_integral<T>> * = nullptr> CPP_UTILIT
 /*!
  * \brief Swaps the byte order of the specified 16-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint16_t swapOrder(std::uint16_t value)
+constexpr std::uint16_t swapOrder(std::uint16_t value)
 {
     return static_cast<std::uint16_t>(((value >> 8) & 0x00FF) | ((value << 8) & 0xFF00));
 }
@@ -154,7 +154,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint16_t swapOrder(std::uint16_t value)
 /*!
  * \brief Swaps the byte order of the specified 32-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint32_t swapOrder(std::uint32_t value)
+constexpr std::uint32_t swapOrder(std::uint32_t value)
 {
     return (value >> 24) | ((value & 0x00FF0000) >> 8) | ((value & 0x0000FF00) << 8) | (value << 24);
 }
@@ -162,7 +162,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint32_t swapOrder(std::uint32_t value)
 /*!
  * \brief Swaps the byte order of the specified 64-bit unsigned integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
+constexpr std::uint64_t swapOrder(std::uint64_t value)
 {
     return (value >> (7 * 8)) | ((value & 0x00FF000000000000) >> (5 * 8)) | ((value & 0x0000FF0000000000) >> (3 * 8))
         | ((value & 0x000000FF00000000) >> (1 * 8)) | ((value & 0x00000000FF000000) << (1 * 8)) | ((value & 0x0000000000FF0000) << (3 * 8))
@@ -172,7 +172,7 @@ CPP_UTILITIES_EXPORT constexpr std::uint64_t swapOrder(std::uint64_t value)
 /*!
  * \brief Swaps the byte order of the specified 16-bit integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::int16_t swapOrder(std::int16_t value)
+constexpr std::int16_t swapOrder(std::int16_t value)
 {
     return static_cast<std::int16_t>(((static_cast<std::uint16_t>(value) >> 8) & 0x00FF) | ((static_cast<std::uint16_t>(value) << 8) & 0xFF00));
 }
@@ -180,7 +180,7 @@ CPP_UTILITIES_EXPORT constexpr std::int16_t swapOrder(std::int16_t value)
 /*!
  * \brief Swaps the byte order of the specified 32-bit integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::int32_t swapOrder(std::int32_t value)
+constexpr std::int32_t swapOrder(std::int32_t value)
 {
     return static_cast<std::int32_t>((static_cast<std::uint32_t>(value) >> 24) | ((static_cast<std::uint32_t>(value) & 0x00FF0000) >> 8)
         | ((static_cast<std::uint32_t>(value) & 0x0000FF00) << 8) | (static_cast<std::uint32_t>(value) << 24));
@@ -189,7 +189,7 @@ CPP_UTILITIES_EXPORT constexpr std::int32_t swapOrder(std::int32_t value)
 /*!
  * \brief Swaps the byte order of the specified 64-bit integer.
  */
-CPP_UTILITIES_EXPORT constexpr std::int64_t swapOrder(std::int64_t value)
+constexpr std::int64_t swapOrder(std::int64_t value)
 {
     return static_cast<std::int64_t>((static_cast<std::uint64_t>(value) >> (7 * 8))
         | ((static_cast<std::uint64_t>(value) & 0x00FF000000000000) >> (5 * 8))

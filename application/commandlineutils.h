@@ -85,7 +85,7 @@ public:
     char character;
 };
 
-inline CPP_UTILITIES_EXPORT std::ostream &operator<<(std::ostream &out, Indentation indentation)
+inline std::ostream &operator<<(std::ostream &out, Indentation indentation)
 {
     for (unsigned char i = 0; i < indentation.level; ++i) {
         out << indentation.character;
