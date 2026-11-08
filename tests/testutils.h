@@ -37,7 +37,7 @@ public:
     explicit TestApplication();
     explicit TestApplication(int argc, const char *const *argv);
     ~TestApplication();
-    operator bool() const;
+    inline operator bool() const;
 
     // helper for tests
     std::string testFilePath(const std::string &relativeTestFilePath) const;

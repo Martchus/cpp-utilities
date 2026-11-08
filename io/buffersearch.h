@@ -14,7 +14,7 @@ namespace CppUtilities {
 class CPP_UTILITIES_EXPORT BufferSearch {
 public:
     using CallbackType = std::function<void(BufferSearch &, std::string &&)>;
-    BufferSearch(std::string_view searchTerm, std::string_view terminationChars, std::string_view giveUpTerm, CallbackType &&callback);
+    inline BufferSearch(std::string_view searchTerm, std::string_view terminationChars, std::string_view giveUpTerm, CallbackType &&callback);
     inline void operator()(std::string_view buffer);
     void operator()(const std::string_view::value_type *buffer, std::size_t bufferSize);
     template <std::size_t bufferCapacity>

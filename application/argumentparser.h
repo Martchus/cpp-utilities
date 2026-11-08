@@ -191,7 +191,7 @@ template <typename FirstTargetType, typename... RemainingTargetTypes> struct Arg
  * \brief The ArgumentOccurrence struct holds argument values for an occurrence of an argument.
  */
 struct CPP_UTILITIES_EXPORT ArgumentOccurrence {
-    ArgumentOccurrence(std::size_t index);
+    inline ArgumentOccurrence(std::size_t index);
     inline ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
 
     /*!

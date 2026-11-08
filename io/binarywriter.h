@@ -13,10 +13,10 @@ namespace CppUtilities {
 
 class CPP_UTILITIES_EXPORT BinaryWriter {
 public:
-    BinaryWriter(std::ostream *stream, bool giveOwnership = false);
+    inline BinaryWriter(std::ostream *stream, bool giveOwnership = false);
     inline BinaryWriter(const BinaryWriter &other);
     BinaryWriter &operator=(const BinaryWriter &rhs) = delete;
-    ~BinaryWriter();
+    inline ~BinaryWriter();
 
     const std::ostream *stream() const;
     std::ostream *stream();

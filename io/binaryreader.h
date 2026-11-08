@@ -11,10 +11,10 @@ namespace CppUtilities {
 class CPP_UTILITIES_EXPORT BinaryReader {
 
 public:
-    BinaryReader(std::istream *stream, bool giveOwnership = false);
+    inline BinaryReader(std::istream *stream, bool giveOwnership = false);
     inline BinaryReader(const BinaryReader &other);
     BinaryReader &operator=(const BinaryReader &rhs) = delete;
-    ~BinaryReader();
+    inline ~BinaryReader();
 
     const std::istream *stream() const;
     std::istream *stream();

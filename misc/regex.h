@@ -87,13 +87,13 @@ public:
     RegexMatch &operator=(RegexMatch &&other) noexcept = default;
 
     inline bool hasMatch() const noexcept;
-    explicit operator bool() const noexcept;
+    inline explicit operator bool() const noexcept;
 
     inline std::size_t captureCount() const noexcept;
 
     inline std::string_view subject() const noexcept;
     std::string_view captured(std::size_t index = 0) const;
-    std::string_view operator[](std::size_t index) const;
+    inline std::string_view operator[](std::size_t index) const;
     inline std::string capturedString(std::size_t index = 0) const;
 
     inline std::size_t capturedStart(std::size_t index = 0) const noexcept;
