@@ -52,7 +52,7 @@ public:
     // read-only accessors
     const std::vector<std::string> &testFilePaths() const;
     const std::string &workingDirectory() const;
-    const char *applicationPath();
+    inline const char *applicationPath();
     bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
     bool onlyListUnits() const;

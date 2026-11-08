@@ -57,17 +57,8 @@ if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
 else ()
     set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
 endif ()
-# c++utilities exports inline/header-defined functions and has no Qt meta-objects, so
-# keep the legacy always-dllexport behavior to avoid dllimport issues on MinGW.
-if ("${META_PROJECT_VARNAME_UPPER}" STREQUAL "CPP_UTILITIES")
-    set(META_GLOBAL_EXPORT_DEFINITION
-        "#ifdef ${META_PROJECT_VARNAME_UPPER}_STATIC\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT\n#else\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT CPP_UTILITIES_GENERIC_LIB_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#endif")
-else ()
-    # On MinGW/GCC, __declspec(dllimport) on classes/inline members causes troublesome
-    # attribute conflicts; auto-import handles imports fine, so avoid dllimport for consumers.
-    set(META_GLOBAL_EXPORT_DEFINITION
-        "#ifdef ${META_PROJECT_VARNAME_UPPER}_STATIC\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT\n#elif defined(${META_PROJECT_VARNAME_UPPER}_BUILDING)\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT CPP_UTILITIES_GENERIC_LIB_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#elif defined(_WIN32) && defined(__GNUC__)\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT\n#else\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#endif")
-endif ()
+set(META_GLOBAL_EXPORT_DEFINITION
+    "#ifdef ${META_PROJECT_VARNAME_UPPER}_STATIC\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT\n#elif defined(${META_PROJECT_VARNAME_UPPER}_BUILDING)\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT CPP_UTILITIES_GENERIC_LIB_EXPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#else\n#define ${META_PROJECT_VARNAME_UPPER}_EXPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#define ${META_PROJECT_VARNAME_UPPER}_IMPORT CPP_UTILITIES_GENERIC_LIB_IMPORT\n#endif")
 configure_file(
     "${GLOBAL_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_SOURCE_DIR}/global.h" # simply add this to source to ease inclusion
     NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
