@@ -20,7 +20,7 @@ public:
     using Scope = std::pair<ScopeName, ScopeData>;
     using ScopeList = std::vector<Scope>;
 
-    IniFile();
+    inline IniFile();
     ScopeList &data();
     const ScopeList &data() const;
     void parse(std::istream &inputStream);
@@ -102,14 +102,14 @@ struct CPP_UTILITIES_EXPORT AdvancedIniFile {
     };
     using SectionList = std::vector<Section>;
 
-    SectionList::iterator findSection(std::string_view sectionName);
-    SectionList::const_iterator findSection(std::string_view sectionName) const;
-    SectionList::iterator findSection(SectionList::iterator after, std::string_view sectionName);
-    SectionList::const_iterator findSection(SectionList::iterator after, std::string_view sectionName) const;
-    SectionList::iterator sectionEnd();
-    SectionList::const_iterator sectionEnd() const;
-    std::optional<FieldList::iterator> findField(std::string_view sectionName, std::string_view key);
-    std::optional<FieldList::const_iterator> findField(std::string_view sectionName, std::string_view key) const;
+    inline SectionList::iterator findSection(std::string_view sectionName);
+    inline SectionList::const_iterator findSection(std::string_view sectionName) const;
+    inline SectionList::iterator findSection(SectionList::iterator after, std::string_view sectionName);
+    inline SectionList::const_iterator findSection(SectionList::iterator after, std::string_view sectionName) const;
+    inline SectionList::iterator sectionEnd();
+    inline SectionList::const_iterator sectionEnd() const;
+    inline std::optional<FieldList::iterator> findField(std::string_view sectionName, std::string_view key);
+    inline std::optional<FieldList::const_iterator> findField(std::string_view sectionName, std::string_view key) const;
     void parse(std::istream &inputStream, IniFileParseOptions options = IniFileParseOptions::None);
     void make(std::ostream &outputStream, IniFileMakeOptions options = IniFileMakeOptions::None);
 

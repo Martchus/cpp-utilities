@@ -192,7 +192,7 @@ template <typename FirstTargetType, typename... RemainingTargetTypes> struct Arg
  */
 struct CPP_UTILITIES_EXPORT ArgumentOccurrence {
     ArgumentOccurrence(std::size_t index);
-    ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
+    inline ArgumentOccurrence(std::size_t index, const std::vector<Argument *> parentPath, Argument *parent);
 
     /*!
      * \brief The index of the occurrence. This is not necessarily the index in the argv array.
@@ -289,48 +289,48 @@ public:
     // TODO v5: It would make sense to move these to a separate class (eg. ArgumentDefinition) to prevent this one from
     // becoming to big.
     const char *name() const;
-    void setName(const char *name);
-    char abbreviation() const;
-    void setAbbreviation(char abbreviation);
+    inline void setName(const char *name);
+    inline char abbreviation() const;
+    inline void setAbbreviation(char abbreviation);
     const char *environmentVariable() const;
-    void setEnvironmentVariable(const char *environmentVariable);
+    inline void setEnvironmentVariable(const char *environmentVariable);
     const char *description() const;
-    void setDescription(const char *description);
+    inline void setDescription(const char *description);
     const char *example() const;
-    void setExample(const char *example);
-    std::size_t requiredValueCount() const;
-    void setRequiredValueCount(std::size_t requiredValueCount);
+    inline void setExample(const char *example);
+    inline std::size_t requiredValueCount() const;
+    inline void setRequiredValueCount(std::size_t requiredValueCount);
     const std::vector<const char *> &valueNames() const;
-    void setValueNames(std::initializer_list<const char *> valueNames);
-    void appendValueName(const char *valueName);
-    void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
+    inline void setValueNames(std::initializer_list<const char *> valueNames);
+    inline void appendValueName(const char *valueName);
+    inline void setConstraints(std::size_t minOccurrences, std::size_t maxOccurrences);
     const std::vector<Argument *> &path(std::size_t occurrence = 0) const;
-    bool isRequired() const;
-    void setRequired(bool required);
-    Argument::Flags flags() const;
+    inline bool isRequired() const;
+    inline void setRequired(bool required);
+    inline Argument::Flags flags() const;
     inline void setFlags(Argument::Flags flags);
     inline void setFlags(Argument::Flags flags, bool add);
-    bool isCombinable() const;
-    void setCombinable(bool combinable);
-    bool isImplicit() const;
-    void setImplicit(bool implicit);
-    bool denotesOperation() const;
-    void setDenotesOperation(bool denotesOperation);
+    inline bool isCombinable() const;
+    inline void setCombinable(bool combinable);
+    inline bool isImplicit() const;
+    inline void setImplicit(bool implicit);
+    inline bool denotesOperation() const;
+    inline void setDenotesOperation(bool denotesOperation);
     const CallbackFunction &callback() const;
     void setCallback(CallbackFunction callback);
     const ArgumentVector &subArguments() const;
     void setSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArguments(const ArgumentInitializerList &subArguments);
     void addSubArgument(Argument *arg);
-    bool hasSubArguments() const;
+    inline bool hasSubArguments() const;
     const ArgumentVector &parents() const;
     void printInfo(std::ostream &os, unsigned char indentation = 0) const;
 
-    // declare getter/setter/properties for bash completion: those properties must be set *before parsing
-    ValueCompletionBehavior valueCompletionBehaviour() const;
-    void setValueCompletionBehavior(ValueCompletionBehavior valueCompletionBehaviour);
+    // declare getter/setter/properties for bash completion: those properties must be set before parsing
+    inline ValueCompletionBehavior valueCompletionBehaviour() const;
+    inline void setValueCompletionBehavior(ValueCompletionBehavior valueCompletionBehaviour);
     const char *preDefinedCompletionValues() const;
-    void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
+    inline void setPreDefinedCompletionValues(const char *preDefinedCompletionValues);
 
     // declare getter/read-only properties for parsing results: those properties will be populated when parsing
     const std::vector<const char *> &values(std::size_t occurrence = 0) const;
@@ -339,23 +339,23 @@ public:
 
     const char *firstValue() const;
     const char *firstValueOr(const char *fallback) const;
-    bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
-    bool isPresent() const;
-    std::size_t occurrences() const;
-    std::size_t index(std::size_t occurrence) const;
-    std::size_t minOccurrences() const;
-    std::size_t maxOccurrences() const;
-    bool isDeprecated() const;
+    inline bool allRequiredValuesPresent(std::size_t occurrence = 0) const;
+    inline bool isPresent() const;
+    inline std::size_t occurrences() const;
+    inline std::size_t index(std::size_t occurrence) const;
+    inline std::size_t minOccurrences() const;
+    inline std::size_t maxOccurrences() const;
+    inline bool isDeprecated() const;
     const Argument *deprecatedBy() const;
-    void markAsDeprecated(const Argument *deprecatedBy = nullptr);
-    bool isMainArgument() const;
+    inline void markAsDeprecated(const Argument *deprecatedBy = nullptr);
+    inline bool isMainArgument() const;
     bool isParentPresent() const;
     Argument *conflictsWithArgument() const;
     Argument *wouldConflictWithArgument() const;
     Argument *specifiedOperation() const;
     const std::vector<ArgumentOccurrence> &occurrenceInfo() const;
     std::vector<ArgumentOccurrence> &occurrenceInfo();
-    void reset();
+    inline void reset();
     void resetRecursively();
 
     /*!
@@ -432,12 +432,12 @@ public:
 
 class CPP_UTILITIES_EXPORT OperationArgument : public Argument {
 public:
-    OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
+    inline OperationArgument(const char *name, char abbreviation = '\0', const char *description = nullptr, const char *example = nullptr);
 };
 
 class CPP_UTILITIES_EXPORT ConfigValueArgument : public Argument {
 public:
-    ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr,
+    inline ConfigValueArgument(const char *name, char abbreviation = '\0', const char *description = nullptr,
         std::initializer_list<const char *> valueNames = std::initializer_list<const char *>());
 };
 
@@ -472,19 +472,19 @@ public:
     void resetArgs();
     void assumeDefaultArgument();
     void ensureDefaultOperation();
-    void checkConstraints();
-    void invokeCallbacks();
+    inline void checkConstraints();
+    inline void invokeCallbacks();
 
     // declare getter for parsing results
-    unsigned int actualArgumentCount() const;
+    inline unsigned int actualArgumentCount() const;
     const char *executable() const;
-    UnknownArgumentBehavior unknownArgumentBehavior() const;
-    void setUnknownArgumentBehavior(UnknownArgumentBehavior behavior);
+    inline UnknownArgumentBehavior unknownArgumentBehavior() const;
+    inline void setUnknownArgumentBehavior(UnknownArgumentBehavior behavior);
     Argument *defaultArgument() const;
-    void setDefaultArgument(Argument *argument);
+    inline void setDefaultArgument(Argument *argument);
     Argument *specifiedOperation() const;
     bool isUncombinableMainArgPresent() const;
-    void setExitFunction(std::function<void(int)> exitFunction);
+    inline void setExitFunction(std::function<void(int)> exitFunction);
     const HelpArgument &helpArg() const;
     HelpArgument &helpArg();
     const NoColorArgument &noColorArg() const;

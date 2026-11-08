@@ -43,13 +43,13 @@ public:
     static constexpr TimeSpan fromHours(TickType hours);
     static constexpr TimeSpan fromDays(TickType days);
 #endif
-    static TimeSpan fromString(const std::string &str, char separator = ':');
+    inline static TimeSpan fromString(const std::string &str, char separator = ':');
     static TimeSpan fromString(const char *str, char separator);
     static constexpr TimeSpan negativeInfinity();
     static constexpr TimeSpan infinity();
 
     TickType &ticks();
-    constexpr TickType totalTicks() const;
+    inline constexpr TickType totalTicks() const;
     constexpr double totalMicroseconds() const;
     constexpr double totalMilliseconds() const;
     constexpr double totalSeconds() const;
@@ -89,7 +89,7 @@ public:
     TimeSpan &operator/=(TickType factor);
 #endif
 
-    std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
+    inline std::string toString(TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
     void toString(std::string &result, TimeSpanOutputFormat format = TimeSpanOutputFormat::Normal, bool fullSeconds = false) const;
     constexpr bool isNull() const;
     constexpr bool isNegative() const;

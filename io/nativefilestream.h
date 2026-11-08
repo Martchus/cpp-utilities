@@ -44,17 +44,17 @@ public:
     NativeFileStream(NativeFileStream &&);
     ~NativeFileStream() override;
 
-    bool is_open() const;
+    inline bool is_open() const;
     bool isOpen() const;
     void open(const char *path, std::ios_base::openmode openMode);
     void open(const std::string &path, std::ios_base::openmode openMode);
     void open(int fileDescriptor, std::ios_base::openmode openMode);
     void close();
-    int fileDescriptor();
+    inline int fileDescriptor();
 #ifdef PLATFORM_WINDOWS
-    Handle fileHandle();
+    inline Handle fileHandle();
     static std::unique_ptr<wchar_t[]> makeWidePath(std::string_view path);
-    static std::unique_ptr<wchar_t[]> makeWidePath(const char *path);
+    inline static std::unique_ptr<wchar_t[]> makeWidePath(const char *path);
     static std::unique_ptr<wchar_t[]> makeWidePath(const std::string &path);
 #endif
 

@@ -11,7 +11,7 @@ namespace CppUtilities {
 class CPP_UTILITIES_EXPORT ParseError : public std::runtime_error {
 public:
     ParseError();
-    ParseError(const std::string &what);
+    inline ParseError(const std::string &what);
     ~ParseError() noexcept override;
 };
 

@@ -12,7 +12,7 @@ public:
     Argument &qtWidgetsGuiArg();
     Argument &qtQuickGuiArg();
 
-    bool areQtGuiArgsPresent() const;
+    inline bool areQtGuiArgsPresent() const;
 
 private:
     Argument m_qtWidgetsGuiArg;

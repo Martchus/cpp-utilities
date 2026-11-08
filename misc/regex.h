@@ -27,7 +27,7 @@ public:
     explicit RegexException(std::string_view message, std::size_t offset) noexcept;
     ~RegexException() override;
 
-    std::size_t offset() const noexcept;
+    inline std::size_t offset() const noexcept;
 
 private:
     std::size_t m_offset = 0;
@@ -86,21 +86,21 @@ public:
     RegexMatch(RegexMatch &&other) noexcept = default;
     RegexMatch &operator=(RegexMatch &&other) noexcept = default;
 
-    bool hasMatch() const noexcept;
+    inline bool hasMatch() const noexcept;
     explicit operator bool() const noexcept;
 
-    std::size_t captureCount() const noexcept;
+    inline std::size_t captureCount() const noexcept;
 
-    std::string_view subject() const noexcept;
+    inline std::string_view subject() const noexcept;
     std::string_view captured(std::size_t index = 0) const;
     std::string_view operator[](std::size_t index) const;
-    std::string capturedString(std::size_t index = 0) const;
+    inline std::string capturedString(std::size_t index = 0) const;
 
-    std::size_t capturedStart(std::size_t index = 0) const noexcept;
-    std::size_t capturedEnd(std::size_t index = 0) const noexcept;
-    std::size_t capturedLength(std::size_t index = 0) const noexcept;
+    inline std::size_t capturedStart(std::size_t index = 0) const noexcept;
+    inline std::size_t capturedEnd(std::size_t index = 0) const noexcept;
+    inline std::size_t capturedLength(std::size_t index = 0) const noexcept;
 
-    bool hasCaptured(std::size_t index = 0) const noexcept;
+    inline bool hasCaptured(std::size_t index = 0) const noexcept;
 
 private:
     std::string_view m_subject;

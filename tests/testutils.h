@@ -53,9 +53,9 @@ public:
     const std::vector<std::string> &testFilePaths() const;
     const std::string &workingDirectory() const;
     inline const char *applicationPath();
-    bool unitsSpecified() const;
+    inline bool unitsSpecified() const;
     const std::vector<const char *> &units() const;
-    bool onlyListUnits() const;
+    inline bool onlyListUnits() const;
 
     // static read-only accessors
     static const TestApplication *instance();

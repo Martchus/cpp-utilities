@@ -58,14 +58,15 @@ public:
 
     explicit constexpr DateTime();
     explicit constexpr DateTime(TickType ticks);
-    static DateTime fromDate(int year = 1, int month = 1, int day = 1);
-    static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
-    static DateTime fromDateAndTime(int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
-    static DateTime fromString(const std::string &str);
+    inline static DateTime fromDate(int year = 1, int month = 1, int day = 1);
+    inline static DateTime fromTime(int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
+    inline static DateTime fromDateAndTime(
+        int year = 1, int month = 1, int day = 1, int hour = 0, int minute = 0, int second = 0, double millisecond = 0.0);
+    inline static DateTime fromString(const std::string &str);
     static DateTime fromString(const char *str);
     static std::pair<DateTime, TimeSpan> fromIsoString(const char *str);
-    static DateTime fromIsoStringGmt(const char *str);
-    static DateTime fromIsoStringLocal(const char *str);
+    inline static DateTime fromIsoStringGmt(const char *str);
+    inline static DateTime fromIsoStringLocal(const char *str);
     static DateTime fromTimeStamp(std::time_t timeStamp);
     constexpr static DateTime fromTimeStampGmt(std::time_t timeStamp);
     template <typename TimePoint> static DateTime fromChronoTimePoint(TimePoint timePoint);
@@ -73,10 +74,10 @@ public:
 
     constexpr TickType &ticks();
     constexpr TickType totalTicks() const;
-    int year() const;
-    int month() const;
-    int day() const;
-    int dayOfYear() const;
+    inline int year() const;
+    inline int month() const;
+    inline int day() const;
+    inline int dayOfYear() const;
     constexpr DayOfWeek dayOfWeek() const;
     constexpr int hour() const;
     constexpr int minute() const;
@@ -86,10 +87,10 @@ public:
     constexpr int nanosecond() const;
     constexpr bool isNull() const;
     constexpr TimeSpan timeOfDay() const;
-    bool isLeapYear() const;
+    inline bool isLeapYear() const;
     constexpr bool isEternity() const;
     constexpr bool isSameDay(const DateTime &other) const;
-    std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
+    inline std::string toString(DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     void toString(std::string &result, DateTimeOutputFormat format = DateTimeOutputFormat::DateAndTime, bool noMilliseconds = false) const;
     std::string toIsoStringWithCustomDelimiters(
         TimeSpan timeZoneDelta = TimeSpan(), char dateDelimiter = '-', char timeDelimiter = ':', char timeZoneDelimiter = ':') const;
@@ -99,11 +100,11 @@ public:
 
     static constexpr DateTime eternity();
     static constexpr DateTime unixEpochStart();
-    static DateTime now();
-    static DateTime gmtNow();
+    inline static DateTime now();
+    inline static DateTime gmtNow();
     static DateTime exactGmtNow();
     constexpr static bool isLeapYear(int year);
-    static int daysInMonth(int year, int month);
+    inline static int daysInMonth(int year, int month);
 
     constexpr bool operator==(const DateTime &other) const;
     constexpr bool operator!=(const DateTime &other) const;

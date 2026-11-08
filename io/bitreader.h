@@ -16,15 +16,15 @@ public:
     inline BitReader(const char *buffer, const char *end);
 
     template <typename intType> intType readBits(std::uint8_t bitCount);
-    std::uint8_t readBit();
+    inline std::uint8_t readBit();
     template <typename intType> intType readUnsignedExpGolombCodedBits();
     template <typename intType> intType readSignedExpGolombCodedBits();
     template <typename intType> intType showBits(std::uint8_t bitCount);
     void skipBits(std::size_t bitCount);
-    void align();
-    std::size_t bitsAvailable();
-    void reset(const char *buffer, std::size_t bufferSize);
-    void reset(const char *buffer, const char *end);
+    inline void align();
+    inline std::size_t bitsAvailable();
+    inline void reset(const char *buffer, std::size_t bufferSize);
+    inline void reset(const char *buffer, const char *end);
 
 private:
     const std::uint8_t *m_buffer;

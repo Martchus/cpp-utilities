@@ -21,7 +21,7 @@ namespace CppUtilities {
 class CPP_UTILITIES_EXPORT ArchiveException : public std::runtime_error {
 public:
     explicit ArchiveException() noexcept;
-    explicit ArchiveException(std::string_view what) noexcept;
+    inline explicit ArchiveException(std::string_view what) noexcept;
     ~ArchiveException() override;
 };
 

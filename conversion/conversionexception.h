@@ -11,8 +11,8 @@ namespace CppUtilities {
 class CPP_UTILITIES_EXPORT ConversionException : public std::runtime_error {
 public:
     ConversionException() noexcept;
-    ConversionException(const std::string &what) noexcept;
-    ConversionException(const char *what) noexcept;
+    inline ConversionException(const std::string &what) noexcept;
+    inline ConversionException(const char *what) noexcept;
     ~ConversionException() override;
 };
 
