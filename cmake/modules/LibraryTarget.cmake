@@ -51,17 +51,19 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 # add global library-specific header
-find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
-if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
-    set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"application/global.h\"")
-else ()
-    set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
+if(NOT META_NO_GLOBAL_HEADER)
+    find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
+    if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
+        set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"application/global.h\"")
+    else ()
+        set(GENERAL_GLOBAL_H_INCLUDE_PATH "<c++utilities/application/global.h>")
+    endif ()
+    configure_file(
+        "${GLOBAL_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_SOURCE_DIR}/global.h" # simply add this to source to ease inclusion
+        NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
+    )
+    list(APPEND HEADER_FILES global.h)
 endif ()
-configure_file(
-    "${GLOBAL_H_TEMPLATE_FILE}" "${CMAKE_CURRENT_SOURCE_DIR}/global.h" # simply add this to source to ease inclusion
-    NEWLINE_STYLE UNIX # since this goes to sources ensure consistency
-)
-list(APPEND HEADER_FILES global.h)
 
 # add header to check library version
 set(VERSION_HEADER_FILE "${CMAKE_CURRENT_BINARY_DIR}/resources/version.h")
