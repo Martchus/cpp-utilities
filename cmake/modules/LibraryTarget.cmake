@@ -51,7 +51,7 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 # add global library-specific header
-if(NOT META_NO_GLOBAL_HEADER)
+if (NOT META_NO_GLOBAL_HEADER)
     find_template_file("global.h" CPP_UTILITIES GLOBAL_H_TEMPLATE_FILE)
     if ("${META_PROJECT_NAME}" STREQUAL "c++utilities")
         set(GENERAL_GLOBAL_H_INCLUDE_PATH "\"application/global.h\"")

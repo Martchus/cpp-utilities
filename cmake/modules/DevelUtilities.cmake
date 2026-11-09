@@ -62,10 +62,8 @@ function (configure_development_warnings)
         -Wno-useless-cast # warn NOT about useless casts (those are sometimes very useful in templates)
         -Wno-unused-const-variable # warn NOT about unused constants (usually used in other compile unit)
     )
-    set(CLANG_WARNINGS
-        ${GENERAL_WARNINGS}
-        -Wno-unknown-warning-option # warn NOT about unknown warning options (depending on compiler/version not all are
-                                    # available)
+    set(CLANG_WARNINGS ${GENERAL_WARNINGS} -Wno-unknown-warning-option # warn NOT about unknown warning options (depending on
+                                                                       # compiler/version not all are available)
     )
     set(GCC_WARNINGS
         ${GENERAL_WARNINGS}
