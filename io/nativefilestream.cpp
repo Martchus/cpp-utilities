@@ -334,7 +334,7 @@ void NativeFileStream::setData(FileBuffer data, std::ios_base::openmode openMode
     m_data = std::move(data);
     m_openMode = openMode;
 #if defined(PLATFORM_WINDOWS) && defined(CPP_UTILITIES_USE_BOOST_IOSTREAMS)
-    // workaround append flag dysfunctioning
+    // work around append flag dysfunctioning
     if (m_openMode & ios_base::app) {
         seekp(0, ios_base::end);
     }
