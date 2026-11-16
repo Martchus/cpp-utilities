@@ -16,7 +16,7 @@
 
 /*!
  * \def @META_PROJECT_VARNAME_UPPER@_VERSION_MAJOR
- * \brief Mayor version of the @META_PROJECT_NAME@ library.
+ * \brief Major version of the @META_PROJECT_NAME@ library.
  */
 
 /*!
