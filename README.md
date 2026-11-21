@@ -693,7 +693,7 @@ the CMake presets mentioned in the previous section. You can add them to your Op
 There are various ways for sandboxing. This repository contains a lightweight way of sandboxing under Linux
 as alternative to using containers via the script `scripts/landrun-dev`. It allows running OpenCode (and other
 development tools) in a sandboxed environment using
-[Ladlock](https://docs.kernel.org/userspace-api/landlock.html) via
+[Landlock](https://docs.kernel.org/userspace-api/landlock.html) via
 [Landrun](https://github.com/Zouuup/landrun). It whitelists many paths and environment variables that are
 typically needed for C/C++ development but also covers programming languages used by my other projects that
 depend on `c++utilities`. Besides those paths, all filesystem access is restricted.
