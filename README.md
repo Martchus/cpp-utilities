@@ -680,6 +680,15 @@ cmake --build --preset win-android # or win-android-official-qt
 ```
 </details>
 
+#### Using AI and OpenCode
+The directory `doc/skills` contains skills I find useful. These skills are mainly to ease development using
+the CMake presets mentioned in the previous section. You can add them to your OpenCode config
+(`~/.config/opencode/opencode.jsonc` or `%USERPROFILE%\.config\opencode\opencode.jsonc`) like this:
+
+```
+"skills": { "paths": ["…/c++utilities/doc/skills"] },
+```
+
 ## Packaging
 The repositories mentioned below contain packages for `c++utilities` itself but also for my other projects.
 For a more comprehensive list of repositories providing my other projects, such as Syncthing Tray, check out
