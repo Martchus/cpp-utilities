@@ -1,0 +1,278 @@
+#!/bin/bash
+set -e
+
+# Allow overriding the landrun executable, support dry-run via LANDRUN=echo
+bin=${LANDRUN:-landrun}
+
+# Install via `go install` if not present but GOPATH is set
+if ! [[ -e /usr/bin/$bin ]] && [[ $bin == landrun ]] && [[ $GOPATH ]]; then
+    go install github.com/zouuup/landrun/cmd/landrun@latest
+    bin=$GOPATH/bin/$bin
+fi
+
+# Allow printing help and version
+if [[ $1 == --help ]] || [[ $1 == -h ]] || [[ $1 == --version ]]; then
+    echo -e "This is a wrapper for landrun to invoke that tool for development."
+    echo -e "Check out the c++utilities README for details. Set LANDRUN=echo for a dry-run.\n"
+    exec "$bin" "$1"
+fi
+
+# Detect runtime dir and Wayland display
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+WL_SOCKET="${RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}"
+
+# Use custom sub directory for temporary files
+export TMPDIR=${TMPDIR:-/tmp}/landrun-dev
+export TEMPDIR=$TMPDIR
+mkdir -p "$TMPDIR"
+
+# Allow paths and preserve env variables needed for development
+args=(
+    # Specified exeutable
+    --add-exec
+
+    # Binaries and system libraries
+    --rox /usr
+    --rox /bin
+    --rox /lib
+    --rox /lib64
+
+     # System configurations and devices
+    --ro /etc
+    --ro /run/systemd/resolve      # Target of /etc/resolv.conf symlink
+    --rwx /proc
+    --rw /dev                      # Mainly for /dev/null, /dev/urandom, /dev/pts
+
+    # Writable temp and runtime
+    --env TMPDIR
+    --env TEMPDIR
+    --rwx "$TMPDIR"
+    --rwx "$RUNTIME_DIR"
+
+    # Devices for graphical applications
+    --rw /dev/shm
+    --rw /dev/dri
+
+    # Current directory
+    --rw "$PWD"
+
+    # Basic environment
+    --env PATH
+    --env HOME
+    --env TERM
+    --env USER
+    --env XDG_RUNTIME_DIR
+    --env XDG_CONFIG_DIRS
+    --env LANG
+    --env LANGUAGE
+
+    # Graphical environment
+    --env DISPLAY
+    --env WAYLAND_DISPLAY
+    --env XDG_SESSION_TYPE
+    --env XDG_CURRENT_DESKTOP
+    --env XDG_SESSION_DESKTOP
+    --env FT2_SUBPIXEL_HINTING
+
+    # Qt applications
+    --env QT_QPA_PLATFORM
+    --env QT_WAYLAND_RECONNECT
+    --env QT_QUICK_CONTROLS_STYLE
+
+    # GTK applications
+    --env GTK_USE_PORTAL
+
+    # Java applications
+    --env _JAVA_OPTIONS
+    --env _JAVA_AWT_WM_NONREPARENTING
+
+    # General development environment
+    --env BUILD_DIR
+    --env SOURCES
+    --env EDITOR
+    --env CRE
+
+    # General C/C++ development environment
+    --env CC
+    --env CXX
+    --env AR
+    --env LD
+    --env ASM
+    --env NM
+    --env OBJCOPY
+    --env OBJDUMP
+    --env RANLIB
+    --env STRIP
+    --env DLLTOOL
+    --env WINDRES
+    --env RC
+    --env CFLAGS
+    --env CPPFLAGS
+    --env CXXFLAGS
+    --env LDFLAGS
+    --env ASMFLAGS
+    --env CCCACHE_PATH
+    --env CCACHE_DIR
+    --env DEBUGINFOD_URLS
+    --env PKG_CONFIG_PATH
+    --env PKG_CONFIG_SYSROOT_DIR
+    --env PKG_CONFIG_LIBDIR
+
+    # Android C/C++ development environment
+    --env ANDROID_HOME
+    --env ANDROID_NDK_HOME
+    --env ANDROID_TOOLCHAIN
+    --env ANDROID_SYSROOT
+    --env ANDROID_SYSROOT_INCLUDE
+    --env ANDROID_CROSS_PREFIX
+    --env ANDROID_MINIMUM_PLATFORM
+    --env ANDROID_BUILD_TOOLS_REVISION
+    --env ANDROID_NDK_PLATFORM
+    --env ANDROID_SYSROOT_INCLUDE_ABI
+    --env ANDROID_SYSROOT_LIB
+    --env ANDROID_TOOLS_COMPILER_PREFIX
+    --env ANDROID_ABI
+    --env ANDROID_TARGET_PLATFORM
+    --env ANDROID_API_VERSION
+    --env ANDROID_SDK_PLATFORM
+    --env ANDROID_PLATFORM
+    --env ANDROID_SDK_JAR
+    --env ANDROID_PKGCONFIG
+    --env ANDROID_SYSROOT_LIB_API
+    --env ANDROID_CC
+    --env ANDROID_CXX
+    --env ANDROID_TOOLS_PREFIX
+    --env ANDROID_AR
+    --env ANDROID_AS
+    --env ANDROID_LD
+    --env ANDROID_NM
+    --env ANDROID_OBJCOPY
+    --env ANDROID_OBJDUMP
+    --env ANDROID_RANLIB
+    --env ANDROID_STRIP
+    --env ANDROID_EXTERNAL_LIBS
+    --env ANDROID_PREFIX
+    --env ANDROID_PREFIX_USR
+    --env ANDROID_PREFIX_BIN
+    --env ANDROID_PREFIX_INCLUDE
+    --env ANDROID_PREFIX_LIB
+    --env ANDROID_PREFIX_ETC
+    --env ANDROID_PREFIX_SHARE
+    --env ANDROID_PREFIX_VAR
+    --env ANDROID_CFLAGS
+    --env ANDROID_CPPFLAGS
+    --env ANDROID_CXXFLAGS
+    --env ANDROID_LDFLAGS
+    --env ANDROID_WHITHOUT_CENV
+    --env ANDROID_CC_VERSION
+    --env ANDROID_CC_VERSION_MAJOR
+    --env ANDROID_CC_ABI_LIB
+
+    # mingw-w64 C/C++ development environment
+    --env MINGW_W64_CLANG_TARGET
+
+    # Rust/Cargo development environment (https://doc.rust-lang.org/cargo/reference/environment-variables.html)
+    --env CARGO_HOME
+    --env CARGO_LOG
+    --env CARGO_TARGET_DIR
+    --env RUSTC_WRAPPER
+    --env SCCACHE_DIR
+
+    # Go development environment (https://go.dev/wiki/SettingGOPATH)
+    --env GOPATH
+    --env GOCACHE
+    --env GOMODCACHE
+
+    # Java development environment
+    --env GRADLE_HOME
+    --env GRADLE_USER_HOME
+    --env GRADLE_OPTS
+
+    # JavaScript development environment
+    --env NPM_CONFIG_CACHE
+
+    # openQA development environment
+    --env OPENQA_BASEDIR
+    --env OPENQA_CONFIG
+    --env OPENQA_LOCAL_CODE
+
+    # AI keys
+    --env ANTHROPIC_API_KEY
+    --env OPENAI_API_KEY
+    --env GEMINI_API_KEY
+    --env OPENCODE_API_KEY
+
+    # Allow networking for API calls and IPC scoping for sockets/signals
+    --unrestricted-network
+    --unrestricted-scoped
+)
+
+# Git
+[[ -e $HOME/.gitconfig ]] && args+=(--ro "$HOME"/.gitconfig)
+
+# C/C++ development
+[[ $SOURCES ]] && args+=(--rwx "$SOURCES")
+[[ $BUILD_DIR ]] && args+=(--rwx "$BUILD_DIR")
+[[ $CCACHE_DIR ]] && args+=(--rw "$CCACHE_DIR")
+
+# Go development
+args+=(--rwx "${GOPATH:-$HOME/.go}")
+[[ $GOCACHE ]] && args+=(--rw "$GOCACHE")
+[[ $GOMODCACHE ]] && args+=(--rw "$GOMODCACHE")
+
+# Rust development
+args+=(--rwx "${CARGO_HOME:-$HOME/.cargo}")
+[[ $CARGO_TARGET_DIR ]] && args+=(--rwx "$CARGO_TARGET_DIR")
+[[ $SCCACHE_DIR ]] && args+=(--rwx "$SCCACHE_DIR")
+
+# Java development
+[[ $GRADLE_HOME ]] && args+=(--rwx "$GRADLE_HOME")
+[[ $GRADLE_USER_HOME ]] && args+=(--rwx "${GRADLE_USER_HOME:-$HOME/.gradle}")
+
+# JavaScript development environment
+args+=(--rw "${NPM_CONFIG_CACHE:-$HOME/.npm}")
+
+# Android development
+[[ $ANDROID_HOME ]] && args+=(--rwx "$ANDROID_HOME")
+[[ $ANDROID_NDK_HOME ]] && args+=(--rwx "$ANDROID_NDK_HOME")
+[[ $ANDROID_PREFIX ]] && args+=(--rwx "$ANDROID_PREFIX")
+
+# openQA development
+[[ $OPENQA_BASEDIR ]] &&  args+=(--rwx "$OPENQA_BASEDIR/openqa")
+
+# Allow using OpenCode
+opencode_paths=(
+    "$HOME"/.config/opencode        # Config
+    "$HOME"/.local/share/opencode   # Data & DB
+    "$HOME"/.local/state/opencode   # Active service state, PID, locks
+    "$HOME"/.cache/opencode         # Cache & internal binaries
+)
+mkdir -p "${opencode_paths[@]}"
+for path in "${opencode_paths[@]}"; do
+    args+=(--rwx "$path")
+done
+
+# Allow Wayland socket connection
+[[ -S $WL_SOCKET ]] && args+=(--unix "$WL_SOCKET")
+
+# Allow X11 socket if DISPLAY is set
+if [[ -n $DISPLAY ]]; then
+    disp_num=${DISPLAY#*:}
+    disp_num=${disp_num%.*}
+    socket=/tmp/.X11-unix/X${disp_num}
+    [[ -S $socket ]] && args+=(--unix "$socket")
+fi
+
+# Allow D-Bus session bus (themes, portals, settings)
+if [[ -S "${RUNTIME_DIR}/bus" ]]; then
+    args+=(
+        --unix "${RUNTIME_DIR}/bus"
+        --env DBUS_SESSION_BUS_ADDRESS
+    )
+fi
+
+# Separate executable and args for executable with "--"  unless arguments for
+# landrun are passed
+[[ $1 =~ ^- ]] || args+=(--)
+
+exec "$bin" "${args[@]}" "$@"

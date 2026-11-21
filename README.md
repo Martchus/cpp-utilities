@@ -689,6 +689,27 @@ the CMake presets mentioned in the previous section. You can add them to your Op
 "skills": { "paths": ["…/c++utilities/doc/skills"] },
 ```
 
+##### Confinement
+There are various ways for sandboxing. This repository contains a lightweight way of sandboxing under Linux
+as alternative to using containers via the script `scripts/landrun-dev`. It allows running OpenCode (and other
+development tools) in a sandboxed environment using
+[Ladlock](https://docs.kernel.org/userspace-api/landlock.html) via
+[Landrun](https://github.com/Zouuup/landrun). It whitelists many paths and environment variables that are
+typically needed for C/C++ development but also covers programming languages used by my other projects that
+depend on `c++utilities`. Besides those paths, all filesystem access is restricted.
+
+I usually add wrapper scripts to `PATH` so invocations of `opencode` (and other problematic software like `npm`)
+are always using `scripts/landrun-dev`.
+
+**Important:**
+* Network and IPC traffic is *not* restricted so far. This also includes Wayland/X11 and D-Bus connections.
+  So there is still a lot an AI agent can do. This also means that you need to take care that the OpenCode
+  *server* is started via `landrun-dev`. The server is started on the first `opencode` invocation but *not*
+  terminated when leaving the last OpenCode session. I recommended verifying that the OpenCode agent really
+  runs into "Permission denied" when accessing paths that are not whitelisted.
++ I also recommend checking out the script yourself before using it as the whitelist is comprehensive and
+  might contain paths you prefer to keep inaccessible.
+
 ## Packaging
 The repositories mentioned below contain packages for `c++utilities` itself but also for my other projects.
 For a more comprehensive list of repositories providing my other projects, such as Syncthing Tray, check out
