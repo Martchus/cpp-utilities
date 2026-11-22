@@ -599,7 +599,7 @@ static int execAppInternal(const char *appPath, const char *const *args, std::st
     }
 
 #else
-    throw std::runtime_error("lauching test applications is not supported on this platform");
+    throw std::runtime_error("launching test applications is not supported on this platform");
 #endif
 }
 

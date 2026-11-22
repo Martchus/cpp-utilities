@@ -127,7 +127,7 @@ CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsResizable, std::declval<T &>().resize(0
 /// \brief Evaluates to Bool<true> if the specified type has operator bool(); otherwise evaluates to Bool<false>.
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(HasOperatorBool, std::declval<T &>() ? true : false);
 
-/// \brief Evaluates to Bool<true> if the specified type is iteratable (can be used in for-each loop); otherwise evaluates to Bool<false>.
+/// \brief Evaluates to Bool<true> if the specified type is iterable (can be used in for-each loop); otherwise evaluates to Bool<false>.
 CPP_UTILITIES_TRAITS_DEFINE_TYPE_CHECK(IsIteratable,
     // begin/end and operator !=
     std::begin(std::declval<T &>())

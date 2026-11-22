@@ -374,7 +374,7 @@ bool containsSubstrings(const StringType &str, std::initializer_list<const typen
 }
 
 /*!
- * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a replace in the specified \a str.
  */
 template <typename StringType1, typename StringType2, typename StringType3>
 void findAndReplace(StringType1 &str, const StringType2 &find, const StringType3 &replace)
@@ -385,7 +385,7 @@ void findAndReplace(StringType1 &str, const StringType2 &find, const StringType3
 }
 
 /*!
- * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a replace in the specified \a str.
  */
 template <typename StringType>
 inline void findAndReplace(StringType &str, const typename StringType::value_type *find, const typename StringType::value_type *replace)
@@ -395,7 +395,7 @@ inline void findAndReplace(StringType &str, const typename StringType::value_typ
 }
 
 /*!
- * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a replace in the specified \a str.
  */
 template <typename StringType1, typename StringType2>
 inline void findAndReplace(StringType1 &str, const StringType2 &find, const typename StringType1::value_type *replace)
@@ -404,7 +404,7 @@ inline void findAndReplace(StringType1 &str, const StringType2 &find, const type
 }
 
 /*!
- * \brief Replaces all occurrences of \a find with \a relpace in the specified \a str.
+ * \brief Replaces all occurrences of \a find with \a replace in the specified \a str.
  */
 template <typename StringType1, typename StringType2>
 inline void findAndReplace(StringType1 &str, const typename StringType1::value_type *find, const StringType2 &replace)

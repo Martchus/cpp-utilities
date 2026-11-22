@@ -26,7 +26,7 @@ namespace CppUtilities {
  * \brief Processes the specified \a buffer. Invokes the callback according to the remarks mentioned in the class documentation.
  * \returns
  * - Returns the offset in \a buffer after the search term and search result. This is the first character after the search term if
- *   no termination characters have been specified; otherwiese it is the offset of the termination character.
+ *   no termination characters have been specified; otherwise it is the offset of the termination character.
  * - Returns nullptr if the search term could not be found.
  */
 const std::string_view::value_type *BufferSearch::process(const std::string_view::value_type *buffer, std::size_t bufferSize)

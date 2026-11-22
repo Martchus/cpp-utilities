@@ -346,7 +346,7 @@ inline std::ostream &operator<<(std::ostream &out, const Pair &pair)
 }
 
 /*!
- * \brief Allows printing iteratable objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
+ * \brief Allows printing iterable objects so those can be asserted using CPPUNIT_ASSERT_EQUAL.
  */
 template <typename Iteratable, Traits::EnableIf<Traits::IsIteratable<Iteratable>, Traits::Not<Traits::IsString<Iteratable>>> * = nullptr>
 inline std::ostream &operator<<(std::ostream &out, const Iteratable &iteratable)
