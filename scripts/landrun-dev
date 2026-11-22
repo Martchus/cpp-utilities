@@ -17,9 +17,8 @@ if [[ $1 == --help ]] || [[ $1 == -h ]] || [[ $1 == --version ]]; then
     exec "$bin" "$1"
 fi
 
-# Detect runtime dir and Wayland display
-RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
-WL_SOCKET="${RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}"
+# Detect runtime dir
+RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}
 
 # Use custom sub directory for temporary files
 export TMPDIR=${TMPDIR:-/tmp}/landrun-dev
@@ -37,21 +36,54 @@ args=(
     --rox /lib
     --rox /lib64
 
-     # System configurations and devices
-    --ro /etc
-    --ro /run/systemd/resolve      # Target of /etc/resolv.conf symlink
-    --rwx /proc
-    --rw /dev                      # Mainly for /dev/null, /dev/urandom, /dev/pts
+    # glibc runtime & linker
+    --ro /etc/ld.so.cache
+    --ro /etc/nsswitch.conf
+    --ro /etc/localtime
+    --ro /etc/locale.conf
+
+    # Identity (needed for getpwuid / whoami / git)
+    --ro /etc/passwd
+    --ro /etc/group
+
+    # DNS & Network resolution
+    --ro /etc/resolv.conf
+    --ro /run/systemd/resolve      # Destination of resolv.conf symlink
+    --ro /etc/hosts
+    --ro /etc/services
+    --ro /etc/protocols
+    --ro /etc/gai.conf
+
+    # SSL / TLS certificates (excluding /etc/ssl/private)
+    --ro /etc/ssl/certs
+    --ro /etc/pki
+    --ro /etc/ca-certificates
+
+    # Audio
+    --ro /etc/alsa
+    --ro /etc/pipewire
+
+    # Fonts
+    --ro /etc/fonts
+
+     # Devices and special filesystems
+    --rw /dev/null
+    --rw /dev/zero
+    --rw /dev/null
+    --rw /dev/ptmx            # Essential for allocating PTYs
+    --rw /dev/pts             # PTY slaves
+    --rw /dev/random
+    --rw /dev/urandom
+    --rw /dev/shm             # Wayland / IPC shared memory
+    --rw /dev/dri             # GPU acceleration
+    --ro /proc
+    --ro /sys
 
     # Writable temp and runtime
     --env TMPDIR
     --env TEMPDIR
     --rwx "$TMPDIR"
     --rwx "$RUNTIME_DIR"
-
-    # Devices for graphical applications
-    --rw /dev/shm
-    --rw /dev/dri
 
     # Current directory
     --rw "$PWD"
@@ -253,14 +285,15 @@ for path in "${opencode_paths[@]}"; do
 done
 
 # Allow Wayland socket connection
+WL_SOCKET=${RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}
 [[ -S $WL_SOCKET ]] && args+=(--unix "$WL_SOCKET")
 
-# Allow X11 socket if DISPLAY is set
+# Allow X11 socket if DISPLAY is set (one still needs to run `xhost +local:`)
 if [[ -n $DISPLAY ]]; then
     disp_num=${DISPLAY#*:}
     disp_num=${disp_num%.*}
     socket=/tmp/.X11-unix/X${disp_num}
-    [[ -S $socket ]] && args+=(--unix "$socket")
+    [[ -S $socket ]] && args+=(--unix "$socket" --ro "$HOME"/.Xauthority)
 fi
 
 # Allow D-Bus session bus (themes, portals, settings)
