@@ -231,9 +231,13 @@ config_paths=(
     /etc/gai.conf
 
     # SSL / TLS certificates (excluding /etc/ssl/private)
+    /etc/ssl/openssl.cnf
     /etc/ssl/certs
-    /etc/pki
+    /etc/ssl/ca-bundle.pem  # Used under Tumbleweed
     /etc/ca-certificates
+    /etc/pki
+    /var/lib/ca-certificates/pem  # Used under Tumbleweed
+    /var/lib/ca-certificates/ca-bundle.pem  # Used under Tumbleweed
 
     # Audio
     /etc/alsa
