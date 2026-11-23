@@ -23,11 +23,6 @@ export CURRENT_LANDRUN_BIN=$bin
 # Detect runtime dir
 RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}
 
-# Use custom sub directory for temporary files
-export TMPDIR=${TMPDIR:-/tmp}/landrun-dev
-export TEMPDIR=$TMPDIR
-mkdir -p "$TMPDIR"
-
 # Allow paths and preserve env variables needed for development
 args=(
     # Specified exeutable
@@ -58,16 +53,13 @@ args=(
     --ro /proc
     --ro /sys
 
-    # Writable temp and runtime
-    --env TMPDIR
-    --env TEMPDIR
-    --rwx "$TMPDIR"
+    # Runtime and current directory
     --rwx "$RUNTIME_DIR"
-
-    # Current directory
-    --rw "$PWD"
+    --rwx "$PWD"
 
     # Basic environment
+    --env PWD
+    --env UID
     --env PATH
     --env HOME
     --env TERM
@@ -76,6 +68,7 @@ args=(
     --env XDG_CONFIG_DIRS
     --env LANG
     --env LANGUAGE
+    --env WINEPREFIX
     --env CURRENT_LANDRUN_BIN
 
     # Graphical environment
@@ -221,11 +214,23 @@ args=(
     --env OPENAI_API_KEY
     --env GEMINI_API_KEY
     --env OPENCODE_API_KEY
+)
 
-    # Allow networking for API calls and IPC scoping for sockets/signals
+# Allow networking for API calls and IPC scoping for sockets/signals by default
+[[ $LANDRUN_DEV_RESTRICT_NETWORK ]] || args+=(
     --unrestricted-network
     --unrestricted-scoped
 )
+
+# Allow access to /tmp for applications that hardcode this path; otherwise use custom sub directory for temporary files
+if [[ $LANDRUN_DEV_ALLOW_TMP ]]; then
+    args+=(--rwx /tmp)
+else
+    export TMPDIR=${TMPDIR:-/tmp}/landrun-dev
+    export TEMPDIR=$TMPDIR
+    mkdir -p "$TMPDIR"
+    args+=(--env TMPDIR --env TEMPDIR --rwx "$TMPDIR")
+fi
 
 # Config files/directories
 config_paths=(
@@ -254,7 +259,8 @@ config_paths=(
     /etc/alsa
     /etc/pipewire
 
-    # Fonts
+    # Misc
+    /etc/magic
     /etc/fonts
 
     # Git
@@ -307,6 +313,15 @@ if [[ $OPENQA_BASEDIR ]]; then
     for pg in /run/postgresql /dev/shm/tpg; do
         [[ -e $pg ]] && args+=(--unix "$pg")
     done
+fi
+
+# Allow using WINE via distinct prefix
+wineprefix=${WINEPREFIX:-$HOME/.wine}
+if [[ -d $wineprefix ]]; then
+    export WINEPREFIX=$wineprefix-landrun-dev
+    tmpdir=/tmp/.wine-$UID
+    mkdir -p "$WINEPREFIX" "$tmpdir"
+    args+=(--rwx "$WINEPREFIX" --rwx "$tmpdir")
 fi
 
 # Allow using OpenCode
