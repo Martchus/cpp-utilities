@@ -200,10 +200,17 @@ args=(
     # JavaScript development environment
     --env NPM_CONFIG_CACHE
 
+    # Perl development environment
+    --env PERL5LIB
+
     # openQA development environment
     --env OPENQA_BASEDIR
     --env OPENQA_CONFIG
     --env OPENQA_LOCAL_CODE
+    --env OPENQA_CODEBASE
+    --env OPENQA_BASE_PORT
+    --env NOT_HEADLESS=1
+    --env TEST_PG
 
     # AI keys
     --env ANTHROPIC_API_KEY
@@ -287,7 +294,10 @@ args+=(--rw "${NPM_CONFIG_CACHE:-$HOME/.npm}")
 # openQA development
 if [[ $OPENQA_BASEDIR ]]; then
     args+=(--rwx "$OPENQA_BASEDIR")
-    [[ -e /run/postgresql ]] && args+=(--unix /run/postgresql)
+    [[ -e /dev/kvm ]] && args+=(--rw /dev/kvm)
+    for pg in /run/postgresql /dev/shm/tpg; do
+        [[ -e $pg ]] && args+=(--unix "$pg")
+    done
 fi
 
 # Allow using OpenCode
