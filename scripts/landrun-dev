@@ -42,30 +42,6 @@ args=(
     --ro /etc/localtime
     --ro /etc/locale.conf
 
-    # Identity (needed for getpwuid / whoami / git)
-    --ro /etc/passwd
-    --ro /etc/group
-
-    # DNS & Network resolution
-    --ro /etc/resolv.conf
-    --ro /run/systemd/resolve      # Destination of resolv.conf symlink
-    --ro /etc/hosts
-    --ro /etc/services
-    --ro /etc/protocols
-    --ro /etc/gai.conf
-
-    # SSL / TLS certificates (excluding /etc/ssl/private)
-    --ro /etc/ssl/certs
-    --ro /etc/pki
-    --ro /etc/ca-certificates
-
-    # Audio
-    --ro /etc/alsa
-    --ro /etc/pipewire
-
-    # Fonts
-    --ro /etc/fonts
-
      # Devices and special filesystems
     --rw /dev/null
     --rw /dev/zero
@@ -239,8 +215,38 @@ args=(
     --unrestricted-scoped
 )
 
-# Git
-[[ -e $HOME/.gitconfig ]] && args+=(--ro "$HOME"/.gitconfig)
+# Config files/directories
+config_paths=(
+    # Identity (needed for getpwuid / whoami / git)
+    /etc/passwd
+    /etc/group
+
+    # DNS & Network resolution
+    /etc/hosts
+    /etc/resolv.conf
+    /run/systemd/resolve  # Destination of resolv.conf symlink when using systemd-resolved
+    /etc/services
+    /etc/protocols
+    /etc/gai.conf
+
+    # SSL / TLS certificates (excluding /etc/ssl/private)
+    /etc/ssl/certs
+    /etc/pki
+    /etc/ca-certificates
+
+    # Audio
+    /etc/alsa
+    /etc/pipewire
+
+    # Fonts
+    /etc/fonts
+
+    # Git
+    "$HOME"/.gitconfig
+)
+for path in "${config_paths[@]}"; do
+    [[ -e $path ]] && args+=(--ro "$path")
+done
 
 # C/C++ development
 [[ $SOURCES ]] && args+=(--rwx "$SOURCES")
@@ -293,7 +299,9 @@ if [[ -n $DISPLAY ]]; then
     disp_num=${DISPLAY#*:}
     disp_num=${disp_num%.*}
     socket=/tmp/.X11-unix/X${disp_num}
-    [[ -S $socket ]] && args+=(--unix "$socket" --ro "$HOME"/.Xauthority)
+    auth=$HOME/.Xauthority
+    [[ -S $socket ]] && args+=(--unix "$socket")
+    [[ -f $auth ]] && args+=(--ro "$auth")
 fi
 
 # Allow D-Bus session bus (themes, portals, settings)
