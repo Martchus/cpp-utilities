@@ -17,6 +17,9 @@ if [[ $1 == --help ]] || [[ $1 == -h ]] || [[ $1 == --version ]]; then
     exec "$bin" "$1"
 fi
 
+# Allow detecting whether running under landrun
+export CURRENT_LANDRUN_BIN=$bin
+
 # Detect runtime dir
 RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}
 
@@ -73,6 +76,7 @@ args=(
     --env XDG_CONFIG_DIRS
     --env LANG
     --env LANGUAGE
+    --env CURRENT_LANDRUN_BIN
 
     # Graphical environment
     --env DISPLAY
@@ -260,6 +264,9 @@ config_paths=(
 for path in "${config_paths[@]}"; do
     [[ -e $path ]] && args+=(--ro "$path")
 done
+
+# Top-level directory for development
+[[ $PROJECTS ]] && args+=(--rox "$PROJECTS")
 
 # C/C++ development
 [[ $SOURCES ]] && args+=(--rwx "$SOURCES")
