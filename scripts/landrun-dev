@@ -242,6 +242,7 @@ config_paths=(
     /etc/fonts
 
     # Git
+    /etc/gitconfig
     "$HOME"/.gitconfig
 )
 for path in "${config_paths[@]}"; do
