@@ -276,7 +276,10 @@ args+=(--rw "${NPM_CONFIG_CACHE:-$HOME/.npm}")
 [[ $ANDROID_PREFIX ]] && args+=(--rwx "$ANDROID_PREFIX")
 
 # openQA development
-[[ $OPENQA_BASEDIR ]] &&  args+=(--rwx "$OPENQA_BASEDIR/openqa")
+if [[ $OPENQA_BASEDIR ]]; then
+    args+=(--rwx "$OPENQA_BASEDIR")
+    [[ -e /run/postgresql ]] && args+=(--unix /run/postgresql)
+fi
 
 # Allow using OpenCode
 opencode_paths=(
