@@ -267,9 +267,11 @@ done
 [[ $CCACHE_DIR ]] && args+=(--rw "$CCACHE_DIR")
 
 # Go development
-args+=(--rwx "${GOPATH:-$HOME/.go}")
-[[ $GOCACHE ]] && args+=(--rw "$GOCACHE")
-[[ $GOMODCACHE ]] && args+=(--rw "$GOMODCACHE")
+gopath=${GOPATH:-$HOME/.go}
+gocache=${GOCACHE:-$HOME/.cache/go-build}
+[[ -e $gopath ]] && args+=(--rwx "$gopath")
+[[ -e $gocache ]] && args+=(--rw "$gocache")
+[[ -e $GOMODCACHE ]] && args+=(--rw "$GOMODCACHE")
 
 # Rust development
 rustup_home=${RUSTUP_HOME:-$HOME/.rustup}
