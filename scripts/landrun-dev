@@ -180,6 +180,7 @@ args=(
     --env MINGW_W64_CLANG_TARGET
 
     # Rust/Cargo development environment (https://doc.rust-lang.org/cargo/reference/environment-variables.html)
+    --env RUSTUP_HOME
     --env CARGO_HOME
     --env CARGO_LOG
     --env CARGO_TARGET_DIR
@@ -260,7 +261,10 @@ args+=(--rwx "${GOPATH:-$HOME/.go}")
 [[ $GOMODCACHE ]] && args+=(--rw "$GOMODCACHE")
 
 # Rust development
-args+=(--rwx "${CARGO_HOME:-$HOME/.cargo}")
+rustup_home=${RUSTUP_HOME:-$HOME/.rustup}
+cargo_home=${CARGO_HOME:-$HOME/.cargo}
+[[ -e $rustup_home ]] && args+=(--rwx "$rustup_home")
+[[ -e $cargo_home ]] && args+=(--rwx "$cargo_home")
 [[ $CARGO_TARGET_DIR ]] && args+=(--rwx "$CARGO_TARGET_DIR")
 [[ $SCCACHE_DIR ]] && args+=(--rwx "$SCCACHE_DIR")
 
