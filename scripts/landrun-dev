@@ -28,6 +28,9 @@ args=(
     # Specified exeutable
     --add-exec
 
+    # Gracefully ignore paths that do not exist instead of failing
+    --ignore-missing
+
     # Binaries and system libraries
     --rox /usr
     --rox /bin
@@ -39,6 +42,39 @@ args=(
     --ro /etc/nsswitch.conf
     --ro /etc/localtime
     --ro /etc/locale.conf
+
+    # Identity (needed for getpwuid / whoami / git)
+    --ro /etc/passwd
+    --ro /etc/group
+
+    # DNS & Network resolution
+    --ro /etc/hosts
+    --ro /etc/resolv.conf
+    --ro /run/systemd/resolve  # Destination of resolv.conf symlink when using systemd-resolved
+    --ro /etc/services
+    --ro /etc/protocols
+    --ro /etc/gai.conf
+
+    # SSL / TLS certificates (excluding /etc/ssl/private)
+    --ro /etc/ssl/openssl.cnf
+    --ro /etc/ssl/certs
+    --ro /etc/ssl/ca-bundle.pem  # Used under Tumbleweed
+    --ro /etc/ca-certificates
+    --ro /etc/pki
+    --ro /var/lib/ca-certificates/pem  # Used under Tumbleweed
+    --ro /var/lib/ca-certificates/ca-bundle.pem  # Used under Tumbleweed
+
+    # Audio
+    --ro /etc/alsa
+    --ro /etc/pipewire
+
+    # Misc
+    --ro /etc/magic
+    --ro /etc/fonts
+
+    # Git
+    --ro /etc/gitconfig
+    --ro "$HOME"/.gitconfig
 
      # Devices and special filesystems
     --rw /dev/null
@@ -56,6 +92,37 @@ args=(
     # Runtime and current directory
     --rwx "$RUNTIME_DIR"
     --rwx "$PWD"
+
+    # Top-level directory for development
+    --rox "$PROJECTS"
+
+    # C/C++ development
+    --rwx "$SOURCES"
+    --rwx "$BUILD_DIR"
+    --rw "$CCACHE_DIR"
+
+    # Go development
+    --rwx "${GOPATH:-$HOME/.go}"
+    --rw "${GOCACHE:-$HOME/.cache/go-build}"
+    --rw "$GOMODCACHE"
+
+    # Rust development
+    --rwx "${RUSTUP_HOME:-$HOME/.rustup}"
+    --rwx "${CARGO_HOME:-$HOME/.cargo}"
+    --rwx "$CARGO_TARGET_DIR"
+    --rwx "$SCCACHE_DIR"
+
+    # Java development
+    --rwx "$GRADLE_HOME"
+    --rwx "${GRADLE_USER_HOME:-$HOME/.gradle}"
+
+    # JavaScript development environment
+    --rw "${NPM_CONFIG_CACHE:-$HOME/.npm}"
+
+    # Android development
+    --rwx "$ANDROID_HOME"
+    --rwx "$ANDROID_NDK_HOME"
+    --rwx "$ANDROID_PREFIX"
 
     # Basic environment
     --env PWD
@@ -232,86 +299,11 @@ else
     args+=(--env TMPDIR --env TEMPDIR --rwx "$TMPDIR")
 fi
 
-# Config files/directories
-config_paths=(
-    # Identity (needed for getpwuid / whoami / git)
-    /etc/passwd
-    /etc/group
-
-    # DNS & Network resolution
-    /etc/hosts
-    /etc/resolv.conf
-    /run/systemd/resolve  # Destination of resolv.conf symlink when using systemd-resolved
-    /etc/services
-    /etc/protocols
-    /etc/gai.conf
-
-    # SSL / TLS certificates (excluding /etc/ssl/private)
-    /etc/ssl/openssl.cnf
-    /etc/ssl/certs
-    /etc/ssl/ca-bundle.pem  # Used under Tumbleweed
-    /etc/ca-certificates
-    /etc/pki
-    /var/lib/ca-certificates/pem  # Used under Tumbleweed
-    /var/lib/ca-certificates/ca-bundle.pem  # Used under Tumbleweed
-
-    # Audio
-    /etc/alsa
-    /etc/pipewire
-
-    # Misc
-    /etc/magic
-    /etc/fonts
-
-    # Git
-    /etc/gitconfig
-    "$HOME"/.gitconfig
-)
-for path in "${config_paths[@]}"; do
-    [[ -e $path ]] && args+=(--ro "$path")
-done
-
-# Top-level directory for development
-[[ $PROJECTS ]] && args+=(--rox "$PROJECTS")
-
-# C/C++ development
-[[ $SOURCES ]] && args+=(--rwx "$SOURCES")
-[[ $BUILD_DIR ]] && args+=(--rwx "$BUILD_DIR")
-[[ $CCACHE_DIR ]] && args+=(--rw "$CCACHE_DIR")
-
-# Go development
-gopath=${GOPATH:-$HOME/.go}
-gocache=${GOCACHE:-$HOME/.cache/go-build}
-[[ -e $gopath ]] && args+=(--rwx "$gopath")
-[[ -e $gocache ]] && args+=(--rw "$gocache")
-[[ -e $GOMODCACHE ]] && args+=(--rw "$GOMODCACHE")
-
-# Rust development
-rustup_home=${RUSTUP_HOME:-$HOME/.rustup}
-cargo_home=${CARGO_HOME:-$HOME/.cargo}
-[[ -e $rustup_home ]] && args+=(--rwx "$rustup_home")
-[[ -e $cargo_home ]] && args+=(--rwx "$cargo_home")
-[[ $CARGO_TARGET_DIR ]] && args+=(--rwx "$CARGO_TARGET_DIR")
-[[ $SCCACHE_DIR ]] && args+=(--rwx "$SCCACHE_DIR")
-
-# Java development
-[[ $GRADLE_HOME ]] && args+=(--rwx "$GRADLE_HOME")
-[[ $GRADLE_USER_HOME ]] && args+=(--rwx "${GRADLE_USER_HOME:-$HOME/.gradle}")
-
-# JavaScript development environment
-args+=(--rw "${NPM_CONFIG_CACHE:-$HOME/.npm}")
-
-# Android development
-[[ $ANDROID_HOME ]] && args+=(--rwx "$ANDROID_HOME")
-[[ $ANDROID_NDK_HOME ]] && args+=(--rwx "$ANDROID_NDK_HOME")
-[[ $ANDROID_PREFIX ]] && args+=(--rwx "$ANDROID_PREFIX")
-
 # openQA development
 if [[ $OPENQA_BASEDIR ]]; then
-    args+=(--rwx "$OPENQA_BASEDIR")
-    [[ -e /dev/kvm ]] && args+=(--rw /dev/kvm)
+    args+=(--rwx "$OPENQA_BASEDIR" --rw /dev/kvm)
     for pg in /run/postgresql /dev/shm/tpg; do
-        [[ -e $pg ]] && args+=(--unix "$pg")
+        args+=(--unix "$pg")
     done
 fi
 
@@ -351,7 +343,7 @@ if [[ -n $DISPLAY ]]; then
 fi
 
 # Allow D-Bus session bus (themes, portals, settings)
-if [[ -S "${RUNTIME_DIR}/bus" ]]; then
+if [[ -S ${RUNTIME_DIR}/bus ]]; then
     args+=(
         --unix "${RUNTIME_DIR}/bus"
         --env DBUS_SESSION_BUS_ADDRESS
