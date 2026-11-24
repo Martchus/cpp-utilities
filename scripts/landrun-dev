@@ -102,11 +102,13 @@ args=(
     --rw "$CCACHE_DIR"
 
     # Go development
+    --rwx "$PROJECTS/go"
     --rwx "${GOPATH:-$HOME/.go}"
     --rw "${GOCACHE:-$HOME/.cache/go-build}"
     --rw "$GOMODCACHE"
 
     # Rust development
+    --rwx "$PROJECTS/rust"
     --rwx "${RUSTUP_HOME:-$HOME/.rustup}"
     --rwx "${CARGO_HOME:-$HOME/.cargo}"
     --rwx "$CARGO_TARGET_DIR"
@@ -116,8 +118,13 @@ args=(
     --rwx "$GRADLE_HOME"
     --rwx "${GRADLE_USER_HOME:-$HOME/.gradle}"
 
-    # JavaScript development environment
+    # JavaScript development
     --rw "${NPM_CONFIG_CACHE:-$HOME/.npm}"
+
+    # Python, shell and web development
+    --rwx "$PROJECTS/python"
+    --rwx "$PROJECTS/shell"
+    --rwx "$PROJECTS/web"
 
     # Android development
     --rwx "$ANDROID_HOME"
