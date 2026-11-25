@@ -415,9 +415,10 @@ You can also use `adb` from the container; see the
 ###### Further details
 * The Android packages for the dependencies Boost, Qt, iconv, OpenSSL, and Kirigami are provided on the AUR and
   by my [PKGBUILDs](http://github.com/Martchus/PKGBUILDs) repo.
-* The latest Java version that I successfully tested with is version 17. As stated in a comment on
-  [QTBUG-119223](https://qt-project.atlassian.net/browse/QTBUG-119223), Gradle is only compatible with
-  [certain versions of Java](https://docs.gradle.org/current/userguide/compatibility.html#android).
+* Be aware that Gradle is only compatible with
+  [certain versions of Java](https://docs.gradle.org/current/userguide/compatibility.html#android), which can lead
+  to build errors as reported in [QTBUG-119223](https://qt-project.atlassian.net/browse/QTBUG-119223).
+  The latest Java version that I successfully tested is version OpenJDK 21.
   The ["Supported platforms" documentation](https://doc.qt.io/qt-6/supported-platforms.html#android) and
   "Tools and Versions" pages on the Qt Wiki (like [for Qt 6.12](https://wiki.qt.io/Qt_6.12_Tools_and_Versions))
   also give an insight on what Java version is supported and used by Qt developers.
