@@ -17,6 +17,12 @@ if [[ $1 == --help ]] || [[ $1 == -h ]] || [[ $1 == --version ]]; then
     exec "$bin" "$1"
 fi
 
+# Print warning if unsupported XDG variables are used (https://specifications.freedesktop.org/basedir/latest)
+[[ $XDG_DATA_HOME ]] && [[ $XDG_DATA_HOME != "$HOME"/.local/share ]] && echo "WARNING: Customizing XDG_DATA_HOME is not supported."
+[[ $XDG_STATE_HOME ]] && [[ $XDG_STATE_HOME != "$HOME"/.local/state ]] && echo "WARNING: Customizing XDG_STATE_HOME is not supported."
+[[ $XDG_CONFIG_HOME ]] && [[ $XDG_CONFIG_HOME != "$HOME"/.config ]] && echo "WARNING: Customizing XDG_CONFIG_HOME is not supported."
+[[ $XDG_CACHE_HOME ]] && [[ $XDG_CACHE_HOME != "$HOME"/.cache ]] && echo "WARNING: Customizing XDG_CACHE_HOME is not supported."
+
 # Allow detecting whether running under landrun
 export CURRENT_LANDRUN_BIN=$bin
 
@@ -31,11 +37,15 @@ args=(
     # Gracefully ignore paths that do not exist instead of failing
     --ignore-missing
 
-    # Binaries and system libraries
+    # System binaries and libraries
     --rox /usr
     --rox /bin
     --rox /lib
     --rox /lib64
+
+    # Local binaries and libraries
+    --rox "$HOME"/.local/bin
+    --rox "$HOME"/.local/lib
 
     # glibc runtime & linker
     --ro /etc/ld.so.cache
@@ -102,13 +112,13 @@ args=(
     --rw "$CCACHE_DIR"
 
     # Go development
-    --rwx "$PROJECTS/go"
+    --rwx "$PROJECTS"/go
     --rwx "${GOPATH:-$HOME/.go}"
     --rw "${GOCACHE:-$HOME/.cache/go-build}"
     --rw "$GOMODCACHE"
 
     # Rust development
-    --rwx "$PROJECTS/rust"
+    --rwx "$PROJECTS"/rust
     --rwx "${RUSTUP_HOME:-$HOME/.rustup}"
     --rwx "${CARGO_HOME:-$HOME/.cargo}"
     --rwx "$CARGO_TARGET_DIR"
@@ -121,15 +131,27 @@ args=(
     # JavaScript development
     --rw "${NPM_CONFIG_CACHE:-$HOME/.npm}"
 
-    # Python, shell and web development
-    --rwx "$PROJECTS/python"
-    --rwx "$PROJECTS/shell"
-    --rwx "$PROJECTS/web"
+    # Python development
+    --rwx "$PROJECTS"/python
+    --rwx "$HOME"/.local/share/uv
+    --rw "${UV_CACHE_DIR:-$HOME/.cache/uv}"
+    --rwx "${UV_PYTHON_INSTALL_DIR:-$HOME/.local/share/uv/python}"
+    --rwx "${UV_TOOL_DIR:-$HOME/.local/share/uv/tools}"
+    --rwx "${UV_TOOL_BIN_DIR:-$HOME/.local/bin}"
 
     # Android development
     --rwx "$ANDROID_HOME"
     --rwx "$ANDROID_NDK_HOME"
     --rwx "$ANDROID_PREFIX"
+
+    # Misc development
+    --rwx "$PROJECTS"/arch
+    --rwx "$PROJECTS"/pkgbuilds
+    --rwx "$PROJECTS"/shell
+    --rwx "$PROJECTS"/php
+    --rwx "$PROJECTS"/web
+    --rwx "$PROJECTS"/notes
+    --rwx "$PROJECTS"/other
 
     # Basic environment
     --env PWD
@@ -273,6 +295,12 @@ args=(
 
     # Perl development environment
     --env PERL5LIB
+
+    # Python development environment (https://docs.astral.sh/uv/reference/environment)
+    --env UV_CACHE_DIR
+    --env UV_PYTHON_INSTALL_DIR
+    --env UV_TOOL_DIR
+    --env UV_TOOL_BIN_DIR
 
     # openQA development environment
     --env OPENQA_BASEDIR
