@@ -306,9 +306,12 @@ args=(
     --env OPENQA_BASEDIR
     --env OPENQA_CONFIG
     --env OPENQA_LOCAL_CODE
+    --env OPENQA_CHECKOUT
     --env OPENQA_CODEBASE
     --env OPENQA_BASE_PORT
-    --env NOT_HEADLESS=1
+    --env OPENQA_TEST_TIMEOUT_DISABLE
+    --env NOT_HEADLESS
+    --env OUTPUT_CHECK
     --env TEST_PG
 
     # AI keys
