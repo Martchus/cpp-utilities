@@ -4,10 +4,10 @@ set -e
 # Allow overriding the landrun executable, support dry-run via LANDRUN=echo
 bin=${LANDRUN:-landrun}
 
-# Install via `go install` if not present but GOPATH is set
-if ! [[ -e /usr/bin/$bin ]] && [[ $bin == landrun ]] && [[ $GOPATH ]]; then
-    go install github.com/zouuup/landrun/cmd/landrun@latest
-    bin=$GOPATH/bin/$bin
+# Install via `go install` if Go is installed
+if ! [[ -e /usr/bin/$bin ]] && [[ $bin == landrun ]] && [[ -e /usr/bin/go ]]; then
+    /usr/bin/go install github.com/zouuup/landrun/cmd/landrun@latest
+    bin=${GOPATH:-$HOME/.go}/bin/$bin
 fi
 
 # Allow printing help and version
