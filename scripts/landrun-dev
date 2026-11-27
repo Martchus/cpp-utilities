@@ -74,6 +74,11 @@ args=(
     --ro /var/lib/ca-certificates/pem  # Used under Tumbleweed
     --ro /var/lib/ca-certificates/ca-bundle.pem  # Used under Tumbleweed
 
+    # ld.so
+    --ro /etc/ld.so.conf
+    --ro /etc/ld.so.conf.d
+    --ro /etc/ld.so.cache
+
     # Audio
     --ro /etc/alsa
     --ro /etc/pipewire
