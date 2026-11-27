@@ -51,6 +51,11 @@ no need to build utility libraries separately.
 Do NOT investigate system paths like `/usr/include/c++utilities` to explore
 utility libraries, as this is NOT the version being built.
 
+For other dependencies like Qt, we rely on installed versions. You can
+nevertheless find checkouts of Qt repositories under `QT_GIT_REPOS_DIR`. Even
+though changes to these repositories won't have an effect, these sources can be
+a useful reference when knowledge about the innerworkings of Qt is needed.
+
 ## Build command
 Use the following command structure to execute the build:
 ```

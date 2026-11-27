@@ -115,6 +115,7 @@ args=(
     --rwx "$SOURCES"
     --rwx "$BUILD_DIR"
     --rw "$CCACHE_DIR"
+    --ro "$QT_GIT_REPOS_DIR"
 
     # Go development
     --rwx "$PROJECTS"/go
@@ -179,11 +180,18 @@ args=(
     --env XDG_CURRENT_DESKTOP
     --env XDG_SESSION_DESKTOP
     --env FT2_SUBPIXEL_HINTING
+    --env VK_DRIVER_FILES
 
-    # Qt applications
+    # Qt applications (https://doc.qt.io/qt-6/qpa.html, https://doc.qt.io/qt-6/qtquick-visualcanvas-scenegraph-renderer.html)
     --env QT_QPA_PLATFORM
     --env QT_WAYLAND_RECONNECT
     --env QT_QUICK_CONTROLS_STYLE
+    --env QT_QUICK_BACKEND
+    --env QSG_INFO
+    --env QSG_VISUALIZE
+    --env QSG_RHI_BACKEND
+    --env QSG_RHI_DEBUG_LAYER
+    --env QSG_RHI_PREFER_SOFTWARE_RENDERER
 
     # GTK applications
     --env GTK_USE_PORTAL
@@ -223,6 +231,9 @@ args=(
     --env PKG_CONFIG_PATH
     --env PKG_CONFIG_SYSROOT_DIR
     --env PKG_CONFIG_LIBDIR
+
+    # Qt C/C++ development
+    --env QT_GIT_REPOS_DIR
 
     # Android C/C++ development environment
     --env ANDROID_HOME
